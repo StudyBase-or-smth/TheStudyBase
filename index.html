@@ -268,22 +268,110 @@ body.dark .sug-send{background:var(--text);color:#141210}
 <header>
   <div class="wrap">
     <div class="header-inner">
-      <div class="wordmark">
-<div class="wordmark-icon">🎓</div>
-        <div>
-          <h1>StudyBase</h1>
-          <span>School reference</span>
+
+      <!-- Left side: Logo + Branch/Version -->
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div class="wordmark">
+          <div class="wordmark-icon">🎓</div>
+          <div>
+            <h1>StudyBase</h1>
+            <span>School reference</span>
+          </div>
+        </div>
+
+        <!-- Branch Version Badge -->
+        <div id="branch-badge" style="font-size:11px; color:var(--muted); background:var(--card2); 
+             border:1px solid var(--border); border-radius:20px; padding:4px 12px; white-space:nowrap;">
+          Loading branch...
         </div>
       </div>
+
       <div class="header-date">Today — <strong id="todayDate"></strong></div>
-      <span id="syncCountdownIdx" class="sync-countdown" style="font-size:11px;color:var(--muted2)"></span>
-      <button onclick="manualSync()" title="Sync now" style="background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;transition:all .15s;color:var(--muted);line-height:1.5;flex-shrink:0;font-family:'Inter',sans-serif;font-weight:500">⟳ Sync</button>
-<button onclick="openSuggestions()" title="Suggestions" style="background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;transition:all .15s;color:var(--muted);line-height:1.5;flex-shrink:0;font-family:'Inter',sans-serif;font-weight:500">📝 Suggestions</button>
-      <button onclick="sbSignOut()" title="Sign out" style="background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;transition:all .15s;color:var(--muted);line-height:1.5;flex-shrink:0;font-family:'Inter',sans-serif;font-weight:500">⎋ Sign out</button>
-    <button id="darkToggle" onclick="toggleDark()" title="Toggle dark mode" style="background:none;border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:15px;cursor:pointer;transition:all .15s;color:var(--text);line-height:1">🌙</button>
+      
+      <span id="syncCountdownIdx" class="sync-countdown"></span>
+      
+      <button onclick="manualSync()" title="Sync now" style="background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--muted);">⟳ Sync</button>
+      
+      <button onclick="openSuggestions()" title="Suggestions" style="background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--muted);">📝 Suggestions</button>
+      
+      <button onclick="sbSignOut()" title="Sign out" style="background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--muted);">⎋ Sign out</button>
+      
+      <button id="darkToggle" onclick="toggleDark()" title="Toggle dark mode" style="background:none;border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:15px;cursor:pointer;color:var(--text);">🌙</button>
+
     </div>
   </div>
 </header>
+
+<!-- Branch Version Loader - Put this RIGHT AFTER </header> -->
+<script>
+async function loadBranchVersion() {
+    const badge = document.getElementById('branch-badge');
+    if (!badge) return;
+
+    try {
+        const res = await fetch('BranchVersion.json', { cache: 'no-store' });
+        if (!res.ok) throw new Error('File not found');
+
+        const data = await res.json();
+        
+        // Default values
+        const branch = data.branch || 'unknown';
+        const version = data.version || '0.0.0';
+        const colorMode = data.colour || data.color || 'other';
+
+        // Text color only
+        let textColor = '#1e40af';   // default blue
+
+        switch(colorMode) {
+            case 'dev':
+                textColor = '#e11d48';     // red
+                break;
+            case 'bug':
+                textColor = '#c2410c';     // orange
+                break;
+            case 'main':
+                textColor = '#15803d';     // green
+                break;
+            case 'other':
+            default:
+                textColor = '#1e40af';     // blue
+                break;
+        }
+
+        badge.innerHTML = `
+            <strong>${branch}</strong> • v${version}
+        `;
+        
+        badge.style.cssText = `
+            font-size:11px; 
+            background:var(--card2); 
+            border:1px solid var(--border); 
+            border-radius:20px; 
+            padding:4px 12px; 
+            white-space:nowrap;
+            color: ${textColor};
+        `;
+
+        console.log('✅ BranchVersion loaded:', data);
+        
+    } catch (err) {
+        console.error('Failed to load BranchVersion.json', err);
+        badge.innerHTML = `<strong>dev</strong> • local`;
+        badge.style.cssText = `
+            font-size:11px; 
+            background:var(--card2); 
+            border:1px solid var(--border); 
+            border-radius:20px; 
+            padding:4px 12px; 
+            color: #e11d48;
+        `;
+    }
+}
+
+// Run the function
+window.addEventListener('load', loadBranchVersion);
+loadBranchVersion();
+</script>
 
 <div class="wrap" style="margin-top:28px">
 
