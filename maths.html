@@ -205,6 +205,33 @@ body.dark .unit-pill:hover:not(.active){background:var(--card2) !important;borde
 body.dark img:not(.no-invert){filter:invert(0.88) hue-rotate(180deg) brightness(1.15)}
 
 .sync-countdown{font-size:10px;color:var(--muted2);margin-left:4px;font-variant-numeric:tabular-nums}
+
+/* ── New hybrid header ── */
+.hdr-outer{background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:stretch;transition:background .2s,border-color .2s}
+.accent-bar{width:4px;flex-shrink:0}
+.hdr-main{flex:1;display:flex;flex-direction:column;min-width:0}
+.hdr-top{display:flex;align-items:center;padding:0 20px;height:44px;gap:10px}
+.logo-block{display:flex;align-items:center;gap:9px;padding-right:14px;border-right:1px solid var(--border);flex-shrink:0}
+.logo-icon2{width:24px;height:24px;background:var(--text);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:background .2s}
+.logo-text2{font-size:13px;font-weight:700;color:var(--text);font-family:'Lora',Georgia,serif;letter-spacing:-.2px;white-space:nowrap;transition:color .2s}
+.logo-sub-txt{font-size:9px;color:var(--muted2);letter-spacing:.5px;display:block;line-height:1;margin-top:1px}
+.hdr-breadcrumb{display:flex;align-items:center;gap:6px}
+.bc-link{font-size:12px;color:var(--muted2);cursor:pointer;transition:color .12s;text-decoration:none}
+.bc-link:hover{color:var(--muted)}
+.bc-sep{font-size:11px;color:var(--muted2)}
+.bc-current{font-size:12px;font-weight:600;color:var(--text);transition:color .2s}
+.hdr-right-row{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.hdr-date-pill{font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;transition:background .2s,border-color .2s,color .2s}
+.hdr-ghost{background:none;border:1px solid var(--border);border-radius:5px;padding:4px 7px;font-size:12px;color:var(--text);cursor:pointer;transition:background .12s,border-color .12s,color .2s;line-height:1;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.hdr-ghost:hover{background:var(--card2);border-color:var(--muted2)}
+/* ── Tooltips ── */
+.hdr-ghost{position:relative}
+.hdr-ghost::after{content:attr(data-tip);position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--card);color:var(--text);font-size:10px;font-weight:600;white-space:nowrap;padding:4px 9px;border-radius:5px;border:2px solid var(--border2);pointer-events:none;opacity:0;transition:opacity .12s;letter-spacing:.2px;font-family:'Inter',sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.08);z-index:999}
+.hdr-ghost::before{content:'';position:absolute;top:calc(100% + 1px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-bottom-color:var(--border2);pointer-events:none;opacity:0;transition:opacity .12s;z-index:999}
+.hdr-ghost:hover::after,.hdr-ghost:hover::before{opacity:1}
+
+.hdr-action{background:var(--text);color:var(--card);border:none;border-radius:5px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s,opacity .12s;font-family:inherit}
+.hdr-action:hover{opacity:.82}
 </style>
 </head>
 <body>
@@ -233,22 +260,31 @@ body.dark img:not(.no-invert){filter:invert(0.88) hue-rotate(180deg) brightness(
     signOut(auth).then(() => window.location.href = "login.html");
   };
 </script>
-<div class="topbar">
-  <a href="index.html" class="back-link">← Hub</a>
-  <div class="subj-info">
-    <div class="subj-stripe"></div>
-    <span class="subj-name">Maths</span>
-    <span class="subj-label">notes</span>
-  </div>
-  <div class="topbar-right">
-    <span class="stat-chip"><strong id="stT">0</strong> topics</span>
-    <span class="stat-chip"><strong id="stU">0</strong> units</span>
-    <button onclick="sbSignOut()" title="Sign out" style="background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;transition:all .15s;color:var(--muted);line-height:1.5;flex-shrink:0;font-family:'Inter',sans-serif;font-weight:500">⎋ Sign out</button>
-    <button id="darkToggle" onclick="toggleDark()" title="Toggle dark mode" style="background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:14px;cursor:pointer;transition:all .15s;color:var(--text);line-height:1;flex-shrink:0">🌙</button>
-    <span id="syncStatus" class="sync-chip"></span>
-    <span id="syncCountdown" class="sync-countdown"></span>
-    <button onclick="syncPull()" title="Sync now" style="background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;transition:all .15s;color:var(--muted);line-height:1.5;flex-shrink:0;font-family:'Inter',sans-serif;font-weight:500">⟳ Sync</button>
-    <button class="btn-new" onclick="openModal()">+ New topic</button>
+<div class="hdr-outer">
+  <div class="accent-bar" style="background:#0369a1"></div>
+  <div class="hdr-main">
+    <div class="hdr-top">
+      <div class="logo-block">
+        <div class="logo-icon2">📐</div>
+        <div>
+          <div class="logo-text2">StudyBase</div>
+          <span class="logo-sub-txt">SCHOOL REFERENCE</span>
+        </div>
+      </div>
+      <div class="hdr-breadcrumb">
+        <a class="bc-link" href="index.html">Hub</a>
+        <span class="bc-sep">›</span>
+        <span class="bc-current">Maths</span>
+      </div>
+      <div class="hdr-right-row">
+        <span id="syncStatus" style="font-size:11px;color:#15803d;font-weight:600"></span>
+        <span id="syncCountdown" style="font-size:11px;color:var(--muted2);font-variant-numeric:tabular-nums"></span>
+        <button class="hdr-ghost" onclick="syncPull()" title="Sync now" data-tip="Sync now">⟳</button>
+        <button class="hdr-ghost" onclick="sbSignOut()" title="Sign out" data-tip="Sign out">⎋</button>
+        <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()" title="Toggle dark mode" data-tip="Dark mode">🌙</button>
+        <button class="hdr-action" onclick="openModal()">+ New topic</button>
+      </div>
+    </div>
   </div>
 </div>
 <div class="app-body">

@@ -236,6 +236,33 @@ body.dark .sug-tag-btn.active.idea{background:#14532d;border-color:#15803d;color
 body.dark .sug-send{background:var(--text);color:#141210}
 
 
+
+/* ── New hybrid header ── */
+.hdr-outer{background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:stretch;transition:background .2s,border-color .2s}
+.accent-bar{width:4px;flex-shrink:0}
+.hdr-main{flex:1;display:flex;flex-direction:column;min-width:0}
+.hdr-top{display:flex;align-items:center;padding:0 20px;height:44px;gap:10px}
+.logo-block{display:flex;align-items:center;gap:9px;padding-right:14px;border-right:1px solid var(--border);flex-shrink:0}
+.logo-icon2{width:24px;height:24px;background:var(--text);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:background .2s}
+.logo-text2{font-size:13px;font-weight:700;color:var(--text);font-family:'Lora',Georgia,serif;letter-spacing:-.2px;white-space:nowrap;transition:color .2s}
+.logo-sub-txt{font-size:9px;color:var(--muted2);letter-spacing:.5px;display:block;line-height:1;margin-top:1px}
+.hdr-breadcrumb{display:flex;align-items:center;gap:6px}
+.bc-link{font-size:12px;color:var(--muted2);cursor:pointer;transition:color .12s;text-decoration:none}
+.bc-link:hover{color:var(--muted)}
+.bc-sep{font-size:11px;color:var(--muted2)}
+.bc-current{font-size:12px;font-weight:600;color:var(--text);transition:color .2s}
+.hdr-right-row{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.hdr-date-pill{font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;transition:background .2s,border-color .2s,color .2s}
+.hdr-ghost{background:none;border:1px solid var(--border);border-radius:5px;padding:4px 7px;font-size:12px;color:var(--text);cursor:pointer;transition:background .12s,border-color .12s,color .2s;line-height:1;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.hdr-ghost:hover{background:var(--card2);border-color:var(--muted2)}
+/* ── Tooltips ── */
+.hdr-ghost{position:relative}
+.hdr-ghost::after{content:attr(data-tip);position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--card);color:var(--text);font-size:10px;font-weight:600;white-space:nowrap;padding:4px 9px;border-radius:5px;border:2px solid var(--border2);pointer-events:none;opacity:0;transition:opacity .12s;letter-spacing:.2px;font-family:'Inter',sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.08);z-index:999}
+.hdr-ghost::before{content:'';position:absolute;top:calc(100% + 1px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-bottom-color:var(--border2);pointer-events:none;opacity:0;transition:opacity .12s;z-index:999}
+.hdr-ghost:hover::after,.hdr-ghost:hover::before{opacity:1}
+
+.hdr-action{background:var(--text);color:var(--card);border:none;border-radius:5px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s,opacity .12s;font-family:inherit}
+.hdr-action:hover{opacity:.82}
 </style>
 </head>
 <body>
@@ -265,42 +292,29 @@ body.dark .sug-send{background:var(--text);color:#141210}
   };
 </script>
 
-<header>
-  <div class="wrap">
-    <div class="header-inner">
-
-      <!-- Left side: Logo + Branch/Version -->
-      <div style="display:flex; align-items:center; gap:16px;">
-        <div class="wordmark">
-          <div class="wordmark-icon">🎓</div>
-          <div>
-            <h1>StudyBase</h1>
-            <span>School reference</span>
-          </div>
-        </div>
-
-        <!-- Branch Version Badge -->
-        <div id="branch-badge" style="font-size:11px; color:var(--muted); background:var(--card2); 
-             border:1px solid var(--border); border-radius:20px; padding:4px 12px; white-space:nowrap;">
-          Loading branch...
+<div class="hdr-outer">
+  <div class="accent-bar" style="background:#f59e0b"></div>
+  <div class="hdr-main">
+    <div class="hdr-top">
+      <div class="logo-block">
+        <div class="logo-icon2">🎓</div>
+        <div>
+          <div class="logo-text2">StudyBase</div>
+          <span class="logo-sub-txt">SCHOOL REFERENCE</span>
         </div>
       </div>
-
-      <div class="header-date">Today — <strong id="todayDate"></strong></div>
-      
-      <span id="syncCountdownIdx" class="sync-countdown"></span>
-      
-      <button onclick="manualSync()" title="Sync now" style="background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--muted);">⟳ Sync</button>
-      
-      <button onclick="openSuggestions()" title="Suggestions" style="background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--muted);">📝 Suggestions</button>
-      
-      <button onclick="sbSignOut()" title="Sign out" style="background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--muted);">⎋ Sign out</button>
-      
-      <button id="darkToggle" onclick="toggleDark()" title="Toggle dark mode" style="background:none;border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:15px;cursor:pointer;color:var(--text);">🌙</button>
-
+      <div id="branch-badge" style="font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;">Loading…</div>
+      <div class="hdr-right-row">
+        <span class="hdr-date-pill">Today — <strong id="todayDate"></strong></span>
+        <span id="syncCountdownIdx" style="font-size:11px;color:var(--muted2);font-variant-numeric:tabular-nums"></span>
+        <button class="hdr-ghost" onclick="manualSync()" title="Sync now" data-tip="Sync now">⟳</button>
+        <button class="hdr-ghost" onclick="openSuggestions()" title="Suggestions" data-tip="Suggestions">📝</button>
+        <button class="hdr-ghost" onclick="sbSignOut()" title="Sign out" data-tip="Sign out">⎋</button>
+        <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()" title="Toggle dark mode" data-tip="Dark mode">🌙</button>
+      </div>
     </div>
   </div>
-</header>
+</div>
 
 <!-- Branch Version Loader - Put this RIGHT AFTER </header> -->
 <script>
