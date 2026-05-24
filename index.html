@@ -38,44 +38,34 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;min-height:
 .sec-title{font-family:'Lora',serif;font-size:16px;font-weight:600;color:var(--text);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
 .subjects-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
 .subj-card{display:block;text-decoration:none;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:18px 20px;position:relative;overflow:hidden;transition:all .15s;box-shadow:var(--shadow)}
-.subj-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
-.subj-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.subj-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1);cursor:pointer}
 .subj-emoji{font-size:22px;margin-bottom:10px}
 .subj-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}
 .subj-meta{font-size:11px;color:var(--muted)}
-.subj-count{position:absolute;top:16px;right:16px;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff}
+.subj-count{position:absolute;top:16px;right:16px;min-width:22px;height:22px;border-radius:11px;padding:0 6px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff}
 
-.side-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
-.feed-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
-.feed-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px}
-.feed-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
-.feed-sub{font-size:11px;color:var(--muted)}
-
+/* CALENDAR */
 .cal-section{margin-top:20px}
 .cal-card{background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);overflow:hidden}
 .cal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
 .cal-title{font-family:'Lora',serif;font-size:16px;font-weight:600;color:var(--text)}
 .cal-nav{display:flex;gap:6px}
-.cal-nav-btn{background:none;border:1px solid var(--border);border-radius:6px;min-width:28px;height:28px;padding:0 8px;cursor:pointer;color:var(--muted);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.cal-nav-btn{background:none;border:1px solid var(--border);border-radius:6px;min-width:28px;height:28px;padding:0 8px;cursor:pointer;color:var(--muted);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .12s;font-family:inherit}
 .cal-nav-btn:hover{background:var(--card2);border-color:var(--border2);color:var(--text)}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.cal-grid-header{display:grid;grid-template-columns:repeat(7,1fr)}
+.cal-grid-body{display:grid;grid-template-columns:repeat(7,1fr)}
 .cal-dow{text-align:center;padding:10px 4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);font-weight:600;border-bottom:1px solid var(--border)}
-.cal-day{min-height:72px;padding:6px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
-.cal-day:hover{background:var(--card2)}
+.cal-day{min-height:72px;padding:6px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);cursor:default;transition:background .12s}
+.cal-day.other-month{opacity:.35}
 .cal-day.today .cal-day-num{background:var(--text);color:var(--card);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-weight:700}
 .cal-day-num{font-size:12px;font-weight:500;color:var(--text);margin-bottom:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center}
 
-.subject-view{display:none;flex-direction:column;min-height:calc(100vh - 120px)}
-.subject-view.active{display:flex}
-.main-content{display:grid;grid-template-columns:280px 1fr 320px;gap:20px;flex:1}
-
+/* DARK */
 body.dark{
   --bg:#141210;--card:#1e1c19;--card2:#252220;--border:#302d29;--border2:#3d3935;
   --text:#e8e3dc;--muted:#9e9890;--muted2:#6b6560;
-  background:#141210 !important; color:#e8e3dc;
+  background:#141210;color:#e8e3dc;
 }
-body.dark .hdr-outer, body.dark .stat-card, body.dark .subj-card, 
-body.dark .side-card, body.dark .cal-card {background:var(--card)!important; border-color:var(--border)!important;}
 </style>
 </head>
 <body>
@@ -92,9 +82,9 @@ body.dark .side-card, body.dark .cal-card {background:var(--card)!important; bor
         </div>
       </div>
       <div id="branch-badge" style="font-size:11px;color:#15803d;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;">
-        <strong>main</strong> • v2.0.0-UP
+        <strong>main</strong> · v2.1.0
       </div>
-      <div class="hdr-right-row" style="margin-left:auto;display:flex;align-items:center;gap:8px">
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
         <span class="hdr-date-pill">Today — <strong id="todayDate"></strong></span>
         <button class="hdr-ghost" id="darkToggle">🌙</button>
       </div>
@@ -112,142 +102,179 @@ body.dark .side-card, body.dark .cal-card {background:var(--card)!important; bor
     <div class="cal-section">
       <div class="cal-card">
         <div class="cal-header">
-          <div class="cal-title" id="calMonthLabel">May 2026</div>
+          <div class="cal-title" id="calMonthLabel"></div>
           <div style="display:flex;align-items:center;gap:8px">
             <div class="cal-nav">
-              <button class="cal-nav-btn" onclick="calPrev()">‹</button>
-              <button class="cal-nav-btn" onclick="calToday()">Today</button>
-              <button class="cal-nav-btn" onclick="calNext()">›</button>
+              <button class="cal-nav-btn" onclick="calNav(-1)">‹</button>
+              <button class="cal-nav-btn" onclick="calGoToday()">Today</button>
+              <button class="cal-nav-btn" onclick="calNav(1)">›</button>
             </div>
-            <button class="cal-nav-btn" style="background:var(--text);color:var(--bg);border:none">+ Add</button>
           </div>
         </div>
-        <div class="cal-grid" id="calDow"></div>
-        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-grid-header" id="calDow"></div>
+        <div class="cal-grid-body" id="calGrid"></div>
       </div>
-    </div>
-  </div>
-
-  <div id="subjectView" class="subject-view">
-    <div class="main-content">
-      <div class="sidebar-subject side-card" style="margin:0">
-        <button onclick="backToDashboard()" style="margin-bottom:12px">← Back to Hub</button>
-        <h2 id="subjectTitle" style="font-family:'Lora',serif;font-size:22px;margin-bottom:16px"></h2>
-        <div id="subjectSidebarContent"></div>
-      </div>
-      <div class="detail-area" id="detailArea" style="background:#f5f2ed;padding:30px">
-        <div style="text-align:center;padding:100px 20px;color:var(--muted)">
-          <h3>Select a topic from the left sidebar</h3>
-        </div>
-      </div>
-      <div></div>
     </div>
   </div>
 </div>
 
 <script src="subjects.js"></script>
 <script>
-// ==================== MAIN SCRIPT ====================
-let subjects = [];
-let currentSubject = null;
+// ── Dark mode (persist) ──
+(function(){
+  const on = localStorage.getItem('studybase_dark') === '1';
+  if(on) document.body.classList.add('dark');
+  const btn = document.getElementById('darkToggle');
+  if(btn) btn.textContent = on ? '☀️' : '🌙';
+})();
 
-function init() {
-  if (typeof subjectsData === "undefined") {
-    document.getElementById('subjectsGrid').innerHTML = `<p style="color:red;padding:20px;">subjects.js not found</p>`;
+document.getElementById('darkToggle').onclick = function(){
+  const on = document.body.classList.toggle('dark');
+  localStorage.setItem('studybase_dark', on ? '1' : '0');
+  this.textContent = on ? '☀️' : '🌙';
+};
+
+// ── Calendar state ──
+const TODAY = new Date();
+let calYear  = TODAY.getFullYear();
+let calMonth = TODAY.getMonth(); // 0-based
+
+// ── Init ──
+function init(){
+  if(typeof subjectsData === 'undefined'){
+    document.getElementById('subjectsGrid').innerHTML =
+      '<p style="color:red;padding:20px;grid-column:1/-1">subjects.js not found or failed to load.</p>';
     return;
   }
-  subjects = subjectsData.subjects || [];
   renderSubjects();
-  updateStats();
-  checkUrlHash();
+  renderStats();
+  renderCalendar();
+
+  document.getElementById('todayDate').textContent =
+    TODAY.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
+}
+
+// ── Subject cards ──
+function renderSubjects(){
+  const subjects = subjectsData.subjects || [];
+  const grid = document.getElementById('subjectsGrid');
+  grid.innerHTML = subjects.map(s => {
+    const topics = getTopics(s);
+    const units  = getUnits(s);
+    const meta   = topics.length
+      ? `${topics.length} topic${topics.length !== 1 ? 's' : ''} · ${units.length} unit${units.length !== 1 ? 's' : ''}`
+      : 'No topics yet';
+    return `
+      <a href="subject.html#${s.id}" class="subj-card" style="border-top:4px solid ${s.colour}">
+        <div class="subj-emoji">${s.emoji || '📚'}</div>
+        <div class="subj-count" style="background:${s.colour}">${topics.length}</div>
+        <div class="subj-name">${s.name}</div>
+        <div class="subj-meta">${meta}</div>
+      </a>`;
+  }).join('');
+}
+
+// ── Pull topics/units from localStorage using each subject's own keys ──
+function getTopics(s){
+  const key = s.storageKey || (s.id + '_topics');
+  try{ return JSON.parse(localStorage.getItem(key) || '[]'); }
+  catch(e){ return []; }
+}
+
+function getUnits(s){
+  const key = s.unitsKey || (s.id + '_units');
+  try{ return JSON.parse(localStorage.getItem(key) || '[]'); }
+  catch(e){ return []; }
+}
+
+// ── Stats ──
+function renderStats(){
+  const subjects = subjectsData.subjects || [];
+  let totalTopics = 0, totalUnits = 0, lastDate = null;
+
+  subjects.forEach(s => {
+    const topics = getTopics(s);
+    const units  = getUnits(s);
+    totalTopics += topics.length;
+    totalUnits  += units.length;
+    topics.forEach(t => {
+      const d = t.updatedAt || t.createdAt;
+      if(d && (!lastDate || d > lastDate)) lastDate = d;
+    });
+  });
+
+  const lastStr = lastDate
+    ? new Date(lastDate).toLocaleDateString('en-AU',{day:'numeric',month:'short'})
+    : '—';
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${totalTopics}</div><div class="stat-label">Total Topics</div></div>
+    <div class="stat-card"><div class="stat-num">${totalUnits}</div><div class="stat-label">Total Units</div></div>
+    <div class="stat-card"><div class="stat-num">${subjects.length}</div><div class="stat-label">Subjects</div></div>
+    <div class="stat-card"><div class="stat-num" style="font-size:20px">${lastStr}</div><div class="stat-label">Last Updated</div></div>
+  `;
+}
+
+// ── Calendar (correct Mon-start, proper month layout) ──
+const DOWS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+function renderCalendar(){
+  const months = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+  document.getElementById('calMonthLabel').textContent = months[calMonth] + ' ' + calYear;
+
+  // Day-of-week headers
+  document.getElementById('calDow').innerHTML =
+    DOWS.map(d => `<div class="cal-dow">${d}</div>`).join('');
+
+  const firstDay = new Date(calYear, calMonth, 1);
+  const lastDay  = new Date(calYear, calMonth + 1, 0);
+
+  // Monday = 0 offset; JS Sunday=0 so remap
+  let startOffset = (firstDay.getDay() + 6) % 7; // Mon=0 … Sun=6
+  const totalDays = lastDay.getDate();
+
+  // Fill in prev-month padding
+  const prevLast = new Date(calYear, calMonth, 0).getDate();
+  let cells = [];
+  for(let i = startOffset - 1; i >= 0; i--){
+    cells.push({ day: prevLast - i, cur: false });
+  }
+  for(let d = 1; d <= totalDays; d++){
+    cells.push({ day: d, cur: true });
+  }
+  // Fill remaining to complete last row
+  let next = 1;
+  while(cells.length % 7 !== 0){
+    cells.push({ day: next++, cur: false });
+  }
+
+  const isToday = (d) =>
+    d.cur &&
+    d.day === TODAY.getDate() &&
+    calMonth === TODAY.getMonth() &&
+    calYear  === TODAY.getFullYear();
+
+  document.getElementById('calGrid').innerHTML = cells.map(d => `
+    <div class="cal-day${d.cur ? '' : ' other-month'}${isToday(d) ? ' today' : ''}">
+      <div class="cal-day-num">${d.day}</div>
+    </div>`).join('');
+}
+
+function calNav(dir){
+  calMonth += dir;
+  if(calMonth > 11){ calMonth = 0;  calYear++; }
+  if(calMonth < 0) { calMonth = 11; calYear--; }
   renderCalendar();
 }
 
-function renderSubjects() {
-  const grid = document.getElementById('subjectsGrid');
-  grid.innerHTML = subjects.map(s => `
-    <a href="#" onclick="openSubject('${s.id}'); return false" class="subj-card" style="border-color:${s.colour}33">
-      <div class="subj-emoji">${s.emoji || '📚'}</div>
-      <div class="subj-count" style="background:${s.colour}" id="cnt-${s.id}">0</div>
-      <div class="subj-name">${s.name}</div>
-      <div class="subj-meta" id="meta-${s.id}">No topics yet</div>
-      <!-- Dynamic colored top line -->
-      <div style="position:absolute;top:0;left:0;right:0;height:4px;background:${s.colour};"></div>
-    </a>
-  `).join('');
+function calGoToday(){
+  calYear  = TODAY.getFullYear();
+  calMonth = TODAY.getMonth();
+  renderCalendar();
 }
 
-function openSubject(id) {
-  const subject = subjects.find(s => s.id === id);
-  if (!subject) return;
-
-  currentSubject = subject;
-  window.location.hash = id;
-
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('subjectView').classList.add('active');
-  document.getElementById('subjectTitle').textContent = subject.name;
-  document.getElementById('subjectTitle').style.color = subject.colour;
-
-  document.getElementById('subjectSidebarContent').innerHTML = `
-    <p><strong>ID:</strong> ${subject.id}</p>
-    <p><strong>Colour:</strong> ${subject.colour}</p>
-    <hr style="margin:15px 0">
-    <button onclick="alert('Full units & topics coming soon')">+ Add Unit</button>
-  `;
-}
-
-function checkUrlHash() {
-  const hash = window.location.hash.slice(1);
-  if (hash) {
-    const subject = subjects.find(s => s.id === hash);
-    if (subject) openSubject(hash);
-  }
-}
-
-function backToDashboard() {
-  document.getElementById('dashboard').style.display = 'block';
-  document.getElementById('subjectView').classList.remove('active');
-  window.location.hash = '';
-}
-
-function updateStats() {
-  document.getElementById('statsRow').innerHTML = `
-    <div class="stat-card"><div class="stat-num">${subjects.length*8 || 47}</div><div class="stat-label">Total Topics</div></div>
-    <div class="stat-card accent-eco"><div class="stat-num">28</div><div class="stat-label">Total Units</div></div>
-    <div class="stat-card"><div class="stat-num">${subjects.length}</div><div class="stat-label">Subjects</div></div>
-    <div class="stat-card accent-eng"><div class="stat-num">May 22</div><div class="stat-label">Last Added</div></div>
-  `;
-}
-
-function renderCalendar() {
-  const dows = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  document.getElementById('calDow').innerHTML = dows.map(d => `<div class="cal-dow">${d}</div>`).join('');
-  let html = '';
-  for(let i=1; i<=35; i++){
-    const today = i===24;
-    html += `<div class="cal-day${today?' today':''}"><div class="cal-day-num">${i}</div></div>`;
-  }
-  document.getElementById('calGrid').innerHTML = html;
-}
-
-function calPrev(){alert("Previous month");}
-function calNext(){alert("Next month");}
-function calToday(){alert("Today");}
-
-// Dark Mode
-document.getElementById('darkToggle').onclick = () => {
-  const isDark = document.body.classList.toggle('dark');
-  localStorage.setItem('studybase_dark', isDark ? '1' : '0');
-  document.getElementById('darkToggle').textContent = isDark ? '☀️' : '🌙';
-};
-
-// Init
-document.addEventListener('DOMContentLoaded', () => {
-  init();
-  document.getElementById('todayDate').textContent = 
-    new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
-});
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
