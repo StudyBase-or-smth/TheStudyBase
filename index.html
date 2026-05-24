@@ -772,10 +772,12 @@ const SUG_KEY = 'studybase_suggestions';
 
 function openSuggestions(){
   document.getElementById('sugOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
   loadSuggestions();
 }
 function closeSuggestions(){
   document.getElementById('sugOverlay').classList.remove('open');
+  document.body.style.overflow='';
 }
 
 async function loadSuggestions(){
