@@ -317,29 +317,31 @@ async function loadBranchVersion() {
         // Default values
         const branch = data.branch || 'unknown';
         const version = data.version || '0.0.0';
-        const colorMode = data.colour || data.color || 'other-blue';
+        const colorMode = data.colour || data.color || 'other';
 
-        // Color mapping
-        let colorStyle = '';
+        // Text color only
+        let textColor = '#1e40af';   // default blue
+
         switch(colorMode) {
-            case 'dev-red':
-                colorStyle = 'color:#e11d48; border-color:#fda4af; background:#fee2e2;';
+            case 'dev':
+                textColor = '#e11d48';     // red
                 break;
-            case 'bug-orange':
-                colorStyle = 'color:#c2410c; border-color:#fdba74; background:#ffedd5;';
+            case 'bug':
+                textColor = '#c2410c';     // orange
                 break;
-            case 'main-green':
-                colorStyle = 'color:#15803d; border-color:#86efac; background:#f0fdf4;';
+            case 'main':
+                textColor = '#15803d';     // green
                 break;
-            case 'other-blue':
+            case 'other':
             default:
-                colorStyle = 'color:#1e40af; border-color:#93c5fd; background:#eff6ff;';
+                textColor = '#1e40af';     // blue
                 break;
         }
 
         badge.innerHTML = `
             <strong>${branch}</strong> • v${version}
         `;
+        
         badge.style.cssText = `
             font-size:11px; 
             background:var(--card2); 
@@ -347,7 +349,7 @@ async function loadBranchVersion() {
             border-radius:20px; 
             padding:4px 12px; 
             white-space:nowrap;
-            ${colorStyle}
+            color: ${textColor};
         `;
 
         console.log('✅ BranchVersion loaded:', data);
@@ -355,7 +357,14 @@ async function loadBranchVersion() {
     } catch (err) {
         console.error('Failed to load BranchVersion.json', err);
         badge.innerHTML = `<strong>dev</strong> • local`;
-        badge.style.cssText = `font-size:11px; color:#e11d48; background:#fee2e2; border:1px solid #fda4af; border-radius:20px; padding:4px 12px;`;
+        badge.style.cssText = `
+            font-size:11px; 
+            background:var(--card2); 
+            border:1px solid var(--border); 
+            border-radius:20px; 
+            padding:4px 12px; 
+            color: #e11d48;
+        `;
     }
 }
 
