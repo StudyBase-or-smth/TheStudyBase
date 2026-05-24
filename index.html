@@ -7,6 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
+/* Hide scrollbars globally but keep scrolling */
+*{scrollbar-width:none;-ms-overflow-style:none}
+*::-webkit-scrollbar{display:none}
+
 body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;min-height:100vh;font-size:14px}
 :root{
   --bg:#f5f2ed;
@@ -130,7 +134,7 @@ body.dark .subj-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.4) !important}
 .cal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
 .cal-title{font-family:'Lora',serif;font-size:16px;font-weight:600;color:var(--text)}
 .cal-nav{display:flex;gap:6px}
-.cal-nav-btn{background:none;border:1px solid var(--border);border-radius:6px;width:28px;height:28px;cursor:pointer;color:var(--muted);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.cal-nav-btn{background:none;border:1px solid var(--border);border-radius:6px;min-width:28px;height:28px;padding:0 8px;cursor:pointer;color:var(--muted);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .12s}
 .cal-nav-btn:hover{background:var(--card2);border-color:var(--border2);color:var(--text)}
 .cal-add-btn{background:var(--text);color:var(--bg,#f5f2ed);border:none;border-radius:6px;padding:6px 12px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s}
 .cal-add-btn:hover{opacity:.8}
@@ -207,6 +211,22 @@ body.dark img:not(.no-invert){filter:invert(0.88) hue-rotate(180deg) brightness(
 .sug-text{font-size:13px;color:var(--text);line-height:1.5;margin-bottom:4px;white-space:pre-wrap}
 .sug-meta{font-size:11px;color:var(--muted2)}
 .sug-empty{font-size:12px;color:var(--muted2);font-style:italic;padding:8px 0}
+.sug-tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px}
+.sug-tag.bug{background:#fecaca;color:#7f1d1d}
+.sug-tag.request{background:#bfdbfe;color:#1e3a5f}
+.sug-tag.idea{background:#d9f99d;color:#14532d}
+.sug-tag-btns{display:flex;gap:6px;margin-bottom:8px}
+.sug-tag-btn{background:none;border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.4px;cursor:pointer;transition:all .12s;color:var(--muted);text-transform:uppercase}
+.sug-tag-btn:hover{border-color:var(--border2);color:var(--text)}
+.sug-tag-btn.active.bug{background:#fecaca;border-color:#fca5a5;color:#7f1d1d}
+.sug-tag-btn.active.request{background:#bfdbfe;border-color:#93c5fd;color:#1e3a5f}
+.sug-tag-btn.active.idea{background:#d9f99d;border-color:#a3e635;color:#14532d}
+body.dark .sug-tag.bug{background:#7f1d1d;color:#fecaca}
+body.dark .sug-tag.request{background:#1e3a5f;color:#bfdbfe}
+body.dark .sug-tag.idea{background:#14532d;color:#d9f99d}
+body.dark .sug-tag-btn.active.bug{background:#7f1d1d;border-color:#991b1b;color:#fecaca}
+body.dark .sug-tag-btn.active.request{background:#1e3a5f;border-color:#1d4ed8;color:#bfdbfe}
+body.dark .sug-tag-btn.active.idea{background:#14532d;border-color:#15803d;color:#d9f99d}
 .sug-footer{padding:14px 24px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:8px}
 .sug-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;resize:none;transition:border-color .15s;min-height:60px}
 .sug-input:focus{border-color:var(--text)}
@@ -431,7 +451,7 @@ body.dark .sug-send{background:var(--text);color:#141210}
       const topics=getTopics(s.key), units=getUnits(s.key);
       totalTopics+=topics.length;
       totalUnits+=units.length;
-      topics.forEach(t=>allTopics.push({...t,sName:s.name,sColor:s.color}));
+      topics.forEach(t=>allTopics.push({...t,sName:s.name,sColor:s.color,sFile:s.file}));
 
       document.getElementById('cnt-'+s.key).textContent = topics.length;
       document.getElementById('meta-'+s.key).textContent = topics.length===0
@@ -453,13 +473,13 @@ body.dark .sug-send{background:var(--text);color:#141210}
     document.getElementById('recentList').innerHTML = recent.length===0
       ? '<div class="empty-note">No topics added yet.</div>'
       : recent.map(t=>`
-          <div class="feed-item">
-            <div class="feed-dot" style="background:${t.sColor}"></div>
+          <a class="feed-item" href="${t.sFile}#${t.id}" style="text-decoration:none;display:flex;align-items:flex-start;gap:10px;padding:9px 6px;border-bottom:1px solid var(--border);border-radius:4px;margin:0 -6px;transition:background .12s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
+            <div class="feed-dot" style="background:${t.sColor};flex-shrink:0;margin-top:5px"></div>
             <div>
               <div class="feed-name">${t.name}</div>
               <div class="feed-sub" style="color:${t.sColor}">${t.sName}${t.unit?' · '+t.unit:''}</div>
             </div>
-          </div>`).join('');
+          </a>`).join('');
 
     // Units feed
     let unitsHtml='';
@@ -797,9 +817,37 @@ function renderSugList(){
     return;
   }
   list.innerHTML = [..._sugCache].reverse().map(function(s){
-    return '<div class="sug-item"><div class="sug-text">'+s.text.replace(/</g,'&lt;')+'</div>'
-      +'<div class="sug-meta">'+s.date+(s.time?' - '+s.time:'')+'</div></div>';
+    var tagHtml = s.tag ? '<span class="sug-tag '+s.tag+'">'+s.tag+'</span><br>' : '';
+    return '<div class="sug-item" style="position:relative">'
+      +'<button onclick="deleteSuggestion(\''+s.id+'\')" title="Delete" style="position:absolute;top:6px;right:6px;background:none;border:none;cursor:pointer;font-size:14px;line-height:1;color:var(--muted2);padding:2px 4px;border-radius:4px;transition:color .12s" onmouseover="this.style.color=\'#dc2626\'" onmouseout="this.style.color=\'var(--muted2)\'">×</button>'
+      +tagHtml
+      +'<div class="sug-text" style="padding-right:20px">'+s.text.replace(/</g,'&lt;')+'</div>'
+      +'<div class="sug-meta">'+s.date+(s.time?' - '+s.time:'')+'</div>'
+      +'</div>';
   }).join('');
+}
+
+function deleteSuggestion(id){
+  _sugCache = _sugCache.filter(function(s){ return s.id !== id; });
+  renderSugList();
+  // Save updated list back to Google Sheet
+  const id2='sdel'+Date.now();
+  const iframe=document.createElement('iframe');
+  iframe.name=id2; iframe.style.cssText='display:none;width:0;height:0;border:0';
+  const form=document.createElement('form');
+  form.method='POST'; form.action=SYNC_URL_IDX; form.target=id2; form.style.display='none';
+  [['key',SUG_KEY],['data',JSON.stringify(_sugCache)]].forEach(function(pair){
+    const inp=document.createElement('input'); inp.type='hidden'; inp.name=pair[0]; inp.value=pair[1]; form.appendChild(inp);
+  });
+  document.body.appendChild(iframe); document.body.appendChild(form);
+  form.submit();
+  setTimeout(function(){iframe.remove(); form.remove();}, 5000);
+}
+
+function selectTag(btn){
+  var wasActive = btn.classList.contains('active');
+  document.querySelectorAll('.sug-tag-btn').forEach(function(b){ b.classList.remove('active'); });
+  if(!wasActive) btn.classList.add('active');
 }
 
 function sendSuggestion(){
@@ -810,12 +858,15 @@ function sendSuggestion(){
   const now = new Date();
   const date = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
   const time = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-  const newSug = {id:String(Date.now()), text:text, date:date, time:time};
+  var activeTagBtn = document.querySelector('.sug-tag-btn.active');
+  var tag = activeTagBtn ? activeTagBtn.dataset.tag : '';
+  const newSug = {id:String(Date.now()), text:text, tag:tag, date:date, time:time};
 
   // Add to cache and update display immediately
   _sugCache.push(newSug);
   renderSugList();
   input.value = '';
+  document.querySelectorAll('.sug-tag-btn').forEach(function(b){ b.classList.remove('active'); });
 
   // Fire and forget POST with full list
   const id2='sf'+Date.now();
@@ -849,9 +900,16 @@ document.getElementById('sugOverlay').addEventListener('click',function(e){
       <button onclick="closeSuggestions()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted);line-height:1;padding:0;margin-left:12px">×</button>
     </div>
     <div class="sug-list" id="sugList"><div class="sug-empty">Loading…</div></div>
-    <div class="sug-footer">
+    <div class="sug-footer" style="flex-direction:column;gap:8px">
+      <div class="sug-tag-btns">
+        <button class="sug-tag-btn bug" data-tag="bug" onclick="selectTag(this)">🐛 Bug</button>
+        <button class="sug-tag-btn request" data-tag="request" onclick="selectTag(this)">✨ Request</button>
+        <button class="sug-tag-btn idea" data-tag="idea" onclick="selectTag(this)">💡 Idea</button>
+      </div>
+      <div style="display:flex;gap:8px">
       <textarea class="sug-input" id="sugInput" placeholder="Type your suggestion here…"></textarea>
       <button class="sug-send" onclick="sendSuggestion()">Send</button>
+      </div>
     </div>
   </div>
 </div>

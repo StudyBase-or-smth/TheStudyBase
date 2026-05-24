@@ -7,6 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
+/* Hide scrollbars globally but keep scrolling */
+*{scrollbar-width:none;-ms-overflow-style:none}
+*::-webkit-scrollbar{display:none}
+
 html,body{height:100%;overflow:hidden}
 body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;display:flex;flex-direction:column;font-size:14px}
 :root{
@@ -790,6 +794,16 @@ function setupRichDnD(){
 
 setupRichDnD();
 renderList();
+
+// Auto-open topic from URL hash (e.g. engineering.html#1234567890)
+(function(){
+  const hash = window.location.hash.slice(1);
+  if(hash){
+    const id = parseInt(hash);
+    if(!isNaN(id)) setTimeout(function(){ viewTopic(id); }, 80);
+  }
+})();
+
 syncPull();
 setInterval(syncPull, 60000);
 
