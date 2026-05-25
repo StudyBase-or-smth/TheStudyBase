@@ -23,7 +23,12 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;display:fle
 
 /* ── Header ── */
 .hdr-outer{background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:stretch;flex-shrink:0}
-.accent-bar{width:4px;flex-shrink:0}
+.accent-bar{width:6px;flex-shrink:0;cursor:pointer;transition:width .22s cubic-bezier(.34,1.2,.64,1);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.accent-bar:hover{width:36px}
+.accent-bar::after{content:'';position:absolute;left:6px;top:50%;transform:translateY(-50%);width:22px;height:22px;opacity:0;transition:opacity .18s .05s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.7)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='15 18 9 12 15 6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:contain;pointer-events:none}
+.accent-bar:hover::after{opacity:1}
+.accent-bar .ab-label{opacity:0;white-space:nowrap;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#fff;transition:opacity .18s .05s;pointer-events:none;writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);user-select:none}
+.accent-bar:hover .ab-label{opacity:1}
 .hdr-main{flex:1;display:flex;flex-direction:column;min-width:0}
 .hdr-top{display:flex;align-items:center;padding:0 20px;height:44px;gap:10px}
 .logo-block{display:flex;align-items:center;gap:9px;padding-right:14px;border-right:1px solid var(--border);flex-shrink:0}
@@ -228,7 +233,10 @@ body.dark img:not(.no-invert){filter:invert(.88) hue-rotate(180deg) brightness(1
 
 <!-- Header (populated by JS once subject is known) -->
 <div class="hdr-outer">
-  <div class="accent-bar" id="accentBar"></div>
+  <a class="accent-bar" id="accentBar" href="index.html" title="Back to Index">
+
+  
+</a>
   <div class="hdr-main">
     <div class="hdr-top">
       <div class="logo-block">
