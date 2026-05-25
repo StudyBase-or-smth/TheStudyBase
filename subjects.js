@@ -1,6 +1,7 @@
 // subjects.js
 const subjectsData = {
   subjects: [
+    { id: "eng2", name: "Engineering", emoji: "⚙️", colour: "#0f4c81", storageKey: "eng2_topics", unitsKey: "eng2_units" },
     { id: "eco",  name: "Economics",   emoji: "📊", colour: "#15803d", storageKey: "eco_topics",  unitsKey: "eco_units"  },
     { id: "eng",  name: "English",     emoji: "📖", colour: "#9f1239", storageKey: "eng_topics",  unitsKey: "eng_units"  },
     { id: "mth",  name: "Maths",       emoji: "📐", colour: "#1d4ed8", storageKey: "mth_topics",  unitsKey: "mth_units"  },
