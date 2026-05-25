@@ -6,6 +6,7 @@ const subjectsData = {
     { id: "mth",  name: "Maths",       emoji: "📐", colour: "#1d4ed8", storageKey: "mth_topics",  unitsKey: "mth_units"  },
     { id: "tmb",  name: "Timber",      emoji: "🪵", colour: "#92400e", storageKey: "tmb_topics",  unitsKey: "tmb_units"  },
     { id: "mlt",  name: "Multimedia",  emoji: "🎬", colour: "#ce1ff1", storageKey: "mlt_topics",  unitsKey: "mlt_units"  },
-    { id: "eng2", name: "Engineering", emoji: "⚙️", colour: "#0f4c81", storageKey: "eng2_topics", unitsKey: "eng2_units" }
+    { id: "eng2", name: "Engineering", emoji: "⚙️", colour: "#0f4c81", storageKey: "eng2_topics", unitsKey: "eng2_units" },
+    { id: "phy", name: "Physics", emoji: "🧪", colour: "#13810f", storageKey: "phy_topics", unitsKey: "phy_units" }
   ]
 };
