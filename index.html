@@ -278,45 +278,20 @@ body.guest-mode:not(.dark) .hdr-outer{background:#eeebe6;border-bottom-color:#d4
 async function loadBranchVersion(){
   const badge = document.getElementById('branch-badge');
   if(!badge) return;
-
-  badge.innerHTML = 'Detecting...';
-
-  // Replace these with your actual GitHub username and repo name
-  const owner = "StudyBase-or-smth";           // ← CHANGE TO YOUR USERNAME
-  const repo  = "TheStudyBase";           // ← CHANGE TO YOUR REPO NAME
-
-  try {
-    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/pages`, {
-      cache: 'no-store'
-    });
-
-    if (!res.ok) throw new Error('Failed to fetch');
-
+  try{
+    const res = await fetch('BranchVersion.json',{cache:'no-store'});
+    if(!res.ok) throw new Error('not found');
     const data = await res.json();
-    const branch = data.source?.branch || 'unknown';
-    const version = '1.0'; // You can make this dynamic too if you want
-
-    const colorMap = {
-      main: '#15803d',
-      master: '#15803d',
-      dev: '#e11d48',
-      develop: '#ea580c',
-      feature: '#1e40af',
-      other: '#1e40af'
-    };
-
-    const color = colorMap[branch.toLowerCase()] || '#1e40af';
-
-    badge.innerHTML = `<strong>${branch}</strong>`;
+    const branch = data.branch||'unknown', version = data.version||'0.0.0';
+    const colorMap = {dev:'#e11d48',bug:'#c2410c',main:'#15803d',other:'#1e40af'};
+    const color = colorMap[data.colour||data.color||'other']||'#1e40af';
+    badge.innerHTML = `<strong>${branch}</strong> · v${version}`;
     badge.style.cssText = `font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;color:${color}`;
-
-  } catch(e) {
-    console.warn('Could not detect branch via GitHub API', e);
-    badge.innerHTML = `<strong>unknown</strong>`;
-    badge.style.cssText = `font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;color:#78716c`;
+  }catch(e){
+    badge.innerHTML = '<strong>dev</strong> · Local';
+    badge.style.cssText = 'font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;color:#e0c200';
   }
 }
-
 window.addEventListener('load', loadBranchVersion);
 loadBranchVersion();
 </script>
