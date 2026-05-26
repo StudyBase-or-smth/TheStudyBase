@@ -55,6 +55,7 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;min-height:
 .side-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
 .side-card:last-child{margin-bottom:0}
 
+
 /* COLLAPSIBLE SECTION TITLE */
 .sec-title-collapsible{font-family:'Lora',serif;font-size:16px;font-weight:600;color:var(--text);margin-bottom:0;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:color .12s}
 .sec-title-collapsible:hover{color:var(--muted)}
@@ -346,6 +347,10 @@ loadBranchVersion();
           <div style="height:12px"></div>
           <div id="unitsList"><div class="empty-note">No units created yet.</div></div>
         </div>
+        <div class="sidebar-section">
+  <h3 style="margin:16px 0 8px 0; font-size:13px; text-transform:uppercase; letter-spacing:0.5px; opacity:0.7;">Tools</h3>
+  <div id="markerSection"></div>
+</div>
       </div>
     </div>
   </div>
@@ -563,8 +568,7 @@ document.getElementById('statsRow').innerHTML=`
     <div class="stat-card"><div class="stat-num" style="color:#3b82f6">${subjects.length}</div><div class="stat-label">Subjects</div></div>
     <div class="stat-card"><div class="stat-num" style="font-size:20px;color:#f43f5e">${lastStr}</div><div class="stat-label">Last Updated</div></div>`;
 }
-
-// ── Sidebar: Recently Added + Units ──
+// ── Sidebar: Recently Added + Units + Marker ──
 function renderSidebar(){
   if(typeof subjectsData==='undefined') return;
   const subjects=subjectsData.subjects||[];
@@ -577,7 +581,7 @@ function renderSidebar(){
   // Recently Added
   const recent=[...allTopics].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,7);
   document.getElementById('recentList').innerHTML=recent.length===0
-    ?'<div class="empty-note">No topics added yet.</div>'
+    ?'<div class="feed-note">No topics added yet.</div>'
     :recent.map(t=>`
       <a class="feed-item" href="${t.sFile}" style="text-decoration:none;display:flex;align-items:flex-start;gap:10px;padding:9px 6px;border-bottom:1px solid var(--border);border-radius:4px;margin:0 -6px;transition:background .12s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
         <div class="feed-dot" style="background:${t.sColour};flex-shrink:0;margin-top:5px"></div>
@@ -602,7 +606,24 @@ function renderSidebar(){
       </div>`;
     });
   });
+  
   document.getElementById('unitsList').innerHTML=unitsHtml||'<div class="empty-note">No units created yet.</div>';
+
+  // === NEW: Marker Tool Sidebar Section ===
+  const markerHtml = `
+    <a href="marker.html" class="feed-item" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:12px 8px;border:2px solid var(--accent,#4a9eff);border-radius:8px;background:var(--card2);margin:8px 0;">
+      <div style="font-size:22px;flex-shrink:0;">📍</div>
+      <div>
+        <div class="feed-name" style="font-weight:600;">Marker Tool</div>
+        <div class="feed-sub" style="color:var(--accent,#4a9eff);font-size:13px;">Open marker.html</div>
+      </div>
+    </a>
+  `;
+
+  // Add this to your HTML wherever you want the new section
+  if(document.getElementById('markerSection')){
+    document.getElementById('markerSection').innerHTML = markerHtml;
+  }
 }
 
 // ── Calendar ──
