@@ -24,7 +24,7 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;min-height:
 .hdr-main{flex:1;display:flex;flex-direction:column;min-width:0}
 .hdr-top{display:flex;align-items:center;padding:0 20px;height:44px;gap:10px}
 .logo-block{display:flex;align-items:center;gap:9px;padding-right:14px;border-right:1px solid var(--border);flex-shrink:0}
-.logo-icon2{width:24px;height:24px;background:var(--text);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.logo-icon2{width:24px;height:24px;background:none;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
 .logo-text2{font-size:13px;font-weight:700;color:var(--text);font-family:'Lora',serif;letter-spacing:-.2px;white-space:nowrap}
 .logo-sub-txt{font-size:9px;color:var(--muted2);letter-spacing:.5px;display:block;line-height:1;margin-top:1px}
 .hdr-date-pill{font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap}
@@ -228,7 +228,9 @@ body.dark .sug-input{background:var(--card2);border-color:var(--border);color:va
   <div class="hdr-main">
     <div class="hdr-top">
       <div class="logo-block">
-        <div class="logo-icon2">🎓</div>
+<div class="logo-icon2">
+    <img src="icon.png" alt="Logo" style="width: 28px; height: 28px; object-fit: contain;">
+</div>
         <div>
           <div class="logo-text2">StudyBase</div>
           <span class="logo-sub-txt">SCHOOL REFERENCE</span>
