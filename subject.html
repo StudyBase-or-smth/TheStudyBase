@@ -142,6 +142,18 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;display:fle
 .btn-kp-del:hover{color:#dc2626;background:#fef2f2}
 .btn-add-kp{background:var(--card2);border:1px dashed var(--border2);color:var(--muted);border-radius:6px;padding:6px 12px;font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .12s;width:100%;text-align:left}
 .btn-add-kp:hover{background:var(--ac-l);border-color:var(--ac-b);color:var(--accent)}
+
+/* Flashcard Q&A rows */
+.fqa-list{display:flex;flex-direction:column;gap:8px;margin-bottom:7px}
+.fqa-row{display:flex;flex-direction:column;gap:5px;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:9px 10px;position:relative}
+.fqa-row-top{display:flex;gap:7px;align-items:flex-start}
+.fqa-inputs{flex:1;display:flex;flex-direction:column;gap:5px}
+.fqa-input{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:border-color .15s;width:100%}
+.fqa-input:focus{border-color:var(--accent)}
+.fqa-input::placeholder{color:var(--muted2)}
+.fqa-input.answer{font-size:12px;color:var(--muted)}
+.btn-fqa-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:15px;padding:3px 5px;border-radius:4px;transition:color .12s,background .12s;flex-shrink:0;margin-top:1px}
+.btn-fqa-del:hover{color:#dc2626;background:#fef2f2}
 .tags-wrap{display:flex;flex-wrap:wrap;gap:5px;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:7px 9px;cursor:text;transition:border-color .15s;min-height:38px;align-items:center}
 .tags-wrap:focus-within{border-color:var(--accent);background:#fff}
 .tag-chip{background:var(--ac-l);border:1px solid var(--ac-b);border-radius:4px;padding:2px 7px 2px 8px;font-size:11px;color:var(--accent);display:flex;align-items:center;gap:4px}
@@ -281,6 +293,7 @@ body.dark img:not(.no-invert){filter:invert(.88) hue-rotate(180deg) brightness(1
         <span id="syncStatus" style="font-size:11px;font-weight:600"></span>
         <span id="syncCountdown" style="font-size:11px;color:var(--muted2);font-variant-numeric:tabular-nums"></span>
         <button class="hdr-ghost" onclick="syncPull()" data-tip="Sync now">⟳</button>
+        <button class="hdr-ghost" id="btnFlashcards" onclick="window.location.href='flashcards.html#'" data-tip="Flashcards">🃏</button>
         <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out">⎋</button>
         <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()" data-tip="Dark mode">🌙</button>
         <button class="hdr-action" id="btnNewTopic" onclick="openModal()">+ New topic</button>
@@ -415,6 +428,11 @@ body.dark img:not(.no-invert){filter:invert(.88) hue-rotate(180deg) brightness(1
       </div>
     </div>
     <div class="form-g">
+      <label class="form-l">Flashcard Questions <span>— custom Q&amp;A for this topic's cards</span></label>
+      <div class="fqa-list" id="fqaList"></div>
+      <button class="btn-add-kp" onclick="addFqaRow()">+ Add question</button>
+    </div>
+    <div class="form-g">
       <label class="form-l">Related Terms <span>— press Enter or comma</span></label>
       <div class="tags-wrap" id="tagsWrap" onclick="document.getElementById('tagsInput').focus()">
         <input type="text" class="tags-i" id="tagsInput" placeholder="Add related term…">
@@ -476,6 +494,9 @@ function applySubjectTheme(){
   document.getElementById('hdrEmoji').textContent = SUBJECT.emoji || '📚';
   document.getElementById('hdrSubjectName').textContent = SUBJECT.name;
   document.title = SUBJECT.name + ' — StudyBase';
+
+  const fcBtn = document.getElementById('btnFlashcards');
+  if(fcBtn) fcBtn.onclick = () => window.location.href = 'flashcards.html#' + SUBJECT.id;
 
   document.getElementById('welcomeEmoji').textContent = SUBJECT.emoji || '📚';
   document.getElementById('welcomeTitle').textContent = SUBJECT.name + ' notes';
@@ -595,6 +616,17 @@ function viewTopic(id){
   if(t.process)    extraHtml += `<div class="section"><div class="section-header"><span class="sh-icon">⚙</span>Process / Method</div><div class="section-body"><div class="formula-box">${sanitizeRich(t.process)}</div></div></div>`;
   if(t.safety)     extraHtml += `<div class="section"><div class="section-header"><span class="sh-icon">⚠</span>Safety / Warnings</div><div class="section-body"><div class="warning-box">${sanitizeRich(t.safety)}</div></div></div>`;
   if(t.examTip)    extraHtml += `<div class="section"><div class="section-header"><span class="sh-icon">⚡</span>Exam Tip</div><div class="section-body"><div class="exam-tip">${sanitizeRich(t.examTip)}</div></div></div>`;
+  if((t.flashcardQA||[]).length){
+    const qaRows = t.flashcardQA.map(qa=>`
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border)">
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px">${esc(qa.q)}</div>
+          ${qa.a?`<div style="font-size:12px;color:var(--muted);font-style:italic">${esc(qa.a)}</div>`:'<div style="font-size:11px;color:var(--muted2);font-style:italic">No answer set</div>'}
+        </div>
+        <span style="font-size:10px;background:var(--ac-l);border:1px solid var(--ac-b);color:var(--accent);border-radius:4px;padding:2px 7px;font-weight:700;white-space:nowrap;flex-shrink:0">Flashcard</span>
+      </div>`).join('');
+    extraHtml += `<div class="section"><div class="section-header"><span class="sh-icon">🃏</span>Flashcard Questions</div><div class="section-body">${qaRows}</div></div>`;
+  }
 
   el.innerHTML = `
     <div class="dh">
@@ -650,11 +682,14 @@ function openModal(id){
     setRichVal('fExamTip', t.examTip || '');
     (t.keyPoints||[]).forEach(k => addKpRow(k));
     (t.relatedTerms||[]).forEach(addTag);
+    document.getElementById('fqaList').innerHTML = '';
+    (t.flashcardQA||[]).forEach(qa => addFqaRow(qa.q, qa.a));
   } else {
     document.getElementById('modalTitle').textContent = 'New topic';
     ['fName','fDefinition'].forEach(i => document.getElementById(i).value = '');
     ['fFormula','fMaterials','fProcess','fSafety','fExamTip'].forEach(clearRich);
     document.getElementById('fUnit').value = '';
+    document.getElementById('fqaList').innerHTML = '';
   }
   document.getElementById('modalOverlay').classList.add('open');
   setTimeout(() => document.getElementById('fName').focus(), 80);
@@ -687,6 +722,22 @@ function addKpRow(val){
   document.getElementById('kpList').appendChild(row); inp.focus();
 }
 
+function addFqaRow(q, a){
+  q = q || ''; a = a || '';
+  const uid = 'fqa_' + Date.now() + '_' + Math.floor(Math.random()*9999);
+  const row = document.createElement('div'); row.className = 'fqa-row'; row.id = uid;
+  const top = document.createElement('div'); top.className = 'fqa-row-top';
+  const inputs = document.createElement('div'); inputs.className = 'fqa-inputs';
+  const qInp = document.createElement('input'); qInp.type='text'; qInp.className='fqa-input'; qInp.placeholder='Question — e.g. What is the formula for stress?'; qInp.value=q;
+  const aInp = document.createElement('input'); aInp.type='text'; aInp.className='fqa-input answer'; aInp.placeholder='Answer — e.g. σ = F/A'; aInp.value=a;
+  const del = document.createElement('button'); del.className='btn-fqa-del'; del.textContent='✕';
+  del.onclick = () => document.getElementById(uid).remove();
+  inputs.appendChild(qInp); inputs.appendChild(aInp);
+  top.appendChild(inputs); top.appendChild(del);
+  row.appendChild(top);
+  document.getElementById('fqaList').appendChild(row); qInp.focus();
+}
+
 function addTag(text){
   text = String(text).trim();
   if(!text || tempTags.includes(text)) return;
@@ -717,6 +768,10 @@ function saveTopic(){
     .map(i => i.value.trim()).filter(Boolean);
   const relatedTerms = [...tempTags];
   const ti = document.getElementById('tagsInput').value.trim(); if(ti) relatedTerms.push(ti);
+  const flashcardQA = Array.from(document.getElementById('fqaList').querySelectorAll('.fqa-row')).map(row => {
+    const inputs = row.querySelectorAll('.fqa-input');
+    return { q: (inputs[0]?.value||'').trim(), a: (inputs[1]?.value||'').trim() };
+  }).filter(qa => qa.q);
   const ex = editId ? (getTopics().find(t => t.id===editId)||{}) : {};
   const topic = {
     id: editId || Date.now(),
@@ -730,6 +785,7 @@ function saveTopic(){
     safety:    getRichVal('fSafety'),
     examTip:   getRichVal('fExamTip'),
     relatedTerms,
+    flashcardQA,
     createdAt: ex.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
