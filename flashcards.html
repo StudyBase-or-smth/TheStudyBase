@@ -121,6 +121,26 @@ body.dark{
 body.dark .hdr-outer{background:var(--card)!important}
 body.dark .fc-front,body.dark .fc-footer-bar,body.dark .fc-filter-bar,body.dark .fc-btn,body.dark .fc-btn-icon,body.dark .fc-small-btn{background:var(--card)!important}
 body.dark .fc-back{background:var(--card2)!important}
+
+/* ── Answer input (Q&A cards) ── */
+.fc-answer-wrap{width:100%;max-width:600px;display:flex;flex-direction:column;gap:10px}
+.fc-answer-input{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:12px 16px;font-family:'Inter',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .15s;resize:none;line-height:1.5}
+.fc-answer-input:focus{border-color:var(--accent)}
+.fc-answer-input::placeholder{color:var(--muted2)}
+.fc-answer-input:disabled{opacity:.6;cursor:default}
+body.dark .fc-answer-input{background:var(--card2)!important}
+
+/* Result banner */
+.fc-result{border-radius:8px;padding:12px 16px;font-size:13px;line-height:1.55;display:none;width:100%}
+.fc-result.show{display:block}
+.fc-result.correct{background:#f0fdf4;border:1.5px solid #86efac;color:#14532d}
+.fc-result.close{background:#fffbeb;border:1.5px solid #fde68a;color:#713f12}
+.fc-result.incorrect{background:#fef2f2;border:1.5px solid #fca5a5;color:#7f1d1d}
+body.dark .fc-result.correct{background:#052e16;border-color:#16a34a;color:#bbf7d0}
+body.dark .fc-result.close{background:#1c1a08;border-color:#ca8a04;color:#fef08a}
+body.dark .fc-result.incorrect{background:#2d0a0a;border-color:#dc2626;color:#fca5a5}
+.fc-result-label{font-weight:700;font-size:14px;margin-bottom:4px}
+.fc-result-answer{margin-top:6px;font-size:12px;opacity:.85}
 body.dark .fc-formula{background:var(--card)!important}
 
 /* ── Guest border ── */
@@ -336,13 +356,17 @@ function render(){
     ${unitPillsHtml ? `<div class="fc-filter-bar">${unitPillsHtml}</div>` : ''}
 
     <div class="fc-scene-wrap">
-      <div class="fc-scene" id="fcScene" onclick="flipCard()">
+      <div class="fc-scene" id="fcScene" onclick="if(fcCards[fcIndex]&&fcCards[fcIndex].type!=='qa')flipCard()">
         <div class="fc-card" id="fcCard">
           <div class="fc-face fc-front" id="fcFront"></div>
           <div class="fc-face fc-back" id="fcBack"></div>
         </div>
       </div>
       <div class="fc-dots" id="fcDots"></div>
+      <div class="fc-answer-wrap" id="fcAnswerWrap" style="display:none">
+        <textarea class="fc-answer-input" id="fcAnswerInput" rows="3" placeholder="Type your answer here…"></textarea>
+        <div class="fc-result" id="fcResult"></div>
+      </div>
       <div class="fc-controls">
         <button class="fc-btn-icon" id="fcPrev" onclick="fcNav(-1)" title="Previous (←)">‹</button>
         <button class="fc-btn primary" id="fcFlipBtn" onclick="flipCard()">Flip card</button>
@@ -389,23 +413,35 @@ function renderCard(){
   back.style.borderTopColor  = SUBJECT.colour;
 
   if(card.type === 'qa'){
-    // Q&A card: question on front, answer on back
+    // Q&A card: question shown, no flip — answer typed below
     front.innerHTML = `
       ${t.unit ? `<div class="fc-unit-badge">${esc(t.unit)}</div>` : ''}
       <div style="font-size:11px;color:var(--muted2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600">${esc(t.name)}</div>
-      <div class="fc-term" style="font-size:22px">${esc(card.q)}</div>
-      <div class="fc-hint">Click · Space to flip</div>`;
+      <div class="fc-term" style="font-size:22px">${esc(card.q)}</div>`;
+    back.innerHTML = '';
 
-    let backHtml = '';
-    if(card.a){
-      backHtml += `<div class="fc-section-label">Answer</div><div class="fc-def">${esc(card.a)}</div>`;
-    } else {
-      backHtml += `<p style="color:var(--muted2);font-size:13px;font-style:italic">No answer set.</p>`;
-    }
-    back.innerHTML = `<div class="fc-back-inner">${backHtml}</div>`;
+    const scene = document.getElementById('fcScene');
+    if(scene) scene.style.cursor = 'default';
+    const flipBtn = document.getElementById('fcFlipBtn');
+    if(flipBtn){ flipBtn.textContent = 'Check answer'; flipBtn.onclick = checkAnswer; }
+
+    document.getElementById('fcAnswerWrap').style.display = 'flex';
+    document.getElementById('fcAnswerInput').value = '';
+    document.getElementById('fcAnswerInput').disabled = false;
+    document.getElementById('fcAnswerInput').focus();
+    document.getElementById('fcResult').className = 'fc-result';
+    document.getElementById('fcResult').innerHTML = '';
 
   } else {
-    // Base card: topic name on front, full notes on back
+    // Base card: term on front, notes on back — normal flip
+    const scene = document.getElementById('fcScene');
+    if(scene) scene.style.cursor = 'pointer';
+    const flipBtn = document.getElementById('fcFlipBtn');
+    if(flipBtn){ flipBtn.textContent = 'Flip card'; flipBtn.onclick = flipCard; }
+
+    document.getElementById('fcAnswerWrap').style.display = 'none';
+    document.getElementById('fcResult').className = 'fc-result';
+
     front.innerHTML = `
       ${t.unit ? `<div class="fc-unit-badge">${esc(t.unit)}</div>` : ''}
       <div class="fc-term">${esc(t.name)}</div>
@@ -430,10 +466,6 @@ function renderCard(){
     if(!html) html = `<p style="color:var(--muted2);font-size:13px;font-style:italic">No content added yet.</p>`;
     back.innerHTML = `<div class="fc-back-inner">${html}</div>`;
   }
-
-  // Flip button label
-  const flipBtn = document.getElementById('fcFlipBtn');
-  if(flipBtn) flipBtn.textContent = 'Flip card';
 
   // Nav buttons
   const prev = document.getElementById('fcPrev');
@@ -462,6 +494,91 @@ function renderDots(){
   const total = fcCards.length;
   if(total > 30){ dotsEl.innerHTML = ''; return; } // too many, skip dots
   dotsEl.innerHTML = fcCards.map((_,i)=>`<div class="fc-dot${i===fcIndex?' current':i<fcIndex?' seen':''}"></div>`).join('');
+}
+
+// ── Fuzzy answer comparison ──
+const WORD_TO_NUM = {
+  'zero':0,'one':1,'two':2,'three':3,'four':4,'five':5,'six':6,'seven':7,
+  'eight':8,'nine':9,'ten':10,'eleven':11,'twelve':12,'thirteen':13,
+  'fourteen':14,'fifteen':15,'sixteen':16,'seventeen':17,'eighteen':18,
+  'nineteen':19,'twenty':20,'thirty':30,'forty':40,'fifty':50,
+  'sixty':60,'seventy':70,'eighty':80,'ninety':90,'hundred':100,'thousand':1000
+};
+function wordsToNums(s){
+  // Replace number words with their digit equivalents
+  return s.replace(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand)\b/g,
+    w => WORD_TO_NUM[w]);
+}
+
+function normalise(s){
+  return wordsToNums(
+    s.toLowerCase()
+     .replace(/[^a-z0-9\s]/g,'')
+     .replace(/\s+/g,' ')
+     .trim()
+  );
+}
+
+// Levenshtein distance
+function levenshtein(a, b){
+  const m=a.length, n=b.length;
+  const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+function similarity(typed, correct){
+  const a=normalise(typed), b=normalise(correct);
+  if(!a||!b) return 0;
+  if(a===b) return 1;
+  // Also check if typed is a substring of correct or vice versa
+  if(b.includes(a)||a.includes(b)) return 0.85;
+  const maxLen=Math.max(a.length,b.length);
+  const dist=levenshtein(a,b);
+  return 1-(dist/maxLen);
+}
+
+function checkAnswer(){
+  const card = fcCards[fcIndex];
+  if(card.type !== 'qa') return;
+
+  const input = document.getElementById('fcAnswerInput');
+  const typed = input.value.trim();
+  if(!typed){ input.focus(); return; }
+
+  const correct = card.a || '';
+  const result = document.getElementById('fcResult');
+  input.disabled = true;
+
+  // Flip button becomes "Next" after checking
+  const flipBtn = document.getElementById('fcFlipBtn');
+
+  if(!correct){
+    // No stored answer — just show what they wrote
+    result.className = 'fc-result show close';
+    result.innerHTML = `<div class="fc-result-label">No stored answer</div>
+      <div class="fc-result-answer">Your answer: <em>${esc(typed)}</em></div>`;
+    if(flipBtn){ flipBtn.textContent = 'Next →'; flipBtn.onclick = () => fcNav(1); }
+    return;
+  }
+
+  const score = similarity(typed, correct);
+  if(score >= 0.80){
+    result.className = 'fc-result show correct';
+    result.innerHTML = `<div class="fc-result-label">✓ Correct!</div>
+      <div class="fc-result-answer">Answer: <em>${esc(correct)}</em></div>`;
+  } else if(score >= 0.50){
+    result.className = 'fc-result show close';
+    result.innerHTML = `<div class="fc-result-label">~ Close</div>
+      <div class="fc-result-answer">Your answer: <em>${esc(typed)}</em><br>Correct answer: <em>${esc(correct)}</em></div>`;
+  } else {
+    result.className = 'fc-result show incorrect';
+    result.innerHTML = `<div class="fc-result-label">✕ Incorrect</div>
+      <div class="fc-result-answer">Your answer: <em>${esc(typed)}</em><br>Correct answer: <em>${esc(correct)}</em></div>`;
+  }
+
+  if(flipBtn){ flipBtn.textContent = 'Next →'; flipBtn.onclick = () => fcNav(1); }
 }
 
 function flipCard(){
@@ -498,9 +615,15 @@ function fcRestart(){
 
 // ── Keyboard shortcuts ──
 document.addEventListener('keydown', e => {
+  const card = fcCards[fcIndex];
   if(e.key === 'ArrowLeft')  fcNav(-1);
   if(e.key === 'ArrowRight') fcNav(1);
-  if(e.key === ' '){ e.preventDefault(); flipCard(); }
+  if(e.key === ' ' && card && card.type !== 'qa'){ e.preventDefault(); flipCard(); }
+  if(e.key === 'Enter' && card && card.type === 'qa'){
+    const input = document.getElementById('fcAnswerInput');
+    // Only submit if not already checked (input still enabled) and not focused in textarea (allow newline? no — single line answers)
+    if(input && !input.disabled){ e.preventDefault(); checkAnswer(); }
+  }
 });
 
 // ── Boot ──

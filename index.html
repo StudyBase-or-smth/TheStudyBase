@@ -213,10 +213,35 @@ body.guest-mode:not(.dark) .hdr-outer{background:#eeebe6;border-bottom-color:#d4
 .sug-status.closed{background:#f3e8ff;color:#581c87}
 body.dark .sug-status.open{background:#14532d;color:#bbf7d0}
 body.dark .sug-status.closed{background:#3b0764;color:#e9d5ff}
-.sug-item.closed .sug-text{opacity:.5;text-decoration:line-through}
+.sug-item.closed .sug-text{opacity:.5}
 .sug-item.closed .sug-meta{opacity:.5}
 .sug-toggle-btn{font-size:11px;font-weight:600;background:none;border:1px solid var(--border);border-radius:20px;padding:3px 10px;cursor:pointer;color:var(--muted);font-family:'Inter',sans-serif;transition:all .12s;margin-top:6px;display:inline-block}
 .sug-toggle-btn:hover{border-color:var(--border2);color:var(--text)}
+
+/* Suggestion edit modal */
+.sug-edit-overlay{position:fixed;inset:0;background:rgba(28,25,23,.55);z-index:400;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.sug-edit-overlay.open{display:flex}
+.sug-edit-modal{background:var(--card);border:1px solid var(--border);border-radius:12px;width:100%;max-width:400px;padding:20px;box-shadow:0 16px 48px rgba(0,0,0,.15);animation:pop .18s cubic-bezier(.34,1.4,.64,1)}
+.sug-edit-modal h3{font-family:'Lora',serif;font-size:15px;font-weight:700;margin-bottom:14px;color:var(--text)}
+.sug-edit-modal textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;resize:vertical;min-height:70px;transition:border-color .15s;margin-bottom:12px}
+.sug-edit-modal textarea:focus{border-color:var(--border2)}
+.sug-edit-label{font-size:11px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.sug-edit-tags{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.sug-edit-tag{background:none;border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.4px;cursor:pointer;transition:all .12s;color:var(--muted);text-transform:uppercase}
+.sug-edit-tag.active.bug{background:#fecaca;border-color:#fca5a5;color:#7f1d1d}
+.sug-edit-tag.active.request{background:#bfdbfe;border-color:#93c5fd;color:#1e3a5f}
+.sug-edit-tag.active.idea{background:#d9f99d;border-color:#a3e635;color:#14532d}
+.sug-edit-tag.active.none{background:var(--card2);border-color:var(--border2);color:var(--text)}
+body.dark .sug-edit-tag.active.bug{background:#7f1d1d;border-color:#991b1b;color:#fecaca}
+body.dark .sug-edit-tag.active.request{background:#1e3a5f;border-color:#1d4ed8;color:#bfdbfe}
+body.dark .sug-edit-tag.active.idea{background:#14532d;border-color:#15803d;color:#d9f99d}
+.sug-edit-ver{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;margin-bottom:14px}
+.sug-edit-ver:focus{border-color:var(--border2)}
+.sug-edit-footer{display:flex;gap:8px;justify-content:flex-end}
+.sug-edit-cancel{background:none;border:1px solid var(--border);border-radius:7px;padding:8px 16px;font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);cursor:pointer;transition:all .12s}
+.sug-edit-cancel:hover{border-color:var(--border2);color:var(--text)}
+.sug-edit-save{background:var(--text);color:var(--card);border:none;border-radius:7px;padding:8px 16px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .12s}
+.sug-edit-save:hover{opacity:.85}
 </style>
 </head>
 <body>
@@ -414,8 +439,8 @@ loadBranchVersion();
       <button onclick="closeSuggestions()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted);line-height:1;padding:0;margin-left:12px">×</button>
     </div>
     <div class="sug-filters" id="sugFilters">
-    <button class="sug-filter active" onclick="setSugFilter('open',this)">🟢 Open</button>
-    <button class="sug-filter" onclick="setSugFilter('closed',this)">🟣 Closed</button>
+    <button class="sug-filter active" onclick="setSugFilter('open',this)">Open</button>
+    <button class="sug-filter" onclick="setSugFilter('closed',this)">Closed</button>
     <button class="sug-filter" onclick="setSugFilter('all',this)">All</button>
   </div>
   <div class="sug-list" id="sugList"><div class="sug-empty">Loading…</div></div>
@@ -510,6 +535,20 @@ const TODAY=new Date();
 let calYear=TODAY.getFullYear(), calMonth=TODAY.getMonth();
 
 // ── Init ──
+// ── Toast ──
+(function(){
+  const s=document.createElement('style');
+  s.textContent='#sb-toast-c{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none}.sb-toast{display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--border2);border-radius:8px;padding:9px 13px;font-size:12px;font-family:\'Inter\',sans-serif;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:180px;max-width:280px;animation:tb-in .2s ease;transition:opacity .3s,transform .3s}.sb-toast.out{opacity:0;transform:translateX(16px)}.sb-toast.success{border-color:#86efac}.sb-toast.warning{border-color:#fcd34d}.sb-toast.error{border-color:#fca5a5}@keyframes tb-in{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}';
+  document.head.appendChild(s);
+  const c=document.createElement('div');c.id='sb-toast-c';document.body.appendChild(c);
+  window.showToast=function(msg,type='info',duration=2500){
+    const icons={success:'✓',error:'✕',info:'ℹ',warning:'⚠'};
+    const t=document.createElement('div');t.className='sb-toast '+(type||'info');
+    t.innerHTML=`<span>${icons[type]||'ℹ'}</span><span>${msg}</span>`;
+    c.appendChild(t);setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),350);},duration);
+  };
+})();
+
 function init(){
   if(typeof subjectsData==='undefined'){
     document.getElementById('subjectsGrid').innerHTML=
@@ -879,8 +918,8 @@ function renderSugList(){
   const openCount=_sugCache.filter(s=>s.status!=='closed').length;
   const closedCount=_sugCache.filter(s=>s.status==='closed').length;
   const btns=document.querySelectorAll('.sug-filter');
-  if(btns[0]) btns[0].textContent='🟢 Open ('+openCount+')';
-  if(btns[1]) btns[1].textContent='🟣 Closed ('+closedCount+')';
+  if(btns[0]) btns[0].textContent='Open ('+openCount+')';
+  if(btns[1]) btns[1].textContent='Closed ('+closedCount+')';
   if(btns[2]) btns[2].textContent='All ('+_sugCache.length+')';
   if(!filtered.length){
     list.innerHTML='<div class="sug-empty">'+(_sugCache.length?'No '+_sugFilter+' suggestions.':'No suggestions yet — be the first!')+'</div>';
@@ -889,12 +928,13 @@ function renderSugList(){
   list.innerHTML=[...filtered].reverse().map(s=>{
     const isClosed=s.status==='closed';
     const tagHtml=s.tag?`<span class="sug-tag ${s.tag}">${s.tag}</span> `:'';
-    const statusHtml=`<span class="sug-status ${isClosed?'closed':'open'}">${isClosed?'🟣 Closed':'🟢 Open'}</span>`;
+    const statusHtml=`<span class="sug-status ${isClosed?'closed':'open'}">${isClosed?'Closed':'Open'}</span>`;
     return `<div class="sug-item${isClosed?' closed':''}">
       <button onclick="deleteSuggestion('${s.id}')" title="Delete" style="position:absolute;top:6px;right:6px;background:none;border:none;cursor:pointer;font-size:14px;line-height:1;color:var(--muted2);padding:2px 4px;border-radius:4px" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--muted2)'">×</button>
       ${statusHtml} ${tagHtml}<div class="sug-text">${s.text.replace(/</g,'&lt;')}</div>
-      <div class="sug-meta">${s.date}${s.time?' · '+s.time:''}</div>
+      <div class="sug-meta">${s.date}${s.time?' · '+s.time:''}${s.version?' · '+s.version:''}</div>
       <button class="sug-toggle-btn" onclick="toggleSuggestion('${s.id}')">${isClosed?'↩ Reopen':'✓ Close'}</button>
+      <button class="sug-toggle-btn" style="margin-left:5px" onclick="openSugEdit('${s.id}')">✏ Edit</button>
     </div>`;
   }).join('');
 }
@@ -917,7 +957,9 @@ function sendSuggestion(){
   const date=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
   const time=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
   const activeTag=document.querySelector('.sug-tag-btn.active');
-  const newSug={id:String(Date.now()),text,tag:activeTag?activeTag.dataset.tag:'',date,time};
+  const verBadge = document.getElementById('branch-badge');
+  const ver = verBadge ? verBadge.textContent.trim() : '';
+  const newSug={id:String(Date.now()),text,tag:activeTag?activeTag.dataset.tag:'',date,time,version:ver};
   newSug.status='open';
   _sugCache.push(newSug); renderSugList();
   input.value='';
@@ -927,7 +969,69 @@ function sendSuggestion(){
 }
 document.getElementById('sugOverlay').addEventListener('click',function(e){if(e.target===this)closeSuggestions();});
 
+// ── Suggestion edit ──
+let _sugEditId = null;
+
+function openSugEdit(id){
+  const s = _sugCache.find(x => x.id === id);
+  if(!s) return;
+  _sugEditId = id;
+  document.getElementById('sugEditText').value = s.text || '';
+  document.getElementById('sugEditVer').value = s.version || '';
+  // Set active tag
+  document.querySelectorAll('.sug-edit-tag').forEach(b => {
+    b.classList.remove('active');
+    if(b.dataset.tag === (s.tag||'')) b.classList.add('active');
+  });
+  document.getElementById('sugEditOverlay').classList.add('open');
+}
+function closeSugEdit(){
+  document.getElementById('sugEditOverlay').classList.remove('open');
+  _sugEditId = null;
+}
+function setSugEditTag(btn){
+  document.querySelectorAll('.sug-edit-tag').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function saveSugEdit(){
+  const s = _sugCache.find(x => x.id === _sugEditId);
+  if(!s) return;
+  s.text = document.getElementById('sugEditText').value.trim() || s.text;
+  s.version = document.getElementById('sugEditVer').value.trim();
+  const activeTag = document.querySelector('.sug-edit-tag.active');
+  s.tag = activeTag ? activeTag.dataset.tag : '';
+  renderSugList();
+  pushSuggestions();
+  closeSugEdit();
+  showToast('Suggestion updated', 'success');
+}
+document.addEventListener('DOMContentLoaded', function(){
+  const overlay = document.getElementById('sugEditOverlay');
+  if(overlay) overlay.addEventListener('click', function(e){ if(e.target===this) closeSugEdit(); });
+});
+
 document.addEventListener('DOMContentLoaded', init);
 </script>
+<!-- Suggestion edit modal -->
+<div class="sug-edit-overlay" id="sugEditOverlay">
+  <div class="sug-edit-modal">
+    <h3>Edit Suggestion</h3>
+    <textarea id="sugEditText" rows="3"></textarea>
+    <div class="sug-edit-label">Tag</div>
+    <div class="sug-edit-tags">
+      <button class="sug-edit-tag none" data-tag="" onclick="setSugEditTag(this)">None</button>
+      <button class="sug-edit-tag bug" data-tag="bug" onclick="setSugEditTag(this)">Bug</button>
+      <button class="sug-edit-tag request" data-tag="request" onclick="setSugEditTag(this)">Request</button>
+      <button class="sug-edit-tag idea" data-tag="idea" onclick="setSugEditTag(this)">Idea</button>
+    </div>
+    <div class="sug-edit-label">Version</div>
+    <input class="sug-edit-ver" id="sugEditVer" type="text" placeholder="e.g. Main-Dev · v2.3.0">
+    <div class="sug-edit-footer">
+      <button class="sug-edit-cancel" onclick="closeSugEdit()">Cancel</button>
+      <button class="sug-edit-save" onclick="saveSugEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
