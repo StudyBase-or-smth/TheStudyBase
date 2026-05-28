@@ -202,7 +202,7 @@ body.dark .sug-input{background:var(--card2);border-color:var(--border);color:va
 #guest-nudge{display:none;position:fixed;bottom:20px;right:20px;z-index:9001;background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;width:210px;box-shadow:0 4px 20px rgba(0,0,0,.12);animation:nudge-in .25s cubic-bezier(.34,1.4,.64,1);}
 @keyframes nudge-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 body.guest-mode .cal-add-btn{display:none !important;}
-body.guest-mode:not(.dark) .hdr-outer{background:#eeebe6;border-bottom-color:#d4cec7;}
+body.guest-mode #profileBtn{display:none !important;}body.guest-mode:not(.dark) .hdr-outer{background:#eeebe6;border-bottom-color:#d4cec7;}
 
 .sug-filters{display:flex;gap:0;padding:10px 24px 0;border-bottom:1px solid var(--border);flex-shrink:0}
 .sug-filter{background:none;border:none;border-bottom:2px solid transparent;padding:6px 12px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .12s;margin-bottom:-1px}
@@ -217,26 +217,6 @@ body.dark .sug-status.closed{background:#3b0764;color:#e9d5ff}
 .sug-item.closed .sug-meta{opacity:.5}
 .sug-toggle-btn{font-size:11px;font-weight:600;background:none;border:1px solid var(--border);border-radius:20px;padding:3px 10px;cursor:pointer;color:var(--muted);font-family:'Inter',sans-serif;transition:all .12s;margin-top:6px;display:inline-block}
 .sug-toggle-btn:hover{border-color:var(--border2);color:var(--text)}
-
-/* PDF section */
-.pdf-drop{border:1.5px dashed var(--border2);border-radius:8px;padding:14px 16px;text-align:center;cursor:default;transition:all .15s;margin-bottom:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--muted);font-family:'Inter',sans-serif}
-.pdf-drop.drag-over{border-color:#f59e0b;background:#fffbeb;color:#92400e}
-.pdf-list{display:flex;flex-direction:column;gap:6px}
-.pdf-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border:1px solid var(--border);border-radius:7px;cursor:pointer;transition:all .12s}
-.pdf-item:hover{border-color:var(--border2);background:var(--card)}
-.pdf-item-icon{font-size:16px;flex-shrink:0}
-.pdf-item-info{flex:1;min-width:0}
-.pdf-item-name{font-size:12px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pdf-item-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px;padding:2px 5px;border-radius:4px;flex-shrink:0;transition:color .12s}
-.pdf-item-del:hover{color:#dc2626}
-.pdf-item-meta{display:flex;align-items:center;gap:4px;margin-top:3px;flex-wrap:wrap}
-.pdf-badge{font-size:10px;font-weight:600;border-radius:4px;padding:1px 5px;white-space:nowrap;letter-spacing:.2px;border:1px solid transparent}
-.pdf-badge.pages{color:#2563eb;border-color:#bfdbfe;background:#eff6ff}
-.pdf-badge.size{color:#15803d;border-color:#bbf7d0;background:#f0fdf4}
-.pdf-badge.author{color:#7c3aed;border-color:#ddd6fe;background:#faf5ff;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-body.dark .pdf-badge.pages{background:#1e3a5f;border-color:#1d4ed8;color:#93c5fd}
-body.dark .pdf-badge.size{background:#14532d;border-color:#15803d;color:#86efac}
-body.dark .pdf-badge.author{background:#3b0764;border-color:#7c3aed;color:#c4b5fd}
 </style>
 </head>
 <body>
@@ -305,18 +285,17 @@ body.dark .pdf-badge.author{background:#3b0764;border-color:#7c3aed;color:#c4b5f
           <span class="logo-sub-txt">SCHOOL REFERENCE</span>
         </div>
       </div>
-      <div id="branch-badge" style="font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;">Loading…</div>
+      <button id="profileBtn" class="hdr-ghost" onclick="window.location.href='profile.html'" data-tip="Profile" style="display:flex;align-items:center;gap:5px">          <span style="font-size:13px">👤</span>
+          <span id="hdrUserName" style="font-size:12px;font-weight:600;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+        </button>
+        <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out">⎋</button>
       <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
         <span class="hdr-date-pill">Today — <strong id="todayDate"></strong></span>
         <span id="syncCountdown" style="font-size:11px;color:var(--muted2);font-variant-numeric:tabular-nums"></span>
         <button class="hdr-ghost" onclick="manualSync()" data-tip="Sync now">⟳</button>
         <button class="hdr-ghost" onclick="openSuggestions()" data-tip="Suggestions">📝</button>
-        <button class="hdr-ghost" onclick="window.location.href='profile.html'" data-tip="Profile" style="display:flex;align-items:center;gap:5px">
-          <span style="font-size:13px">👤</span>
-          <span id="hdrUserName" style="font-size:12px;font-weight:600;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-        </button>
-        <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out">⎋</button>
         <button class="hdr-ghost" id="darkToggle" data-tip="Dark mode">🌙</button>
+        <div id="branch-badge" style="font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;">Loading…</div>
       </div>
     </div>
   </div>
@@ -394,20 +373,6 @@ loadBranchVersion();
         <div class="collapsible-body" id="unitsBody" style="margin-top:0">
           <div style="height:12px"></div>
           <div id="unitsList"><div class="empty-note">No units created yet.</div></div>
-        </div>
-      </div>
-      <div class="side-card">
-        <div class="sec-title-collapsible" id="pdfToggle" onclick="toggleSection('pdf')" title="Click to collapse">
-          <span>Documents</span>
-          <span class="collapse-arrow">▾</span>
-        </div>
-        <div class="collapsible-body" id="pdfBody" style="margin-top:0">
-          <div style="height:12px"></div>
-          <div class="pdf-drop" id="pdfDrop">
-            <span>📄</span><span>Drag a PDF here or <u style="cursor:pointer" onclick="triggerDrivePick()">pick from Drive</u></span>
-            <input type="file" id="pdfInput" accept="application/pdf" style="display:none">
-          </div>
-          <div class="pdf-list" id="pdfList"></div>
         </div>
       </div>
     </div>
@@ -495,8 +460,6 @@ loadBranchVersion();
 </div>
 
 <script src="subjects.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 // ── Toast system ──
 (function(){
@@ -553,7 +516,7 @@ function toggleSection(section){
 
 function initCollapsibles(){
   const state=getCollapsed();
-  ['recent','units','pdf'].forEach(s=>applyCollapse(s,!!state[s]));
+  ['recent','units'].forEach(s=>applyCollapse(s,!!state[s]));
 }
 
 // ── Calendar state ──
@@ -977,155 +940,6 @@ function sendSuggestion(){
   pushSuggestions();
 }
 document.getElementById('sugOverlay').addEventListener('click',function(e){if(e.target===this)closeSuggestions();});
-
-// ── Google Drive Document Upload ──
-const GDRIVE_CLIENT_ID = '279885079035-viio3ocb1t8kc8e701urih8i30e2rfbv.apps.googleusercontent.com';
-const GDRIVE_SCOPE     = 'https://www.googleapis.com/auth/drive.file';
-const PDF_KEY          = 'studybase_pdfs';
-let _gToken = null;
-
-function getPdfs(){ try{ return JSON.parse(localStorage.getItem(PDF_KEY)||'[]'); }catch(e){ return []; } }
-function savePdfs(arr){ localStorage.setItem(PDF_KEY, JSON.stringify(arr)); }
-
-function renderPdfList(){
-  const list = document.getElementById('pdfList');
-  if(!list) return;
-  const pdfs = getPdfs();
-  if(!pdfs.length){ list.innerHTML = '<div class="empty-note">No documents yet.</div>'; return; }
-  list.innerHTML = pdfs.map(p => {
-    const profile = p.profile || {};
-    const pagesBadge  = profile.pages  ? `<span class="pdf-badge pages">📄 ${profile.pages}p</span>` : '';
-    const sizeBadge   = profile.size   ? `<span class="pdf-badge size">${profile.size}</span>` : '';
-    const authorBadge = profile.author ? `<span class="pdf-badge author" title="${profile.author}">✍ ${profile.author}</span>` : '';
-    const metaRow = (pagesBadge||sizeBadge||authorBadge)
-      ? `<div class="pdf-item-meta">${pagesBadge}${sizeBadge}${authorBadge}</div>` : '';
-    return `<div class="pdf-item" onclick="openPdf('${p.id}')">
-      <span class="pdf-item-icon">📄</span>
-      <div class="pdf-item-info">
-        <div class="pdf-item-name" title="${p.name}">${p.name}</div>
-        ${metaRow}
-      </div>
-      <button class="pdf-item-del" onclick="event.stopPropagation();deletePdf('${p.id}')" title="Remove">×</button>
-    </div>`;
-  }).join('');
-}
-
-function openPdf(id){
-  const p = getPdfs().find(x => x.id === id);
-  if(p) window.open(p.link, '_blank');
-}
-
-function deletePdf(id){
-  savePdfs(getPdfs().filter(p => p.id !== id));
-  renderPdfList();
-  showToast('Document removed', 'warning');
-}
-
-function getGToken(){
-  return new Promise((resolve, reject) => {
-    if(_gToken){ resolve(_gToken); return; }
-    const client = google.accounts.oauth2.initTokenClient({
-      client_id: GDRIVE_CLIENT_ID,
-      scope: GDRIVE_SCOPE,
-      callback: (resp) => {
-        if(resp.error){ reject(resp.error); return; }
-        _gToken = resp.access_token;
-        resolve(_gToken);
-      }
-    });
-    client.requestAccessToken();
-  });
-}
-
-async function uploadToDrive(file){
-  const token = await getGToken();
-  const meta = { name: file.name, mimeType: file.type||'application/pdf' };
-  const form = new FormData();
-  form.append('metadata', new Blob([JSON.stringify(meta)], {type:'application/json'}));
-  form.append('file', file);
-  const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}` },
-    body: form
-  });
-  if(!res.ok) throw new Error('Upload failed: ' + res.status);
-  const data = await res.json();
-  await fetch(`https://www.googleapis.com/drive/v3/files/${data.id}/permissions`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ role:'reader', type:'anyone' })
-  });
-  return { id: data.id, name: data.name, link: data.webViewLink };
-}
-
-async function profilePdf(file){
-  try{
-    if(window.pdfjsLib && !pdfjsLib.GlobalWorkerOptions.workerSrc){
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    }
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
-    const meta = await pdf.getMetadata().catch(()=>({info:{}}));
-    const info = meta.info || {};
-    const bytes = file.size;
-    const sizeStr = bytes >= 1048576 ? (bytes/1048576).toFixed(1)+' MB'
-      : bytes >= 1024 ? Math.round(bytes/1024)+' KB' : bytes+' B';
-    return {
-      pages:  pdf.numPages || null,
-      size:   sizeStr,
-      author: (info.Author || info.Creator || '').trim() || null,
-      title:  (info.Title || '').trim() || null,
-    };
-  }catch(e){
-    const bytes = file.size;
-    const sizeStr = bytes >= 1048576 ? (bytes/1048576).toFixed(1)+' MB'
-      : bytes >= 1024 ? Math.round(bytes/1024)+' KB' : bytes+' B';
-    return { pages: null, size: sizeStr, author: null, title: null };
-  }
-}
-
-async function handleFiles(files){
-  const arr = Array.from(files).filter(f => f.type === 'application/pdf' || f.name.endsWith('.pdf'));
-  if(!arr.length){ showToast('Please drop a PDF file', 'error'); return; }
-  showToast('Profiling & uploading…', 'info', 8000);
-  try {
-    const pdfs = getPdfs();
-    for(const file of arr){
-      const profile = await profilePdf(file);
-      const doc = await uploadToDrive(file);
-      doc.profile = profile;
-      pdfs.push(doc);
-    }
-    savePdfs(pdfs);
-    renderPdfList();
-    showToast(`${arr.length} document${arr.length>1?'s':''} uploaded!`, 'success');
-  } catch(e){
-    console.error(e);
-    showToast('Upload failed — try signing in again', 'error');
-    _gToken = null;
-  }
-}
-
-function triggerDrivePick(){
-  document.getElementById('pdfInput').click();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  renderPdfList();
-  const input = document.getElementById('pdfInput');
-  if(input) input.addEventListener('change', e => handleFiles(e.target.files));
-  const drop = document.getElementById('pdfDrop');
-  if(drop){
-    drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
-    drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
-    drop.addEventListener('drop', e => {
-      e.preventDefault();
-      drop.classList.remove('drag-over');
-      handleFiles(e.dataTransfer.files);
-    });
-  }
-});
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
