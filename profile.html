@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile — StudyBase</title>
+<link rel="icon" href="icon.png" type="image/png">
+<link rel="apple-touch-icon" href="icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100%;font-family:'Inter',sans-serif;font-size:14px}
+body{background:#f5f2ed;color:#1c1917;display:flex;flex-direction:column}
+:root{
+  --card:#fff;--card2:#faf8f5;--border:#e2ddd7;--border2:#d4cec7;
+  --text:#1c1917;--muted:#6c7778;--muted2:#8199a4;
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --accent:#f59e0b;
+}
+
+/* Header */
+.hdr-outer{background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:stretch;flex-shrink:0}
+.accent-bar{width:6px;flex-shrink:0;background:var(--accent)}
+.hdr-main{flex:1;display:flex;flex-direction:column;min-width:0}
+.hdr-top{display:flex;align-items:center;padding:0 20px;height:44px;gap:10px}
+.logo-block{display:flex;align-items:center;gap:9px;padding-right:14px;border-right:1px solid var(--border);flex-shrink:0}
+.logo-icon2{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.logo-text2{font-size:13px;font-weight:700;color:var(--text);font-family:'Lora',serif;letter-spacing:-.2px}
+.logo-sub-txt{font-size:9px;color:var(--muted2);letter-spacing:.5px;display:block;line-height:1;margin-top:1px}
+.hdr-breadcrumb{display:flex;align-items:center;gap:6px}
+.bc-link{font-size:12px;color:var(--muted2);cursor:pointer;transition:color .12s;text-decoration:none}
+.bc-link:hover{color:var(--muted)}
+.bc-sep{font-size:11px;color:var(--muted2)}
+.bc-current{font-size:12px;font-weight:600;color:var(--text)}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:6px}
+.hdr-ghost{background:none;border:1px solid var(--border);border-radius:5px;padding:4px 7px;font-size:12px;color:var(--text);cursor:pointer;transition:all .12s;line-height:1;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.hdr-ghost:hover{background:var(--card2);border-color:var(--muted2)}
+
+/* Page */
+.page{flex:1;padding:32px 24px 60px;max-width:800px;margin:0 auto;width:100%}
+
+/* Avatar + name block */
+.profile-hero{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px 32px;box-shadow:var(--shadow);display:flex;align-items:center;gap:24px;margin-bottom:20px}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-size:28px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:-1px}
+.profile-name{font-family:'Lora',serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:4px}
+.profile-email{font-size:13px;color:var(--muted);margin-bottom:6px}
+.profile-since{font-size:11px;color:var(--muted2)}
+.profile-badge{display:inline-flex;align-items:center;gap:5px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--muted);margin-top:8px}
+
+/* Grid */
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.profile-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;box-shadow:var(--shadow)}
+.profile-card-title{font-family:'Lora',serif;font-size:14px;font-weight:600;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+
+/* Stat rows */
+.stat-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.stat-row:last-child{border-bottom:none}
+.stat-label{font-size:13px;color:var(--muted)}
+.stat-val{font-size:15px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+
+/* FC breakdown bars */
+.fc-breakdown{display:flex;flex-direction:column;gap:10px}
+.fc-bar-row{display:flex;flex-direction:column;gap:4px}
+.fc-bar-label{display:flex;justify-content:space-between;font-size:12px}
+.fc-bar-label span:first-child{color:var(--muted)}
+.fc-bar-label span:last-child{font-weight:600;color:var(--text)}
+.fc-bar-track{height:7px;background:var(--card2);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+.fc-bar-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.fc-bar-fill.correct{background:#22c55e}
+.fc-bar-fill.close{background:#f59e0b}
+.fc-bar-fill.incorrect{background:#ef4444}
+
+/* Subject links */
+.subj-links{display:flex;flex-direction:column;gap:6px}
+.subj-link-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card2);text-decoration:none;transition:all .12s;cursor:pointer}
+.subj-link-item:hover{border-color:var(--border2);background:var(--card);transform:translateX(3px)}
+.subj-link-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.subj-link-name{font-size:13px;font-weight:500;color:var(--text);flex:1}
+.subj-link-count{font-size:11px;color:var(--muted2)}
+
+/* Most active */
+.most-active-bar{margin-top:16px}
+.most-active-subject{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px}
+
+/* Dark mode */
+body.dark{background:#141210;color:#e8e3dc}
+body.dark{
+  --card:#1e1c19;--card2:#252220;--border:#302d29;--border2:#3d3935;
+  --text:#e8e3dc;--muted:#9e9890;--muted2:#6b6560;
+  --shadow:0 1px 3px rgba(0,0,0,.3);
+}
+body.dark .hdr-outer{background:var(--card)}
+
+/* Toast */
+#sb-toast-c{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none}
+.sb-toast{display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--border2);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:180px;animation:tb-in .2s ease;transition:opacity .3s,transform .3s}
+.sb-toast.out{opacity:0;transform:translateX(16px)}
+@keyframes tb-in{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+
+@media(max-width:600px){
+  .profile-grid{grid-template-columns:1fr}
+  .profile-hero{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  const cfg = {
+    apiKey:"AIzaSyAZeyBIaTstTJ5Pr9o86MHk8dhDPAJFFCA",
+    authDomain:"studybase-8cfa1.firebaseapp.com",
+    projectId:"studybase-8cfa1",
+    storageBucket:"studybase-8cfa1.firebasestorage.app",
+    messagingSenderId:"434992387793",
+    appId:"1:434992387793:web:e5bcae8cad63b4eb6f17f0"
+  };
+  const auth = getAuth(initializeApp(cfg));
+  onAuthStateChanged(auth, user => {
+    const isGuest = sessionStorage.getItem('studybase_guest') === '1';
+    if(user){
+      const email = user.email || '';
+      const uid = user.uid;
+      const namePart = email.split('@')[0];
+      const displayName = namePart.split('.').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      localStorage.setItem('studybase_display_name', displayName);
+      localStorage.setItem('studybase_email', email);
+      localStorage.setItem('studybase_uid', uid);
+      if(!localStorage.getItem('studybase_member_since'))
+        localStorage.setItem('studybase_member_since', new Date().toISOString());
+      buildProfile(displayName, email, uid, false);
+    } else if(isGuest){
+      buildProfile('Guest', '', 'guest', true);
+    } else {
+      window.location.href = 'login.html';
+    }
+  });
+  window.sbSignOut = () => {
+    if(sessionStorage.getItem('studybase_guest')==='1'){
+      sessionStorage.removeItem('studybase_guest');
+      window.location.href='login.html'; return;
+    }
+    signOut(auth).then(()=>window.location.href='login.html');
+  };
+</script>
+
+<!-- Header -->
+<div class="hdr-outer">
+  <div class="accent-bar"></div>
+  <div class="hdr-main">
+    <div class="hdr-top">
+      <div class="logo-block">
+        <div class="logo-icon2"><img src="icon.png" style="width:24px;height:24px;object-fit:contain"></div>
+        <div>
+          <div class="logo-text2">StudyBase</div>
+          <span class="logo-sub-txt">SCHOOL REFERENCE</span>
+        </div>
+      </div>
+      <div class="hdr-breadcrumb">
+        <a class="bc-link" href="index.html">Hub</a>
+        <span class="bc-sep">›</span>
+        <span class="bc-current">Profile</span>
+      </div>
+      <div class="hdr-right">
+        <button class="hdr-ghost" onclick="sbSignOut()">⎋ Sign out</button>
+        <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()">🌙</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="profilePage">
+  <div style="color:var(--muted);font-size:13px;padding:40px 0;text-align:center">Loading profile…</div>
+</div>
+
+<div id="sb-toast-c"></div>
+<script src="subjects.js"></script>
+<script>
+// Dark mode
+(function(){
+  const on = localStorage.getItem('studybase_dark')==='1';
+  if(on) document.body.classList.add('dark');
+  const btn = document.getElementById('darkToggle');
+  if(btn) btn.textContent = on ? '☀️' : '🌙';
+})();
+function toggleDark(){
+  const on = document.body.classList.toggle('dark');
+  localStorage.setItem('studybase_dark', on?'1':'0');
+  document.getElementById('darkToggle').textContent = on?'☀️':'🌙';
+}
+
+function getInitials(name){
+  return name.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
+}
+
+function formatDate(iso){
+  if(!iso) return 'Unknown';
+  try{
+    return new Date(iso).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
+  }catch(e){ return 'Unknown'; }
+}
+
+function getTopics(s){
+  const key = s.storageKey||(s.id+'_topics');
+  try{ return JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){ return []; }
+}
+
+function buildProfile(displayName, email, uid, isGuest){
+  const subjects = (typeof subjectsData !== 'undefined') ? (subjectsData.subjects||[]) : [];
+
+  // Count topics added by this user
+  let totalTopics = 0;
+  let mostActive = null, mostActiveCount = 0;
+  subjects.forEach(s => {
+    const all = getTopics(s);
+    const mine = uid === 'guest' ? all : all.filter(t => !t.addedBy || t.addedBy === uid);
+    totalTopics += mine.length;
+    if(mine.length > mostActiveCount){ mostActiveCount = mine.length; mostActive = s; }
+  });
+
+  // Flashcard stats keyed by UID
+  const statsKey = 'studybase_fc_stats_' + uid;
+  let fcStats = {correct:0,close:0,incorrect:0,total:0};
+  try{ fcStats = JSON.parse(localStorage.getItem(statsKey)||'{}'); }catch(e){}
+  const fcTotal = (fcStats.total||0);
+  const fcCorrect = fcStats.correct||0;
+  const fcClose = fcStats.close||0;
+  const fcIncorrect = fcStats.incorrect||0;
+  const accuracy = fcTotal > 0 ? Math.round((fcCorrect/fcTotal)*100) : 0;
+
+  const memberSince = formatDate(localStorage.getItem('studybase_member_since'));
+  const initials = getInitials(displayName);
+
+  // Subject links HTML
+  const subjLinksHtml = subjects.length ? subjects.map(s => {
+    const all = getTopics(s);
+    const mine = uid === 'guest' ? all : all.filter(t => !t.addedBy || t.addedBy === uid);
+    const total = all.length;
+    return `<a class="subj-link-item" href="subject.html#${s.id}">
+      <div class="subj-link-dot" style="background:${s.colour}"></div>
+      <span class="subj-link-name">${s.emoji||''} ${s.name}</span>
+      <span class="subj-link-count">${mine.length} mine · ${total} total</span>
+    </a>`;
+  }).join('') : '<div style="font-size:13px;color:var(--muted2)">No subjects configured.</div>';
+
+  // Flashcard bar widths
+  const barW = (n) => fcTotal > 0 ? Math.round((n/fcTotal)*100) : 0;
+
+  document.getElementById('profilePage').innerHTML = `
+    <div class="profile-hero">
+      <div class="profile-avatar" style="background:${isGuest?'#6b7280':subjects[0]?.colour||'#f59e0b'}">${initials||'?'}</div>
+      <div>
+        <div class="profile-name">${displayName}</div>
+        ${email ? `<div class="profile-email">${email}</div>` : ''}
+        <div class="profile-since">Member since ${memberSince}</div>
+        <div class="profile-badge">${isGuest ? '👤 Guest' : '✓ Signed in'}</div>
+      </div>
+    </div>
+
+    <div class="profile-grid">
+      <!-- Study stats -->
+      <div class="profile-card">
+        <div class="profile-card-title">Study Stats</div>
+        <div class="stat-row">
+          <span class="stat-label">Total topics added</span>
+          <span class="stat-val">${totalTopics}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Subjects</span>
+          <span class="stat-val">${subjects.length}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Most active subject</span>
+          <span class="stat-val" style="font-size:13px">${mostActive ? mostActive.name : '—'}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Questions answered</span>
+          <span class="stat-val">${fcTotal}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Accuracy</span>
+          <span class="stat-val" style="color:${accuracy>=70?'#22c55e':accuracy>=40?'#f59e0b':'#ef4444'}">${accuracy}%</span>
+        </div>
+      </div>
+
+      <!-- Flashcard breakdown -->
+      <div class="profile-card">
+        <div class="profile-card-title">Flashcard Breakdown</div>
+        ${fcTotal === 0
+          ? `<div style="font-size:13px;color:var(--muted2);padding:12px 0">No flashcard questions answered yet.</div>`
+          : `<div class="fc-breakdown">
+              <div class="fc-bar-row">
+                <div class="fc-bar-label"><span>✓ Correct</span><span>${fcCorrect}</span></div>
+                <div class="fc-bar-track"><div class="fc-bar-fill correct" style="width:${barW(fcCorrect)}%"></div></div>
+              </div>
+              <div class="fc-bar-row">
+                <div class="fc-bar-label"><span>~ Close</span><span>${fcClose}</span></div>
+                <div class="fc-bar-track"><div class="fc-bar-fill close" style="width:${barW(fcClose)}%"></div></div>
+              </div>
+              <div class="fc-bar-row">
+                <div class="fc-bar-label"><span>✕ Incorrect</span><span>${fcIncorrect}</span></div>
+                <div class="fc-bar-track"><div class="fc-bar-fill incorrect" style="width:${barW(fcIncorrect)}%"></div></div>
+              </div>
+            </div>
+            <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:12px;color:var(--muted)">Total answered</span>
+              <span style="font-size:15px;font-weight:700">${fcTotal}</span>
+            </div>
+            <button onclick="if(confirm('Reset all flashcard stats?')){localStorage.removeItem('studybase_fc_stats_${uid}');location.reload();}" 
+              style="margin-top:10px;background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);cursor:pointer;transition:all .12s"
+              onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444'" 
+              onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+              Reset stats
+            </button>`
+        }
+      </div>
+    </div>
+
+    <!-- Subjects -->
+    <div class="profile-card" style="margin-bottom:20px">
+      <div class="profile-card-title">Subjects</div>
+      <div class="subj-links">${subjLinksHtml}</div>
+    </div>`;
+}
+</script>
+</body>
+</html>
