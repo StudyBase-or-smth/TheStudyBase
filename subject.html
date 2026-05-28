@@ -98,7 +98,7 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;display:fle
 .section-header{padding:10px 16px;background:var(--card2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;font-size:11px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:600}
 .sh-icon{font-size:13px}
 .section-body{padding:16px}
-.def-text{font-family:'Lora',serif;font-size:15px;line-height:1.8;color:var(--text);font-style:italic}
+.def-text{font-family:'Lora',serif;font-size:15px;line-height:1.8;color:var(--text);font-style:italic;white-space:pre-wrap}
 .key-points{list-style:none;display:flex;flex-direction:column;gap:7px}
 .kp-item{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.55;color:var(--text)}
 .kp-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:6px}
@@ -250,8 +250,6 @@ body.dark img:not(.no-invert){filter:invert(.88) hue-rotate(180deg) brightness(1
     const isGuest = sessionStorage.getItem('studybase_guest') === '1';
     if (user) {
       sessionStorage.removeItem('studybase_guest');
-      window.currentUid = user.uid;
-      localStorage.setItem('studybase_uid', user.uid);
     } else if (isGuest) {
       window.isGuest = true;
       document.body.classList.add('guest-mode');
@@ -646,7 +644,7 @@ function viewTopic(id){
     </div>
     <div class="section">
       <div class="section-header"><span class="sh-icon">📝</span>Definition</div>
-      <div class="section-body">${t.definition ? `<p class="def-text">${esc(t.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>'}</div>
+      <div class="section-body">${t.definition ? `<p class="def-text">${esc(t.definition).replace(/\n/g,'<br>')}</p>` : '<p class="empty-note">No definition added yet.</p>'}</div>
     </div>
     <div class="section">
       <div class="section-header"><span class="sh-icon">✦</span>Key Points</div>
@@ -788,7 +786,6 @@ function saveTopic(){
     examTip:   getRichVal('fExamTip'),
     relatedTerms,
     flashcardQA,
-    addedBy: ex.addedBy || window.currentUid || null,
     createdAt: ex.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };

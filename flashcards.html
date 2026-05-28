@@ -568,31 +568,17 @@ function checkAnswer(){
     result.className = 'fc-result show correct';
     result.innerHTML = `<div class="fc-result-label">✓ Correct!</div>
       <div class="fc-result-answer">Answer: <em>${esc(correct)}</em></div>`;
-    trackStat('correct');
   } else if(score >= 0.50){
     result.className = 'fc-result show close';
     result.innerHTML = `<div class="fc-result-label">~ Close</div>
       <div class="fc-result-answer">Your answer: <em>${esc(typed)}</em><br>Correct answer: <em>${esc(correct)}</em></div>`;
-    trackStat('close');
   } else {
     result.className = 'fc-result show incorrect';
     result.innerHTML = `<div class="fc-result-label">✕ Incorrect</div>
       <div class="fc-result-answer">Your answer: <em>${esc(typed)}</em><br>Correct answer: <em>${esc(correct)}</em></div>`;
-    trackStat('incorrect');
   }
 
   if(flipBtn){ flipBtn.textContent = 'Next →'; flipBtn.onclick = () => fcNav(1); }
-}
-
-function trackStat(type){
-  const uid = localStorage.getItem('studybase_uid') || 'guest';
-  const key = 'studybase_fc_stats_' + uid;
-  try{
-    const stats = JSON.parse(localStorage.getItem(key)||'{"correct":0,"close":0,"incorrect":0,"total":0}');
-    stats[type] = (stats[type]||0) + 1;
-    stats.total = (stats.total||0) + 1;
-    localStorage.setItem(key, JSON.stringify(stats));
-  }catch(e){}
 }
 
 function flipCard(){
