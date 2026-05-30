@@ -232,11 +232,11 @@ function renderSidebar() {
   // Marker tool link
   if (document.getElementById('markerSection')) {
     document.getElementById('markerSection').innerHTML = `
-      <a href="marker.html" class="feed-item" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:12px 8px;border:2px solid var(--accent,#4a9eff);border-radius:8px;background:var(--card2);margin:8px 0;">
+      <a href="analyser.html" class="feed-item" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:12px 8px;border:2px solid var(--accent,#4a9eff);border-radius:8px;background:var(--card2);margin:8px 0;">
         <div style="font-size:22px;flex-shrink:0;">📍</div>
         <div>
           <div class="feed-name" style="font-weight:600;">Marker Tool</div>
-          <div class="feed-sub" style="color:var(--accent,#4a9eff);font-size:13px;">Open marker.html</div>
+          <div class="feed-sub" style="color:var(--accent,#4a9eff);font-size:13px;">Open analyser.html</div>
         </div>
       </a>`;
   }
