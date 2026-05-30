@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyBase</title>
+<!-- Favicon -->
+<link rel="icon" href="../icon.png" type="image/png">
+<link rel="apple-touch-icon" href="icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="defaultstyle.css">
+</head>
+<body>
+
+<!-- Firebase auth -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  const cfg = {
+    apiKey:"AIzaSyAZeyBIaTstTJ5Pr9o86MHk8dhDPAJFFCA",
+    authDomain:"studybase-8cfa1.firebaseapp.com",
+    projectId:"studybase-8cfa1",
+    storageBucket:"studybase-8cfa1.firebasestorage.app",
+    messagingSenderId:"434992387793",
+    appId:"1:434992387793:web:e5bcae8cad63b4eb6f17f0"
+  };
+  const auth = getAuth(initializeApp(cfg));
+  onAuthStateChanged(auth, user => {
+    const isGuest = sessionStorage.getItem('studybase_guest') === '1';
+    if (user) {
+      sessionStorage.removeItem('studybase_guest');
+      window.currentUid = user.uid;
+      localStorage.setItem('studybase_uid', user.uid);
+    } else if (isGuest) {
+      window.isGuest = true;
+      document.body.classList.add('guest-mode');
+      document.getElementById('guest-border').style.display = 'block';
+      document.getElementById('guest-nudge').style.display = 'block';
+    } else {
+      window.location.href = "login.html";
+    }
+  });
+  window.sbSignOut = () => {
+    if (sessionStorage.getItem('studybase_guest') === '1') {
+      sessionStorage.removeItem('studybase_guest');
+      window.location.href = "login.html";
+      return;
+    }
+    signOut(auth).then(() => window.location.href = "login.html");
+  };
+</script>
+
+<!-- Header (populated by JS once subject is known) -->
+<div class="hdr-outer">
+  <a class="accent-bar" id="accentBar" href="../index.html" title="Back to Index">
+  </a>
+  <div class="hdr-main">
+    <div class="hdr-top">
+      <div class="logo-block">
+        <div class="logo-icon2" id="hdrEmoji"></div>
+        
+        <div>
+          <div class="logo-text2">StudyBase</div>
+          <span class="logo-sub-txt">SCHOOL REFERENCE</span>
+        </div>
+      </div>
+      <div class="hdr-breadcrumb">
+        <a class="bc-link" href="../index.html">Hub</a>
+        <span class="bc-sep">›</span>
+        <span class="bc-current" id="hdrSubjectName"></span>
+      </div>
+      <div class="hdr-right-row">
+        <span id="syncStatus" style="font-size:11px;font-weight:600"></span>
+        <span id="syncCountdown" style="font-size:11px;color:var(--muted2);font-variant-numeric:tabular-nums"></span>
+        <button class="hdr-ghost" onclick="syncPull()" data-tip="Sync now">⟳</button>
+        <button class="hdr-ghost" id="btnFlashcards" onclick="window.location.href='flashcards.html#'" data-tip="Flashcards">🃏</button>
+        <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out">⎋</button>
+        <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()" data-tip="Dark mode">🌙</button>
+        <button class="hdr-action" id="btnNewTopic" onclick="openModal()">+ New topic</button>
+      </div>
+    </div>
+    <div style="display:flex;border-top:1px solid var(--border)">
+      <div style="padding:4px 16px;border-right:1px solid var(--border);font-size:11px;color:var(--muted2)">
+        <strong id="stT" style="color:var(--accent)">0</strong> topics
+      </div>
+      <div style="padding:4px 16px;font-size:11px;color:var(--muted2)">
+        <strong id="stU" style="color:var(--accent)">0</strong> units
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-body">
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input class="search-input" type="text" id="searchInput" placeholder="Search…">
+      </div>
+    </div>
+    <div class="unit-wrap">
+      <div class="unit-label">Units</div>
+      <div class="unit-pills" id="unitPills"></div>
+    </div>
+    <div class="topic-list" id="topicList"></div>
+  </div>
+
+  <div class="detail-panel">
+    <div class="welcome" id="welcomeState">
+      <div class="welcome-icon" id="welcomeEmoji"></div>
+      <h2 id="welcomeTitle"></h2>
+      <p>Select a topic on the left, or add a new one to get started.</p>
+    </div>
+    <div class="detail-content" id="detailContent"></div>
+  </div>
+</div>
+
+<!-- New / Edit topic modal -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">New topic</div>
+      <button class="modal-x" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-g" style="flex:2">
+        <label class="form-l">Term / Concept <span>*</span></label>
+        <input type="text" class="form-i" id="fName" placeholder="e.g. Concept name…">
+      </div>
+      <div class="form-g" style="flex:1">
+        <label class="form-l">Unit</label>
+        <div class="unit-row">
+          <select class="form-sel" id="fUnit" style="flex:1"></select>
+          <button class="btn-small" onclick="showUnitInput()" id="btnAddUnit">+ Add</button>
+        </div>
+        <div id="unitInputRow">
+          <div style="display:flex;gap:6px">
+            <input type="text" class="form-i" id="newUnitInput" placeholder="Unit name…" style="flex:1"
+              onkeydown="if(event.key==='Enter')confirmAddUnit();if(event.key==='Escape')hideUnitInput()">
+            <button class="btn-save" style="padding:7px 12px;font-size:12px;border-radius:6px" onclick="confirmAddUnit()">Add</button>
+            <button class="btn-cancel" style="padding:7px 10px;font-size:12px;border-radius:6px" onclick="hideUnitInput()">✕</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-g">
+      <label class="form-l">Definition</label>
+      <textarea class="form-ta" id="fDefinition" rows="3" placeholder="A clear, concise definition…"></textarea>
+    </div>
+    <div class="form-g">
+      <label class="form-l">Key Points</label>
+      <div class="kp-list" id="kpList"></div>
+      <button class="btn-add-kp" onclick="addKpRow()">+ Add key point</button>
+    </div>
+    <div class="form-g">
+      <label class="form-l">Formula / Equation <span>— leave blank if none</span></label>
+      <div class="rich-editor-wrap">
+        <div class="rich-toolbar">
+          <span class="rich-toolbar-label">text &amp; images</span>
+          <button type="button" class="rich-btn" onclick="richAddImage('fFormula')">🖼 Insert image</button>
+          <input type="file" id="img_fFormula" accept="image/*" style="display:none">
+        </div>
+        <div class="rich-content mono" id="fFormula" contenteditable="true" data-placeholder="e.g. σ = F/A" style="min-height:88px"></div>
+      </div>
+    </div>
+    <div class="form-g">
+      <label class="form-l">Extra Notes</label>
+      <div class="rich-editor-wrap">
+        <div class="rich-toolbar">
+          <span class="rich-toolbar-label">text &amp; images</span>
+          <button type="button" class="rich-btn" onclick="richAddImage('fMaterials')">🖼 Insert image</button>
+          <input type="file" id="img_fMaterials" accept="image/*" style="display:none">
+        </div>
+        <div class="rich-content" id="fMaterials" contenteditable="true" data-placeholder="Any additional notes…" style="min-height:52px"></div>
+      </div>
+    </div>
+    <div class="form-g">
+      <label class="form-l">Process / Method</label>
+      <div class="rich-editor-wrap">
+        <div class="rich-toolbar">
+          <span class="rich-toolbar-label">text &amp; images</span>
+          <button type="button" class="rich-btn" onclick="richAddImage('fProcess')">🖼 Insert image</button>
+          <input type="file" id="img_fProcess" accept="image/*" style="display:none">
+        </div>
+        <div class="rich-content" id="fProcess" contenteditable="true" data-placeholder="How does it work? Step-by-step if applicable…" style="min-height:66px"></div>
+      </div>
+    </div>
+    <div class="form-g">
+      <label class="form-l">Safety / Warnings</label>
+      <div class="rich-editor-wrap">
+        <div class="rich-toolbar">
+          <span class="rich-toolbar-label">text &amp; images</span>
+          <button type="button" class="rich-btn" onclick="richAddImage('fSafety')">🖼 Insert image</button>
+          <input type="file" id="img_fSafety" accept="image/*" style="display:none">
+        </div>
+        <div class="rich-content" id="fSafety" contenteditable="true" data-placeholder="Hazards, warnings, failure modes…" style="min-height:52px"></div>
+      </div>
+    </div>
+    <div class="form-g">
+      <label class="form-l">Exam Tip</label>
+      <div class="rich-editor-wrap">
+        <div class="rich-toolbar">
+          <span class="rich-toolbar-label">text &amp; images</span>
+          <button type="button" class="rich-btn" onclick="richAddImage('fExamTip')">🖼 Insert image</button>
+          <input type="file" id="img_fExamTip" accept="image/*" style="display:none">
+        </div>
+        <div class="rich-content" id="fExamTip" contenteditable="true" data-placeholder="Common mistakes, how to pick up marks…" style="min-height:52px"></div>
+      </div>
+    </div>
+    <div class="form-g">
+      <label class="form-l">Flashcard Questions <span>— custom Q&amp;A for this topic's cards</span></label>
+      <div class="fqa-list" id="fqaList"></div>
+      <button class="btn-add-kp" onclick="addFqaRow()">+ Add question</button>
+    </div>
+    <div class="form-g">
+      <label class="form-l">Related Terms <span>— press Enter or comma</span></label>
+      <div class="tags-wrap" id="tagsWrap" onclick="document.getElementById('tagsInput').focus()">
+        <input type="text" class="tags-i" id="tagsInput" placeholder="Add related term…">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveTopic()">Save topic</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete confirm -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3 id="cTitle">Are you sure?</h3>
+    <p id="cMsg">This cannot be undone.</p>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-del-conf" onclick="doDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="../subjects.js"></script>
+<script src="defaultapp.js"></script>
+
+<!-- Guest overlays -->
+<div id="guest-border"></div>
+<div id="guest-nudge">
+  <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Viewing as guest</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Sign in to add and edit topics.</div>
+  <button onclick="window.location.href='login.html'" style="background:var(--text);color:var(--card);border:none;border-radius:6px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;transition:opacity .15s">Sign In</button>
+  <button onclick="document.getElementById('guest-nudge').style.display='none'" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;margin-top:6px;width:100%;font-family:'Inter',sans-serif">Dismiss</button>
+</div>
+</body>
+</html>
