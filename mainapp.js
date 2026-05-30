@@ -141,11 +141,11 @@ function renderSubjects() {
 function renderClasses() {
   const el = document.getElementById('classesGrid');
   if (!el) return;
-  if (typeof classesData === 'undefined' || !classesData.classes || !classesData.classes.length) {
+  if (typeof classesData === 'undefined' || !classesData.subjects || !classesData.subjects.length) {
     el.innerHTML = '<p class="empty-note" style="grid-column:1/-1;padding:8px 0">No classes defined yet.</p>';
     return;
   }
-  const classes = classesData.classes || [];
+  const classes = classesData.subjects || [];
   el.innerHTML = classes.map(s => {
     const topics = getTopics(s), units = getUnits(s);
     const meta = topics.length
@@ -161,6 +161,7 @@ function renderClasses() {
       <div class="subj-name" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
       <div class="subj-meta">${meta}</div>
       ${s.class ? `<span style="font-size:11px;font-weight:400;color:var(--muted);white-space:nowrap">${s.class}</span>` : ''}
+      </div>
       </div>
     </a>`;
   }).join('');
