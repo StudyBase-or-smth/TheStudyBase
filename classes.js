@@ -1,8 +1,8 @@
 // classes.js
 const classesData = {
   classes: [
-    { id: "eng2", name: "Engineering", emoji: "⚙️", colour: "#0f4c81", storageKey: "eng2_topics", unitsKey: "eng2_units" },
-    { id: "2026_12_mth",  name: "bMaths",       emoji: "📐", colour: "#1d4ed8", storageKey: "bmth_topics",  unitsKey: "bmth_units"  }
+    { id: "2026-12A-mth",  name: "Maths", teacher: "H.Aldous", class: "A", emoji: "📐", colour: "#1d4ed8", storageKey: "2026-12A-mth_topics",  unitsKey: "2026-12A-mth_units"  },
+    { id: "2026-12A-eng2", name: "Engineering", teacher: "", class: "A", emoji: "⚙️", colour: "#0f4c81", storageKey: "2026-12A-eng2_topics", unitsKey: "2026-12A-eng2_units" }
   ]
 };
 
