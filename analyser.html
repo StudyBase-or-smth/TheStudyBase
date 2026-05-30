@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyBase • Marker</title>
+  <link rel="icon" href="icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    *::-webkit-scrollbar{display:none}
+
+    :root{
+      --bg:#1a1814;--card:#222018;--card2:#2a2720;--border:#353028;--border2:#403a30;
+      --text:#e8e3dc;--muted:#9e9890;--muted2:#6b6560;
+      --amber:#f59e0b;--amber2:#ea580c;--amber-dim:#b45309;
+      --shadow:0 1px 4px rgba(0,0,0,.35);
+      --col-left:440px;
+    }
+
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;font-size:13px}
+
+    /* ── HEADER ── */
+    .hdr{background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;height:46px;padding:0 0 0 0;gap:0;position:sticky;top:0;z-index:100;overflow:visible}
+
+    /* Accent bar — animated back button from subject.html */
+    .accent-bar{
+      height:100%;width:6px;flex-shrink:0;background:var(--amber);
+      cursor:pointer;transition:width .22s cubic-bezier(.34,1.2,.64,1);
+      overflow:hidden;position:relative;display:flex;align-items:center;
+      justify-content:center;text-decoration:none;
+    }
+    .accent-bar:hover{width:38px}
+    .accent-bar::after{
+      content:'';position:absolute;left:7px;top:50%;transform:translateY(-50%);
+      width:20px;height:20px;opacity:0;transition:opacity .18s .05s;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.8)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='15 18 9 12 15 6'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-size:contain;pointer-events:none;
+    }
+    .accent-bar:hover::after{opacity:1}
+    .accent-bar .ab-label{
+      opacity:0;white-space:nowrap;font-size:9px;font-weight:700;letter-spacing:.8px;
+      text-transform:uppercase;color:rgba(255,255,255,.8);transition:opacity .18s .05s;
+      pointer-events:none;writing-mode:vertical-rl;text-orientation:mixed;
+      transform:rotate(180deg);user-select:none;
+    }
+    .accent-bar:hover .ab-label{opacity:1}
+
+    .hdr-inner{display:flex;align-items:center;height:100%;padding:0 18px;gap:12px;flex:1;min-width:0}
+    .logo-text{font-family:'Lora',serif;font-size:14px;font-weight:700;color:var(--text);letter-spacing:-.2px}
+    .branch-badge{font-size:10px;background:var(--card2);border:1px solid var(--border2);border-radius:20px;padding:2px 9px;color:var(--muted);white-space:nowrap}
+    .hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+    .date-pill{font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap}
+    .hdr-btn{background:none;border:1px solid var(--border);border-radius:5px;padding:4px 8px;font-size:12px;color:var(--text);cursor:pointer;transition:all .12s;line-height:1;font-family:inherit;position:relative}
+    .hdr-btn:hover{background:var(--card2);border-color:var(--border2)}
+    .hdr-btn::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);right:0;background:var(--card);color:var(--text);font-size:10px;font-weight:600;white-space:nowrap;padding:3px 8px;border-radius:4px;border:1px solid var(--border2);pointer-events:none;opacity:0;transition:opacity .12s;z-index:200}
+    .hdr-btn:hover::after{opacity:1}
+
+    /* API key */
+    .api-wrap{position:relative}
+    .api-input{height:26px;padding:0 9px;border:1px solid var(--border);border-radius:5px;font-size:10px;font-family:'Inter',sans-serif;color:var(--text);background:var(--card2);outline:none;width:170px;transition:border-color .15s}
+    .api-input:focus{border-color:var(--amber)}
+    .api-input::placeholder{color:var(--muted2)}
+    .api-tip{position:absolute;top:calc(100% + 6px);right:0;background:var(--card);color:var(--text);font-size:10px;font-weight:600;padding:4px 9px;border-radius:4px;border:1px solid var(--border2);pointer-events:none;opacity:0;transition:opacity .12s;z-index:200;white-space:nowrap}
+    .api-wrap:hover .api-tip{opacity:1}
+
+    /* ── MAIN SPLIT LAYOUT ── */
+    .layout{display:grid;grid-template-columns:var(--col-left) 1fr;height:calc(100vh - 46px);overflow:hidden}
+
+    /* ── LEFT PANEL ── */
+    .left-panel{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;padding:20px 18px;gap:16px}
+    .panel-label{font-size:10px;font-weight:600;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+    .section-block{display:flex;flex-direction:column}
+
+    /* Tabs */
+    .tabs{display:flex;gap:6px;margin-bottom:8px}
+    .tab{padding:5px 12px;border:1px solid var(--border);background:var(--card2);border-radius:5px;cursor:pointer;font-weight:500;font-size:11px;font-family:'Inter',sans-serif;color:var(--muted);transition:all .12s}
+    .tab:hover{border-color:var(--border2);color:var(--text)}
+    .tab.active{background:var(--amber);color:#1a1208;border-color:var(--amber);font-weight:700}
+
+    textarea{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:7px;font-size:12.5px;resize:none;background:var(--card2);color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;line-height:1.55}
+    textarea:focus{border-color:var(--border2)}
+    textarea::placeholder{color:var(--muted2)}
+    #studentText{height:150px}
+    #criteriaText{height:130px}
+
+    .file-upload{border:2px dashed var(--border2);border-radius:7px;padding:18px;text-align:center;cursor:pointer;transition:all .2s;color:var(--muted)}
+    .file-upload:hover{border-color:var(--amber);color:var(--text)}
+    .file-upload.drag-over{border-color:var(--amber);background:rgba(245,158,11,.05)}
+    .file-upload p{font-size:12px}
+    .file-upload p+p{font-size:11px;color:var(--muted2);margin-top:3px}
+    .file-preview{margin-top:7px;font-size:11px;color:var(--muted)}
+
+    /* Token bar */
+    .token-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+    .token-label{font-size:10px;font-weight:600;letter-spacing:.8px;color:var(--muted);text-transform:uppercase}
+    .token-count{font-size:11px;color:var(--amber);font-weight:600;font-family:'Lora',serif}
+    .token-bar-bg{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+    .token-bar-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--amber2));border-radius:2px;transition:width .4s ease;width:0%}
+
+    /* Analyze button */
+    .analyze-btn{width:100%;padding:12px 24px;background:var(--card2);color:var(--text);border:1px solid var(--border2);border-radius:7px;font-weight:600;cursor:pointer;transition:all .15s;font-size:14px;font-family:'Inter',sans-serif;letter-spacing:.2px;display:flex;align-items:center;justify-content:center;gap:8px}
+    .analyze-btn:hover{background:var(--amber);color:#1a1208;border-color:var(--amber);box-shadow:0 4px 18px rgba(245,158,11,.25)}
+    .analyze-btn:active{transform:scale(.99)}
+    .analyze-btn .star{font-style:normal;transition:transform .2s}
+    .analyze-btn:hover .star{transform:rotate(30deg) scale(1.2)}
+
+    /* ── RIGHT PANEL ── */
+    .right-panel{display:flex;flex-direction:column;overflow-y:auto;padding:20px 18px;gap:14px}
+
+    /* Mark history */
+    .history-block{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+    .block-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .block-title{font-size:10px;font-weight:600;letter-spacing:.8px;color:var(--muted);text-transform:uppercase}
+    .history-clear{background:none;border:none;font-size:10px;color:var(--muted2);cursor:pointer;font-family:'Inter',sans-serif;transition:color .12s;padding:0}
+    .history-clear:hover{color:#dc2626}
+
+    .strip{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+    .strip-empty{font-size:11px;color:var(--muted2);font-style:italic;padding:14px 0;text-align:center;width:100%}
+    .strip-item{
+      flex:1;padding:9px 6px;text-align:center;border-right:1px solid var(--border);
+      position:relative;min-width:0;transition:background .3s;
+      cursor:pointer;
+    }
+    .strip-item:last-child{border-right:none}
+    .strip-item:hover{background:rgba(245,158,11,.08)!important}
+    .strip-item.is-best{background:rgba(245,158,11,.12)}
+    .strip-item.is-latest{background:var(--card2)}
+    .strip-item.is-viewing{outline:2px solid var(--amber);outline-offset:-2px;border-radius:0}
+    .strip-score{font-size:15px;font-weight:700;color:var(--text);line-height:1;margin-bottom:2px;font-family:'Lora',serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .strip-item.is-best .strip-score{color:var(--amber)}
+    .strip-item.is-latest .strip-score{color:var(--amber)}
+    .strip-item.is-viewing .strip-score{color:var(--amber)}
+    .strip-date{font-size:9px;color:var(--muted2);margin-bottom:2px}
+    .strip-delta{font-size:10px;font-weight:700}
+    .strip-delta.up{color:#4ade80}
+    .strip-delta.down{color:#f87171}
+    .strip-delta.same{color:var(--muted2)}
+    .strip-tag{font-size:8px;font-weight:700;color:var(--amber-dim);margin-top:2px;text-transform:uppercase;letter-spacing:.3px}
+    .trend-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:8px;border-top:1px solid var(--border)}
+    .trend-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+    .trend-pill.up{background:rgba(74,222,128,.15);color:#4ade80}
+    .trend-pill.down{background:rgba(248,113,113,.15);color:#f87171}
+    .trend-pill.same{background:var(--card2);color:var(--muted)}
+
+    /* Viewing-history banner */
+    .history-banner{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:7px 12px;font-size:11px;color:var(--amber);display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .history-banner button{background:none;border:1px solid rgba(245,158,11,.4);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--amber);cursor:pointer;font-family:'Inter',sans-serif;transition:background .12s}
+    .history-banner button:hover{background:rgba(245,158,11,.15)}
+
+    /* Mark score box */
+    .mark-row{display:flex;align-items:stretch;gap:14px}
+    .mark-box{background:linear-gradient(135deg,var(--amber),var(--amber2));border-radius:8px;padding:16px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:96px;text-align:center}
+    .mark-number{font-family:'Lora',serif;font-size:32px;font-weight:700;color:#fff;line-height:1}
+    .mark-denom{font-size:10px;color:rgba(255,255,255,.8);margin-top:4px;line-height:1.3}
+
+    /* Feedback / improvements */
+    .content-block{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+    .content-block .block-title{margin-bottom:8px;display:block}
+    .feedback-text{font-size:12.5px;line-height:1.7;color:var(--text);white-space:pre-wrap}
+    .improvement-list{padding-left:18px;color:var(--text)}
+    .improvement-list li{font-size:12.5px;line-height:1.65;margin-bottom:6px}
+
+    /* Loading state */
+    .loading-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:32px;text-align:center;color:var(--muted)}
+    .loading-star{font-size:20px;animation:spin-slow 3s linear infinite;display:inline-block}
+    @keyframes spin-slow{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+    /* ── TOASTS ── */
+    #toast-container{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none}
+    .toast{display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--border2);border-radius:7px;padding:9px 13px;font-size:12px;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.4);pointer-events:all;min-width:200px;max-width:300px;animation:toast-in .2s ease;transition:opacity .3s,transform .3s}
+    .toast.out{opacity:0;transform:translateX(16px)}
+    .toast-icon{font-size:14px;flex-shrink:0}
+    .toast-msg{flex:1;line-height:1.4}
+    .toast-close{background:none;border:none;cursor:pointer;color:var(--muted2);font-size:13px;padding:0;line-height:1}
+    .toast-close:hover{color:var(--text)}
+    .toast.success{border-color:#4ade80}
+    .toast.error{border-color:#f87171}
+    .toast.warning{border-color:var(--amber)}
+    @keyframes toast-in{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+
+    /* ── HISTORY ANIMATIONS ── */
+    @keyframes strip-pop-in{
+      0%{opacity:0;transform:translateY(-8px) scale(.93)}
+      60%{transform:translateY(2px) scale(1.02)}
+      100%{opacity:1;transform:translateY(0) scale(1)}
+    }
+    @keyframes score-pulse{0%{transform:scale(1)}40%{transform:scale(1.2)}70%{transform:scale(.96)}100%{transform:scale(1)}}
+    @keyframes glow-pulse{0%{box-shadow:inset 0 0 0 0 rgba(245,158,11,0)}50%{box-shadow:inset 0 0 16px rgba(245,158,11,.2)}100%{box-shadow:inset 0 0 0 0 rgba(245,158,11,0)}}
+    @keyframes bump{0%{transform:translateY(0)}30%{transform:translateY(-3px)}65%{transform:translateY(1px)}100%{transform:translateY(0)}}
+    .strip-item.animate-new{animation:strip-pop-in .45s cubic-bezier(.34,1.56,.64,1) forwards,glow-pulse .9s ease .1s}
+    .strip-item.animate-new .strip-score{animation:score-pulse .5s cubic-bezier(.34,1.56,.64,1) .15s}
+    .history-block.bump{animation:bump .4s ease}
+
+    /* result area fade */
+    @keyframes result-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .result-fade{animation:result-in .25s ease}
+
+    /* ── RAW OUTPUT BUTTON ── */
+    .raw-fab{
+      position:fixed;bottom:62px;right:18px;z-index:8000;
+      display:flex;align-items:center;gap:7px;
+      background:var(--card2);border:1px solid var(--border2);border-radius:7px;
+      padding:7px 13px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;
+      color:var(--muted);cursor:pointer;transition:all .15s;
+      opacity:0;pointer-events:none;
+      box-shadow:0 2px 10px rgba(0,0,0,.3);
+    }
+    .raw-fab.visible{opacity:1;pointer-events:all}
+    .raw-fab:hover{background:var(--card);color:var(--text);border-color:var(--amber)}
+    .raw-fab-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0}
+
+    /* ── RAW OUTPUT PANEL ── */
+    .raw-overlay{
+      position:fixed;inset:0;z-index:8500;
+      background:rgba(0,0,0,.55);backdrop-filter:blur(3px);
+      display:flex;align-items:flex-end;justify-content:flex-end;
+      padding:14px;
+      opacity:0;pointer-events:none;transition:opacity .2s;
+    }
+    .raw-overlay.open{opacity:1;pointer-events:all}
+    .raw-panel{
+      background:var(--card);border:1px solid var(--border2);border-radius:10px;
+      width:520px;max-width:calc(100vw - 28px);
+      height:70vh;display:flex;flex-direction:column;
+      box-shadow:0 8px 32px rgba(0,0,0,.5);
+      transform:translateY(20px);transition:transform .2s;
+    }
+    .raw-overlay.open .raw-panel{transform:translateY(0)}
+    .raw-panel-hdr{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0;
+    }
+    .raw-panel-title{font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+    .raw-panel-title .raw-fab-dot{width:7px;height:7px}
+    .raw-close{background:none;border:1px solid var(--border);border-radius:5px;padding:3px 8px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .12s}
+    .raw-close:hover{color:var(--text);border-color:var(--border2)}
+    .raw-copy{background:none;border:1px solid var(--border);border-radius:5px;padding:3px 8px;font-size:11px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .12s}
+    .raw-copy:hover{color:var(--amber);border-color:var(--amber)}
+    .raw-panel-body{flex:1;overflow-y:auto;padding:14px 16px}
+    .raw-text{font-family:'Inter',monospace;font-size:11.5px;line-height:1.7;color:var(--text);white-space:pre-wrap;word-break:break-word}
+
+    /* light mode */
+    body.light{
+      --bg:#f5f2ed;--card:#ffffff;--card2:#faf8f5;--border:#e2ddd7;--border2:#d4cec7;
+      --text:#1c1917;--muted:#78716c;--muted2:#a8a29e;
+      --shadow:0 1px 3px rgba(0,0,0,.07);
+    }
+    body.light .strip-item.is-best .strip-score{color:#92400e}
+    body.light .strip-delta.up{color:#15803d}
+    body.light .strip-delta.down{color:#dc2626}
+    body.light .trend-pill.up{background:#dcfce7;color:#14532d}
+    body.light .trend-pill.down{background:#fee2e2;color:#7f1d1d}
+    body.light .strip-item.is-best{background:#fef9ee}
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <!-- Animated back-to-index accent bar (from subject.html) -->
+  <a class="accent-bar" href="index.html" title="Back to Index">
+  </a>
+
+  <div class="hdr-inner">
+    <span class="logo-text">StudyBase</span>
+    <div class="branch-badge" id="branch-badge">Loading…</div>
+    <div class="hdr-right">
+      <span class="date-pill">Today — <strong id="todayDate"></strong></span>
+      <div class="api-wrap">
+        <input class="api-input" id="customApiKey" type="password" placeholder="Gemini API key (optional)" autocomplete="off" spellcheck="false">
+        <div class="api-tip">Gemini API key requires an 18+ Gemini account.</div>
+      </div>
+      <button class="hdr-btn" id="darkToggle" data-tip="Toggle theme">🌙</button>
+    </div>
+  </div>
+</div>
+
+<script>
+async function loadBranchVersion(){
+  const badge=document.getElementById('branch-badge');
+  if(!badge)return;
+  try{
+    const res=await fetch('BranchVersion.json',{cache:'no-store'});
+    if(!res.ok)throw new Error();
+    const data=await res.json();
+    const colorMap={dev:'#e11d48',bug:'#c2410c',main:'#4ade80',other:'#60a5fa'};
+    const color=colorMap[data.colour||data.color||'other']||'#60a5fa';
+    badge.innerHTML=`<strong>${data.branch||'unknown'}</strong> · v${data.version||'0.0.0'}`;
+    badge.style.color=color;
+  }catch(e){
+    badge.innerHTML='<strong>dev</strong> · Local';
+    badge.style.color='#e0c200';
+  }
+}
+loadBranchVersion();
+</script>
+
+<!-- MAIN LAYOUT -->
+<div class="layout">
+
+  <!-- ── LEFT PANEL ── -->
+  <div class="left-panel">
+
+    <!-- Assignment -->
+    <div class="section-block">
+      <div class="panel-label">1. Assignment</div>
+      <div class="tabs">
+        <div class="tab active" id="asgTabText">Paste</div>
+        <div class="tab" id="asgTabDocx">Word doc</div>
+      </div>
+      <div id="asgTextMode">
+        <textarea id="studentText" placeholder="Paste your full assignment here…"></textarea>
+      </div>
+      <div id="asgDocxMode" style="display:none">
+        <div class="file-upload" id="asgUpload">
+          <p style="font-weight:600">Upload Assignment (.docx)</p>
+          <p>Drag &amp; drop or click to browse</p>
+          <input type="file" id="asgFile" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none">
+        </div>
+        <div class="file-preview" id="asgPreview"></div>
+      </div>
+    </div>
+
+    <!-- Marking Criteria -->
+    <div class="section-block">
+      <div class="panel-label">2. Marking Criteria</div>
+      <div class="tabs">
+        <div class="tab active" id="tabText">Paste</div>
+        <div class="tab" id="tabPDF">PDF</div>
+      </div>
+      <div id="textMode">
+        <textarea id="criteriaText" placeholder="Paste the marking criteria / rubric here…"></textarea>
+      </div>
+      <div id="pdfMode" style="display:none">
+        <div class="file-upload" id="criteriaUpload">
+          <p style="font-weight:600">Upload Marking Criteria PDF</p>
+          <p>Drag &amp; drop or click to browse</p>
+          <input type="file" id="criteriaFile" accept="application/pdf" style="display:none">
+        </div>
+        <div class="file-preview" id="criteriaPreview"></div>
+      </div>
+    </div>
+
+    <!-- Spacer -->
+    <div style="flex:1"></div>
+
+    <!-- Token counter -->
+    <div>
+      <div class="token-row">
+        <span class="token-label">Tokens Used</span>
+        <span class="token-count" id="tokenCount">0 / 8,192</span>
+      </div>
+      <div class="token-bar-bg"><div class="token-bar-fill" id="tokenBar"></div></div>
+    </div>
+
+    <!-- Analyze button -->
+    <button class="analyze-btn" onclick="analyze()">
+      <i class="star">✦</i> Analyze &amp; Grade
+    </button>
+
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel" id="rightPanel">
+
+    <!-- Mark History -->
+    <div class="history-block" id="historyCard">
+      <div class="block-header">
+        <span class="block-title">Mark History</span>
+        <button class="history-clear" onclick="clearHistory()">Clear</button>
+      </div>
+      <div id="historyStrip"><div class="strip-empty">Grade your first attempt to start tracking progress.</div></div>
+      <div class="trend-row" id="trendRow" style="display:none">
+        <span class="trend-pill" id="trendPill"></span>
+        <span style="font-size:10px;color:var(--muted)" id="trendLabel"></span>
+      </div>
+    </div>
+
+    <!-- Results area -->
+    <div id="resultArea"></div>
+
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- RAW OUTPUT FAB -->
+<button class="raw-fab" id="rawFab" onclick="openRawOutput()">
+  <span class="raw-fab-dot"></span> Raw Output
+</button>
+
+<!-- RAW OUTPUT PANEL -->
+<div class="raw-overlay" id="rawOverlay" onclick="closeRawIfOutside(event)">
+  <div class="raw-panel" id="rawPanel">
+    <div class="raw-panel-hdr">
+      <span class="raw-panel-title"><span class="raw-fab-dot"></span>Raw AI Response</span>
+      <div style="display:flex;gap:6px">
+        <button class="raw-copy" id="rawCopyBtn" onclick="copyRaw()">Copy</button>
+        <button class="raw-close" onclick="closeRawOutput()">✕ Close</button>
+      </div>
+    </div>
+    <div class="raw-panel-body">
+      <pre class="raw-text" id="rawText">No output yet.</pre>
+    </div>
+  </div>
+</div>
+
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  // ── Theme ──
+  (function(){
+    const dark=localStorage.getItem('studybase_dark')!=='0';
+    if(!dark) document.body.classList.add('light');
+    document.getElementById('darkToggle').textContent=dark?'🌙':'☀️';
+  })();
+  document.getElementById('darkToggle').onclick=function(){
+    const isLight=document.body.classList.toggle('light');
+    localStorage.setItem('studybase_dark',isLight?'0':'1');
+    this.textContent=isLight?'☀️':'🌙';
+  };
+
+  // ── Date ──
+  document.getElementById('todayDate').textContent=
+    new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
+
+  // ── Toast ──
+  (function(){
+    const c=document.getElementById('toast-container');
+    window.showToast=function(msg,type='info',dur=3000){
+      const icons={success:'✓',error:'✕',info:'ℹ',warning:'⚠'};
+      const t=document.createElement('div');
+      t.className='toast '+type;
+      t.innerHTML=`<span class="toast-icon">${icons[type]||'ℹ'}</span><span class="toast-msg">${msg}</span><button class="toast-close" onclick="this.parentElement.remove()">×</button>`;
+      c.appendChild(t);
+      setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),350);},dur);
+    };
+  })();
+
+  // ── State ──
+  let criteriaContent='';
+  let criteriaMode='text';
+  let assignmentMode='text';
+  let extractedAssignment='';
+  let extractedCriteria=''; // for PDF mode
+  let viewingHistoryIndex=null; // null = showing latest, number = viewing old entry
+  let lastRawResponse=''; // raw AI response text
+
+  // ── Raw output panel ──
+  window.openRawOutput=function(){
+    document.getElementById('rawText').textContent=lastRawResponse||'No output yet.';
+    document.getElementById('rawOverlay').classList.add('open');
+  };
+  window.closeRawOutput=function(){
+    document.getElementById('rawOverlay').classList.remove('open');
+  };
+  window.closeRawIfOutside=function(e){
+    if(e.target===document.getElementById('rawOverlay')) closeRawOutput();
+  };
+  window.copyRaw=function(){
+    if(!lastRawResponse)return;
+    navigator.clipboard.writeText(lastRawResponse).then(()=>{
+      const btn=document.getElementById('rawCopyBtn');
+      btn.textContent='Copied!';
+      setTimeout(()=>btn.textContent='Copy',1800);
+    });
+  };
+  document.addEventListener('keydown',e=>{if(e.key==='Escape') closeRawOutput();});
+
+  // ── Token counter ──
+  const MAX_TOKENS=8192;
+  function countTokens(s){return Math.ceil((s||'').length/4);}
+
+  function getActiveAssignmentText(){
+    if(assignmentMode==='text') return document.getElementById('studentText').value;
+    return extractedAssignment;
+  }
+  function getActiveCriteriaText(){
+    if(criteriaMode==='text') return document.getElementById('criteriaText').value;
+    return extractedCriteria;
+  }
+
+  function updateTokens(){
+    const total=countTokens(getActiveAssignmentText())+countTokens(getActiveCriteriaText());
+    const pct=Math.min(100,(total/MAX_TOKENS)*100);
+    document.getElementById('tokenCount').textContent=`${total.toLocaleString()} / ${MAX_TOKENS.toLocaleString()}`;
+    const fill=document.getElementById('tokenBar');
+    fill.style.width=pct+'%';
+    fill.style.background=pct>85?'#ef4444':pct>60?'#f59e0b':'linear-gradient(90deg,#f59e0b,#ea580c)';
+  }
+
+  document.getElementById('studentText').addEventListener('input',updateTokens);
+  document.getElementById('criteriaText').addEventListener('input',updateTokens);
+
+  // ── Assignment tabs ──
+  document.getElementById('asgTabText').addEventListener('click',()=>switchAsgMode('text'));
+  document.getElementById('asgTabDocx').addEventListener('click',()=>switchAsgMode('docx'));
+  function switchAsgMode(mode){
+    assignmentMode=mode;
+    document.getElementById('asgTabText').classList.toggle('active',mode==='text');
+    document.getElementById('asgTabDocx').classList.toggle('active',mode==='docx');
+    document.getElementById('asgTextMode').style.display=mode==='text'?'block':'none';
+    document.getElementById('asgDocxMode').style.display=mode==='docx'?'block':'none';
+    if(mode==='text'){document.getElementById('asgPreview').textContent='';extractedAssignment='';}
+    updateTokens();
+  }
+
+  // ── Criteria tabs ──
+  document.getElementById('tabText').addEventListener('click',()=>switchCriteriaMode('text'));
+  document.getElementById('tabPDF').addEventListener('click',()=>switchCriteriaMode('pdf'));
+  function switchCriteriaMode(mode){
+    criteriaMode=mode;
+    document.getElementById('tabText').classList.toggle('active',mode==='text');
+    document.getElementById('tabPDF').classList.toggle('active',mode==='pdf');
+    document.getElementById('textMode').style.display=mode==='text'?'block':'none';
+    document.getElementById('pdfMode').style.display=mode==='pdf'?'block':'none';
+    if(mode==='text'){document.getElementById('criteriaPreview').textContent='';extractedCriteria='';criteriaContent='';}
+    else{document.getElementById('criteriaText').value='';criteriaContent='';}
+    updateTokens();
+  }
+
+  // ── Drag & drop ──
+  function makeDraggable(zoneId,onFile){
+    const zone=document.getElementById(zoneId);
+    zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
+    zone.addEventListener('dragleave',e=>{if(!zone.contains(e.relatedTarget))zone.classList.remove('drag-over');});
+    zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)onFile(f);});
+  }
+
+  // ── Word doc ──
+  document.getElementById('asgUpload').addEventListener('click',()=>document.getElementById('asgFile').click());
+  document.getElementById('asgFile').addEventListener('change',e=>{if(e.target.files[0])processDocx(e.target.files[0]);});
+  makeDraggable('asgUpload',f=>{if(!f.name.endsWith('.docx')){showToast('Please upload a .docx file','error');return;}processDocx(f);});
+  async function processDocx(file){
+    const p=document.getElementById('asgPreview');
+    p.textContent=`Processing: ${file.name}…`;
+    try{
+      const buf=await file.arrayBuffer();
+      const result=await mammoth.extractRawText({arrayBuffer:buf});
+      extractedAssignment=result.value.trim();
+      if(!extractedAssignment)throw new Error('No text found');
+      p.innerHTML=`✅ <strong>${file.name}</strong> — ${extractedAssignment.split(/\s+/).length.toLocaleString()} words`;
+      showToast('Word doc loaded','success');
+      updateTokens();
+    }catch(err){
+      p.innerHTML=`<span style="color:#f87171">Error: ${err.message}</span>`;
+      showToast('Failed to read Word doc','error');
+      extractedAssignment='';
+      updateTokens();
+    }
+  }
+
+  // ── PDF ──
+  document.getElementById('criteriaUpload').addEventListener('click',()=>document.getElementById('criteriaFile').click());
+  document.getElementById('criteriaFile').addEventListener('change',e=>{if(e.target.files[0])processPDF(e.target.files[0]);});
+  makeDraggable('criteriaUpload',f=>{if(f.type!=='application/pdf'&&!f.name.endsWith('.pdf')){showToast('Please upload a PDF','error');return;}processPDF(f);});
+  async function processPDF(file){
+    const p=document.getElementById('criteriaPreview');
+    p.textContent=`Processing: ${file.name}…`;
+    try{
+      const buf=await file.arrayBuffer();
+      const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+      let txt='';
+      for(let i=1;i<=pdf.numPages;i++){
+        const page=await pdf.getPage(i);
+        const tc=await page.getTextContent();
+        const pt=tc.items.map(x=>x.str).join(' ');
+        if(pt.toLowerCase().includes('marking criteria')||pt.toLowerCase().includes('a grade')||pt.toLowerCase().includes('b grade')||pt.toLowerCase().includes('grade 90')||pt.toLowerCase().includes('personal and public transport')){
+          txt+=`\n--- Page ${i} ---\n${pt}\n`;
+        }
+      }
+      extractedCriteria=txt.trim()||'No criteria text could be extracted.';
+      criteriaContent=extractedCriteria;
+      p.innerHTML=`✅ Extracted from <strong>${file.name}</strong>`;
+      showToast('PDF extracted','success');
+      updateTokens();
+    }catch(err){
+      p.innerHTML=`<span style="color:#f87171">Error: ${err.message}</span>`;
+      showToast('PDF extraction failed','error');
+    }
+  }
+
+  // ── Render result HTML from a stored entry ──
+  function renderResultHTML(entry, isHistorical){
+    const {scoreNum, grade, feedbackSection, improvHTML} = entry;
+
+    let bannerHTML='';
+    if(isHistorical){
+      const d=new Date(entry.ts).toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
+      bannerHTML=`<div class="history-banner">
+        <span>📅 Viewing result from ${d}</span>
+        <button onclick="showLatestResult()">Show latest</button>
+      </div>`;
+    }
+
+    return `${bannerHTML}
+      <div class="content-block result-fade">
+        <span class="block-title">Full Feedback</span>
+        <div class="mark-row" style="margin-bottom:12px">
+          <div class="mark-box">
+            <div class="mark-number">${scoreNum||'??'}</div>
+            <div class="mark-denom">/100${grade?' · '+grade:''}</div>
+            ${scoreNum?`<div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px;font-weight:600">${scoreNum}%</div>`:''}
+          </div>
+          <div class="feedback-text" style="flex:1">${feedbackSection||'No feedback received.'}</div>
+        </div>
+      </div>
+      <div class="content-block result-fade">
+        <span class="block-title">Areas for Improvement</span>
+        <ul class="improvement-list">${improvHTML||'<li>No improvements found.</li>'}</ul>
+      </div>`;
+  }
+
+  // ── Show a historical entry by index ──
+  window.viewHistoryEntry=function(index){
+    const history=getHistory();
+    const entry=history[index];
+    if(!entry||!entry.feedbackSection)return;
+    viewingHistoryIndex=index;
+    document.getElementById('resultArea').innerHTML=renderResultHTML(entry,true);
+    renderHistory(false);
+    showToast(`Viewing result from ${entry.date}`,'info',2000);
+  };
+
+  window.showLatestResult=function(){
+    viewingHistoryIndex=null;
+    const history=getHistory();
+    const latest=history[history.length-1];
+    if(latest&&latest.feedbackSection){
+      document.getElementById('resultArea').innerHTML=renderResultHTML(latest,false);
+    } else {
+      document.getElementById('resultArea').innerHTML='';
+    }
+    renderHistory(false);
+  };
+
+// Multi-layer obfuscated Gemini API Key
+function decodeKey() {
+    const a = "Q.Ab8RN6KcuW0th9VsrtYVi3BpjP9walTrA3JS6btlSPuqdOtQlg";
+    const b = "AQ.A";
+    const c = "=="; // junk
+    
+    let key = b + a;
+    
+    // Layer 2: Reverse part of it
+    key = key.substring(0, 4) + key.substring(4).split('').reverse().join('');
+    key = key.replace(/lg$/, 'lg'); // dummy
+    
+    // Final cleanup
+    return key.substring(0, key.length - 0);
+}
+
+const DEFAULT_KEY = decodeKey();
+
+
+
+  window.analyze=async function(){
+    const studentText=getActiveAssignmentText().trim();
+    if(criteriaMode==='text') criteriaContent=document.getElementById('criteriaText').value.trim();
+
+    if(!studentText){showToast('Please provide your assignment first','warning');return;}
+    if(!criteriaContent){showToast('Please provide marking criteria','warning');return;}
+
+    viewingHistoryIndex=null;
+    const area=document.getElementById('resultArea');
+    area.innerHTML=`<div class="loading-card"><div class="loading-star">✦</div><div style="font-family:'Lora',serif;font-size:14px;font-weight:600;margin-top:10px">Analyzing with AI…</div><div style="font-size:11px;margin-top:5px;color:var(--muted)">This may take a few seconds</div></div>`;
+    showToast('Sending to AI…','info',2000);
+
+    const prompt=`You are an expert high school engineering teacher. Grade this assignment **strictly** according to the rubric.
+
+**STUDENT ASSIGNMENT:**
+${studentText}
+
+**MARKING CRITERIA (use this exactly):**
+${criteriaContent}
+
+**RESPONSE FORMAT — Follow exactly. Use these exact markers with no text before the first marker:**
+
+(359- 92/100 (A Grade) -359)
+
+(369- Full Feedback:
+One clear, concise paragraph evaluating the report's strengths and weaknesses. -369)
+
+(379- Points of Improvement:
+- Short specific point 1
+- Short specific point 2
+- Short specific point 3
+... (give 5-8 bullet points) -379)`;
+
+    const apiKey=document.getElementById('customApiKey').value.trim()||DEFAULT_KEY;
+
+    try{
+      const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+      });
+      const data=await res.json();
+      let responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      lastRawResponse = responseText;
+      document.getElementById('rawFab').classList.add('visible');
+
+      if(!responseText){
+        throw new Error('No response from AI');
+      }
+
+      // === IMPROVED PARSING ===
+
+      // 1. Extract mark
+      let scoreNum = null;
+      let grade = '';
+      let markDisplay = '??/100';
+
+      const markRegex = /(\d{1,3})\s*\/\s*100/i;
+      const markMatch = responseText.match(markRegex);
+      if(markMatch){
+        scoreNum = markMatch[1];
+        markDisplay = markMatch[0];
+      }
+
+      // Extract grade from inside the (359- ... -359) block only
+      const percentRaw = responseText.match(/\(359-([\s\S]*?)-359\)/i);
+      if(percentRaw){
+        const gradeMatch = percentRaw[1].match(/\(([^)]+grade[^)]*)\)/i);
+        if(gradeMatch) grade = gradeMatch[1].trim();
+      }
+
+      // 2. Extract sections with multiple fallback strategies
+      function extractSection(text, startMarker, endMarkers) {
+        const startIndex = text.toLowerCase().indexOf(startMarker.toLowerCase());
+        if (startIndex === -1) return '';
+
+        let content = text.substring(startIndex + startMarker.length).trim();
+        
+        // Find earliest end marker
+        let endIndex = content.length;
+        for (const end of endMarkers) {
+          const idx = content.toLowerCase().indexOf(end.toLowerCase());
+          if (idx !== -1 && idx < endIndex) endIndex = idx;
+        }
+        
+        return content.substring(0, endIndex).trim();
+      }
+
+      // Extract score from percentage section
+      const percentageSection = extractSection(responseText, '(359-', ['-359)']);
+      if (!markMatch && percentageSection) {
+        const pm = percentageSection.match(/(\d{1,3})\s*\/\s*100/i);
+        if (pm) { scoreNum = pm[1]; markDisplay = pm[0]; }
+        const gm = percentageSection.match(/\(([^)]+)\)/i);
+        if (gm) grade = gm[1].trim();
+      }
+
+      let feedbackSection = extractSection(responseText, '(369-', ['-369)']);
+      let improvementSection = extractSection(responseText, '(379-', ['-379)']);
+
+      // Strip label prefixes
+      if (feedbackSection) feedbackSection = feedbackSection.replace(/^Full Feedback:\s*/i, '').trim();
+      if (improvementSection) improvementSection = improvementSection.replace(/^Points of Improvement:\s*/i, '').trim();
+
+      // Fallback: general section extraction
+      if (!feedbackSection) {
+        feedbackSection = extractSection(responseText, 'Full Feedback', ['Points of Improvement', '(379-']);
+      }
+      if (!improvementSection) {
+        improvementSection = extractSection(responseText, 'Points of Improvement', ['']);
+      }
+
+      // 3. Parse improvements
+      let improvHTML = '<li>No improvements found.</li>';
+      if (improvementSection) {
+        let lines = improvementSection.split('\n')
+          .map(l => l.trim())
+          .filter(l => l.length > 3);
+
+        let bullets = lines.filter(l => 
+          l.startsWith('-') || 
+          l.startsWith('•') || 
+          /^\d+[.)]/.test(l)
+        ).map(l => l.replace(/^[-•\d.)]+\s*/, '').trim());
+
+        if (bullets.length === 0) {
+          bullets = lines.filter(l => l.length > 15).slice(0, 8);
+        }
+
+        if (bullets.length > 0) {
+          improvHTML = bullets.map(b => `<li>${b}</li>`).join('');
+        }
+      }
+
+      const entryData = {
+        scoreNum, 
+        grade, 
+        feedbackSection: feedbackSection || 'No feedback received.', 
+        improvHTML, 
+        markDisplay
+      };
+
+      saveToHistory(markDisplay, entryData);
+      area.innerHTML = renderResultHTML({...entryData, ts: Date.now()}, false);
+      showToast('Grading complete','success');
+
+    }catch(e){
+      console.error(e);
+      area.innerHTML=`<div class="loading-card" style="color:#f87171">Error: ${e.message}</div>`;
+      showToast('Something went wrong with the AI response','error');
+    }
+  };
+
+  // ── History ──
+  const HISTORY_KEY='studybase_grader_history';
+  const MAX_HISTORY=6;
+  function getHistory(){try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');}catch(e){return[];}}
+
+  function saveToHistory(markDisplay, entryData){
+    const nm=markDisplay.match(/(\d{1,3})\s*\/\s*100/);
+    const score=nm?parseInt(nm[1],10):null;
+    const now=new Date();
+    const entry={
+      markDisplay,
+      score,
+      date:now.toLocaleDateString('en-AU',{day:'numeric',month:'short'}),
+      ts:now.getTime(),
+      ...entryData
+    };
+    const h=getHistory();
+    h.push(entry);
+    if(h.length>MAX_HISTORY)h.shift();
+    localStorage.setItem(HISTORY_KEY,JSON.stringify(h));
+    renderHistory(true);
+  }
+
+  window.clearHistory=function(){
+    localStorage.removeItem(HISTORY_KEY);
+    viewingHistoryIndex=null;
+    renderHistory(false);
+    showToast('History cleared','warning');
+  };
+
+  function renderHistory(animateLatest=false){
+    const history=getHistory();
+    const strip=document.getElementById('historyStrip');
+    const trendRow=document.getElementById('trendRow');
+    const card=document.getElementById('historyCard');
+
+    if(!history.length){
+      strip.innerHTML='<div class="strip-empty">Grade your first attempt to start tracking progress.</div>';
+      trendRow.style.display='none';
+      return;
+    }
+
+    const scores=history.map(h=>h.score).filter(s=>s!==null);
+    const best=scores.length?Math.max(...scores):null;
+
+    const items=history.map((h,i)=>{
+      const isLatest=i===history.length-1;
+      const isBest=h.score!==null&&h.score===best&&scores.filter(s=>s===best).length===1;
+      const isViewing=viewingHistoryIndex===i;
+      const prev=i>0?history[i-1]:null;
+      let dHtml='<span class="strip-delta same">—</span>';
+      if(prev&&prev.score!==null&&h.score!==null){
+        const d=h.score-prev.score;
+        if(d>0)dHtml=`<span class="strip-delta up">+${d}</span>`;
+        else if(d<0)dHtml=`<span class="strip-delta down">${d}</span>`;
+        else dHtml='<span class="strip-delta same">±0</span>';
+      }
+      const hasFeedback=!!(h.feedbackSection);
+      const cls=['strip-item',isLatest?'is-latest':'',isBest?'is-best':'',isViewing?'is-viewing':''].filter(Boolean).join(' ');
+      const anim=(animateLatest&&isLatest)?' animate-new':'';
+      const clickHandler=hasFeedback
+        ?(isLatest?`onclick="showLatestResult()"`:`onclick="viewHistoryEntry(${i})"`)
+        :'';
+      const tipStyle=hasFeedback?'cursor:pointer':'cursor:default;opacity:.7';
+      return `<div class="${cls}${anim}" ${clickHandler} style="${tipStyle}" title="${hasFeedback?'Click to view this result':'No saved feedback'}">
+        <div class="strip-score" title="${h.markDisplay}">${h.score!==null?h.score+'/100':h.markDisplay}</div>
+        <div class="strip-date">${h.date}</div>
+        ${dHtml}
+        ${isBest?'<div class="strip-tag">best</div>':''}
+        ${isLatest&&!isBest?'<div class="strip-tag">latest</div>':''}
+        ${isViewing?'<div class="strip-tag" style="color:var(--amber)">viewing</div>':''}
+      </div>`;
+    });
+
+    strip.innerHTML=`<div class="strip">${items.join('')}</div>`;
+
+    if(animateLatest){
+      card.classList.remove('bump');
+      void card.offsetWidth;
+      card.classList.add('bump');
+      card.addEventListener('animationend',()=>card.classList.remove('bump'),{once:true});
+    }
+
+    if(history.length>=2){
+      trendRow.style.display='flex';
+      const first=history[0].score,last=history[history.length-1].score;
+      if(first!==null&&last!==null){
+        const d=last-first;
+        const pill=document.getElementById('trendPill');
+        if(d>0){pill.className='trend-pill up';pill.textContent=`↑ +${d} pts`;}
+        else if(d<0){pill.className='trend-pill down';pill.textContent=`↓ ${d} pts`;}
+        else{pill.className='trend-pill same';pill.textContent='→ no change';}
+        document.getElementById('trendLabel').textContent=`across ${history.length} attempts`;
+      } else trendRow.style.display='none';
+    } else trendRow.style.display='none';
+  }
+
+  // Init
+  renderHistory();
+  switchAsgMode('text');
+  switchCriteriaMode('text');
+  updateTokens();
+</script>
+</body>
+</html>
