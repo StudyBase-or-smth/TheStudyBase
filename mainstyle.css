@@ -125,6 +125,14 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;min-height:
 .ev-btn.danger{background:#dc2626;color:#fff;margin-right:auto}
 .ev-btn:hover{opacity:.85}
 
+
+
+/* ── SUGGESTION FILTERS ── */
+.sug-filters{display:flex;gap:6px;padding:10px 24px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sug-filter{background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.4px;cursor:pointer;transition:all .12s;color:var(--muted);text-transform:uppercase}
+.sug-filter:hover{border-color:var(--border2);color:var(--text)}
+.sug-filter.active{border-color:var(--text);color:var(--text)}
+
 /* ── SUGGESTIONS MODAL ── */
 .sug-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
 .sug-overlay.open{display:flex}
