@@ -76,7 +76,7 @@ window.toggleSection = function (section) {
 
 function initCollapsibles() {
   const state = getCollapsed();
-  ['recent', 'units'].forEach(s => applyCollapse(s, !!state[s]));
+  ['recent','tools','units'].forEach(s => applyCollapse(s, !!state[s]));
 }
 
 // ── Calendar state ──
