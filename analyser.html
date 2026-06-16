@@ -23,10 +23,9 @@
 
     body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;font-size:13px}
 
-    /* ── HEADER ── */
+    /* HEADER */
     .hdr{background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;height:46px;padding:0 0 0 0;gap:0;position:sticky;top:0;z-index:100;overflow:visible}
 
-    /* Accent bar — animated back button from subject.html */
     .accent-bar{
       height:100%;width:6px;flex-shrink:0;background:var(--amber);
       cursor:pointer;transition:width .22s cubic-bezier(.34,1.2,.64,1);
@@ -59,7 +58,6 @@
     .hdr-btn::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);right:0;background:var(--card);color:var(--text);font-size:10px;font-weight:600;white-space:nowrap;padding:3px 8px;border-radius:4px;border:1px solid var(--border2);pointer-events:none;opacity:0;transition:opacity .12s;z-index:200}
     .hdr-btn:hover::after{opacity:1}
 
-    /* API key */
     .api-wrap{position:relative}
     .api-input{height:26px;padding:0 9px;border:1px solid var(--border);border-radius:5px;font-size:10px;font-family:'Inter',sans-serif;color:var(--text);background:var(--card2);outline:none;width:170px;transition:border-color .15s}
     .api-input:focus{border-color:var(--amber)}
@@ -67,15 +65,14 @@
     .api-tip{position:absolute;top:calc(100% + 6px);right:0;background:var(--card);color:var(--text);font-size:10px;font-weight:600;padding:4px 9px;border-radius:4px;border:1px solid var(--border2);pointer-events:none;opacity:0;transition:opacity .12s;z-index:200;white-space:nowrap}
     .api-wrap:hover .api-tip{opacity:1}
 
-    /* ── MAIN SPLIT LAYOUT ── */
+    /* MAIN SPLIT LAYOUT */
     .layout{display:grid;grid-template-columns:var(--col-left) 1fr;height:calc(100vh - 46px);overflow:hidden}
 
-    /* ── LEFT PANEL ── */
+    /* LEFT PANEL */
     .left-panel{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;padding:20px 18px;gap:16px}
     .panel-label{font-size:10px;font-weight:600;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
     .section-block{display:flex;flex-direction:column}
 
-    /* Tabs */
     .tabs{display:flex;gap:6px;margin-bottom:8px}
     .tab{padding:5px 12px;border:1px solid var(--border);background:var(--card2);border-radius:5px;cursor:pointer;font-weight:500;font-size:11px;font-family:'Inter',sans-serif;color:var(--muted);transition:all .12s}
     .tab:hover{border-color:var(--border2);color:var(--text)}
@@ -94,82 +91,78 @@
     .file-upload p+p{font-size:11px;color:var(--muted2);margin-top:3px}
     .file-preview{margin-top:7px;font-size:11px;color:var(--muted)}
 
-    /* Token bar */
     .token-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
     .token-label{font-size:10px;font-weight:600;letter-spacing:.8px;color:var(--muted);text-transform:uppercase}
     .token-count{font-size:11px;color:var(--amber);font-weight:600;font-family:'Lora',serif}
     .token-bar-bg{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
     .token-bar-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--amber2));border-radius:2px;transition:width .4s ease;width:0%}
 
-    /* Analyze button */
     .analyze-btn{width:100%;padding:12px 24px;background:var(--card2);color:var(--text);border:1px solid var(--border2);border-radius:7px;font-weight:600;cursor:pointer;transition:all .15s;font-size:14px;font-family:'Inter',sans-serif;letter-spacing:.2px;display:flex;align-items:center;justify-content:center;gap:8px}
     .analyze-btn:hover{background:var(--amber);color:#1a1208;border-color:var(--amber);box-shadow:0 4px 18px rgba(245,158,11,.25)}
     .analyze-btn:active{transform:scale(.99)}
     .analyze-btn .star{font-style:normal;transition:transform .2s}
     .analyze-btn:hover .star{transform:rotate(30deg) scale(1.2)}
 
-    /* ── RIGHT PANEL ── */
+    /* RIGHT PANEL */
     .right-panel{display:flex;flex-direction:column;overflow-y:auto;padding:20px 18px;gap:14px}
 
-    /* Mark history */
     .history-block{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
     .block-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
     .block-title{font-size:10px;font-weight:600;letter-spacing:.8px;color:var(--muted);text-transform:uppercase}
     .history-clear{background:none;border:none;font-size:10px;color:var(--muted2);cursor:pointer;font-family:'Inter',sans-serif;transition:color .12s;padding:0}
     .history-clear:hover{color:#dc2626}
 
-    .strip{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
-    .strip-empty{font-size:11px;color:var(--muted2);font-style:italic;padding:14px 0;text-align:center;width:100%}
+    .strip{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px}
+    .strip-empty{font-size:11px;color:var(--muted2);font-style:italic;padding:18px 0;text-align:center;width:100%}
     .strip-item{
-      flex:1;padding:9px 6px;text-align:center;border-right:1px solid var(--border);
-      position:relative;min-width:0;transition:background .3s;
-      cursor:pointer;
+      flex:1;min-width:64px;padding:10px 6px 8px;text-align:center;
+      border:1px solid var(--border);border-radius:8px;
+      position:relative;transition:border-color .2s,transform .2s,box-shadow .2s;
+      cursor:pointer;background:var(--card2);overflow:hidden;
     }
-    .strip-item:last-child{border-right:none}
-    .strip-item:hover{background:rgba(245,158,11,.08)!important}
-    .strip-item.is-best{background:rgba(245,158,11,.12)}
-    .strip-item.is-latest{background:var(--card2)}
-    .strip-item.is-viewing{outline:2px solid var(--amber);outline-offset:-2px;border-radius:0}
-    .strip-score{font-size:15px;font-weight:700;color:var(--text);line-height:1;margin-bottom:2px;font-family:'Lora',serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .strip-item::before{
+      content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+      background:var(--border);border-radius:0 0 8px 8px;transition:height .3s ease,background .3s;
+    }
+    .strip-item:hover{transform:translateY(-2px);border-color:var(--border2);box-shadow:0 4px 14px rgba(0,0,0,.3)}
+    .strip-item:hover::before{height:4px;background:var(--amber)}
+    .strip-item.is-best{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.08)}
+    .strip-item.is-best::before{background:var(--amber);height:3px}
+    .strip-item.is-latest{border-color:rgba(245,158,11,.25);background:var(--card2)}
+    .strip-item.is-latest::before{background:rgba(245,158,11,.5);height:3px}
+    .strip-item.is-viewing{border-color:var(--amber);box-shadow:0 0 0 2px rgba(245,158,11,.2)}
+    .strip-item.is-viewing::before{background:var(--amber);height:4px}
+    .strip-score{font-size:16px;font-weight:700;color:var(--text);line-height:1;margin-bottom:3px;font-family:'Lora',serif}
     .strip-item.is-best .strip-score{color:var(--amber)}
     .strip-item.is-latest .strip-score{color:var(--amber)}
     .strip-item.is-viewing .strip-score{color:var(--amber)}
+    .strip-bar-wrap{height:3px;background:var(--border);border-radius:2px;margin:5px 4px 4px;overflow:hidden}
+    .strip-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--amber),var(--amber2));width:0%;transition:width 1s cubic-bezier(.34,1,.64,1)}
     .strip-date{font-size:9px;color:var(--muted2);margin-bottom:2px}
-    .strip-delta{font-size:10px;font-weight:700}
+    .strip-delta{font-size:10px;font-weight:700;display:inline-flex;align-items:center;gap:2px}
     .strip-delta.up{color:#4ade80}
     .strip-delta.down{color:#f87171}
-    .strip-delta.same{color:var(--muted2)}
-    .strip-tag{font-size:8px;font-weight:700;color:var(--amber-dim);margin-top:2px;text-transform:uppercase;letter-spacing:.3px}
-    .trend-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:8px;border-top:1px solid var(--border)}
-    .trend-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
-    .trend-pill.up{background:rgba(74,222,128,.15);color:#4ade80}
-    .trend-pill.down{background:rgba(248,113,113,.15);color:#f87171}
-    .trend-pill.same{background:var(--card2);color:var(--muted)}
 
-    /* Viewing-history banner */
     .history-banner{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:7px 12px;font-size:11px;color:var(--amber);display:flex;align-items:center;justify-content:space-between;gap:10px}
     .history-banner button{background:none;border:1px solid rgba(245,158,11,.4);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--amber);cursor:pointer;font-family:'Inter',sans-serif;transition:background .12s}
     .history-banner button:hover{background:rgba(245,158,11,.15)}
 
-    /* Mark score box */
     .mark-row{display:flex;align-items:stretch;gap:14px}
     .mark-box{background:linear-gradient(135deg,var(--amber),var(--amber2));border-radius:8px;padding:16px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:96px;text-align:center}
     .mark-number{font-family:'Lora',serif;font-size:32px;font-weight:700;color:#fff;line-height:1}
     .mark-denom{font-size:10px;color:rgba(255,255,255,.8);margin-top:4px;line-height:1.3}
 
-    /* Feedback / improvements */
     .content-block{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
     .content-block .block-title{margin-bottom:8px;display:block}
     .feedback-text{font-size:12.5px;line-height:1.7;color:var(--text);white-space:pre-wrap}
     .improvement-list{padding-left:18px;color:var(--text)}
     .improvement-list li{font-size:12.5px;line-height:1.65;margin-bottom:6px}
 
-    /* Loading state */
     .loading-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:32px;text-align:center;color:var(--muted)}
     .loading-star{font-size:20px;animation:spin-slow 3s linear infinite;display:inline-block}
     @keyframes spin-slow{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
-    /* ── TOASTS ── */
+    /* TOASTS */
     #toast-container{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none}
     .toast{display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--border2);border-radius:7px;padding:9px 13px;font-size:12px;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.4);pointer-events:all;min-width:200px;max-width:300px;animation:toast-in .2s ease;transition:opacity .3s,transform .3s}
     .toast.out{opacity:0;transform:translateX(16px)}
@@ -182,24 +175,59 @@
     .toast.warning{border-color:var(--amber)}
     @keyframes toast-in{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
 
-    /* ── HISTORY ANIMATIONS ── */
+    /* HISTORY ANIMATIONS */
     @keyframes strip-pop-in{
-      0%{opacity:0;transform:translateY(-8px) scale(.93)}
-      60%{transform:translateY(2px) scale(1.02)}
+      0%{opacity:0;transform:translateY(-10px) scale(.88)}
+      65%{transform:translateY(2px) scale(1.04)}
       100%{opacity:1;transform:translateY(0) scale(1)}
     }
-    @keyframes score-pulse{0%{transform:scale(1)}40%{transform:scale(1.2)}70%{transform:scale(.96)}100%{transform:scale(1)}}
-    @keyframes glow-pulse{0%{box-shadow:inset 0 0 0 0 rgba(245,158,11,0)}50%{box-shadow:inset 0 0 16px rgba(245,158,11,.2)}100%{box-shadow:inset 0 0 0 0 rgba(245,158,11,0)}}
-    @keyframes bump{0%{transform:translateY(0)}30%{transform:translateY(-3px)}65%{transform:translateY(1px)}100%{transform:translateY(0)}}
-    .strip-item.animate-new{animation:strip-pop-in .45s cubic-bezier(.34,1.56,.64,1) forwards,glow-pulse .9s ease .1s}
-    .strip-item.animate-new .strip-score{animation:score-pulse .5s cubic-bezier(.34,1.56,.64,1) .15s}
-    .history-block.bump{animation:bump .4s ease}
+    @keyframes score-count{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.25)}100%{transform:scale(1);opacity:1}}
+    @keyframes bump{0%{transform:translateY(0)}30%{transform:translateY(-4px)}65%{transform:translateY(1px)}100%{transform:translateY(0)}}
+    .history-block.bump{animation:bump .45s ease}
 
-    /* result area fade */
+    /* RESULT FLASH ANIMATIONS — green for improved, red for worse */
+    @keyframes flash-green{
+      0%  {box-shadow:0 0 0 0 rgba(74,222,128,0),inset 0 0 0 0 rgba(74,222,128,0)}
+      15% {box-shadow:0 0 32px 10px rgba(74,222,128,.55),inset 0 0 24px 6px rgba(74,222,128,.18)}
+      55% {box-shadow:0 0 16px 4px rgba(74,222,128,.22),inset 0 0 10px 2px rgba(74,222,128,.07)}
+      100%{box-shadow:0 0 0 0 rgba(74,222,128,0),inset 0 0 0 0 rgba(74,222,128,0)}
+    }
+    @keyframes flash-red{
+      0%  {box-shadow:0 0 0 0 rgba(248,113,113,0),inset 0 0 0 0 rgba(248,113,113,0)}
+      15% {box-shadow:0 0 32px 10px rgba(248,113,113,.55),inset 0 0 24px 6px rgba(248,113,113,.18)}
+      55% {box-shadow:0 0 16px 4px rgba(248,113,113,.22),inset 0 0 10px 2px rgba(248,113,113,.07)}
+      100%{box-shadow:0 0 0 0 rgba(248,113,113,0),inset 0 0 0 0 rgba(248,113,113,0)}
+    }
+    /* first result — neutral amber glow */
+    @keyframes glow-pulse{
+      0%  {box-shadow:0 0 0 0 rgba(245,158,11,0)}
+      40% {box-shadow:0 0 20px 4px rgba(245,158,11,.35)}
+      100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}
+    }
+
+    .strip-item.animate-new{animation:strip-pop-in .5s cubic-bezier(.34,1.56,.64,1) forwards,glow-pulse 1s ease .15s}
+    .strip-item.flash-good{animation:strip-pop-in .5s cubic-bezier(.34,1.56,.64,1) forwards,flash-green 1.4s ease .1s}
+    .strip-item.flash-bad {animation:strip-pop-in .5s cubic-bezier(.34,1.56,.64,1) forwards,flash-red  1.4s ease .1s}
+    .strip-item.animate-new .strip-score,
+    .strip-item.flash-good  .strip-score,
+    .strip-item.flash-bad   .strip-score{animation:score-count .55s cubic-bezier(.34,1.56,.64,1) .1s both}
+
     @keyframes result-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
     .result-fade{animation:result-in .25s ease}
 
-    /* ── RAW OUTPUT BUTTON ── */
+    /* COMPACT PROGRESS CHART */
+    .progress-chart{margin-top:8px;padding:0 2px}
+    .chart-svg{width:100%;height:28px;display:block}
+    .chart-area{opacity:.2}
+    .chart-line{
+      fill:none;stroke:url(#chartGrad);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;
+      stroke-dasharray:600;stroke-dashoffset:600;transition:stroke-dashoffset 1s ease .2s;
+    }
+    .chart-line.drawn{stroke-dashoffset:0}
+    .chart-dot{transition:r .2s}
+    .chart-dot:hover{r:5}
+
+    /* RAW OUTPUT BUTTON */
     .raw-fab{
       position:fixed;bottom:62px;right:18px;z-index:8000;
       display:flex;align-items:center;gap:7px;
@@ -213,7 +241,7 @@
     .raw-fab:hover{background:var(--card);color:var(--text);border-color:var(--amber)}
     .raw-fab-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0}
 
-    /* ── RAW OUTPUT PANEL ── */
+    /* RAW OUTPUT PANEL */
     .raw-overlay{
       position:fixed;inset:0;z-index:8500;
       background:rgba(0,0,0,.55);backdrop-filter:blur(3px);
@@ -255,15 +283,16 @@
     body.light .trend-pill.up{background:#dcfce7;color:#14532d}
     body.light .trend-pill.down{background:#fee2e2;color:#7f1d1d}
     body.light .strip-item.is-best{background:#fef9ee}
+    body.light .strip-item::before{background:#e2ddd7}
+    body.light .improve-badge{background:rgba(21,128,61,.1);color:#15803d;border-color:rgba(21,128,61,.2)}
+    body.light .improve-badge.negative{background:rgba(220,38,38,.08);color:#dc2626;border-color:rgba(220,38,38,.15)}
   </style>
 </head>
 <body>
 
 <!-- HEADER -->
 <div class="hdr">
-  <!-- Animated back-to-index accent bar (from subject.html) -->
-  <a class="accent-bar" href="index.html" title="Back to Index">
-  </a>
+  <a class="accent-bar" href="index.html" title="Back to Index"></a>
 
   <div class="hdr-inner">
     <span class="logo-text">StudyBase</span>
@@ -302,7 +331,7 @@ loadBranchVersion();
 <!-- MAIN LAYOUT -->
 <div class="layout">
 
-  <!-- ── LEFT PANEL ── -->
+  <!-- LEFT PANEL -->
   <div class="left-panel">
 
     <!-- Assignment -->
@@ -345,7 +374,6 @@ loadBranchVersion();
       </div>
     </div>
 
-    <!-- Spacer -->
     <div style="flex:1"></div>
 
     <!-- Token counter -->
@@ -364,7 +392,7 @@ loadBranchVersion();
 
   </div>
 
-  <!-- ── RIGHT PANEL ── -->
+  <!-- RIGHT PANEL -->
   <div class="right-panel" id="rightPanel">
 
     <!-- Mark History -->
@@ -400,7 +428,7 @@ loadBranchVersion();
       <span class="raw-panel-title"><span class="raw-fab-dot"></span>Raw AI Response</span>
       <div style="display:flex;gap:6px">
         <button class="raw-copy" id="rawCopyBtn" onclick="copyRaw()">Copy</button>
-        <button class="raw-close" onclick="closeRawOutput()">✕ Close</button>
+        <button class="raw-close" onclick="closeRawOutput()">&#x2715; Close</button>
       </div>
     </div>
     <div class="raw-panel-body">
@@ -412,7 +440,7 @@ loadBranchVersion();
 <script>
   pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-  // ── Theme ──
+  // Theme
   (function(){
     const dark=localStorage.getItem('studybase_dark')!=='0';
     if(!dark) document.body.classList.add('light');
@@ -424,11 +452,11 @@ loadBranchVersion();
     this.textContent=isLight?'☀️':'🌙';
   };
 
-  // ── Date ──
+  // Date
   document.getElementById('todayDate').textContent=
     new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
 
-  // ── Toast ──
+  // Toast
   (function(){
     const c=document.getElementById('toast-container');
     window.showToast=function(msg,type='info',dur=3000){
@@ -441,16 +469,16 @@ loadBranchVersion();
     };
   })();
 
-  // ── State ──
+  // State
   let criteriaContent='';
   let criteriaMode='text';
   let assignmentMode='text';
   let extractedAssignment='';
-  let extractedCriteria=''; // for PDF mode
-  let viewingHistoryIndex=null; // null = showing latest, number = viewing old entry
-  let lastRawResponse=''; // raw AI response text
+  let extractedCriteria='';
+  let viewingHistoryIndex=null;
+  let lastRawResponse='';
 
-  // ── Raw output panel ──
+  // Raw output panel
   window.openRawOutput=function(){
     document.getElementById('rawText').textContent=lastRawResponse||'No output yet.';
     document.getElementById('rawOverlay').classList.add('open');
@@ -471,7 +499,7 @@ loadBranchVersion();
   };
   document.addEventListener('keydown',e=>{if(e.key==='Escape') closeRawOutput();});
 
-  // ── Token counter ──
+  // Token counter
   const MAX_TOKENS=8192;
   function countTokens(s){return Math.ceil((s||'').length/4);}
 
@@ -496,7 +524,7 @@ loadBranchVersion();
   document.getElementById('studentText').addEventListener('input',updateTokens);
   document.getElementById('criteriaText').addEventListener('input',updateTokens);
 
-  // ── Assignment tabs ──
+  // Assignment tabs
   document.getElementById('asgTabText').addEventListener('click',()=>switchAsgMode('text'));
   document.getElementById('asgTabDocx').addEventListener('click',()=>switchAsgMode('docx'));
   function switchAsgMode(mode){
@@ -509,7 +537,7 @@ loadBranchVersion();
     updateTokens();
   }
 
-  // ── Criteria tabs ──
+  // Criteria tabs
   document.getElementById('tabText').addEventListener('click',()=>switchCriteriaMode('text'));
   document.getElementById('tabPDF').addEventListener('click',()=>switchCriteriaMode('pdf'));
   function switchCriteriaMode(mode){
@@ -523,7 +551,7 @@ loadBranchVersion();
     updateTokens();
   }
 
-  // ── Drag & drop ──
+  // Drag & drop
   function makeDraggable(zoneId,onFile){
     const zone=document.getElementById(zoneId);
     zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
@@ -531,7 +559,7 @@ loadBranchVersion();
     zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)onFile(f);});
   }
 
-  // ── Word doc ──
+  // Word doc
   document.getElementById('asgUpload').addEventListener('click',()=>document.getElementById('asgFile').click());
   document.getElementById('asgFile').addEventListener('change',e=>{if(e.target.files[0])processDocx(e.target.files[0]);});
   makeDraggable('asgUpload',f=>{if(!f.name.endsWith('.docx')){showToast('Please upload a .docx file','error');return;}processDocx(f);});
@@ -554,7 +582,7 @@ loadBranchVersion();
     }
   }
 
-  // ── PDF ──
+  // PDF
   document.getElementById('criteriaUpload').addEventListener('click',()=>document.getElementById('criteriaFile').click());
   document.getElementById('criteriaFile').addEventListener('change',e=>{if(e.target.files[0])processPDF(e.target.files[0]);});
   makeDraggable('criteriaUpload',f=>{if(f.type!=='application/pdf'&&!f.name.endsWith('.pdf')){showToast('Please upload a PDF','error');return;}processPDF(f);});
@@ -584,9 +612,9 @@ loadBranchVersion();
     }
   }
 
-  // ── Render result HTML from a stored entry ──
+  // Render result HTML from a stored entry
   function renderResultHTML(entry, isHistorical){
-    const {scoreNum, grade, feedbackSection, improvHTML} = entry;
+    const {scoreNum, grade, feedbackSection, improvHTML, percent} = entry;
 
     let bannerHTML='';
     if(isHistorical){
@@ -602,7 +630,7 @@ loadBranchVersion();
         <span class="block-title">Full Feedback</span>
         <div class="mark-row" style="margin-bottom:12px">
           <div class="mark-box">
-            <div class="mark-number">${scoreNum||'??'}</div>
+            <div class="mark-number">${percent||'??'}</div>
             <div class="mark-denom">/100${grade?' · '+grade:''}</div>
             ${scoreNum?`<div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px;font-weight:600">${scoreNum}%</div>`:''}
           </div>
@@ -615,7 +643,7 @@ loadBranchVersion();
       </div>`;
   }
 
-  // ── Show a historical entry by index ──
+  // Show a historical entry by index
   window.viewHistoryEntry=function(index){
     const history=getHistory();
     const entry=history[index];
@@ -639,23 +667,19 @@ loadBranchVersion();
   };
 
 // Multi-layer obfuscated Gemini API Key
+// Multi-layer obfuscated Gemini API Key
 function decodeKey() {
-    const a = "Q.Ab8RN6KcuW0th9VsrtYVi3BpjP9walTrA3JS6btlSPuqdOtQlg";
+    const a = "wac6rvA43LkJB_Cs9ry80JfzhYL3d61g6eglwef7b89J6NR8b";
     const b = "AQ.A";
-    const c = "=="; // junk
-    
     let key = b + a;
-    
-    // Layer 2: Reverse part of it
     key = key.substring(0, 4) + key.substring(4).split('').reverse().join('');
-    key = key.replace(/lg$/, 'lg'); // dummy
-    
-    // Final cleanup
+    key = key.replace(/lg$/, 'lg');   // dummy operation
     return key.substring(0, key.length - 0);
 }
 
-const DEFAULT_KEY = decodeKey();
 
+  const DEFAULT_KEY = decodeKey();
+  console.log(DEFAULT_KEY);
 
 
   window.analyze=async function(){
@@ -670,26 +694,16 @@ const DEFAULT_KEY = decodeKey();
     area.innerHTML=`<div class="loading-card"><div class="loading-star">✦</div><div style="font-family:'Lora',serif;font-size:14px;font-weight:600;margin-top:10px">Analyzing with AI…</div><div style="font-size:11px;margin-top:5px;color:var(--muted)">This may take a few seconds</div></div>`;
     showToast('Sending to AI…','info',2000);
 
-    const prompt=`You are to mark this assignment **strictly** according to the rubric.
+    const prompt=`You are to mark this assessment based on the marking criteria and give a response in this format: (359- XX (X Grade) -359) (369- One clear, concise feedback paragraph evaluating the report's strengths and weaknesses with a maximum of 80 words. -369) (379- 6-10 short points of improvements -379)
 
-**STUDENT ASSIGNMENT:**
+STUDENT ASSIGNMENT:
 ${studentText}
 
-**MARKING CRITERIA (use this exactly):**
+MARKING CRITERIA
 ${criteriaContent}
 
-**RESPONSE FORMAT — Follow exactly. Use these exact markers with no text before the first marker:**
 
-(359- XX/100 (A Grade) reduce mark by 5% -359)
-
-(369- Full Feedback:
-One clear, concise paragraph evaluating the report's strengths and weaknesses with a maxium of 60 words. -369)
-
-(379- Points of Improvement:
-- Short specific point 1
-- Short specific point 2
-- Short specific point 3
-... (give 6-10 bullet points, do not mension adding images or diagrams) -379)`;
+`;
 
     const apiKey=document.getElementById('customApiKey').value.trim()||DEFAULT_KEY;
 
@@ -703,101 +717,57 @@ One clear, concise paragraph evaluating the report's strengths and weaknesses wi
       lastRawResponse = responseText;
       document.getElementById('rawFab').classList.add('visible');
 
-      if(!responseText){
-        throw new Error('No response from AI');
-      }
+      if(!responseText) throw new Error('No response from AI');
 
-      // === IMPROVED PARSING ===
-
-      // 1. Extract mark
+      // Parse mark
       let scoreNum = null;
       let grade = '';
       let markDisplay = '??/100';
 
-      const markRegex = /(\d{1,3})\s*\/\s*100/i;
-      const markMatch = responseText.match(markRegex);
-      if(markMatch){
-        scoreNum = markMatch[1];
-        markDisplay = markMatch[0];
-      }
-
-      // Extract grade from inside the (359- ... -359) block only
       const percentRaw = responseText.match(/\(359-([\s\S]*?)-359\)/i);
       if(percentRaw){
-        const gradeMatch = percentRaw[1].match(/\(([^)]+grade[^)]*)\)/i);
+        const inner = percentRaw[1].trim();
+        const numMatch = inner.match(/(\d{1,3})/);
+        if(numMatch){ scoreNum = numMatch[1]; markDisplay = numMatch[1] + '/100'; }
+        const gradeMatch = inner.match(/([A-E][+-]?\s*(?:Grade)?|Grade\s*[A-E][+-]?)/i);
         if(gradeMatch) grade = gradeMatch[1].trim();
       }
 
-      // 2. Extract sections with multiple fallback strategies
+      if(!scoreNum){
+        const fallbackMatch = responseText.match(/(\d{1,3})\s*\/\s*100/i);
+        if(fallbackMatch){ scoreNum = fallbackMatch[1]; markDisplay = fallbackMatch[0]; }
+      }
+
       function extractSection(text, startMarker, endMarkers) {
         const startIndex = text.toLowerCase().indexOf(startMarker.toLowerCase());
         if (startIndex === -1) return '';
-
         let content = text.substring(startIndex + startMarker.length).trim();
-        
-        // Find earliest end marker
         let endIndex = content.length;
         for (const end of endMarkers) {
           const idx = content.toLowerCase().indexOf(end.toLowerCase());
           if (idx !== -1 && idx < endIndex) endIndex = idx;
         }
-        
         return content.substring(0, endIndex).trim();
-      }
-
-      // Extract score from percentage section
-      const percentageSection = extractSection(responseText, '(359-', ['-359)']);
-      if (!markMatch && percentageSection) {
-        const pm = percentageSection.match(/(\d{1,3})\s*\/\s*100/i);
-        if (pm) { scoreNum = pm[1]; markDisplay = pm[0]; }
-        const gm = percentageSection.match(/\(([^)]+)\)/i);
-        if (gm) grade = gm[1].trim();
       }
 
       let feedbackSection = extractSection(responseText, '(369-', ['-369)']);
       let improvementSection = extractSection(responseText, '(379-', ['-379)']);
 
-      // Strip label prefixes
       if (feedbackSection) feedbackSection = feedbackSection.replace(/^Full Feedback:\s*/i, '').trim();
       if (improvementSection) improvementSection = improvementSection.replace(/^Points of Improvement:\s*/i, '').trim();
 
-      // Fallback: general section extraction
-      if (!feedbackSection) {
-        feedbackSection = extractSection(responseText, 'Full Feedback', ['Points of Improvement', '(379-']);
-      }
-      if (!improvementSection) {
-        improvementSection = extractSection(responseText, 'Points of Improvement', ['']);
-      }
+      if (!feedbackSection) feedbackSection = extractSection(responseText, 'Full Feedback', ['Points of Improvement', '(379-']);
+      if (!improvementSection) improvementSection = extractSection(responseText, 'Points of Improvement', ['']);
 
-      // 3. Parse improvements
       let improvHTML = '<li>No improvements found.</li>';
       if (improvementSection) {
-        let lines = improvementSection.split('\n')
-          .map(l => l.trim())
-          .filter(l => l.length > 3);
-
-        let bullets = lines.filter(l => 
-          l.startsWith('-') || 
-          l.startsWith('•') || 
-          /^\d+[.)]/.test(l)
-        ).map(l => l.replace(/^[-•\d.)]+\s*/, '').trim());
-
-        if (bullets.length === 0) {
-          bullets = lines.filter(l => l.length > 15).slice(0, 8);
-        }
-
-        if (bullets.length > 0) {
-          improvHTML = bullets.map(b => `<li>${b}</li>`).join('');
-        }
+        let lines = improvementSection.split('\n').map(l=>l.trim()).filter(l=>l.length>3);
+        let bullets = lines.filter(l=>l.startsWith('-')||l.startsWith('•')||/^\d+[.)]/.test(l)).map(l=>l.replace(/^[-•\d.)]+\s*/,'').trim());
+        if (bullets.length === 0) bullets = lines.filter(l=>l.length>15).slice(0,8);
+        if (bullets.length > 0) improvHTML = bullets.map(b=>`<li>${b}</li>`).join('');
       }
 
-      const entryData = {
-        scoreNum, 
-        grade, 
-        feedbackSection: feedbackSection || 'No feedback received.', 
-        improvHTML, 
-        markDisplay
-      };
+      const entryData = {scoreNum, percent:scoreNum, grade, feedbackSection:feedbackSection||'No feedback received.', improvHTML, markDisplay};
 
       saveToHistory(markDisplay, entryData);
       area.innerHTML = renderResultHTML({...entryData, ts: Date.now()}, false);
@@ -810,7 +780,7 @@ One clear, concise paragraph evaluating the report's strengths and weaknesses wi
     }
   };
 
-  // ── History ──
+  // History
   const HISTORY_KEY='studybase_grader_history';
   const MAX_HISTORY=6;
   function getHistory(){try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');}catch(e){return[];}}
@@ -819,13 +789,7 @@ One clear, concise paragraph evaluating the report's strengths and weaknesses wi
     const nm=markDisplay.match(/(\d{1,3})\s*\/\s*100/);
     const score=nm?parseInt(nm[1],10):null;
     const now=new Date();
-    const entry={
-      markDisplay,
-      score,
-      date:now.toLocaleDateString('en-AU',{day:'numeric',month:'short'}),
-      ts:now.getTime(),
-      ...entryData
-    };
+    const entry={markDisplay,score,date:now.toLocaleDateString('en-AU',{day:'numeric',month:'short'}),ts:now.getTime(),...entryData};
     const h=getHistory();
     h.push(entry);
     if(h.length>MAX_HISTORY)h.shift();
@@ -854,6 +818,18 @@ One clear, concise paragraph evaluating the report's strengths and weaknesses wi
 
     const scores=history.map(h=>h.score).filter(s=>s!==null);
     const best=scores.length?Math.max(...scores):null;
+    const first=history[0].score, last=history[history.length-1].score;
+    const overallDelta=(first!==null&&last!==null)?last-first:null;
+
+    // Determine flash class for the new latest item
+    let latestFlashClass='animate-new';
+    if(animateLatest && history.length>=2){
+      const prev=history[history.length-2];
+      const curr=history[history.length-1];
+      if(prev.score!==null && curr.score!==null){
+        latestFlashClass = curr.score >= prev.score ? 'flash-good' : 'flash-bad';
+      }
+    }
 
     const items=history.map((h,i)=>{
       const isLatest=i===history.length-1;
@@ -863,28 +839,77 @@ One clear, concise paragraph evaluating the report's strengths and weaknesses wi
       let dHtml='<span class="strip-delta same">—</span>';
       if(prev&&prev.score!==null&&h.score!==null){
         const d=h.score-prev.score;
-        if(d>0)dHtml=`<span class="strip-delta up">+${d}</span>`;
-        else if(d<0)dHtml=`<span class="strip-delta down">${d}</span>`;
+        if(d>0) dHtml=`<span class="strip-delta up">▲${d}</span>`;
+        else if(d<0) dHtml=`<span class="strip-delta down">▼${Math.abs(d)}</span>`;
         else dHtml='<span class="strip-delta same">±0</span>';
       }
+      const pct=h.score!==null?h.score:0;
       const hasFeedback=!!(h.feedbackSection);
-      const cls=['strip-item',isLatest?'is-latest':'',isBest?'is-best':'',isViewing?'is-viewing':''].filter(Boolean).join(' ');
-      const anim=(animateLatest&&isLatest)?' animate-new':'';
-      const clickHandler=hasFeedback
-        ?(isLatest?`onclick="showLatestResult()"`:`onclick="viewHistoryEntry(${i})"`)
-        :'';
+      const baseCls=['strip-item',isLatest?'is-latest':'',isBest?'is-best':'',isViewing?'is-viewing':''].filter(Boolean).join(' ');
+      const animCls=(animateLatest&&isLatest)?' '+latestFlashClass:'';
+      const clickHandler=hasFeedback?(isLatest?`onclick="showLatestResult()"`:`onclick="viewHistoryEntry(${i})"`):'';
       const tipStyle=hasFeedback?'cursor:pointer':'cursor:default;opacity:.7';
-      return `<div class="${cls}${anim}" ${clickHandler} style="${tipStyle}" title="${hasFeedback?'Click to view this result':'No saved feedback'}">
-        <div class="strip-score" title="${h.markDisplay}">${h.score!==null?h.score+'/100':h.markDisplay}</div>
+      return `<div class="${baseCls}${animCls}" ${clickHandler} style="${tipStyle}" data-pct="${pct}" title="${hasFeedback?'Click to view':'No saved feedback'}">
+        <div class="strip-score">${h.score!==null?h.score:'??'}</div>
         <div class="strip-date">${h.date}</div>
+        <div class="strip-bar-wrap"><div class="strip-bar-fill" style="width:0%" data-target="${pct}"></div></div>
         ${dHtml}
-        ${isBest?'<div class="strip-tag">best</div>':''}
+        ${isBest?'<div class="strip-tag">⭐ best</div>':''}
         ${isLatest&&!isBest?'<div class="strip-tag">latest</div>':''}
         ${isViewing?'<div class="strip-tag" style="color:var(--amber)">viewing</div>':''}
       </div>`;
     });
 
-    strip.innerHTML=`<div class="strip">${items.join('')}</div>`;
+    // Compact progress chart — full-width line, round dots overlaid as HTML
+    let chartHTML='';
+    if(scores.length>=2){
+      // Use a 1000-unit wide viewBox so the SVG fills its container without squishing circles
+      const W=1000,H=56,pad=12;
+      const minS=Math.max(0,Math.min(...scores)-10),maxS=Math.min(100,Math.max(...scores)+10);
+      const range=maxS-minS||1;
+      const pts=scores.map((s,i)=>{
+        const x=pad+(i/(scores.length-1))*(W-pad*2);
+        const y=H-pad-((s-minS)/range)*(H-pad*2);
+        return [x,y];
+      });
+      const pathD=pts.map((p,i)=>i===0?`M${p[0]},${p[1]}`:`L${p[0]},${p[1]}`).join(' ');
+      const areaD=pathD+` L${pts[pts.length-1][0]},${H} L${pts[0][0]},${H} Z`;
+      // Dots: use percentages for left, calc for top so they stay truly circular
+      const dotsPct=pts.map((p,i)=>{
+        const lp=((p[0]/W)*100).toFixed(2);
+        const tp=((p[1]/H)*100).toFixed(2);
+        return `<div class="chart-dot-html" style="left:${lp}%;top:${tp}%" title="${scores[i]}/100"></div>`;
+      }).join('');
+      chartHTML=`<div class="progress-chart">
+        <svg class="chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="chartGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#f59e0b"/>
+              <stop offset="100%" stop-color="#ea580c"/>
+            </linearGradient>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f59e0b" stop-opacity=".35"/>
+              <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path class="chart-area" d="${areaD}" fill="url(#areaGrad)"/>
+          <path class="chart-line" d="${pathD}" id="chartLine"/>
+        </svg>
+        <div class="chart-dots-layer">${dotsPct}</div>
+      </div>`;
+    }
+
+    strip.innerHTML=`<div class="strip">${items.join('')}</div>${chartHTML}`;
+
+    // Animate bars after render
+    requestAnimationFrame(()=>{
+      strip.querySelectorAll('.strip-bar-fill').forEach(bar=>{
+        const t=bar.dataset.target;
+        setTimeout(()=>{bar.style.width=t+'%';},animateLatest?200:50);
+      });
+      const line=strip.querySelector('#chartLine');
+      if(line) setTimeout(()=>line.classList.add('drawn'),100);
+    });
 
     if(animateLatest){
       card.classList.remove('bump');
@@ -893,18 +918,32 @@ One clear, concise paragraph evaluating the report's strengths and weaknesses wi
       card.addEventListener('animationend',()=>card.classList.remove('bump'),{once:true});
     }
 
-    if(history.length>=2){
+    // Trend row
+    if(history.length>=2&&overallDelta!==null){
       trendRow.style.display='flex';
-      const first=history[0].score,last=history[history.length-1].score;
-      if(first!==null&&last!==null){
-        const d=last-first;
-        const pill=document.getElementById('trendPill');
-        if(d>0){pill.className='trend-pill up';pill.textContent=`↑ +${d} pts`;}
-        else if(d<0){pill.className='trend-pill down';pill.textContent=`↓ ${d} pts`;}
-        else{pill.className='trend-pill same';pill.textContent='→ no change';}
-        document.getElementById('trendLabel').textContent=`across ${history.length} attempts`;
-      } else trendRow.style.display='none';
-    } else trendRow.style.display='none';
+      const pill=document.getElementById('trendPill');
+      const label=document.getElementById('trendLabel');
+      if(overallDelta>0){
+        pill.className='trend-pill up';
+        pill.textContent=`↑ +${overallDelta} pts`;
+        label.innerHTML=`improved across <strong>${history.length}</strong> attempts `;
+      } else if(overallDelta<0){
+        pill.className='trend-pill down';
+        pill.textContent=`↓ ${overallDelta} pts`;
+        label.innerHTML=`across <strong>${history.length}</strong> attempts`;
+      } else {
+        pill.className='trend-pill same';
+        pill.textContent='→ no change';
+        label.innerHTML=`across <strong>${history.length}</strong> attempts`;
+      }
+      let badgeEl=trendRow.querySelector('.improve-badge');
+      if(!badgeEl){badgeEl=document.createElement('span');trendRow.appendChild(badgeEl);}
+      if(overallDelta>0){badgeEl.className='improve-badge';badgeEl.textContent=`+${overallDelta} total`;}
+      else if(overallDelta<0){badgeEl.className='improve-badge negative';badgeEl.textContent=`${overallDelta} total`;}
+      else{badgeEl.className='improve-badge neutral';badgeEl.textContent='no change';}
+    } else {
+      trendRow.style.display='none';
+    }
   }
 
   // Init
