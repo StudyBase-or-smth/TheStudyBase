@@ -606,89 +606,92 @@ if(resolveSubject()){
   startCountdown();
 }
 
-
 /* ══════════════════════════════════════════════
    STUDYBASE — MOBILE SIDEBAR TOGGLE
    Paste at the very bottom of defaultapp.js
-   (or just before </body> in a <script> tag)
    ══════════════════════════════════════════════ */
 
 (function () {
-  /* Only wire up on mobile widths */
-  function isMobile() { return window.innerWidth <= 640; }
+  var BREAK = 700;
 
-  /* Inject the mobile bar once the DOM is ready */
-  function injectMobBar() {
-    if (document.getElementById('mobBar')) return;
+  function isMobile() { return window.innerWidth <= BREAK; }
+
+  /* ── Inject DOM elements once ── */
+  function setup() {
+    if (document.getElementById('mobScrim')) return;
 
     /* Scrim */
-    const scrim = document.createElement('div');
-    scrim.className = 'mob-scrim';
+    var scrim = document.createElement('div');
     scrim.id = 'mobScrim';
+    scrim.className = 'mob-scrim';
+    scrim.addEventListener('click', closeSidebar);
     document.body.appendChild(scrim);
 
-    /* Bar */
-    const bar = document.createElement('div');
-    bar.className = 'mob-bar';
+    /* Mobile bar — insert before .app-body */
+    var bar = document.createElement('div');
     bar.id = 'mobBar';
+    bar.className = 'mob-bar';
     bar.innerHTML =
-      '<span class="mob-bar-title" id="mobBarTitle">Topics</span>' +
-      '<button class="mob-toggle" id="mobToggleBtn" onclick="toggleMobSidebar()">☰ Topics</button>';
+      '<button class="mob-toggle" id="mobToggleBtn" onclick="window._mobToggle()">☰ Topics</button>' +
+      '<span class="mob-bar-title" id="mobBarTitle">Select a topic</span>';
 
-    /* Insert bar between header and app-body */
-    const appBody = document.querySelector('.app-body');
-    appBody.parentNode.insertBefore(bar, appBody);
+    var appBody = document.querySelector('.app-body');
+    if (appBody) appBody.parentNode.insertBefore(bar, appBody);
   }
 
-  window.toggleMobSidebar = function () {
-    const sidebar = document.querySelector('.sidebar');
-    const scrim   = document.getElementById('mobScrim');
-    const btn     = document.getElementById('mobToggleBtn');
-    if (!sidebar) return;
-    const open = sidebar.classList.toggle('mob-open');
-    scrim.classList.toggle('mob-open', open);
-    btn.textContent = open ? '✕ Close' : '☰ Topics';
-  };
+  function openSidebar() {
+    var s = document.querySelector('.sidebar');
+    var sc = document.getElementById('mobScrim');
+    var btn = document.getElementById('mobToggleBtn');
+    if (s)  s.classList.add('mob-open');
+    if (sc) sc.classList.add('mob-open');
+    if (btn) btn.textContent = '✕ Close';
+  }
 
-  window.closeMobSidebar = function () {
-    const sidebar = document.querySelector('.sidebar');
-    const scrim   = document.getElementById('mobScrim');
-    const btn     = document.getElementById('mobToggleBtn');
-    if (!sidebar) return;
-    sidebar.classList.remove('mob-open');
-    scrim.classList.remove('mob-open');
+  function closeSidebar() {
+    var s = document.querySelector('.sidebar');
+    var sc = document.getElementById('mobScrim');
+    var btn = document.getElementById('mobToggleBtn');
+    if (s)  s.classList.remove('mob-open');
+    if (sc) sc.classList.remove('mob-open');
     if (btn) btn.textContent = '☰ Topics';
+  }
+
+  window._mobToggle = function () {
+    var s = document.querySelector('.sidebar');
+    if (s && s.classList.contains('mob-open')) { closeSidebar(); }
+    else { openSidebar(); }
   };
 
-  /* Close sidebar when scrim is tapped */
-  document.addEventListener('click', function (e) {
-    if (e.target && e.target.id === 'mobScrim') closeMobSidebar();
-  });
-
-  /* Close sidebar and update bar title when a topic is selected */
-  const _origViewTopic = window.viewTopic;
-  if (typeof _origViewTopic === 'function') {
+  /* ── Patch viewTopic to close sidebar & update title ── */
+  var _orig = window.viewTopic;
+  if (typeof _orig === 'function') {
     window.viewTopic = function (id) {
-      _origViewTopic(id);
-      if (isMobile()) {
-        closeMobSidebar();
-        /* Show topic name in mobile bar */
-        const titleEl = document.getElementById('mobBarTitle');
-        if (titleEl) {
-          try {
-            const topics = JSON.parse(localStorage.getItem(ST) || '[]');
-            const t = topics.find(function (x) { return x.id == id; });
-            if (t) titleEl.textContent = t.name;
-          } catch (e) {}
-        }
-      }
+      _orig(id);
+      if (!isMobile()) return;
+      closeSidebar();
+      /* Update bar title */
+      try {
+        var topics = JSON.parse(localStorage.getItem(ST) || '[]');
+        var t = topics.find(function (x) { return x.id == id; });
+        var titleEl = document.getElementById('mobBarTitle');
+        if (t && titleEl) titleEl.textContent = t.name;
+      } catch (e) {}
     };
   }
 
-  /* Set up on DOMContentLoaded */
+  /* ── Show/hide mob-bar based on viewport size ── */
+  function onResize() {
+    var bar = document.getElementById('mobBar');
+    if (!bar) return;
+    if (!isMobile()) { closeSidebar(); }
+  }
+  window.addEventListener('resize', onResize);
+
+  /* ── Boot ── */
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', injectMobBar);
+    document.addEventListener('DOMContentLoaded', setup);
   } else {
-    injectMobBar();
+    setup();
   }
 })();
