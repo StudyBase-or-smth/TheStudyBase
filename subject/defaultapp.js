@@ -404,71 +404,78 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
   if(e.target===document.getElementById('modalOverlay')) closeModal();
 });
 
-// ── Sync ──
-const SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  SYNC — all traffic goes through /.netlify/functions/sync
+//  Replace the entire "── Sync ──" block in your HTML with this.
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function setSyncStatus(s){
+const PROXY_URL = '/.netlify/functions/sync';
+
+function setSyncStatus(s) {
   const el = document.getElementById('syncStatus');
-  if(!el) return;
-  if(s==='syncing'){ el.textContent='↻ Syncing'; el.className='sync-chip'; }
-  else if(s==='ok'){ el.textContent='✓ Synced'; el.className='sync-chip ok'; }
-  else if(s==='warn'){ el.textContent='⚠ Too large'; el.className='sync-chip warn'; }
-  else { el.textContent='○ Offline'; el.className='sync-chip err'; }
+  if (!el) return;
+  if (s === 'syncing') { el.textContent = '↻ Syncing';   el.className = 'sync-chip'; }
+  else if (s === 'ok') { el.textContent = '✓ Synced';    el.className = 'sync-chip ok'; }
+  else if (s === 'warn'){ el.textContent = '⚠ Too large'; el.className = 'sync-chip warn'; }
+  else                  { el.textContent = '○ Offline';   el.className = 'sync-chip err'; }
 }
 
-function jsonpGet(url){
-  return new Promise((resolve,reject) => {
-    const cb = '_cb'+Date.now()+'_'+Math.floor(Math.random()*99999);
-    const script = document.createElement('script');
-    const cleanup = () => { delete window[cb]; if(script.parentNode) script.parentNode.removeChild(script); };
-    window[cb] = data => { cleanup(); resolve(data); };
-    script.onerror = () => { cleanup(); reject(new Error('JSONP error')); };
-    script.src = url + (url.includes('?')?'&':'?') + 'callback=' + cb;
-    document.head.appendChild(script);
-    setTimeout(() => { cleanup(); reject(new Error('Timeout')); }, 8000);
-  });
-}
-
-function syncPush(key, data){
-  try{
-    const id = 'sf'+Date.now();
-    const iframe = document.createElement('iframe');
-    iframe.name = id; iframe.style.cssText='display:none;width:0;height:0;border:0';
-    const form = document.createElement('form');
-    form.method='POST'; form.action=SYNC_URL; form.target=id; form.style.display='none';
-    [['key',key],['data',JSON.stringify(data)]].forEach(([n,v]) => {
-      const inp = document.createElement('input'); inp.type='hidden'; inp.name=n; inp.value=v; form.appendChild(inp);
+/**
+ * Push key+data to Apps Script via the Netlify proxy (POST).
+ * Fire-and-forget — errors are silently swallowed so saves never block the UI.
+ */
+async function syncPush(key, data) {
+  try {
+    const res = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, data }),
     });
-    document.body.appendChild(iframe); document.body.appendChild(form); form.submit();
-    setTimeout(() => { if(iframe.parentNode)iframe.parentNode.removeChild(iframe); if(form.parentNode)form.parentNode.removeChild(form); }, 6000);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncStatus('ok');
-  } catch(e){ setSyncStatus('err'); }
+  } catch (err) {
+    console.warn('syncPush failed:', err);
+    setSyncStatus('err');
+  }
+}
+
+/**
+ * Pull a single key from Apps Script via the Netlify proxy (GET).
+ * Returns the parsed value, or null on failure.
+ */
+async function syncGet(key) {
+  const res = await fetch(`${PROXY_URL}?key=${encodeURIComponent(key)}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  return json; // { data: ... }
 }
 
 let _nextSync = Date.now() + 60000;
 
-async function syncPull(){
+async function syncPull() {
   setSyncStatus('syncing');
   const PLACEHOLDER = '[image — only visible on device where it was saved]';
-  try{
-    for(const key of [ST, SU]){
-      const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(key));
-      if(res && res.data !== null && res.data !== undefined){
-        if(key===ST && Array.isArray(res.data)){
-          const local = JSON.parse(localStorage.getItem(ST)||'[]');
+  try {
+    for (const key of [ST, SU]) {
+      const res = await syncGet(key);
+      if (res && res.data !== null && res.data !== undefined) {
+        if (key === ST && Array.isArray(res.data)) {
+          const local = JSON.parse(localStorage.getItem(ST) || '[]');
           const merged = res.data.map(rem => {
-            const loc = local.find(t => t.id===rem.id);
-            if(!loc) return rem;
-            const m = {...rem};
+            const loc = local.find(t => t.id === rem.id);
+            if (!loc) return rem;
+            const m = { ...rem };
             Object.keys(m).forEach(k => {
-              if(typeof m[k]==='string' && m[k].includes(PLACEHOLDER) &&
-                 loc[k] && typeof loc[k]==='string' && !loc[k].includes(PLACEHOLDER)){
+              if (
+                typeof m[k] === 'string' && m[k].includes(PLACEHOLDER) &&
+                loc[k] && typeof loc[k] === 'string' && !loc[k].includes(PLACEHOLDER)
+              ) {
                 m[k] = loc[k];
               }
             });
             return m;
           });
-          local.forEach(lt => { if(!merged.find(t => t.id===lt.id)) merged.push(lt); });
+          local.forEach(lt => { if (!merged.find(t => t.id === lt.id)) merged.push(lt); });
           localStorage.setItem(key, JSON.stringify(merged));
         } else {
           localStorage.setItem(key, JSON.stringify(res.data));
@@ -477,82 +484,67 @@ async function syncPull(){
     }
     setSyncStatus('ok');
     renderList();
-  } catch(e){ setSyncStatus('err'); }
+  } catch (e) {
+    console.warn('syncPull failed:', e);
+    setSyncStatus('err');
+  }
   _nextSync = Date.now() + 60000;
 }
 
-function sanitizeForSync(topics){
-  return topics.map(t => {
-    const c = {...t};
-    Object.keys(c).forEach(k => {
-      if(typeof c[k]==='string' && c[k].includes('data:image')){
-        const d = document.createElement('div'); d.innerHTML = c[k];
-        d.querySelectorAll('img').forEach(img => {
-          if((img.src||'').startsWith('data:')){
-            const note = document.createElement('em');
-            note.textContent = '[image — only visible on device where it was saved]';
-            img.replaceWith(note);
-          }
-        });
-        c[k] = d.innerHTML;
+// Image-upload push (unchanged logic, now uses fetch-based syncPush)
+async function pollUploadResult(uid, ph, editor) {
+  let tries = 0;
+  const poll = setInterval(async () => {
+    tries++;
+    try {
+      const res = await syncGet('_ur_' + uid);
+      if (res && res.data) {
+        clearInterval(poll);
+        const img = document.createElement('img');
+        img.src = res.data.ok && res.data.url ? res.data.url : ph._b64;
+        ph.replaceWith(img);
       }
-    });
-    return c;
-  });
+    } catch (e) { /* keep polling */ }
+    if (tries >= 30) {
+      clearInterval(poll);
+      const img = document.createElement('img');
+      img.src = ph._b64;
+      ph.replaceWith(img);
+    }
+  }, 1500);
 }
 
-// ── Rich editor helpers ──
-function getRichVal(id){ const el=document.getElementById(id); if(!el)return''; return el.contentEditable==='true'?el.innerHTML.trim():el.value.trim(); }
-function setRichVal(id,html){ const el=document.getElementById(id); if(!el)return; if(el.contentEditable==='true'){el.innerHTML=html||'';}else{el.value=html||'';} }
-function clearRich(id){ setRichVal(id,''); }
-function sanitizeRich(html){
-  if(!html)return'';
-  const d=document.createElement('div'); d.innerHTML=html;
-  d.querySelectorAll('script,style,iframe,object,embed,link').forEach(e=>e.remove());
-  d.querySelectorAll('img').forEach(img=>{
-    const src=img.src||img.getAttribute('src')||'';
-    if(!src.startsWith('data:')&&!src.startsWith('https://drive.google.com/')&&!src.startsWith('https://lh3.googleusercontent.com/'))img.remove();
-  });
-  return d.innerHTML;
-}
-
-function compressAndInsert(editor, file){
+function compressAndInsert(editor, file) {
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
     img.onload = () => {
-      const MAX=900; let w=img.width,h=img.height;
-      if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
-      const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
-      cv.getContext('2d').drawImage(img,0,0,w,h);
-      const b64=cv.toDataURL('image/jpeg',.82);
-      const ph=document.createElement('span');
-      ph.textContent='⏳ Uploading…'; ph.style.cssText='color:var(--muted);font-size:12px;font-style:italic;display:block';
+      const MAX = 900; let w = img.width, h = img.height;
+      if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+      const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      const b64 = cv.toDataURL('image/jpeg', 0.82);
+
+      const ph = document.createElement('span');
+      ph.textContent = '⏳ Uploading…';
+      ph.style.cssText = 'color:var(--muted);font-size:12px;font-style:italic;display:block';
+      ph._b64 = b64; // stash for fallback
+
       editor.focus();
-      const sel=window.getSelection();
-      if(sel&&sel.rangeCount&&editor.contains(sel.getRangeAt(0).commonAncestorContainer)){
-        const rng=sel.getRangeAt(0); rng.deleteContents(); rng.insertNode(ph);
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount && editor.contains(sel.getRangeAt(0).commonAncestorContainer)) {
+        const rng = sel.getRangeAt(0); rng.deleteContents(); rng.insertNode(ph);
         rng.setStartAfter(ph); rng.collapse(true); sel.removeAllRanges(); sel.addRange(rng);
       } else { editor.appendChild(ph); }
-      const uid=Date.now()+''+Math.random().toString(36).slice(2,6);
-      syncPush('_up_'+uid,{image:b64,filename:'sb_'+uid+'.jpg'});
-      let tries=0;
-      const poll=setInterval(async()=>{
-        tries++;
-        try{
-          const res=await jsonpGet(SYNC_URL+'?key='+encodeURIComponent('_ur_'+uid));
-          if(res&&res.data){ clearInterval(poll);
-            if(res.data.ok&&res.data.url){ const i=document.createElement('img');i.src=res.data.url;ph.replaceWith(i); }
-            else { const i=document.createElement('img');i.src=b64;ph.replaceWith(i); } }
-        }catch(e){}
-        if(tries>=30){ clearInterval(poll); const i=document.createElement('img');i.src=b64;ph.replaceWith(i); }
-      },1500);
+
+      const uid = Date.now() + '' + Math.random().toString(36).slice(2, 6);
+      syncPush('_up_' + uid, { image: b64, filename: 'sb_' + uid + '.jpg' });
+      pollUploadResult(uid, ph, editor);
     };
-    img.src=e.target.result;
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
-
 function richAddImage(id){
   const inp=document.getElementById('img_'+id); if(!inp)return;
   inp.onchange=function(){ if(this.files[0]){ compressAndInsert(document.getElementById(id),this.files[0]); this.value=''; } };
