@@ -605,3 +605,90 @@ if(resolveSubject()){
   setInterval(syncPull, 60000);
   startCountdown();
 }
+
+
+/* ══════════════════════════════════════════════
+   STUDYBASE — MOBILE SIDEBAR TOGGLE
+   Paste at the very bottom of defaultapp.js
+   (or just before </body> in a <script> tag)
+   ══════════════════════════════════════════════ */
+
+(function () {
+  /* Only wire up on mobile widths */
+  function isMobile() { return window.innerWidth <= 640; }
+
+  /* Inject the mobile bar once the DOM is ready */
+  function injectMobBar() {
+    if (document.getElementById('mobBar')) return;
+
+    /* Scrim */
+    const scrim = document.createElement('div');
+    scrim.className = 'mob-scrim';
+    scrim.id = 'mobScrim';
+    document.body.appendChild(scrim);
+
+    /* Bar */
+    const bar = document.createElement('div');
+    bar.className = 'mob-bar';
+    bar.id = 'mobBar';
+    bar.innerHTML =
+      '<span class="mob-bar-title" id="mobBarTitle">Topics</span>' +
+      '<button class="mob-toggle" id="mobToggleBtn" onclick="toggleMobSidebar()">☰ Topics</button>';
+
+    /* Insert bar between header and app-body */
+    const appBody = document.querySelector('.app-body');
+    appBody.parentNode.insertBefore(bar, appBody);
+  }
+
+  window.toggleMobSidebar = function () {
+    const sidebar = document.querySelector('.sidebar');
+    const scrim   = document.getElementById('mobScrim');
+    const btn     = document.getElementById('mobToggleBtn');
+    if (!sidebar) return;
+    const open = sidebar.classList.toggle('mob-open');
+    scrim.classList.toggle('mob-open', open);
+    btn.textContent = open ? '✕ Close' : '☰ Topics';
+  };
+
+  window.closeMobSidebar = function () {
+    const sidebar = document.querySelector('.sidebar');
+    const scrim   = document.getElementById('mobScrim');
+    const btn     = document.getElementById('mobToggleBtn');
+    if (!sidebar) return;
+    sidebar.classList.remove('mob-open');
+    scrim.classList.remove('mob-open');
+    if (btn) btn.textContent = '☰ Topics';
+  };
+
+  /* Close sidebar when scrim is tapped */
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'mobScrim') closeMobSidebar();
+  });
+
+  /* Close sidebar and update bar title when a topic is selected */
+  const _origViewTopic = window.viewTopic;
+  if (typeof _origViewTopic === 'function') {
+    window.viewTopic = function (id) {
+      _origViewTopic(id);
+      if (isMobile()) {
+        closeMobSidebar();
+        /* Show topic name in mobile bar */
+        const titleEl = document.getElementById('mobBarTitle');
+        if (titleEl) {
+          try {
+            const topics = JSON.parse(localStorage.getItem(ST) || '[]');
+            const t = topics.find(function (x) { return x.id == id; });
+            if (t) titleEl.textContent = t.name;
+          } catch (e) {}
+        }
+      }
+    };
+  }
+
+  /* Set up on DOMContentLoaded */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', injectMobBar);
+  } else {
+    injectMobBar();
+  }
+})();

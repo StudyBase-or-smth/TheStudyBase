@@ -228,3 +228,196 @@ body.dark .plain-text{color:#c4bdb4!important}
 body.dark .exam-tip{background:#1c1a08!important;border-color:#3d3410!important;color:#e8d96e!important}
 body.dark .warning-box{background:#1f1208!important;border-color:#4d2c10!important;color:#f0b07a!important}
 body.dark img:not(.no-invert){filter:invert(.88) hue-rotate(180deg) brightness(1.15)}
+
+
+
+
+/* ══════════════════════════════════════════════
+   STUDYBASE — MOBILE RESPONSIVE STYLES
+   Paste at the bottom of defaultstyle.css
+   ══════════════════════════════════════════════ */
+
+/* ── Mobile toggle button (hidden on desktop) ── */
+.mob-bar {
+  display: none;
+}
+
+@media (max-width: 640px) {
+
+  /* ── Body / layout ── */
+  html, body { overflow: hidden; height: 100%; }
+
+  .app-body {
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── Header ── */
+  .hdr-top {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 8px 12px;
+    gap: 6px;
+  }
+
+  .logo-block {
+    border-right: none;
+    padding-right: 0;
+  }
+
+  .hdr-breadcrumb {
+    display: none; /* saves space; subject name is in the logo area anyway */
+  }
+
+  .hdr-right-row {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-left: 0;
+  }
+
+  /* Collapse non-essential ghost buttons on small screens */
+  #syncStatus,
+  #syncCountdown {
+    display: none;
+  }
+
+  /* ── Mobile nav bar (topic list toggle) ── */
+  .mob-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    height: 40px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    gap: 8px;
+    z-index: 10;
+  }
+
+  .mob-bar-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .7px;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mob-toggle {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+    transition: background .12s;
+  }
+
+  .mob-toggle:hover { background: var(--border); }
+
+  /* ── Sidebar: hidden by default on mobile, slides in as overlay ── */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(84vw, 300px);
+    z-index: 500;
+    transform: translateX(-100%);
+    transition: transform .22s cubic-bezier(.4,0,.2,1);
+    box-shadow: none;
+    border-right: 1px solid var(--border);
+  }
+
+  .sidebar.mob-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0,0,0,.14);
+  }
+
+  /* Scrim behind the sidebar */
+  .mob-scrim {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(28,25,23,.35);
+    z-index: 499;
+    backdrop-filter: blur(1px);
+  }
+
+  .mob-scrim.mob-open { display: block; }
+
+  /* ── Detail panel: takes full width ── */
+  .detail-panel {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 14px 32px;
+    width: 100%;
+  }
+
+  /* ── Modal: full-screen on mobile ── */
+  .overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal {
+    border-radius: 14px 14px 0 0;
+    max-width: 100%;
+    width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: 20px 16px;
+    animation: slide-up .22s cubic-bezier(.34,1.2,.64,1);
+  }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* Form row stacks vertically */
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* ── Confirm box ── */
+  .confirm-box {
+    margin: 0 12px;
+    width: calc(100% - 24px);
+  }
+
+  /* ── Detail content ── */
+  .dh {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dh-name { font-size: 20px; }
+
+  .dh-actions { justify-content: flex-start; }
+
+  /* ── Guest nudge ── */
+  #guest-nudge {
+    bottom: 12px;
+    right: 12px;
+    width: 190px;
+  }
+}
+
+/* ── Very small screens (iPhone SE etc.) ── */
+@media (max-width: 380px) {
+  .hdr-ghost { padding: 4px 5px; }
+  .hdr-action { padding: 5px 9px; font-size: 10px; }
+  .detail-panel { padding: 12px 10px 28px; }
+}
