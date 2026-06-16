@@ -1,9 +1,5 @@
 /**
- * netlify/functions/sync.js
- * Proxy between the browser and Google Apps Script.
- *
- * GET  /.netlify/functions/sync?key=xxx   → pull data
- * POST /.netlify/functions/sync           → push data  { key, data }
+ * netlify/functions/sync.js — DEBUG VERSION
  */
 
 const APPS_SCRIPT_URL =
@@ -28,6 +24,11 @@ function parseResponse(text) {
 }
 
 exports.handler = async (event) => {
+  console.log('=== SYNC FUNCTION CALLED ===');
+  console.log('Method:', event.httpMethod);
+  console.log('Query:', JSON.stringify(event.queryStringParameters));
+  console.log('Body preview:', (event.body || '').slice(0, 200));
+
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers: CORS, body: '' };
   }
@@ -35,18 +36,24 @@ exports.handler = async (event) => {
   // ── GET — pull ──────────────────────────────────────────────
   if (event.httpMethod === 'GET') {
     const key = (event.queryStringParameters || {}).key;
+    console.log('GET key:', key);
     if (!key) return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing key' }) };
 
     try {
-      const res = await fetch(`${APPS_SCRIPT_URL}?key=${encodeURIComponent(key)}`, {
+      const url = `${APPS_SCRIPT_URL}?key=${encodeURIComponent(key)}`;
+      console.log('Fetching GAS URL:', url);
+      const res = await fetch(url, {
         redirect: 'follow',
         headers: { 'User-Agent': 'StudyBase-Proxy/1.0' },
       });
+      console.log('GAS GET status:', res.status, res.url);
       const text = await res.text();
-      console.log('GAS GET raw:', text.slice(0, 300));
-      return ok(parseResponse(text));
+      console.log('GAS GET raw response:', text.slice(0, 500));
+      const parsed = parseResponse(text);
+      console.log('GAS GET parsed:', JSON.stringify(parsed).slice(0, 200));
+      return ok(parsed);
     } catch (e) {
-      console.error('GET proxy error:', e);
+      console.error('GET proxy error:', e.message, e.stack);
       return err(e.message);
     }
   }
@@ -58,15 +65,18 @@ exports.handler = async (event) => {
     catch (_) { return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
     const { key, data } = body;
-    if (!key) return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing key' }) }; 
+    console.log('POST key:', key);
+    console.log('POST data type:', typeof data);
+    console.log('POST data preview:', JSON.stringify(data).slice(0, 200));
 
-    // Apps Script's doPost tries JSON.parse(e.postData.contents) first,
-    // so send JSON — but ensure `data` is always a JSON string, never a
-    // raw object, so Apps Script receives it as a string it can store directly.
+    if (!key) return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing key' }) };
+
     const payload = {
       key,
       data: typeof data === 'string' ? data : JSON.stringify(data),
     };
+    console.log('Sending to GAS, data is string:', typeof payload.data === 'string');
+    console.log('Payload preview:', JSON.stringify(payload).slice(0, 300));
 
     try {
       const res = await fetch(APPS_SCRIPT_URL, {
@@ -78,13 +88,14 @@ exports.handler = async (event) => {
         },
         body: JSON.stringify(payload),
       });
+      console.log('GAS POST status:', res.status, res.url);
       const text = await res.text();
-      console.log('GAS POST raw:', text.slice(0, 300));
+      console.log('GAS POST raw response:', text.slice(0, 500));
       let json = { ok: true };
       try { json = parseResponse(text); } catch (_) {}
       return ok(json);
     } catch (e) {
-      console.error('POST proxy error:', e);
+      console.error('POST proxy error:', e.message, e.stack);
       return err(e.message);
     }
   }
