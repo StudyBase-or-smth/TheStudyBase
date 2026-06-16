@@ -1,5 +1,5 @@
 // ── Resolve subject from URL hash ──
-let SUBJECT = null; // the matched entry from classesData
+let SUBJECT = null; // the matched entry from subjectsData
 let ST = '';        // localStorage key for topics
 let SU = '';        // localStorage key for units
 let SP = '';        // localStorage key for pinned topics
@@ -7,11 +7,11 @@ let DEF_UNITS = []; // default units if none saved
 
 function resolveSubject(){
   const id = window.location.hash.slice(1);
-  if(!id || typeof classesData === 'undefined'){
+  if(!id || typeof subjectsData === 'undefined'){
     document.body.innerHTML = '<p style="padding:40px;font-family:sans-serif;color:#c00">No subject specified. <a href="../index.html">Go back to index.</a></p>';
     return false;
   }
-  SUBJECT = (classesData.subjects || []).find(s => s.id === id);
+  SUBJECT = (subjectsData.subjects || []).find(s => s.id === id);
   if(!SUBJECT){
     document.body.innerHTML = `<p style="padding:40px;font-family:sans-serif;color:#c00">Unknown subject "${id}". <a href="../index.html">Go back to index.</a></p>`;
     return false;
@@ -22,24 +22,17 @@ function resolveSubject(){
   return true;
 }
 
-
 function applySubjectTheme(){
   const c = SUBJECT.colour;
-  // CSS accent
   document.documentElement.style.setProperty('--accent', c);
-  // Derive rgba versions for ac-l and ac-b
   const r = parseInt(c.slice(1,3),16), g = parseInt(c.slice(3,5),16), b = parseInt(c.slice(5,7),16);
   document.documentElement.style.setProperty('--ac-l', `rgba(${r},${g},${b},.07)`);
   document.documentElement.style.setProperty('--ac-b', `rgba(${r},${g},${b},.22)`);
 
   document.getElementById('accentBar').style.background = c;
   document.getElementById('hdrEmoji').textContent = SUBJECT.emoji || '📚';
-document.getElementById('hdrSubjectName').innerHTML = SUBJECT.name +
-  (SUBJECT.class ? `&nbsp;&nbsp;<span style="font-size:11px;font-weight:400;color:var(--muted);white-space:nowrap">(${SUBJECT.class})</span>` : '');
+  document.getElementById('hdrSubjectName').textContent = SUBJECT.name;
   document.title = SUBJECT.name + ' — StudyBase';
-
-
-  
 
   const fcBtn = document.getElementById('btnFlashcards');
   if(fcBtn) fcBtn.onclick = () => window.location.href = 'flashcards.html#' + SUBJECT.id;
@@ -47,11 +40,9 @@ document.getElementById('hdrSubjectName').innerHTML = SUBJECT.name +
   document.getElementById('welcomeEmoji').textContent = SUBJECT.emoji || '📚';
   document.getElementById('welcomeTitle').textContent = SUBJECT.name + ' notes';
 
-  // Counter accent colours
   document.getElementById('stT').style.color = c;
   document.getElementById('stU').style.color = c;
 }
-
 
 // ── Dark mode ──
 (function(){
@@ -64,6 +55,21 @@ function toggleDark(){
   const on = document.body.classList.toggle('dark');
   localStorage.setItem('studybase_dark', on ? '1' : '0');
   document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
+}
+
+// ── Rich editor helpers ──
+function getRichVal(id){ const el=document.getElementById(id); if(!el)return''; return el.contentEditable==='true'?el.innerHTML.trim():el.value.trim(); }
+function setRichVal(id,html){ const el=document.getElementById(id); if(!el)return; if(el.contentEditable==='true'){el.innerHTML=html||'';}else{el.value=html||'';} }
+function clearRich(id){ setRichVal(id,''); }
+function sanitizeRich(html){
+  if(!html)return'';
+  const d=document.createElement('div'); d.innerHTML=html;
+  d.querySelectorAll('script,style,iframe,object,embed,link').forEach(e=>e.remove());
+  d.querySelectorAll('img').forEach(img=>{
+    const src=img.src||img.getAttribute('src')||'';
+    if(!src.startsWith('data:')&&!src.startsWith('https://drive.google.com/')&&!src.startsWith('https://lh3.googleusercontent.com/'))img.remove();
+  });
+  return d.innerHTML;
 }
 
 // ── Storage helpers ──
@@ -130,7 +136,6 @@ function renderList(){
         <div class="topic-item${t.id==activeId?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${t.id})">
           <div class="ti-top">
             <div class="ti-name">${isPinned?'<span class="ti-pin-icon"></span>':''}${esc(t.name)}</div>
-            
             <button class="ti-pin-btn" onclick="event.stopPropagation();togglePinTopic(${t.id})" title="${isPinned?'Unpin':'Pin'}">${isPinned?'★':'☆'}</button>
           </div>
           ${t.unit ? `<div class="ti-unit">${esc(t.unit)}</div>` : ''}
@@ -162,7 +167,6 @@ function viewTopic(id){
   activeId = id;
   const t = getTopics().find(x => x.id == id);
   if(!t) return;
-  // update URL hash to include topic id for direct linking
   history.replaceState(null,'', '#' + SUBJECT.id);
   renderList();
 
@@ -411,70 +415,65 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
 });
 
 // ── Sync ──
-const SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
+const PROXY_URL = '/.netlify/functions/sync';
 
-function setSyncStatus(s){
+function setSyncStatus(s) {
   const el = document.getElementById('syncStatus');
-  if(!el) return;
-  if(s==='syncing'){ el.textContent='↻ Syncing'; el.className='sync-chip'; }
-  else if(s==='ok'){ el.textContent='✓ Synced'; el.className='sync-chip ok'; }
-  else if(s==='warn'){ el.textContent='⚠ Too large'; el.className='sync-chip warn'; }
-  else { el.textContent='○ Offline'; el.className='sync-chip err'; }
+  if (!el) return;
+  if (s === 'syncing') { el.textContent = '↻ Syncing';   el.className = 'sync-chip'; }
+  else if (s === 'ok') { el.textContent = '✓ Synced';    el.className = 'sync-chip ok'; }
+  else if (s === 'warn'){ el.textContent = '⚠ Too large'; el.className = 'sync-chip warn'; }
+  else                  { el.textContent = '○ Offline';   el.className = 'sync-chip err'; }
 }
 
-function jsonpGet(url){
-  return new Promise((resolve,reject) => {
-    const cb = '_cb'+Date.now()+'_'+Math.floor(Math.random()*99999);
-    const script = document.createElement('script');
-    const cleanup = () => { delete window[cb]; if(script.parentNode) script.parentNode.removeChild(script); };
-    window[cb] = data => { cleanup(); resolve(data); };
-    script.onerror = () => { cleanup(); reject(new Error('JSONP error')); };
-    script.src = url + (url.includes('?')?'&':'?') + 'callback=' + cb;
-    document.head.appendChild(script);
-    setTimeout(() => { cleanup(); reject(new Error('Timeout')); }, 8000);
-  });
-}
-
-function syncPush(key, data){
-  try{
-    const id = 'sf'+Date.now();
-    const iframe = document.createElement('iframe');
-    iframe.name = id; iframe.style.cssText='display:none;width:0;height:0;border:0';
-    const form = document.createElement('form');
-    form.method='POST'; form.action=SYNC_URL; form.target=id; form.style.display='none';
-    [['key',key],['data',JSON.stringify(data)]].forEach(([n,v]) => {
-      const inp = document.createElement('input'); inp.type='hidden'; inp.name=n; inp.value=v; form.appendChild(inp);
+async function syncPush(key, data) {
+  try {
+    const res = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, data }),
     });
-    document.body.appendChild(iframe); document.body.appendChild(form); form.submit();
-    setTimeout(() => { if(iframe.parentNode)iframe.parentNode.removeChild(iframe); if(form.parentNode)form.parentNode.removeChild(form); }, 6000);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncStatus('ok');
-  } catch(e){ setSyncStatus('err'); }
+  } catch (err) {
+    console.warn('syncPush failed:', err);
+    setSyncStatus('err');
+  }
+}
+
+async function syncGet(key) {
+  const res = await fetch(`${PROXY_URL}?key=${encodeURIComponent(key)}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
 
 let _nextSync = Date.now() + 60000;
 
-async function syncPull(){
+async function syncPull() {
   setSyncStatus('syncing');
   const PLACEHOLDER = '[image — only visible on device where it was saved]';
-  try{
-    for(const key of [ST, SU]){
-      const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(key));
-      if(res && res.data !== null && res.data !== undefined){
-        if(key===ST && Array.isArray(res.data)){
-          const local = JSON.parse(localStorage.getItem(ST)||'[]');
+  try {
+    for (const key of [ST, SU]) {
+      const res = await syncGet(key);
+      if (res && res.data !== null && res.data !== undefined) {
+        if (key === ST && Array.isArray(res.data)) {
+          const local = JSON.parse(localStorage.getItem(ST) || '[]');
+          // Remote is source of truth — only keep topics that exist remotely.
+          // For each remote topic, restore any local-only image data that was
+          // stripped for sync (placeholder replacement).
           const merged = res.data.map(rem => {
-            const loc = local.find(t => t.id===rem.id);
-            if(!loc) return rem;
-            const m = {...rem};
+            const loc = local.find(t => t.id === rem.id);
+            if (!loc) return rem;
+            const m = { ...rem };
             Object.keys(m).forEach(k => {
-              if(typeof m[k]==='string' && m[k].includes(PLACEHOLDER) &&
-                 loc[k] && typeof loc[k]==='string' && !loc[k].includes(PLACEHOLDER)){
+              if (typeof m[k]==='string' && m[k].includes(PLACEHOLDER) &&
+                  loc[k] && typeof loc[k]==='string' && !loc[k].includes(PLACEHOLDER)) {
                 m[k] = loc[k];
               }
             });
             return m;
           });
-          local.forEach(lt => { if(!merged.find(t => t.id===lt.id)) merged.push(lt); });
+          // Local-only topics (not in remote) are intentionally dropped here.
           localStorage.setItem(key, JSON.stringify(merged));
         } else {
           localStorage.setItem(key, JSON.stringify(res.data));
@@ -483,7 +482,10 @@ async function syncPull(){
     }
     setSyncStatus('ok');
     renderList();
-  } catch(e){ setSyncStatus('err'); }
+  } catch (e) {
+    console.warn('syncPull failed:', e);
+    setSyncStatus('err');
+  }
   _nextSync = Date.now() + 60000;
 }
 
@@ -507,54 +509,54 @@ function sanitizeForSync(topics){
   });
 }
 
-// ── Rich editor helpers ──
-function getRichVal(id){ const el=document.getElementById(id); if(!el)return''; return el.contentEditable==='true'?el.innerHTML.trim():el.value.trim(); }
-function setRichVal(id,html){ const el=document.getElementById(id); if(!el)return; if(el.contentEditable==='true'){el.innerHTML=html||'';}else{el.value=html||'';} }
-function clearRich(id){ setRichVal(id,''); }
-function sanitizeRich(html){
-  if(!html)return'';
-  const d=document.createElement('div'); d.innerHTML=html;
-  d.querySelectorAll('script,style,iframe,object,embed,link').forEach(e=>e.remove());
-  d.querySelectorAll('img').forEach(img=>{
-    const src=img.src||img.getAttribute('src')||'';
-    if(!src.startsWith('data:')&&!src.startsWith('https://drive.google.com/')&&!src.startsWith('https://lh3.googleusercontent.com/'))img.remove();
-  });
-  return d.innerHTML;
+// ── Image upload ──
+async function pollUploadResult(uid, ph) {
+  let tries = 0;
+  const poll = setInterval(async () => {
+    tries++;
+    try {
+      const res = await syncGet('_ur_' + uid);
+      if (res && res.data) {
+        clearInterval(poll);
+        const img = document.createElement('img');
+        img.src = res.data.ok && res.data.url ? res.data.url : ph._b64;
+        ph.replaceWith(img);
+      }
+    } catch (e) {}
+    if (tries >= 30) {
+      clearInterval(poll);
+      const img = document.createElement('img');
+      img.src = ph._b64;
+      ph.replaceWith(img);
+    }
+  }, 1500);
 }
 
-function compressAndInsert(editor, file){
+function compressAndInsert(editor, file) {
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
     img.onload = () => {
-      const MAX=900; let w=img.width,h=img.height;
-      if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
-      const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
-      cv.getContext('2d').drawImage(img,0,0,w,h);
-      const b64=cv.toDataURL('image/jpeg',.82);
-      const ph=document.createElement('span');
-      ph.textContent='⏳ Uploading…'; ph.style.cssText='color:var(--muted);font-size:12px;font-style:italic;display:block';
+      const MAX = 900; let w = img.width, h = img.height;
+      if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+      const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      const b64 = cv.toDataURL('image/jpeg', 0.82);
+      const ph = document.createElement('span');
+      ph.textContent = '⏳ Uploading…';
+      ph.style.cssText = 'color:var(--muted);font-size:12px;font-style:italic;display:block';
+      ph._b64 = b64;
       editor.focus();
-      const sel=window.getSelection();
-      if(sel&&sel.rangeCount&&editor.contains(sel.getRangeAt(0).commonAncestorContainer)){
-        const rng=sel.getRangeAt(0); rng.deleteContents(); rng.insertNode(ph);
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount && editor.contains(sel.getRangeAt(0).commonAncestorContainer)) {
+        const rng = sel.getRangeAt(0); rng.deleteContents(); rng.insertNode(ph);
         rng.setStartAfter(ph); rng.collapse(true); sel.removeAllRanges(); sel.addRange(rng);
       } else { editor.appendChild(ph); }
-      const uid=Date.now()+''+Math.random().toString(36).slice(2,6);
-      syncPush('_up_'+uid,{image:b64,filename:'sb_'+uid+'.jpg'});
-      let tries=0;
-      const poll=setInterval(async()=>{
-        tries++;
-        try{
-          const res=await jsonpGet(SYNC_URL+'?key='+encodeURIComponent('_ur_'+uid));
-          if(res&&res.data){ clearInterval(poll);
-            if(res.data.ok&&res.data.url){ const i=document.createElement('img');i.src=res.data.url;ph.replaceWith(i); }
-            else { const i=document.createElement('img');i.src=b64;ph.replaceWith(i); } }
-        }catch(e){}
-        if(tries>=30){ clearInterval(poll); const i=document.createElement('img');i.src=b64;ph.replaceWith(i); }
-      },1500);
+      const uid = Date.now() + '' + Math.random().toString(36).slice(2, 6);
+      syncPush('_up_' + uid, { image: b64, filename: 'sb_' + uid + '.jpg' });
+      pollUploadResult(uid, ph);
     };
-    img.src=e.target.result;
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
