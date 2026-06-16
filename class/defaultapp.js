@@ -455,12 +455,14 @@ async function syncPull() {
   try {
     for (const key of [ST, SU]) {
       const res = await syncGet(key);
-      if (res && res.data !== null && res.data !== undefined) {
-        if (key === ST && Array.isArray(res.data)) {
+      // Remote is always source of truth.
+      // Treat null/undefined as "no data yet" only for units (keep local default).
+      // For topics: if remote returns null it means the key doesn't exist in the
+      // sheet yet (brand new subject) — leave local alone in that case only.
+      if (key === ST) {
+        if (Array.isArray(res && res.data)) {
           const local = JSON.parse(localStorage.getItem(ST) || '[]');
-          // Remote is source of truth — only keep topics that exist remotely.
-          // For each remote topic, restore any local-only image data that was
-          // stripped for sync (placeholder replacement).
+          // Keep remote set exactly, but restore local-device images (stripped for sync)
           const merged = res.data.map(rem => {
             const loc = local.find(t => t.id === rem.id);
             if (!loc) return rem;
@@ -473,9 +475,13 @@ async function syncPull() {
             });
             return m;
           });
-          // Local-only topics (not in remote) are intentionally dropped here.
-          localStorage.setItem(key, JSON.stringify(merged));
-        } else {
+          // Local-only topics not in remote are dropped — remote wins.
+          localStorage.setItem(ST, JSON.stringify(merged));
+        }
+        // If res.data is null: key not in sheet yet, leave local untouched.
+      } else {
+        // Units: overwrite whenever remote has data
+        if (res && res.data !== null && res.data !== undefined) {
           localStorage.setItem(key, JSON.stringify(res.data));
         }
       }
@@ -594,8 +600,8 @@ function startCountdown(){
 if(resolveSubject()){
   applySubjectTheme();
   setupRichDnD();
-  renderList();
-  syncPull();
+  renderList(); // show local data immediately so page isn't blank
+  syncPull();   // syncs remote, then calls renderList() again — drops stale topics
   setInterval(syncPull, 60000);
   startCountdown();
 }
