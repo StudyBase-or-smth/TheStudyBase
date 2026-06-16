@@ -24,9 +24,7 @@ function resolveSubject(){
 
 function applySubjectTheme(){
   const c = SUBJECT.colour;
-  // CSS accent
   document.documentElement.style.setProperty('--accent', c);
-  // Derive rgba versions for ac-l and ac-b
   const r = parseInt(c.slice(1,3),16), g = parseInt(c.slice(3,5),16), b = parseInt(c.slice(5,7),16);
   document.documentElement.style.setProperty('--ac-l', `rgba(${r},${g},${b},.07)`);
   document.documentElement.style.setProperty('--ac-b', `rgba(${r},${g},${b},.22)`);
@@ -42,7 +40,6 @@ function applySubjectTheme(){
   document.getElementById('welcomeEmoji').textContent = SUBJECT.emoji || '📚';
   document.getElementById('welcomeTitle').textContent = SUBJECT.name + ' notes';
 
-  // Counter accent colours
   document.getElementById('stT').style.color = c;
   document.getElementById('stU').style.color = c;
 }
@@ -58,6 +55,21 @@ function toggleDark(){
   const on = document.body.classList.toggle('dark');
   localStorage.setItem('studybase_dark', on ? '1' : '0');
   document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
+}
+
+// ── Rich editor helpers ──
+function getRichVal(id){ const el=document.getElementById(id); if(!el)return''; return el.contentEditable==='true'?el.innerHTML.trim():el.value.trim(); }
+function setRichVal(id,html){ const el=document.getElementById(id); if(!el)return; if(el.contentEditable==='true'){el.innerHTML=html||'';}else{el.value=html||'';} }
+function clearRich(id){ setRichVal(id,''); }
+function sanitizeRich(html){
+  if(!html)return'';
+  const d=document.createElement('div'); d.innerHTML=html;
+  d.querySelectorAll('script,style,iframe,object,embed,link').forEach(e=>e.remove());
+  d.querySelectorAll('img').forEach(img=>{
+    const src=img.src||img.getAttribute('src')||'';
+    if(!src.startsWith('data:')&&!src.startsWith('https://drive.google.com/')&&!src.startsWith('https://lh3.googleusercontent.com/'))img.remove();
+  });
+  return d.innerHTML;
 }
 
 // ── Storage helpers ──
@@ -124,7 +136,6 @@ function renderList(){
         <div class="topic-item${t.id==activeId?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${t.id})">
           <div class="ti-top">
             <div class="ti-name">${isPinned?'<span class="ti-pin-icon"></span>':''}${esc(t.name)}</div>
-            
             <button class="ti-pin-btn" onclick="event.stopPropagation();togglePinTopic(${t.id})" title="${isPinned?'Unpin':'Pin'}">${isPinned?'★':'☆'}</button>
           </div>
           ${t.unit ? `<div class="ti-unit">${esc(t.unit)}</div>` : ''}
@@ -156,7 +167,6 @@ function viewTopic(id){
   activeId = id;
   const t = getTopics().find(x => x.id == id);
   if(!t) return;
-  // update URL hash to include topic id for direct linking
   history.replaceState(null,'', '#' + SUBJECT.id);
   renderList();
 
@@ -404,11 +414,7 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
   if(e.target===document.getElementById('modalOverlay')) closeModal();
 });
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  SYNC — all traffic goes through /.netlify/functions/sync
-//  Replace the entire "── Sync ──" block in your HTML with this.
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
+// ── Sync ──
 const PROXY_URL = '/.netlify/functions/sync';
 
 function setSyncStatus(s) {
@@ -420,10 +426,6 @@ function setSyncStatus(s) {
   else                  { el.textContent = '○ Offline';   el.className = 'sync-chip err'; }
 }
 
-/**
- * Push key+data to Apps Script via the Netlify proxy (POST).
- * Fire-and-forget — errors are silently swallowed so saves never block the UI.
- */
 async function syncPush(key, data) {
   try {
     const res = await fetch(PROXY_URL, {
@@ -439,15 +441,10 @@ async function syncPush(key, data) {
   }
 }
 
-/**
- * Pull a single key from Apps Script via the Netlify proxy (GET).
- * Returns the parsed value, or null on failure.
- */
 async function syncGet(key) {
   const res = await fetch(`${PROXY_URL}?key=${encodeURIComponent(key)}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json = await res.json();
-  return json; // { data: ... }
+  return res.json();
 }
 
 let _nextSync = Date.now() + 60000;
@@ -466,10 +463,8 @@ async function syncPull() {
             if (!loc) return rem;
             const m = { ...rem };
             Object.keys(m).forEach(k => {
-              if (
-                typeof m[k] === 'string' && m[k].includes(PLACEHOLDER) &&
-                loc[k] && typeof loc[k] === 'string' && !loc[k].includes(PLACEHOLDER)
-              ) {
+              if (typeof m[k]==='string' && m[k].includes(PLACEHOLDER) &&
+                  loc[k] && typeof loc[k]==='string' && !loc[k].includes(PLACEHOLDER)) {
                 m[k] = loc[k];
               }
             });
@@ -491,8 +486,28 @@ async function syncPull() {
   _nextSync = Date.now() + 60000;
 }
 
-// Image-upload push (unchanged logic, now uses fetch-based syncPush)
-async function pollUploadResult(uid, ph, editor) {
+function sanitizeForSync(topics){
+  return topics.map(t => {
+    const c = {...t};
+    Object.keys(c).forEach(k => {
+      if(typeof c[k]==='string' && c[k].includes('data:image')){
+        const d = document.createElement('div'); d.innerHTML = c[k];
+        d.querySelectorAll('img').forEach(img => {
+          if((img.src||'').startsWith('data:')){
+            const note = document.createElement('em');
+            note.textContent = '[image — only visible on device where it was saved]';
+            img.replaceWith(note);
+          }
+        });
+        c[k] = d.innerHTML;
+      }
+    });
+    return c;
+  });
+}
+
+// ── Image upload ──
+async function pollUploadResult(uid, ph) {
   let tries = 0;
   const poll = setInterval(async () => {
     tries++;
@@ -504,7 +519,7 @@ async function pollUploadResult(uid, ph, editor) {
         img.src = res.data.ok && res.data.url ? res.data.url : ph._b64;
         ph.replaceWith(img);
       }
-    } catch (e) { /* keep polling */ }
+    } catch (e) {}
     if (tries >= 30) {
       clearInterval(poll);
       const img = document.createElement('img');
@@ -524,27 +539,25 @@ function compressAndInsert(editor, file) {
       const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
       cv.getContext('2d').drawImage(img, 0, 0, w, h);
       const b64 = cv.toDataURL('image/jpeg', 0.82);
-
       const ph = document.createElement('span');
       ph.textContent = '⏳ Uploading…';
       ph.style.cssText = 'color:var(--muted);font-size:12px;font-style:italic;display:block';
-      ph._b64 = b64; // stash for fallback
-
+      ph._b64 = b64;
       editor.focus();
       const sel = window.getSelection();
       if (sel && sel.rangeCount && editor.contains(sel.getRangeAt(0).commonAncestorContainer)) {
         const rng = sel.getRangeAt(0); rng.deleteContents(); rng.insertNode(ph);
         rng.setStartAfter(ph); rng.collapse(true); sel.removeAllRanges(); sel.addRange(rng);
       } else { editor.appendChild(ph); }
-
       const uid = Date.now() + '' + Math.random().toString(36).slice(2, 6);
       syncPush('_up_' + uid, { image: b64, filename: 'sb_' + uid + '.jpg' });
-      pollUploadResult(uid, ph, editor);
+      pollUploadResult(uid, ph);
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
+
 function richAddImage(id){
   const inp=document.getElementById('img_'+id); if(!inp)return;
   inp.onchange=function(){ if(this.files[0]){ compressAndInsert(document.getElementById(id),this.files[0]); this.value=''; } };
