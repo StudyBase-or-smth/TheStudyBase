@@ -395,3 +395,11 @@ body.dark img:not(.no-invert){filter:invert(.88) hue-rotate(180deg) brightness(1
   .hdr-ghost  { padding: 4px 5px !important; font-size: 11px !important; }
   .hdr-action { padding: 5px 8px !important; font-size: 10px !important; }
 }
+
+.accent-bar {
+  width: 36px !important;
+}
+
+.accent-bar::after {
+  opacity: 1 !important;
+}
