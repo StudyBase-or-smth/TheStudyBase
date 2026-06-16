@@ -596,3 +596,93 @@ if(resolveSubject()){
   setInterval(syncPull, 60000);
   startCountdown();
 }
+
+/* ══════════════════════════════════════════════
+   STUDYBASE — MOBILE SIDEBAR TOGGLE
+   Paste at the very bottom of defaultapp.js
+   ══════════════════════════════════════════════ */
+
+(function () {
+  var BREAK = 700;
+
+  function isMobile() { return window.innerWidth <= BREAK; }
+
+  /* ── Inject DOM elements once ── */
+  function setup() {
+    if (document.getElementById('mobScrim')) return;
+
+    /* Scrim */
+    var scrim = document.createElement('div');
+    scrim.id = 'mobScrim';
+    scrim.className = 'mob-scrim';
+    scrim.addEventListener('click', closeSidebar);
+    document.body.appendChild(scrim);
+
+    /* Mobile bar — insert before .app-body */
+    var bar = document.createElement('div');
+    bar.id = 'mobBar';
+    bar.className = 'mob-bar';
+    bar.innerHTML =
+      '<button class="mob-toggle" id="mobToggleBtn" onclick="window._mobToggle()">☰ Topics</button>' +
+      '<span class="mob-bar-title" id="mobBarTitle">Select a topic</span>';
+
+    var appBody = document.querySelector('.app-body');
+    if (appBody) appBody.parentNode.insertBefore(bar, appBody);
+  }
+
+  function openSidebar() {
+    var s = document.querySelector('.sidebar');
+    var sc = document.getElementById('mobScrim');
+    var btn = document.getElementById('mobToggleBtn');
+    if (s)  s.classList.add('mob-open');
+    if (sc) sc.classList.add('mob-open');
+    if (btn) btn.textContent = '✕ Close';
+  }
+
+  function closeSidebar() {
+    var s = document.querySelector('.sidebar');
+    var sc = document.getElementById('mobScrim');
+    var btn = document.getElementById('mobToggleBtn');
+    if (s)  s.classList.remove('mob-open');
+    if (sc) sc.classList.remove('mob-open');
+    if (btn) btn.textContent = '☰ Topics';
+  }
+
+  window._mobToggle = function () {
+    var s = document.querySelector('.sidebar');
+    if (s && s.classList.contains('mob-open')) { closeSidebar(); }
+    else { openSidebar(); }
+  };
+
+  /* ── Patch viewTopic to close sidebar & update title ── */
+  var _orig = window.viewTopic;
+  if (typeof _orig === 'function') {
+    window.viewTopic = function (id) {
+      _orig(id);
+      if (!isMobile()) return;
+      closeSidebar();
+      /* Update bar title */
+      try {
+        var topics = JSON.parse(localStorage.getItem(ST) || '[]');
+        var t = topics.find(function (x) { return x.id == id; });
+        var titleEl = document.getElementById('mobBarTitle');
+        if (t && titleEl) titleEl.textContent = t.name;
+      } catch (e) {}
+    };
+  }
+
+  /* ── Show/hide mob-bar based on viewport size ── */
+  function onResize() {
+    var bar = document.getElementById('mobBar');
+    if (!bar) return;
+    if (!isMobile()) { closeSidebar(); }
+  }
+  window.addEventListener('resize', onResize);
+
+  /* ── Boot ── */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
+})();
