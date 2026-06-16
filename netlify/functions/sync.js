@@ -1,95 +1,93 @@
 /**
- * Netlify Function: sync.js
- * Proxies all requests between the browser and Google Apps Script.
+ * netlify/functions/sync.js
+ * Proxy between the browser and Google Apps Script.
  *
- * GET  /.netlify/functions/sync?key=xxx        → fetch data from Apps Script
- * POST /.netlify/functions/sync  {key, data}   → push data to Apps Script
+ * GET  /.netlify/functions/sync?key=xxx   → pull data
+ * POST /.netlify/functions/sync           → push data  { key, data }
  */
 
 const APPS_SCRIPT_URL =
   'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
 
-exports.handler = async function (event) {
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Content-Type': 'application/json',
-  };
+const CORS = {
+  'Access-Control-Allow-Origin':  '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Content-Type': 'application/json',
+};
 
-  // Handle CORS preflight
+function ok(body) { return { statusCode: 200, headers: CORS, body: JSON.stringify(body) }; }
+function err(msg) { return { statusCode: 502, headers: CORS, body: JSON.stringify({ error: msg }) }; }
+
+function parseResponse(text) {
+  text = text.trim();
+  try { return JSON.parse(text); } catch (_) {}
+  const m = text.match(/^\w[\w.]*\s*\((.+)\)\s*;?\s*$/s);
+  if (m) { try { return JSON.parse(m[1]); } catch (_) {} }
+  return { data: null };
+}
+
+exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers, body: '' };
+    return { statusCode: 204, headers: CORS, body: '' };
   }
 
-  try {
-    if (event.httpMethod === 'GET') {
-      // ── Pull: forward query string to Apps Script ──
-      const key = (event.queryStringParameters || {}).key;
-      if (!key) {
-        return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing key' }) };
-      }
+  // ── GET — pull ──────────────────────────────────────────────
+  if (event.httpMethod === 'GET') {
+    const key = (event.queryStringParameters || {}).key;
+    if (!key) return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing key' }) };
 
-      const url = `${APPS_SCRIPT_URL}?key=${encodeURIComponent(key)}`;
-      const res = await fetch(url, { redirect: 'follow' });
+    try {
+      const res = await fetch(`${APPS_SCRIPT_URL}?key=${encodeURIComponent(key)}`, {
+        redirect: 'follow',
+        headers: { 'User-Agent': 'StudyBase-Proxy/1.0' },
+      });
       const text = await res.text();
+      console.log('GAS GET raw:', text.slice(0, 300));
+      return ok(parseResponse(text));
+    } catch (e) {
+      console.error('GET proxy error:', e);
+      return err(e.message);
+    }
+  }
 
-      // Apps Script returns JSONP when a callback param is present; without one it
-      // returns plain JSON — but let's handle both just in case.
-      let json;
-      try {
-        json = JSON.parse(text);
-      } catch {
-        // Strip any JSONP wrapper e.g. _cb123({...})
-        const match = text.match(/^\s*\w+\((\{[\s\S]*\})\)\s*;?\s*$/);
-        json = match ? JSON.parse(match[1]) : { data: null };
-      }
+  // ── POST — push ─────────────────────────────────────────────
+  if (event.httpMethod === 'POST') {
+    let body;
+    try { body = JSON.parse(event.body || '{}'); }
+    catch (_) { return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
-      return { statusCode: 200, headers, body: JSON.stringify(json) };
+    const { key, data } = body;
+    if (!key) return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing key' }) }; 
 
-    } else if (event.httpMethod === 'POST') {
-      // ── Push: forward JSON body to Apps Script via POST ──
-      let body;
-      try {
-        body = JSON.parse(event.body || '{}');
-      } catch {
-        return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
-      }
+    // Apps Script's doPost tries JSON.parse(e.postData.contents) first,
+    // so send JSON — but ensure `data` is always a JSON string, never a
+    // raw object, so Apps Script receives it as a string it can store directly.
+    const payload = {
+      key,
+      data: typeof data === 'string' ? data : JSON.stringify(data),
+    };
 
-      const { key, data } = body;
-      if (!key) {
-        return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing key' }) };
-      }
-
-      // Apps Script Web Apps require form-encoded POST bodies
-      const form = new URLSearchParams();
-      form.append('key', key);
-      form.append('data', typeof data === 'string' ? data : JSON.stringify(data));
-
+    try {
       const res = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         redirect: 'follow',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: form.toString(),
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'StudyBase-Proxy/1.0',
+        },
+        body: JSON.stringify(payload),
       });
-
-      // Apps Script POST responses are often empty or HTML — just confirm receipt
       const text = await res.text();
+      console.log('GAS POST raw:', text.slice(0, 300));
       let json = { ok: true };
-      try { json = JSON.parse(text); } catch { /* ignore non-JSON */ }
-
-      return { statusCode: 200, headers, body: JSON.stringify(json) };
-
-    } else {
-      return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
+      try { json = parseResponse(text); } catch (_) {}
+      return ok(json);
+    } catch (e) {
+      console.error('POST proxy error:', e);
+      return err(e.message);
     }
-
-  } catch (err) {
-    console.error('Sync proxy error:', err);
-    return {
-      statusCode: 502,
-      headers,
-      body: JSON.stringify({ error: 'Proxy error', detail: err.message }),
-    };
   }
+
+  return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method not allowed' }) };
 };
