@@ -416,7 +416,10 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
 });
 
 // ── Sync ──
-const PROXY_URL = '/.netlify/functions/sync';
+// Primary: client → App Scripts directly
+// Fallback: client → Netlify proxy → App Scripts
+const PROXY_URL     = '/.netlify/functions/sync';
+const APPSCRIPT_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec'; // ← replace with your deployed web app URL
 
 function setSyncStatus(s) {
   const el = document.getElementById('syncStatus');
@@ -427,25 +430,69 @@ function setSyncStatus(s) {
   else                  { el.textContent = '○ Offline';   el.className = 'sync-chip err'; }
 }
 
+// ── Low-level transport: direct App Scripts ──
+async function _directPush(key, data) {
+  const res = await fetch(APPSCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key, data }),
+  });
+  if (!res.ok) throw new Error(`AppScript HTTP ${res.status}`);
+}
+
+async function _directGet(key) {
+  const res = await fetch(`${APPSCRIPT_URL}?key=${encodeURIComponent(key)}`);
+  if (!res.ok) throw new Error(`AppScript HTTP ${res.status}`);
+  return res.json();
+}
+
+// ── Low-level transport: Netlify proxy ──
+async function _proxyPush(key, data) {
+  const res = await fetch(PROXY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key, data }),
+  });
+  if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
+}
+
+async function _proxyGet(key) {
+  const res = await fetch(`${PROXY_URL}?key=${encodeURIComponent(key)}`);
+  if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
+  return res.json();
+}
+
+// ── Public sync API (used everywhere else in the file) ──
 async function syncPush(key, data) {
   try {
-    const res = await fetch(PROXY_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key, data }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    await _directPush(key, data);
+    console.log('[sync] push direct →', key);
     setSyncStatus('ok');
-  } catch (err) {
-    console.warn('syncPush failed:', err);
-    setSyncStatus('err');
+  } catch (directErr) {
+    console.warn('[sync] direct push failed, trying proxy:', directErr.message);
+    try {
+      await _proxyPush(key, data);
+      console.log('[sync] push via proxy →', key);
+      setSyncStatus('ok');
+    } catch (proxyErr) {
+      console.warn('[sync] proxy push also failed:', proxyErr.message);
+      setSyncStatus('err');
+    }
   }
 }
 
 async function syncGet(key) {
-  const res = await fetch(`${PROXY_URL}?key=${encodeURIComponent(key)}`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  try {
+    const data = await _directGet(key);
+    console.log('[sync] get direct →', key);
+    return data;
+  } catch (directErr) {
+    console.warn('[sync] direct get failed, trying proxy:', directErr.message);
+    // Let this throw if the proxy also fails — callers handle it
+    const data = await _proxyGet(key);
+    console.log('[sync] get via proxy →', key);
+    return data;
+  }
 }
 
 let _nextSync = Date.now() + 60000;
@@ -600,7 +647,6 @@ if(resolveSubject()){
 
 /* ══════════════════════════════════════════════
    STUDYBASE — MOBILE SIDEBAR TOGGLE
-   Paste at the very bottom of defaultapp.js
    ══════════════════════════════════════════════ */
 
 (function () {
