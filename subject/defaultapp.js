@@ -167,7 +167,7 @@ function viewTopic(id){
   activeId = id;
   const t = getTopics().find(x => x.id == id);
   if(!t) return;
-  history.replaceState(null,'', '#' + SUBJECT.id);
+  if(location.protocol !== 'file:') history.replaceState(null,'', '#' + SUBJECT.id);
   renderList();
 
   document.getElementById('welcomeState').style.display = 'none';
@@ -419,7 +419,7 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
 // Primary: client → App Scripts directly
 // Fallback: client → Netlify proxy → App Scripts
 const PROXY_URL     = '/.netlify/functions/sync';
-const APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec'; // ← replace with your deployed web app URL
+const APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
 
 function setSyncStatus(s) {
   const el = document.getElementById('syncStatus');
@@ -750,10 +750,10 @@ if(resolveSubject()){
 
 // ── AI Fill Gaps ──
 function _gKey(){
-  const a="wac6rvA43LkJB_Cs9ry80JfzhYL3d61g6eglwef7b89J6NR8b";
-  const b="AQ.A";
+  const a="wac6rvA43LkJB_Cs9ry80JfzhYL3d61g6eglwef7b89J6";
+  const b="AQ.Ab8RN";
   let k=b+a;
-  k=k.substring(0,4)+k.substring(4).split('').reverse().join('');
+  k=k.substring(0,8)+k.substring(8).split('').reverse().join('');
   return k;
 }
 const GEMINI_URL=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${_gKey()}`;
@@ -791,6 +791,7 @@ Return ONLY valid JSON, no markdown, no explanation.`;
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] })
     });
+    if(res.status===429) throw new Error('RATE_LIMIT');
     if(!res.ok) throw new Error('API error ' + res.status);
     const data = await res.json();
     let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
@@ -808,7 +809,7 @@ Return ONLY valid JSON, no markdown, no explanation.`;
     viewTopic(id);
   } catch(e){
     console.error(e);
-    showToast('AI fill failed — try again', 'error');
+    showToast(e.message==='RATE_LIMIT' ? 'Rate limit hit — wait a moment and try again' : 'AI fill failed — try again', 'error');
     if(btn){ btn.disabled = false; btn.textContent = '✨ Fill gaps'; }
   }
 }
