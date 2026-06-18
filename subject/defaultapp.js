@@ -419,7 +419,7 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
 // Primary: client → App Scripts directly
 // Fallback: client → Netlify proxy → App Scripts
 const PROXY_URL     = '/.netlify/functions/sync';
-const APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec'; // ← replace with your deployed web app URL
+const APPSCRIPT_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec'; // ← replace with your deployed web app URL
 
 function setSyncStatus(s) {
   const el = document.getElementById('syncStatus');
@@ -748,25 +748,15 @@ if(resolveSubject()){
   };
 })();
 
-
-
-
-// Multi-layer obfuscated Gemini API Key
-function decodeKey() {
-    const a = "wac6rvA43LkJB_Cs9ry80JfzhYL3d61g6eglwef7b89J6NR8b";
-    const b = "AQ.A";
-    let key = b + a;
-    key = key.substring(0, 4) + key.substring(4).split('').reverse().join('');
-    key = key.replace(/lg$/, 'lg');   // dummy operation
-    return key.substring(0, key.length - 0);
+// ── AI Fill Gaps ──
+function _gKey(){
+  const a="wac6rvA43LkJB_Cs9ry80JfzhYL3d61g6eglwef7b89J6NR8b";
+  const b="AQ.A";
+  let k=b+a;
+  k=k.substring(0,4)+k.substring(4).split('').reverse().join('');
+  return k;
 }
-
-
-  const DEFAULT_KEY = decodeKey();
-  console.log(DEFAULT_KEY);
-
-const DEFAULT_KEY = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${decodeKey()}`;
-
+const GEMINI_URL=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${_gKey()}`;
 
 async function aiFillTopic(id){
   const topics = getTopics();
