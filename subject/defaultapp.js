@@ -419,7 +419,7 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
 // Primary: client → App Scripts directly
 // Fallback: client → Netlify proxy → App Scripts
 const PROXY_URL     = '/.netlify/functions/sync';
-const APPSCRIPT_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec'; // ← replace with your deployed web app URL
+const APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec'; // ← replace with your deployed web app URL
 
 function setSyncStatus(s) {
   const el = document.getElementById('syncStatus');
