@@ -217,7 +217,6 @@ function viewTopic(id){
         </div>
       </div>
       <div class="dh-actions">
-        <button class="btn-act safe" id="btnAiFill_${t.id}" onclick="aiFillTopic(${t.id})">✨ Fill gaps</button>
         <button class="btn-act" onclick="openModal(${t.id})">Edit</button>
         <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>
       </div>
@@ -758,29 +757,29 @@ function _gKey(){
 }
 const GEMINI_URL=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${_gKey()}`;
 
+async function aiFillTopic(){
+  // Read current name/definition from the open modal form fields
+  const name = document.getElementById('fName').value.trim();
+  if(!name){ showToast('Enter a topic name first', 'info'); return; }
 
-
-
-async function aiFillTopic(id){
-  const topics = getTopics();
-  const t = topics.find(x => x.id == id);
-  if(!t) return;
+  const curDef     = document.getElementById('fDefinition').value.trim();
+  const curKps     = Array.from(document.getElementById('kpList').querySelectorAll('.kp-row input'))
+                       .map(i => i.value.trim()).filter(Boolean);
+  const curExamTip = getRichVal('fExamTip').replace(/<[^>]+>/g,'').trim();
 
   const missing = [];
-  if(!t.definition) missing.push('definition');
-  if(!(t.keyPoints||[]).length) missing.push('key points (3-4 bullet points)');
-  if(!t.examTip) missing.push('exam tip');
+  if(!curDef)        missing.push('definition');
+  if(!curKps.length) missing.push('key points (3-4 bullet points)');
+  if(!curExamTip)    missing.push('exam tip');
 
-  if(!missing.length){
-    showToast('Nothing to fill — topic is complete!', 'info'); return;
-  }
+  if(!missing.length){ showToast('Nothing to fill — all fields complete!', 'info'); return; }
 
-  const btn = document.getElementById('btnAiFill_' + id);
+  const btn = document.getElementById('btnModalAiFill');
   if(btn){ btn.disabled = true; btn.textContent = '⏳ Filling…'; }
 
-  const prompt = `You are a concise study assistant. The topic is "${t.name}" in the subject "${SUBJECT.name}".
-${t.definition ? `Existing definition: "${t.definition}"` : ''}
-${(t.keyPoints||[]).length ? `Existing key points: ${t.keyPoints.join(', ')}` : ''}
+  const prompt = `You are a concise study assistant. The topic is "${name}" in the subject "${SUBJECT.name}".
+${curDef ? `Existing definition: "${curDef}"` : ''}
+${curKps.length ? `Existing key points: ${curKps.join(', ')}` : ''}
 
 Generate ONLY the following missing fields as a JSON object with these exact keys: ${missing.map(m => m.split(' ')[0]).join(', ')}.
 For "definition": 1-2 sentences, clear and academic.
@@ -801,18 +800,23 @@ Return ONLY valid JSON, no markdown, no explanation.`;
     text = text.replace(/```json|```/g,'').trim();
     const filled = JSON.parse(text);
 
-    if(filled.definition && !t.definition) t.definition = filled.definition;
-    if(filled.keyPoints && !(t.keyPoints||[]).length) t.keyPoints = filled.keyPoints;
-    if(filled.key_points && !(t.keyPoints||[]).length) t.keyPoints = filled.key_points;
-    if(filled.examTip && !t.examTip) t.examTip = filled.examTip;
-    if(filled.exam_tip && !t.examTip) t.examTip = filled.exam_tip;
+    if(filled.definition && !curDef)
+      document.getElementById('fDefinition').value = filled.definition;
 
-    saveTopics(topics);
+    const kps = filled.keyPoints || filled.key_points;
+    if(kps && !curKps.length){
+      document.getElementById('kpList').innerHTML = '';
+      kps.forEach(k => addKpRow(k));
+    }
+
+    const tip = filled.examTip || filled.exam_tip;
+    if(tip && !curExamTip) setRichVal('fExamTip', tip);
+
     showToast('Gaps filled!', 'success');
-    viewTopic(id);
   } catch(e){
     console.error(e);
     showToast(e.message==='RATE_LIMIT' ? 'Rate limit hit — wait a moment and try again' : 'AI fill failed — try again', 'error');
+  } finally {
     if(btn){ btn.disabled = false; btn.textContent = '✨ Fill gaps'; }
   }
 }
