@@ -756,7 +756,10 @@ function _gKey(){
   k=k.substring(0,8)+k.substring(8).split('').reverse().join('');
   return k;
 }
-const GEMINI_URL=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${_gKey()}`;
+const GEMINI_URL=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${_gKey()}`;
+
+
+
 
 async function aiFillTopic(id){
   const topics = getTopics();
