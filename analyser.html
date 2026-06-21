@@ -65,6 +65,19 @@
     .api-tip{position:absolute;top:calc(100% + 6px);right:0;background:var(--card);color:var(--text);font-size:10px;font-weight:600;padding:4px 9px;border-radius:4px;border:1px solid var(--border2);pointer-events:none;opacity:0;transition:opacity .12s;z-index:200;white-space:nowrap}
     .api-wrap:hover .api-tip{opacity:1}
 
+    /* PROVIDER TOGGLE */
+    .provider-toggle{
+      display:flex;align-items:center;background:var(--card2);border:1px solid var(--border);
+      border-radius:20px;padding:2px;gap:2px;flex-shrink:0;
+    }
+    .provider-btn{
+      border:none;background:none;font-size:10.5px;font-weight:600;font-family:'Inter',sans-serif;
+      padding:4px 10px;border-radius:18px;cursor:pointer;color:var(--muted);transition:all .15s;
+      white-space:nowrap;
+    }
+    .provider-btn.active{background:var(--amber);color:#1a1208}
+    .provider-btn:not(.active):hover{color:var(--text)}
+
     /* MAIN SPLIT LAYOUT */
     .layout{display:grid;grid-template-columns:var(--col-left) 1fr;height:calc(100vh - 46px);overflow:hidden}
 
@@ -299,9 +312,13 @@
     <div class="branch-badge" id="branch-badge">Loading…</div>
     <div class="hdr-right">
       <span class="date-pill">Today — <strong id="todayDate"></strong></span>
+      <div class="provider-toggle" id="providerToggle">
+        <button class="provider-btn active" id="btnGemini" data-provider="gemini">Gemini</button>
+        <button class="provider-btn" id="btnClaude" data-provider="claude">Claude</button>
+      </div>
       <div class="api-wrap">
         <input class="api-input" id="customApiKey" type="password" placeholder="Gemini API key (optional)" autocomplete="off" spellcheck="false">
-        <div class="api-tip">Gemini API key requires an 18+ Gemini account.</div>
+        <div class="api-tip" id="apiTip">Gemini API key requires an 18+ Gemini account.</div>
       </div>
       <button class="hdr-btn" id="darkToggle" data-tip="Toggle theme">🌙</button>
     </div>
@@ -468,6 +485,35 @@ loadBranchVersion();
       setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),350);},dur);
     };
   })();
+
+  // Provider toggle (Gemini / Claude)
+  let aiProvider = localStorage.getItem('studybase_provider') || 'gemini';
+  function applyProviderUI(){
+    const isClaude = aiProvider === 'claude';
+    document.getElementById('btnGemini').classList.toggle('active', !isClaude);
+    document.getElementById('btnClaude').classList.toggle('active', isClaude);
+    const input = document.getElementById('customApiKey');
+    const tip = document.getElementById('apiTip');
+    input.placeholder = isClaude ? 'Claude API key (optional)' : 'Gemini API key (optional)';
+    tip.textContent = isClaude
+      ? 'Optional: paste your own Anthropic API key. Leave blank to use the server default.'
+      : 'Optional: paste your own Gemini API key. Leave blank to use the server default.';
+    // Each provider's key is kept separately so switching doesn't clobber the other
+    input.value = localStorage.getItem('studybase_key_' + aiProvider) || '';
+  }
+  document.getElementById('btnGemini').addEventListener('click', () => setProvider('gemini'));
+  document.getElementById('btnClaude').addEventListener('click', () => setProvider('claude'));
+  function setProvider(p){
+    if(aiProvider === p) return;
+    aiProvider = p;
+    localStorage.setItem('studybase_provider', p);
+    applyProviderUI();
+    showToast(`Switched to ${p === 'claude' ? 'Claude' : 'Gemini'}`, 'info', 1600);
+  }
+  document.getElementById('customApiKey').addEventListener('input', function(){
+    localStorage.setItem('studybase_key_' + aiProvider, this.value);
+  });
+  applyProviderUI();
 
   // State
   let criteriaContent='';
@@ -666,20 +712,6 @@ loadBranchVersion();
     renderHistory(false);
   };
 
-// Multi-layer obfuscated Gemini API Key
-function decodeKey() {
-    const a = "wac6rvA43LkJB_Cs9ry80JfzhYL3d61g6eglwef7b89J6NR8b";
-    const b = "AQ.A";
-    let key = b + a;
-    key = key.substring(0, 4) + key.substring(4).split('').reverse().join('');
-    key = key.replace(/lg$/, 'lg');   // dummy operation
-    return key.substring(0, key.length - 0);
-}
-
-
-  const DEFAULT_KEY = decodeKey();
-
-
   window.analyze=async function(){
     const studentText=getActiveAssignmentText().trim();
     if(criteriaMode==='text') criteriaContent=document.getElementById('criteriaText').value.trim();
@@ -692,6 +724,7 @@ function decodeKey() {
     area.innerHTML=`<div class="loading-card"><div class="loading-star">✦</div><div style="font-family:'Lora',serif;font-size:14px;font-weight:600;margin-top:10px">Analyzing with AI…</div><div style="font-size:11px;margin-top:5px;color:var(--muted)">This may take a few seconds</div></div>`;
     showToast('Sending to AI…','info',2000);
 
+    //prompt
     const prompt=`You are to mark this assessment based on the marking criteria and give a response in this format: (359- XX (X Grade) -359) (369- One clear, concise feedback paragraph evaluating the report's strengths and weaknesses with a maximum of 80 words. -369) (379- 6-10 short points of improvements -379)
 
 STUDENT ASSIGNMENT:
@@ -703,15 +736,19 @@ ${criteriaContent}
 
 `;
 
-    const apiKey=document.getElementById('customApiKey').value.trim()||DEFAULT_KEY;
+    const userKey=document.getElementById('customApiKey').value.trim();
 
     try{
-      const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+      const res=await fetch('/api/grade',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({provider:aiProvider,prompt,userKey})
       });
       const data=await res.json();
-      let responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+      if(!res.ok) throw new Error(data.error || 'Request failed');
+
+      let responseText = data.text || '';
       lastRawResponse = responseText;
       document.getElementById('rawFab').classList.add('visible');
 
