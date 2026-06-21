@@ -415,8 +415,6 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
 });
 
 // ── Sync ──
-// Primary: client → App Scripts directly
-// Fallback: client → Netlify proxy → App Scripts
 const PROXY_URL     = '/.netlify/functions/sync';
 const APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
 
@@ -429,7 +427,6 @@ function setSyncStatus(s) {
   else                  { el.textContent = '○ Offline';   el.className = 'sync-chip err'; }
 }
 
-// ── Low-level transport: direct App Scripts ──
 async function _directPush(key, data) {
   const res = await fetch(APPSCRIPT_URL, {
     method: 'POST',
@@ -445,7 +442,6 @@ async function _directGet(key) {
   return res.json();
 }
 
-// ── Low-level transport: Netlify proxy ──
 async function _proxyPush(key, data) {
   const res = await fetch(PROXY_URL, {
     method: 'POST',
@@ -461,7 +457,6 @@ async function _proxyGet(key) {
   return res.json();
 }
 
-// ── Public sync API (used everywhere else in the file) ──
 async function syncPush(key, data) {
   try {
     await _directPush(key, data);
@@ -487,7 +482,6 @@ async function syncGet(key) {
     return data;
   } catch (directErr) {
     console.warn('[sync] direct get failed, trying proxy:', directErr.message);
-    // Let this throw if the proxy also fails — callers handle it
     const data = await _proxyGet(key);
     console.log('[sync] get via proxy →', key);
     return data;
@@ -653,18 +647,15 @@ if(resolveSubject()){
 
   function isMobile() { return window.innerWidth <= BREAK; }
 
-  /* ── Inject DOM elements once ── */
   function setup() {
     if (document.getElementById('mobScrim')) return;
 
-    /* Scrim */
     var scrim = document.createElement('div');
     scrim.id = 'mobScrim';
     scrim.className = 'mob-scrim';
     scrim.addEventListener('click', closeSidebar);
     document.body.appendChild(scrim);
 
-    /* Mobile bar — insert before .app-body */
     var bar = document.createElement('div');
     bar.id = 'mobBar';
     bar.className = 'mob-bar';
@@ -700,14 +691,12 @@ if(resolveSubject()){
     else { openSidebar(); }
   };
 
-  /* ── Patch viewTopic to close sidebar & update title ── */
   var _orig = window.viewTopic;
   if (typeof _orig === 'function') {
     window.viewTopic = function (id) {
       _orig(id);
       if (!isMobile()) return;
       closeSidebar();
-      /* Update bar title */
       try {
         var topics = JSON.parse(localStorage.getItem(ST) || '[]');
         var t = topics.find(function (x) { return x.id == id; });
@@ -717,7 +706,6 @@ if(resolveSubject()){
     };
   }
 
-  /* ── Show/hide mob-bar based on viewport size ── */
   function onResize() {
     var bar = document.getElementById('mobBar');
     if (!bar) return;
@@ -725,7 +713,6 @@ if(resolveSubject()){
   }
   window.addEventListener('resize', onResize);
 
-  /* ── Boot ── */
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', setup);
   } else {
@@ -757,34 +744,52 @@ function _gKey(){
 }
 const GEMINI_URL=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${_gKey()}`;
 
-async function aiFillTopic(){
-  // Read current name/definition from the open modal form fields
+// ── AI Fill inside the modal ──
+// Reads the current form state (name + any existing field values) and fills
+// only the empty / missing fields, writing the results directly into the form.
+async function aiFillModal(){
   const name = document.getElementById('fName').value.trim();
-  if(!name){ showToast('Enter a topic name first', 'info'); return; }
+  if(!name){ showToast('Enter a topic name first', 'info'); document.getElementById('fName').focus(); return; }
 
-  const curDef     = document.getElementById('fDefinition').value.trim();
-  const curKps     = Array.from(document.getElementById('kpList').querySelectorAll('.kp-row input'))
-                       .map(i => i.value.trim()).filter(Boolean);
-  const curExamTip = getRichVal('fExamTip').replace(/<[^>]+>/g,'').trim();
+  // Snapshot current form values
+  const curDef    = document.getElementById('fDefinition').value.trim();
+  const curKps    = Array.from(document.getElementById('kpList').querySelectorAll('.kp-row input')).map(i=>i.value.trim()).filter(Boolean);
+  const curFormula  = getRichVal('fFormula');
+  const curMaterials= getRichVal('fMaterials');
+  const curProcess  = getRichVal('fProcess');
+  const curSafety   = getRichVal('fSafety');
+  const curExamTip  = getRichVal('fExamTip');
 
-  const missing = [];
-  if(!curDef)        missing.push('definition');
-  if(!curKps.length) missing.push('key points (3-4 bullet points)');
-  if(!curExamTip)    missing.push('exam tip');
+  // Decide what's missing
+  const want = [];
+  if(!curDef)           want.push('definition');
+  if(!curKps.length)    want.push('keyPoints');
+  if(!curExamTip)       want.push('examTip');
+  // Only suggest formula / process if the subject seems technical
+  // (we always request them so the user can ignore blanks)
+  if(!curFormula)       want.push('formula');
+  if(!curProcess)       want.push('process');
 
-  if(!missing.length){ showToast('Nothing to fill — all fields complete!', 'info'); return; }
+  if(!want.length){ showToast('All fields already filled!', 'info'); return; }
 
-  const btn = document.getElementById('btnModalAiFill');
-  if(btn){ btn.disabled = true; btn.textContent = '⏳ Filling…'; }
+  const btn = document.getElementById('btnAiFillModal');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Filling…'; }
 
-  const prompt = `You are a concise study assistant. The topic is "${name}" in the subject "${SUBJECT.name}".
+  const subjectCtx = SUBJECT ? `Subject: "${SUBJECT.name}".` : '';
+  const prompt = `You are a concise study assistant. ${subjectCtx} The topic is "${name}".
 ${curDef ? `Existing definition: "${curDef}"` : ''}
-${curKps.length ? `Existing key points: ${curKps.join(', ')}` : ''}
+${curKps.length ? `Existing key points: ${curKps.join('; ')}` : ''}
 
-Generate ONLY the following missing fields as a JSON object with these exact keys: ${missing.map(m => m.split(' ')[0]).join(', ')}.
-For "definition": 1-2 sentences, clear and academic.
-For "keyPoints": array of 3-4 short strings.
-For "examTip": one practical exam tip sentence.
+Generate ONLY the following fields as a JSON object. Include a key even if the field doesn't apply — use an empty string or empty array in that case.
+Fields to generate: ${want.join(', ')}.
+
+Field rules:
+- definition: 1-2 sentences, clear and academic. Empty string if not applicable.
+- keyPoints: array of 3-4 concise strings. Empty array if not applicable.
+- examTip: one practical exam tip sentence. Empty string if not applicable.
+- formula: LaTeX or plain-text formula/equation if relevant, else empty string.
+- process: step-by-step method or process as plain text (steps separated by \\n), else empty string.
+
 Return ONLY valid JSON, no markdown, no explanation.`;
 
   try{
@@ -800,23 +805,50 @@ Return ONLY valid JSON, no markdown, no explanation.`;
     text = text.replace(/```json|```/g,'').trim();
     const filled = JSON.parse(text);
 
-    if(filled.definition && !curDef)
+    // Write into form — only overwrite fields that were empty
+    if(!curDef && filled.definition)
       document.getElementById('fDefinition').value = filled.definition;
 
-    const kps = filled.keyPoints || filled.key_points;
-    if(kps && !curKps.length){
+    if(!curKps.length && (filled.keyPoints||filled.key_points||[]).length){
+      const kps = filled.keyPoints || filled.key_points || [];
+      // Clear existing rows first, then add
       document.getElementById('kpList').innerHTML = '';
-      kps.forEach(k => addKpRow(k));
+      kps.forEach(k => { if(k) addKpRow(k); });
     }
 
-    const tip = filled.examTip || filled.exam_tip;
-    if(tip && !curExamTip) setRichVal('fExamTip', tip);
+    if(!curExamTip && (filled.examTip||filled.exam_tip))
+      setRichVal('fExamTip', filled.examTip || filled.exam_tip);
 
-    showToast('Gaps filled!', 'success');
+    if(!curFormula && filled.formula)
+      setRichVal('fFormula', filled.formula);
+
+    if(!curProcess && filled.process)
+      setRichVal('fProcess', filled.process);
+
+    // Persist filled values to storage immediately so reopening the modal shows them
+    if(editId){
+      let topics = getTopics();
+      const idx = topics.findIndex(t => t.id === editId);
+      if(idx !== -1){
+        const t = topics[idx];
+        if(!curDef && filled.definition)           t.definition = filled.definition;
+        if(!curKps.length && (filled.keyPoints||filled.key_points||[]).length) t.keyPoints = filled.keyPoints || filled.key_points;
+        if(!curExamTip && (filled.examTip||filled.exam_tip))  t.examTip = filled.examTip || filled.exam_tip;
+        if(!curFormula && filled.formula)          t.formula = filled.formula;
+        if(!curProcess && filled.process)          t.process = filled.process;
+        t.updatedAt = new Date().toISOString();
+        topics[idx] = t;
+        saveTopics(topics);
+        renderList();
+        viewTopic(editId);
+      }
+    }
+
+    showToast('Gaps filled — review and edit as needed', 'success');
   } catch(e){
     console.error(e);
     showToast(e.message==='RATE_LIMIT' ? 'Rate limit hit — wait a moment and try again' : 'AI fill failed — try again', 'error');
   } finally {
-    if(btn){ btn.disabled = false; btn.textContent = '✨ Fill gaps'; }
+    if(btn){ btn.disabled=false; btn.textContent='✨ Fill gaps'; }
   }
 }
