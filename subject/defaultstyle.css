@@ -133,6 +133,13 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;display:fle
 .unit-row{display:flex;gap:7px}
 .kp-list{display:flex;flex-direction:column;gap:5px;margin-bottom:7px}
 .kp-row{display:flex;gap:7px;align-items:center}
+.subtopic-nav{display:flex;align-items:center;gap:9px;margin-bottom:16px}
+.subtopic-nav-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:600}
+.subtopic-select{background:var(--ac-l);border:1px solid var(--ac-b);color:var(--accent);border-radius:6px;padding:6px 11px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;outline:none;cursor:pointer}
+.subtopic-card{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;flex-direction:column;gap:9px}
+.subtopic-card-head{display:flex;gap:7px;align-items:center}
+.subtopic-card-head .subtopic-name-i{flex:1;font-weight:600}
+.subtopic-card .form-g{margin-bottom:0}
 .kp-row input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:border-color .15s,background .15s}
 .kp-row input:focus{border-color:var(--accent);background:#fff}
 .kp-row input::placeholder{color:var(--muted2)}

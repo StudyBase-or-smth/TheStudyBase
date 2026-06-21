@@ -207,6 +207,40 @@ function viewTopic(id){
     extraHtml += `<div class="section"><div class="section-header"><span class="sh-icon">🃏</span>Flashcard Questions</div><div class="section-body">${qaRows}</div></div>`;
   }
 
+  const subtopics = t.subtopics || [];
+  let subtopicNav = '';
+  let subtopicPanels = '';
+  if(subtopics.length){
+    subtopicNav = `
+      <div class="subtopic-nav">
+        <span class="subtopic-nav-label">Viewing</span>
+        <select class="subtopic-select" id="subtopicSelect" onchange="switchSubtopic(this.value)">
+          <option value="main">Overview</option>
+          ${subtopics.map((s,i)=>`<option value="${i}">${esc(s.name)}</option>`).join('')}
+        </select>
+      </div>`;
+    subtopicPanels = subtopics.map((s,i) => {
+      const skpHtml = (s.keyPoints||[]).length
+        ? `<ul class="key-points">${s.keyPoints.map(k=>`<li class="kp-item"><div class="kp-dot"></div><span>${esc(k)}</span></li>`).join('')}</ul>`
+        : '<p class="empty-note">No key points added yet.</p>';
+      let sExtra = '';
+      if(s.formula) sExtra += `<div class="section"><div class="section-header"><span class="sh-icon">∑</span>Formula / Equation</div><div class="section-body"><div class="formula-box">${sanitizeRich(s.formula)}</div></div></div>`;
+      if(s.notes)   sExtra += `<div class="section"><div class="section-header"><span class="sh-icon">📋</span>Notes</div><div class="section-body"><p class="plain-text">${sanitizeRich(s.notes)}</p></div></div>`;
+      return `
+      <div class="subtopic-panel" id="subPanel${i}" style="display:none">
+        <div class="section">
+          <div class="section-header"><span class="sh-icon">📝</span>Definition</div>
+          <div class="section-body">${s.definition ? `<p class="def-text">${esc(s.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>'}</div>
+        </div>
+        <div class="section">
+          <div class="section-header"><span class="sh-icon">✦</span>Key Points</div>
+          <div class="section-body">${skpHtml}</div>
+        </div>
+        ${sExtra}
+      </div>`;
+    }).join('');
+  }
+
   el.innerHTML = `
     <div class="dh">
       <div>
@@ -221,23 +255,37 @@ function viewTopic(id){
         <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>
       </div>
     </div>
-    <div class="section">
-      <div class="section-header"><span class="sh-icon">📝</span>Definition</div>
-      <div class="section-body">${t.definition ? `<p class="def-text">${esc(t.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>'}</div>
+    ${subtopicNav}
+    <div class="subtopic-panel" id="subPanelMain">
+      <div class="section">
+        <div class="section-header"><span class="sh-icon">📝</span>Definition</div>
+        <div class="section-body">${t.definition ? `<p class="def-text">${esc(t.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>'}</div>
+      </div>
+      <div class="section">
+        <div class="section-header"><span class="sh-icon">✦</span>Key Points</div>
+        <div class="section-body">${kpHtml}</div>
+      </div>
+      ${extraHtml}
+      <div class="section">
+        <div class="section-header"><span class="sh-icon">🔗</span>Related Terms</div>
+        <div class="section-body">${relHtml}</div>
+      </div>
     </div>
-    <div class="section">
-      <div class="section-header"><span class="sh-icon">✦</span>Key Points</div>
-      <div class="section-body">${kpHtml}</div>
-    </div>
-    ${extraHtml}
-    <div class="section">
-      <div class="section-header"><span class="sh-icon">🔗</span>Related Terms</div>
-      <div class="section-body">${relHtml}</div>
-    </div>`;
+    ${subtopicPanels}`;
 
   el.style.display = 'block';
   void el.offsetWidth;
   el.classList.add('on');
+}
+
+// ── Subtopic switcher ──
+function switchSubtopic(val){
+  document.getElementById('subPanelMain').style.display = val==='main' ? '' : 'none';
+  document.querySelectorAll('[id^="subPanel"]').forEach(p => { if(p.id!=='subPanelMain') p.style.display='none'; });
+  if(val!=='main'){
+    const p = document.getElementById('subPanel'+val);
+    if(p) p.style.display = '';
+  }
 }
 
 // ── Modal ──
@@ -246,6 +294,7 @@ function openModal(id){
   editId = id || null;
   tempTags = [];
   document.getElementById('kpList').innerHTML = '';
+  document.getElementById('subtopicEditorList').innerHTML = '';
   document.getElementById('tagsWrap').querySelectorAll('.tag-chip').forEach(e => e.remove());
   populateSel();
   if(id){
@@ -261,6 +310,7 @@ function openModal(id){
     setRichVal('fExamTip', t.examTip || '');
     (t.keyPoints||[]).forEach(k => addKpRow(k));
     (t.relatedTerms||[]).forEach(addTag);
+    (t.subtopics||[]).forEach(s => addSubtopicRow(s));
     document.getElementById('fqaList').innerHTML = '';
     (t.flashcardQA||[]).forEach(qa => addFqaRow(qa.q, qa.a));
   } else {
@@ -317,6 +367,58 @@ function addFqaRow(q, a){
   document.getElementById('fqaList').appendChild(row); qInp.focus();
 }
 
+function addSubtopicRow(s){
+  s = s || {};
+  const uid = 'sub_' + Date.now() + '_' + Math.floor(Math.random()*9999);
+  const card = document.createElement('div');
+  card.className = 'subtopic-card';
+  card.id = uid;
+  card.innerHTML = `
+    <div class="subtopic-card-head">
+      <input type="text" class="form-i subtopic-name-i" placeholder="Subtopic name — e.g. Density">
+      <button type="button" class="btn-kp-del" title="Remove subtopic">✕</button>
+    </div>
+    <div class="form-g">
+      <label class="form-l" style="font-size:10px">Definition</label>
+      <textarea class="form-ta subtopic-def-i" rows="2" placeholder="Definition…"></textarea>
+    </div>
+    <div class="form-g">
+      <label class="form-l" style="font-size:10px">Key Points <span>— one per line</span></label>
+      <textarea class="form-ta subtopic-kp-i" rows="2" placeholder="One key point per line…"></textarea>
+    </div>
+    <div class="form-g">
+      <label class="form-l" style="font-size:10px">Formula / Equation</label>
+      <div class="rich-editor-wrap">
+        <div class="rich-toolbar">
+          <span class="rich-toolbar-label">text &amp; images</span>
+          <button type="button" class="rich-btn" onclick="richAddImage('${uid}_formula')">🖼 Insert image</button>
+          <input type="file" id="img_${uid}_formula" accept="image/*" style="display:none">
+        </div>
+        <div class="rich-content mono subtopic-formula-i" id="${uid}_formula" contenteditable="true" data-placeholder="e.g. ρ = m/V" style="min-height:56px"></div>
+      </div>
+    </div>
+    <div class="form-g" style="margin-bottom:0">
+      <label class="form-l" style="font-size:10px">Notes</label>
+      <div class="rich-editor-wrap">
+        <div class="rich-toolbar">
+          <span class="rich-toolbar-label">text &amp; images</span>
+          <button type="button" class="rich-btn" onclick="richAddImage('${uid}_notes')">🖼 Insert image</button>
+          <input type="file" id="img_${uid}_notes" accept="image/*" style="display:none">
+        </div>
+        <div class="rich-content subtopic-notes-i" id="${uid}_notes" contenteditable="true" data-placeholder="Additional notes…" style="min-height:48px"></div>
+      </div>
+    </div>`;
+  card.querySelector('.subtopic-name-i').value = s.name || '';
+  card.querySelector('.subtopic-def-i').value = s.definition || '';
+  card.querySelector('.subtopic-kp-i').value = (s.keyPoints||[]).join('\n');
+  card.querySelector('.btn-kp-del').onclick = () => document.getElementById(uid).remove();
+  document.getElementById('subtopicEditorList').appendChild(card);
+  setRichVal(uid+'_formula', s.formula || '');
+  setRichVal(uid+'_notes', s.notes || '');
+  card.querySelectorAll('.rich-editor-wrap').forEach(attachRichDnD);
+  if(!s.name) card.querySelector('.subtopic-name-i').focus();
+}
+
 function addTag(text){
   text = String(text).trim();
   if(!text || tempTags.includes(text)) return;
@@ -351,6 +453,17 @@ function saveTopic(){
     const inputs = row.querySelectorAll('.fqa-input');
     return { q: (inputs[0]?.value||'').trim(), a: (inputs[1]?.value||'').trim() };
   }).filter(qa => qa.q);
+  const subtopics = Array.from(document.getElementById('subtopicEditorList').children).map(card => {
+    const name = card.querySelector('.subtopic-name-i').value.trim();
+    if(!name) return null;
+    return {
+      name,
+      definition: card.querySelector('.subtopic-def-i').value.trim(),
+      keyPoints: card.querySelector('.subtopic-kp-i').value.split('\n').map(s=>s.trim()).filter(Boolean),
+      formula: card.querySelector('.subtopic-formula-i').innerHTML.trim(),
+      notes: card.querySelector('.subtopic-notes-i').innerHTML.trim()
+    };
+  }).filter(Boolean);
   const ex = editId ? (getTopics().find(t => t.id===editId)||{}) : {};
   const topic = {
     id: editId || Date.now(),
@@ -365,6 +478,7 @@ function saveTopic(){
     examTip:   getRichVal('fExamTip'),
     relatedTerms,
     flashcardQA,
+    subtopics,
     addedBy: ex.addedBy || window.currentUid || null,
     createdAt: ex.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -563,17 +677,18 @@ function richAddImage(id){
   inp.click();
 }
 
-function setupRichDnD(){
-  document.querySelectorAll('.rich-editor-wrap').forEach(wrap => {
-    const editor=wrap.querySelector('.rich-content');
-    wrap.addEventListener('dragover',e=>{e.preventDefault();wrap.classList.add('drag-over');});
-    wrap.addEventListener('dragleave',e=>{if(!wrap.contains(e.relatedTarget))wrap.classList.remove('drag-over');});
-    wrap.addEventListener('drop',e=>{
-      e.preventDefault();wrap.classList.remove('drag-over');
-      const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
-      if(files.length){files.forEach(f=>compressAndInsert(editor,f));}
-    });
+function attachRichDnD(wrap){
+  const editor=wrap.querySelector('.rich-content');
+  wrap.addEventListener('dragover',e=>{e.preventDefault();wrap.classList.add('drag-over');});
+  wrap.addEventListener('dragleave',e=>{if(!wrap.contains(e.relatedTarget))wrap.classList.remove('drag-over');});
+  wrap.addEventListener('drop',e=>{
+    e.preventDefault();wrap.classList.remove('drag-over');
+    const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
+    if(files.length){files.forEach(f=>compressAndInsert(editor,f));}
   });
+}
+function setupRichDnD(){
+  document.querySelectorAll('.rich-editor-wrap').forEach(attachRichDnD);
 }
 
 // ── Sync countdown ──
