@@ -712,6 +712,66 @@ loadBranchVersion();
     renderHistory(false);
   };
 
+  // Direct-call fallbacks — used only when the Netlify proxy (/api/grade) isn't
+  // reachable, e.g. when testing on GitHub Pages which can't run server functions.
+  // These REQUIRE the user's own key pasted into the textbox; there is no
+  // server-side default available in this path, by design.
+  async function callGeminiDirect(prompt, userKey){
+    if(!userKey) throw new Error('No proxy available (dev/GitHub Pages mode) — paste your own Gemini API key to test directly.');
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${userKey}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+    });
+    const data=await res.json();
+    if(!res.ok) throw new Error((data.error&&data.error.message)||'Gemini request failed');
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  }
+
+  async function callClaudeDirect(prompt, userKey){
+    if(!userKey) throw new Error('No proxy available (dev/GitHub Pages mode) — paste your own Claude API key to test directly.');
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':userKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    if(!res.ok) throw new Error((data.error&&data.error.message)||'Claude request failed');
+    return (data.content||[]).map(b=>b.type==='text'?b.text:'').filter(Boolean).join('\n');
+  }
+
+  async function callAI(provider, prompt, userKey){
+    // Try the Netlify proxy first (used in production deployment).
+    try{
+      const res=await fetch('/api/grade',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({provider,prompt,userKey})
+      });
+      // If the proxy doesn't exist (GitHub Pages etc), this returns an HTML
+      // 404/405 page, not JSON — detect that and fall back instead of crashing.
+      const contentType=res.headers.get('content-type')||'';
+      if(res.status===404||res.status===405||!contentType.includes('application/json')){
+        throw new Error('PROXY_UNAVAILABLE');
+      }
+      const data=await res.json();
+      if(!res.ok) throw new Error(data.error || 'Request failed');
+      return data.text || '';
+    }catch(err){
+      if(err.message!=='PROXY_UNAVAILABLE'){
+        // Proxy exists but returned a real error — surface it instead of falling back.
+        if(err.name!=='TypeError') throw err;
+      }
+      // Network-level failure or confirmed missing proxy -> fall back to direct call.
+      showToast('Proxy unavailable — calling API directly from browser (dev mode)','warning',2500);
+      return provider==='claude' ? callClaudeDirect(prompt,userKey) : callGeminiDirect(prompt,userKey);
+    }
+  }
+
   window.analyze=async function(){
     const studentText=getActiveAssignmentText().trim();
     if(criteriaMode==='text') criteriaContent=document.getElementById('criteriaText').value.trim();
@@ -724,7 +784,6 @@ loadBranchVersion();
     area.innerHTML=`<div class="loading-card"><div class="loading-star">✦</div><div style="font-family:'Lora',serif;font-size:14px;font-weight:600;margin-top:10px">Analyzing with AI…</div><div style="font-size:11px;margin-top:5px;color:var(--muted)">This may take a few seconds</div></div>`;
     showToast('Sending to AI…','info',2000);
 
-    //prompt
     const prompt=`You are to mark this assessment based on the marking criteria and give a response in this format: (359- XX (X Grade) -359) (369- One clear, concise feedback paragraph evaluating the report's strengths and weaknesses with a maximum of 80 words. -369) (379- 6-10 short points of improvements -379)
 
 STUDENT ASSIGNMENT:
@@ -739,16 +798,7 @@ ${criteriaContent}
     const userKey=document.getElementById('customApiKey').value.trim();
 
     try{
-      const res=await fetch('/api/grade',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({provider:aiProvider,prompt,userKey})
-      });
-      const data=await res.json();
-
-      if(!res.ok) throw new Error(data.error || 'Request failed');
-
-      let responseText = data.text || '';
+      let responseText = await callAI(aiProvider, prompt, userKey);
       lastRawResponse = responseText;
       document.getElementById('rawFab').classList.add('visible');
 
