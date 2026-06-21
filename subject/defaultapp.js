@@ -415,103 +415,70 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
 });
 
 // ── Sync ──
-const PROXY_URL     = '/.netlify/functions/sync';
-const APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
+const SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
 
-function setSyncStatus(s) {
+function setSyncStatus(s){
   const el = document.getElementById('syncStatus');
-  if (!el) return;
-  if (s === 'syncing') { el.textContent = '↻ Syncing';   el.className = 'sync-chip'; }
-  else if (s === 'ok') { el.textContent = '✓ Synced';    el.className = 'sync-chip ok'; }
-  else if (s === 'warn'){ el.textContent = '⚠ Too large'; el.className = 'sync-chip warn'; }
-  else                  { el.textContent = '○ Offline';   el.className = 'sync-chip err'; }
+  if(!el) return;
+  if(s==='syncing'){ el.textContent='↻ Syncing'; el.className='sync-chip'; }
+  else if(s==='ok'){ el.textContent='✓ Synced'; el.className='sync-chip ok'; }
+  else if(s==='warn'){ el.textContent='⚠ Too large'; el.className='sync-chip warn'; }
+  else { el.textContent='○ Offline'; el.className='sync-chip err'; }
 }
 
-async function _directPush(key, data) {
-  const res = await fetch(APPSCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ key, data }),
+function jsonpGet(url){
+  return new Promise((resolve, reject) => {
+    const cb = '_cb'+Date.now()+'_'+Math.floor(Math.random()*99999);
+    const script = document.createElement('script');
+    const cleanup = () => { delete window[cb]; if(script.parentNode) script.parentNode.removeChild(script); };
+    window[cb] = data => { cleanup(); resolve(data); };
+    script.onerror = () => { cleanup(); reject(new Error('JSONP error')); };
+    script.src = url + (url.includes('?')?'&':'?') + 'callback=' + cb;
+    document.head.appendChild(script);
+    setTimeout(() => { cleanup(); reject(new Error('Timeout')); }, 8000);
   });
-  if (!res.ok) throw new Error(`AppScript HTTP ${res.status}`);
 }
 
-async function _directGet(key) {
-  const res = await fetch(`${APPSCRIPT_URL}?key=${encodeURIComponent(key)}`);
-  if (!res.ok) throw new Error(`AppScript HTTP ${res.status}`);
-  return res.json();
-}
-
-async function _proxyPush(key, data) {
-  const res = await fetch(PROXY_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ key, data }),
-  });
-  if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
-}
-
-async function _proxyGet(key) {
-  const res = await fetch(`${PROXY_URL}?key=${encodeURIComponent(key)}`);
-  if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
-  return res.json();
-}
-
-async function syncPush(key, data) {
-  try {
-    await _directPush(key, data);
-    console.log('[sync] push direct →', key);
+function syncPush(key, data){
+  try{
+    const id = 'sf'+Date.now();
+    const iframe = document.createElement('iframe');
+    iframe.name = id; iframe.style.cssText='display:none;width:0;height:0;border:0';
+    const form = document.createElement('form');
+    form.method='POST'; form.action=SYNC_URL; form.target=id; form.style.display='none';
+    [['key',key],['data',JSON.stringify(data)]].forEach(([n,v]) => {
+      const inp = document.createElement('input'); inp.type='hidden'; inp.name=n; inp.value=v; form.appendChild(inp);
+    });
+    document.body.appendChild(iframe); document.body.appendChild(form); form.submit();
+    setTimeout(() => { if(iframe.parentNode)iframe.parentNode.removeChild(iframe); if(form.parentNode)form.parentNode.removeChild(form); }, 6000);
     setSyncStatus('ok');
-  } catch (directErr) {
-    console.warn('[sync] direct push failed, trying proxy:', directErr.message);
-    try {
-      await _proxyPush(key, data);
-      console.log('[sync] push via proxy →', key);
-      setSyncStatus('ok');
-    } catch (proxyErr) {
-      console.warn('[sync] proxy push also failed:', proxyErr.message);
-      setSyncStatus('err');
-    }
-  }
-}
-
-async function syncGet(key) {
-  try {
-    const data = await _directGet(key);
-    console.log('[sync] get direct →', key);
-    return data;
-  } catch (directErr) {
-    console.warn('[sync] direct get failed, trying proxy:', directErr.message);
-    const data = await _proxyGet(key);
-    console.log('[sync] get via proxy →', key);
-    return data;
-  }
+  } catch(e){ setSyncStatus('err'); }
 }
 
 let _nextSync = Date.now() + 60000;
 
-async function syncPull() {
+async function syncPull(){
   setSyncStatus('syncing');
   const PLACEHOLDER = '[image — only visible on device where it was saved]';
-  try {
-    for (const key of [ST, SU]) {
-      const res = await syncGet(key);
-      if (res && res.data !== null && res.data !== undefined) {
-        if (key === ST && Array.isArray(res.data)) {
-          const local = JSON.parse(localStorage.getItem(ST) || '[]');
+  try{
+    for(const key of [ST, SU]){
+      const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(key));
+      if(res && res.data !== null && res.data !== undefined){
+        if(key===ST && Array.isArray(res.data)){
+          const local = JSON.parse(localStorage.getItem(ST)||'[]');
           const merged = res.data.map(rem => {
-            const loc = local.find(t => t.id === rem.id);
-            if (!loc) return rem;
-            const m = { ...rem };
+            const loc = local.find(t => t.id===rem.id);
+            if(!loc) return rem;
+            const m = {...rem};
             Object.keys(m).forEach(k => {
-              if (typeof m[k]==='string' && m[k].includes(PLACEHOLDER) &&
-                  loc[k] && typeof loc[k]==='string' && !loc[k].includes(PLACEHOLDER)) {
+              if(typeof m[k]==='string' && m[k].includes(PLACEHOLDER) &&
+                 loc[k] && typeof loc[k]==='string' && !loc[k].includes(PLACEHOLDER)){
                 m[k] = loc[k];
               }
             });
             return m;
           });
-          local.forEach(lt => { if (!merged.find(t => t.id === lt.id)) merged.push(lt); });
+          local.forEach(lt => { if(!merged.find(t => t.id===lt.id)) merged.push(lt); });
           localStorage.setItem(key, JSON.stringify(merged));
         } else {
           localStorage.setItem(key, JSON.stringify(res.data));
@@ -520,10 +487,7 @@ async function syncPull() {
     }
     setSyncStatus('ok');
     renderList();
-  } catch (e) {
-    console.warn('syncPull failed:', e);
-    setSyncStatus('err');
-  }
+  } catch(e){ setSyncStatus('err'); }
   _nextSync = Date.now() + 60000;
 }
 
@@ -548,25 +512,19 @@ function sanitizeForSync(topics){
 }
 
 // ── Image upload ──
-async function pollUploadResult(uid, ph) {
+function pollUploadResult(uid, ph) {
   let tries = 0;
   const poll = setInterval(async () => {
     tries++;
     try {
-      const res = await syncGet('_ur_' + uid);
-      if (res && res.data) {
-        clearInterval(poll);
+      const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent('_ur_'+uid));
+      if(res && res.data){ clearInterval(poll);
         const img = document.createElement('img');
         img.src = res.data.ok && res.data.url ? res.data.url : ph._b64;
         ph.replaceWith(img);
       }
-    } catch (e) {}
-    if (tries >= 30) {
-      clearInterval(poll);
-      const img = document.createElement('img');
-      img.src = ph._b64;
-      ph.replaceWith(img);
-    }
+    } catch(e) {}
+    if(tries >= 30){ clearInterval(poll); const img = document.createElement('img'); img.src = ph._b64; ph.replaceWith(img); }
   }, 1500);
 }
 
