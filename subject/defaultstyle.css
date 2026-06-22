@@ -58,6 +58,15 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;display:fle
 .unit-del:hover{opacity:1!important;color:#dc2626}
 .topic-list{flex:1;overflow-y:auto}
 .topic-item{padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--border);border-left:4px solid transparent;transition:background .12s,border-color .12s}
+.topic-item-wrap{border-bottom:1px solid var(--border)}
+.topic-item-wrap .topic-item{border-bottom:none}
+.ti-expand-btn{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:11px;padding:0 4px 0 0;line-height:1;transition:color .12s;flex-shrink:0}
+.ti-expand-btn:hover{color:var(--accent)}
+.subtopic-sidebar-list{background:var(--card2);border-top:1px solid var(--border)}
+.subtopic-sidebar-item{padding:8px 14px 8px 28px;font-size:12px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:7px;border-left:4px solid transparent;transition:background .12s,color .12s,border-color .12s}
+.subtopic-sidebar-item:hover{background:var(--ac-l);color:var(--text)}
+.subtopic-sidebar-item.active{background:var(--ac-l);border-left-color:var(--accent);color:var(--accent);font-weight:500}
+.ssi-dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.5;flex-shrink:0}
 .topic-item:hover{background:var(--card2)}
 .topic-item.active{background:var(--ac-l);border-left-color:var(--accent)}
 .ti-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -133,6 +142,17 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;display:fle
 .unit-row{display:flex;gap:7px}
 .kp-list{display:flex;flex-direction:column;gap:5px;margin-bottom:7px}
 .kp-row{display:flex;gap:7px;align-items:center}
+.subtopic-nav{display:flex;align-items:center;gap:9px;margin-bottom:16px}
+.subtopic-nav-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:600}
+.subtopic-select{background:var(--ac-l);border:1px solid var(--ac-b);color:var(--accent);border-radius:6px;padding:6px 11px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;outline:none;cursor:pointer}
+.dh-sub-badge{font-size:13px;font-weight:500;color:var(--accent);background:var(--ac-l);border:1px solid var(--ac-b);border-radius:5px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+.subtopic-card{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;flex-direction:column;gap:9px}
+.subtopic-card-head{display:flex;gap:7px;align-items:center}
+.btn-ai-sub{background:var(--ac-l);border:1px solid var(--ac-b);color:var(--accent);border-radius:5px;padding:4px 9px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s;white-space:nowrap}
+.btn-ai-sub:hover{opacity:.8}
+.btn-ai-sub:disabled{opacity:.5;cursor:not-allowed}
+.subtopic-card-head .subtopic-name-i{flex:1;font-weight:600}
+.subtopic-card .form-g{margin-bottom:0}
 .kp-row input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:border-color .15s,background .15s}
 .kp-row input:focus{border-color:var(--accent);background:#fff}
 .kp-row input::placeholder{color:var(--muted2)}
@@ -230,3 +250,176 @@ body.dark .plain-text{color:#c4bdb4!important}
 body.dark .exam-tip{background:#1c1a08!important;border-color:#3d3410!important;color:#e8d96e!important}
 body.dark .warning-box{background:#1f1208!important;border-color:#4d2c10!important;color:#f0b07a!important}
 body.dark img:not(.no-invert){filter:invert(.88) hue-rotate(180deg) brightness(1.15)}
+
+/* ══════════════════════════════════════════════
+   STUDYBASE — MOBILE RESPONSIVE STYLES
+   Paste at the very bottom of defaultstyle.css
+   ══════════════════════════════════════════════ */
+
+.mob-bar  { display: none; }
+.mob-scrim { display: none; }
+
+@media (max-width: 700px) {
+
+  /* ── Kill the side-by-side layout ── */
+  .app-body {
+    flex-direction: column !important;
+    position: relative !important;
+    overflow: hidden !important;
+    height: calc(100vh - 44px - 29px) !important; /* viewport minus header rows */
+  }
+
+  /* ── Sidebar becomes a fixed overlay panel ── */
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 88vw !important;
+    max-width: 320px !important;
+    z-index: 600 !important;
+    transform: translateX(-110%) !important;
+    transition: transform .24s cubic-bezier(.4,0,.2,1),
+                box-shadow .24s !important;
+    border-right: 1px solid var(--border) !important;
+    box-shadow: none !important;
+    background: var(--card) !important;
+    overflow-y: auto !important;
+  }
+
+  .sidebar.mob-open {
+    transform: translateX(0) !important;
+    box-shadow: 6px 0 28px rgba(0,0,0,.18) !important;
+  }
+
+  /* ── Scrim ── */
+  .mob-scrim {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(28,25,23,.4) !important;
+    z-index: 599 !important;
+    backdrop-filter: blur(1px) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity .24s !important;
+  }
+
+  .mob-scrim.mob-open {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  /* ── Mobile bar ── */
+  .mob-bar {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 0 14px !important;
+    height: 42px !important;
+    background: var(--card) !important;
+    border-bottom: 1px solid var(--border) !important;
+    flex-shrink: 0 !important;
+    z-index: 10 !important;
+  }
+
+  .mob-toggle {
+    background: var(--ac-l);
+    border: 1px solid var(--ac-b);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .mob-bar-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ── Detail panel fills full screen ── */
+  .detail-panel {
+    flex: 1 !important;
+    width: 100% !important;
+    overflow-y: auto !important;
+    padding: 16px 14px 40px !important;
+  }
+
+  /* ── Header tweaks ── */
+  .hdr-top {
+    height: auto !important;
+    min-height: 44px !important;
+    padding: 6px 10px !important;
+    flex-wrap: wrap !important;
+    gap: 5px !important;
+  }
+
+  .hdr-breadcrumb { display: none !important; }
+
+  .hdr-right-row {
+    margin-left: auto !important;
+    gap: 4px !important;
+  }
+
+  #syncStatus, #syncCountdown { display: none !important; }
+
+  /* ── Modal: bottom sheet ── */
+  .overlay {
+    padding: 0 !important;
+    align-items: flex-end !important;
+  }
+
+  .modal {
+    border-radius: 16px 16px 0 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    max-height: 93dvh !important;
+    overflow-y: auto !important;
+    padding: 20px 16px 32px !important;
+    animation: mob-sheet-up .22s cubic-bezier(.34,1.1,.64,1) !important;
+  }
+
+  @keyframes mob-sheet-up {
+    from { transform: translateY(60px); opacity: 0; }
+    to   { transform: none; opacity: 1; }
+  }
+
+  .form-row { flex-direction: column !important; }
+
+  /* ── Detail content ── */
+  .dh { flex-direction: column !important; gap: 10px !important; }
+  .dh-name { font-size: 21px !important; }
+  .dh-actions { justify-content: flex-start !important; }
+
+  /* ── Confirm box ── */
+  .confirm-box { width: calc(100% - 28px) !important; }
+
+  /* ── Welcome state ── */
+  .welcome { padding: 20px !important; }
+
+  /* ── Guest nudge ── */
+  #guest-nudge { bottom: 12px !important; right: 12px !important; width: 180px !important; }
+}
+
+@media (max-width: 380px) {
+  .hdr-ghost  { padding: 4px 5px !important; font-size: 11px !important; }
+  .hdr-action { padding: 5px 8px !important; font-size: 10px !important; }
+  .accent-bar {
+  width: 26px !important;
+}
+
+.accent-bar::after {
+  opacity: 1 !important;
+}
+}
+

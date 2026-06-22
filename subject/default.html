@@ -120,9 +120,11 @@
 <div class="overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-head">
-      <div class="modal-title" id="modalTitle">New topic</div>
-      <button class="modal-x" onclick="closeModal()">✕</button>
-    </div>
+  <div class="modal-title" id="modalTitle">New topic</div>
+
+</div>
+
+    
     <div class="form-row">
       <div class="form-g" style="flex:2">
         <label class="form-l">Term / Concept <span>*</span></label>
@@ -209,6 +211,11 @@
       </div>
     </div>
     <div class="form-g">
+      <label class="form-l">Subtopics <span>— split this topic into switchable sections, e.g. Density, Viscosity</span></label>
+      <div class="subtopic-editor-list" id="subtopicEditorList"></div>
+      <button class="btn-add-kp" onclick="addSubtopicRow()">+ Add subtopic</button>
+    </div>
+    <div class="form-g">
       <label class="form-l">Flashcard Questions <span>— custom Q&amp;A for this topic's cards</span></label>
       <div class="fqa-list" id="fqaList"></div>
       <button class="btn-add-kp" onclick="addFqaRow()">+ Add question</button>
@@ -221,7 +228,8 @@
     </div>
     <div class="modal-foot">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-save" onclick="saveTopic()">Save topic</button>
+      <!-- ✨ Fill gaps lives here now -->
+      <button class="btn-act safe" id="btnAiFillModal" onclick="aiFillModal()" style="margin-left:auto;margin-right:8px">✨ Fill gaps</button>      <button class="btn-save" onclick="saveTopic()">Save topic</button>
     </div>
   </div>
 </div>

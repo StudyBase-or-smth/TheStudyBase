@@ -24,9 +24,7 @@ function resolveSubject(){
 
 function applySubjectTheme(){
   const c = SUBJECT.colour;
-  // CSS accent
   document.documentElement.style.setProperty('--accent', c);
-  // Derive rgba versions for ac-l and ac-b
   const r = parseInt(c.slice(1,3),16), g = parseInt(c.slice(3,5),16), b = parseInt(c.slice(5,7),16);
   document.documentElement.style.setProperty('--ac-l', `rgba(${r},${g},${b},.07)`);
   document.documentElement.style.setProperty('--ac-b', `rgba(${r},${g},${b},.22)`);
@@ -42,7 +40,6 @@ function applySubjectTheme(){
   document.getElementById('welcomeEmoji').textContent = SUBJECT.emoji || '📚';
   document.getElementById('welcomeTitle').textContent = SUBJECT.name + ' notes';
 
-  // Counter accent colours
   document.getElementById('stT').style.color = c;
   document.getElementById('stU').style.color = c;
 }
@@ -58,6 +55,21 @@ function toggleDark(){
   const on = document.body.classList.toggle('dark');
   localStorage.setItem('studybase_dark', on ? '1' : '0');
   document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
+}
+
+// ── Rich editor helpers ──
+function getRichVal(id){ const el=document.getElementById(id); if(!el)return''; return el.contentEditable==='true'?el.innerHTML.trim():el.value.trim(); }
+function setRichVal(id,html){ const el=document.getElementById(id); if(!el)return; if(el.contentEditable==='true'){el.innerHTML=html||'';}else{el.value=html||'';} }
+function clearRich(id){ setRichVal(id,''); }
+function sanitizeRich(html){
+  if(!html)return'';
+  const d=document.createElement('div'); d.innerHTML=html;
+  d.querySelectorAll('script,style,iframe,object,embed,link').forEach(e=>e.remove());
+  d.querySelectorAll('img').forEach(img=>{
+    const src=img.src||img.getAttribute('src')||'';
+    if(!src.startsWith('data:')&&!src.startsWith('https://drive.google.com/')&&!src.startsWith('https://lh3.googleusercontent.com/'))img.remove();
+  });
+  return d.innerHTML;
 }
 
 // ── Storage helpers ──
@@ -96,6 +108,7 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 
 // ── State ──
 let activeId = null, editId = null, activeUnit = 'all', tempTags = [], pendingAction = null;
+let activeSubIdx = null, expandedTopics = new Set();
 
 // ── Sidebar list ──
 function renderList(){
@@ -120,15 +133,29 @@ function renderList(){
     ? `<div class="sidebar-empty">${q ? 'No results for "'+esc(q)+'"' : 'No topics yet.<br>Click <strong>+ New topic</strong> to begin.'}</div>`
     : filtered.map(t => {
         const isPinned = pinned.includes(t.id);
+        const subs = t.subtopics || [];
+        const hasSubs = subs.length > 0;
+        const isExpanded = expandedTopics.has(t.id);
+        const subListHtml = hasSubs && isExpanded
+          ? `<div class="subtopic-sidebar-list">` + subs.map((s,i) => `
+              <div class="subtopic-sidebar-item${(activeId==t.id && activeSubIdx===i)?' active':''}" onclick="event.stopPropagation();viewTopic(${t.id},${i})">
+                <span class="ssi-dot"></span>${esc(s.name)}
+              </div>`).join('') + `</div>`
+          : '';
         return `
-        <div class="topic-item${t.id==activeId?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${t.id})">
-          <div class="ti-top">
-            <div class="ti-name">${isPinned?'<span class="ti-pin-icon"></span>':''}${esc(t.name)}</div>
-            
-            <button class="ti-pin-btn" onclick="event.stopPropagation();togglePinTopic(${t.id})" title="${isPinned?'Unpin':'Pin'}">${isPinned?'★':'☆'}</button>
+        <div class="topic-item-wrap">
+          <div class="topic-item${(t.id==activeId && activeSubIdx===null)?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${t.id})">
+            <div class="ti-top">
+              <div class="ti-name">
+                ${hasSubs ? `<button class="ti-expand-btn" onclick="event.stopPropagation();toggleTopicExpand(${t.id})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>` : ''}
+                ${isPinned?'<span class="ti-pin-icon"></span>':''}${esc(t.name)}
+              </div>
+              <button class="ti-pin-btn" onclick="event.stopPropagation();togglePinTopic(${t.id})" title="${isPinned?'Unpin':'Pin'}">${isPinned?'★':'☆'}</button>
+            </div>
+            ${t.unit ? `<div class="ti-unit">${esc(t.unit)}</div>` : ''}
+            ${t.definition ? `<div class="ti-prev">${esc(t.definition.substring(0,55))}…</div>` : ''}
           </div>
-          ${t.unit ? `<div class="ti-unit">${esc(t.unit)}</div>` : ''}
-          ${t.definition ? `<div class="ti-prev">${esc(t.definition.substring(0,55))}…</div>` : ''}
+          ${subListHtml}
         </div>`;
       }).join('');
 
@@ -151,13 +178,21 @@ function renderPills(){
 
 function setUnit(u){ activeUnit = u; renderList(); }
 
+function toggleTopicExpand(id){
+  id = Number(id);
+  if(expandedTopics.has(id)) expandedTopics.delete(id);
+  else expandedTopics.add(id);
+  renderList();
+}
+
 // ── Topic detail ──
-function viewTopic(id){
+function viewTopic(id, subIdx){
   activeId = id;
+  activeSubIdx = (subIdx===undefined || subIdx===null) ? null : Number(subIdx);
+  if(activeSubIdx !== null) expandedTopics.add(Number(id));
   const t = getTopics().find(x => x.id == id);
   if(!t) return;
-  // update URL hash to include topic id for direct linking
-  history.replaceState(null,'', '#' + SUBJECT.id);
+  if(location.protocol !== 'file:') history.replaceState(null,'', '#' + SUBJECT.id);
   renderList();
 
   document.getElementById('welcomeState').style.display = 'none';
@@ -197,33 +232,70 @@ function viewTopic(id){
     extraHtml += `<div class="section"><div class="section-header"><span class="sh-icon">🃏</span>Flashcard Questions</div><div class="section-body">${qaRows}</div></div>`;
   }
 
-  el.innerHTML = `
-    <div class="dh">
-      <div>
-        <div class="dh-name">${esc(t.name)}</div>
-        <div class="dh-meta">
-          ${t.unit ? `<span class="dh-unit">${esc(t.unit)}</span>` : ''}
-          <span class="dh-date">Added ${created}</span>${editedStr}
+  const subtopics = t.subtopics || [];
+
+  // If a subtopic is selected, render just that subtopic's content
+  if(activeSubIdx !== null && subtopics[activeSubIdx]){
+    const s = subtopics[activeSubIdx];
+    const skpHtml = (s.keyPoints||[]).length
+      ? `<ul class="key-points">${s.keyPoints.map(k=>`<li class="kp-item"><div class="kp-dot"></div><span>${esc(k)}</span></li>`).join('')}</ul>`
+      : '<p class="empty-note">No key points added yet.</p>';
+    let sExtra = '';
+    if(s.formula) sExtra += `<div class="section"><div class="section-header"><span class="sh-icon">∑</span>Formula / Equation</div><div class="section-body"><div class="formula-box">${sanitizeRich(s.formula)}</div></div></div>`;
+    if(s.notes)   sExtra += `<div class="section"><div class="section-header"><span class="sh-icon">📋</span>Notes</div><div class="section-body"><p class="plain-text">${sanitizeRich(s.notes)}</p></div></div>`;
+    el.innerHTML = `
+      <div class="dh">
+        <div>
+          <div class="dh-name">${esc(t.name)} <span class="dh-sub-badge">${esc(s.name)}</span></div>
+          <div class="dh-meta">
+            ${t.unit ? `<span class="dh-unit">${esc(t.unit)}</span>` : ''}
+            <span class="dh-date">Added ${created}</span>${editedStr}
+          </div>
+        </div>
+        <div class="dh-actions">
+          <button class="btn-act" onclick="openModal(${t.id})">Edit</button>
+          <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>
         </div>
       </div>
-      <div class="dh-actions">
-        <button class="btn-act" onclick="openModal(${t.id})">Edit</button>
-        <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>
+      <div class="section">
+        <div class="section-header"><span class="sh-icon">📝</span>Definition</div>
+        <div class="section-body">${s.definition ? `<p class="def-text">${esc(s.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>'}</div>
       </div>
-    </div>
-    <div class="section">
-      <div class="section-header"><span class="sh-icon">📝</span>Definition</div>
-      <div class="section-body">${t.definition ? `<p class="def-text">${esc(t.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>'}</div>
-    </div>
-    <div class="section">
-      <div class="section-header"><span class="sh-icon">✦</span>Key Points</div>
-      <div class="section-body">${kpHtml}</div>
-    </div>
-    ${extraHtml}
-    <div class="section">
-      <div class="section-header"><span class="sh-icon">🔗</span>Related Terms</div>
-      <div class="section-body">${relHtml}</div>
-    </div>`;
+      <div class="section">
+        <div class="section-header"><span class="sh-icon">✦</span>Key Points</div>
+        <div class="section-body">${skpHtml}</div>
+      </div>
+      ${sExtra}`;
+  } else {
+    // Main topic overview
+    el.innerHTML = `
+      <div class="dh">
+        <div>
+          <div class="dh-name">${esc(t.name)}</div>
+          <div class="dh-meta">
+            ${t.unit ? `<span class="dh-unit">${esc(t.unit)}</span>` : ''}
+            <span class="dh-date">Added ${created}</span>${editedStr}
+          </div>
+        </div>
+        <div class="dh-actions">
+          <button class="btn-act" onclick="openModal(${t.id})">Edit</button>
+          <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header"><span class="sh-icon">📝</span>Definition</div>
+        <div class="section-body">${t.definition ? `<p class="def-text">${esc(t.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>'}</div>
+      </div>
+      <div class="section">
+        <div class="section-header"><span class="sh-icon">✦</span>Key Points</div>
+        <div class="section-body">${kpHtml}</div>
+      </div>
+      ${extraHtml}
+      <div class="section">
+        <div class="section-header"><span class="sh-icon">🔗</span>Related Terms</div>
+        <div class="section-body">${relHtml}</div>
+      </div>`;
+  }
 
   el.style.display = 'block';
   void el.offsetWidth;
@@ -236,6 +308,7 @@ function openModal(id){
   editId = id || null;
   tempTags = [];
   document.getElementById('kpList').innerHTML = '';
+  document.getElementById('subtopicEditorList').innerHTML = '';
   document.getElementById('tagsWrap').querySelectorAll('.tag-chip').forEach(e => e.remove());
   populateSel();
   if(id){
@@ -251,6 +324,7 @@ function openModal(id){
     setRichVal('fExamTip', t.examTip || '');
     (t.keyPoints||[]).forEach(k => addKpRow(k));
     (t.relatedTerms||[]).forEach(addTag);
+    (t.subtopics||[]).forEach(s => addSubtopicRow(s));
     document.getElementById('fqaList').innerHTML = '';
     (t.flashcardQA||[]).forEach(qa => addFqaRow(qa.q, qa.a));
   } else {
@@ -307,6 +381,60 @@ function addFqaRow(q, a){
   document.getElementById('fqaList').appendChild(row); qInp.focus();
 }
 
+function addSubtopicRow(s){
+  s = s || {};
+  const uid = 'sub_' + Date.now() + '_' + Math.floor(Math.random()*9999);
+  const card = document.createElement('div');
+  card.className = 'subtopic-card';
+  card.id = uid;
+  card.innerHTML = `
+    <div class="subtopic-card-head">
+      <input type="text" class="form-i subtopic-name-i" placeholder="Subtopic name — e.g. Density">
+      <button type="button" class="btn-ai-sub" title="AI fill this subtopic">✨ Fill</button>
+      <button type="button" class="btn-kp-del" title="Remove subtopic">✕</button>
+    </div>
+    <div class="form-g">
+      <label class="form-l" style="font-size:10px">Definition</label>
+      <textarea class="form-ta subtopic-def-i" rows="2" placeholder="Definition…"></textarea>
+    </div>
+    <div class="form-g">
+      <label class="form-l" style="font-size:10px">Key Points <span>— one per line</span></label>
+      <textarea class="form-ta subtopic-kp-i" rows="2" placeholder="One key point per line…"></textarea>
+    </div>
+    <div class="form-g">
+      <label class="form-l" style="font-size:10px">Formula / Equation</label>
+      <div class="rich-editor-wrap">
+        <div class="rich-toolbar">
+          <span class="rich-toolbar-label">text &amp; images</span>
+          <button type="button" class="rich-btn" onclick="richAddImage('${uid}_formula')">🖼 Insert image</button>
+          <input type="file" id="img_${uid}_formula" accept="image/*" style="display:none">
+        </div>
+        <div class="rich-content mono subtopic-formula-i" id="${uid}_formula" contenteditable="true" data-placeholder="e.g. ρ = m/V" style="min-height:56px"></div>
+      </div>
+    </div>
+    <div class="form-g" style="margin-bottom:0">
+      <label class="form-l" style="font-size:10px">Notes</label>
+      <div class="rich-editor-wrap">
+        <div class="rich-toolbar">
+          <span class="rich-toolbar-label">text &amp; images</span>
+          <button type="button" class="rich-btn" onclick="richAddImage('${uid}_notes')">🖼 Insert image</button>
+          <input type="file" id="img_${uid}_notes" accept="image/*" style="display:none">
+        </div>
+        <div class="rich-content subtopic-notes-i" id="${uid}_notes" contenteditable="true" data-placeholder="Additional notes…" style="min-height:48px"></div>
+      </div>
+    </div>`;
+  card.querySelector('.subtopic-name-i').value = s.name || '';
+  card.querySelector('.subtopic-def-i').value = s.definition || '';
+  card.querySelector('.subtopic-kp-i').value = (s.keyPoints||[]).join('\n');
+  card.querySelector('.btn-kp-del').onclick = () => document.getElementById(uid).remove();
+  card.querySelector('.btn-ai-sub').onclick = () => aiFillSubtopic(uid);
+  document.getElementById('subtopicEditorList').appendChild(card);
+  setRichVal(uid+'_formula', s.formula || '');
+  setRichVal(uid+'_notes', s.notes || '');
+  card.querySelectorAll('.rich-editor-wrap').forEach(attachRichDnD);
+  if(!s.name) card.querySelector('.subtopic-name-i').focus();
+}
+
 function addTag(text){
   text = String(text).trim();
   if(!text || tempTags.includes(text)) return;
@@ -341,6 +469,17 @@ function saveTopic(){
     const inputs = row.querySelectorAll('.fqa-input');
     return { q: (inputs[0]?.value||'').trim(), a: (inputs[1]?.value||'').trim() };
   }).filter(qa => qa.q);
+  const subtopics = Array.from(document.getElementById('subtopicEditorList').children).map(card => {
+    const name = card.querySelector('.subtopic-name-i').value.trim();
+    if(!name) return null;
+    return {
+      name,
+      definition: card.querySelector('.subtopic-def-i').value.trim(),
+      keyPoints: card.querySelector('.subtopic-kp-i').value.split('\n').map(s=>s.trim()).filter(Boolean),
+      formula: card.querySelector('.subtopic-formula-i').innerHTML.trim(),
+      notes: card.querySelector('.subtopic-notes-i').innerHTML.trim()
+    };
+  }).filter(Boolean);
   const ex = editId ? (getTopics().find(t => t.id===editId)||{}) : {};
   const topic = {
     id: editId || Date.now(),
@@ -355,6 +494,7 @@ function saveTopic(){
     examTip:   getRichVal('fExamTip'),
     relatedTerms,
     flashcardQA,
+    subtopics,
     addedBy: ex.addedBy || window.currentUid || null,
     createdAt: ex.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -417,7 +557,7 @@ function setSyncStatus(s){
 }
 
 function jsonpGet(url){
-  return new Promise((resolve,reject) => {
+  return new Promise((resolve, reject) => {
     const cb = '_cb'+Date.now()+'_'+Math.floor(Math.random()*99999);
     const script = document.createElement('script');
     const cleanup = () => { delete window[cb]; if(script.parentNode) script.parentNode.removeChild(script); };
@@ -501,54 +641,48 @@ function sanitizeForSync(topics){
   });
 }
 
-// ── Rich editor helpers ──
-function getRichVal(id){ const el=document.getElementById(id); if(!el)return''; return el.contentEditable==='true'?el.innerHTML.trim():el.value.trim(); }
-function setRichVal(id,html){ const el=document.getElementById(id); if(!el)return; if(el.contentEditable==='true'){el.innerHTML=html||'';}else{el.value=html||'';} }
-function clearRich(id){ setRichVal(id,''); }
-function sanitizeRich(html){
-  if(!html)return'';
-  const d=document.createElement('div'); d.innerHTML=html;
-  d.querySelectorAll('script,style,iframe,object,embed,link').forEach(e=>e.remove());
-  d.querySelectorAll('img').forEach(img=>{
-    const src=img.src||img.getAttribute('src')||'';
-    if(!src.startsWith('data:')&&!src.startsWith('https://drive.google.com/')&&!src.startsWith('https://lh3.googleusercontent.com/'))img.remove();
-  });
-  return d.innerHTML;
+// ── Image upload ──
+function pollUploadResult(uid, ph) {
+  let tries = 0;
+  const poll = setInterval(async () => {
+    tries++;
+    try {
+      const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent('_ur_'+uid));
+      if(res && res.data){ clearInterval(poll);
+        const img = document.createElement('img');
+        img.src = res.data.ok && res.data.url ? res.data.url : ph._b64;
+        ph.replaceWith(img);
+      }
+    } catch(e) {}
+    if(tries >= 30){ clearInterval(poll); const img = document.createElement('img'); img.src = ph._b64; ph.replaceWith(img); }
+  }, 1500);
 }
 
-function compressAndInsert(editor, file){
+function compressAndInsert(editor, file) {
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
     img.onload = () => {
-      const MAX=900; let w=img.width,h=img.height;
-      if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
-      const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
-      cv.getContext('2d').drawImage(img,0,0,w,h);
-      const b64=cv.toDataURL('image/jpeg',.82);
-      const ph=document.createElement('span');
-      ph.textContent='⏳ Uploading…'; ph.style.cssText='color:var(--muted);font-size:12px;font-style:italic;display:block';
+      const MAX = 900; let w = img.width, h = img.height;
+      if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+      const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      const b64 = cv.toDataURL('image/jpeg', 0.82);
+      const ph = document.createElement('span');
+      ph.textContent = '⏳ Uploading…';
+      ph.style.cssText = 'color:var(--muted);font-size:12px;font-style:italic;display:block';
+      ph._b64 = b64;
       editor.focus();
-      const sel=window.getSelection();
-      if(sel&&sel.rangeCount&&editor.contains(sel.getRangeAt(0).commonAncestorContainer)){
-        const rng=sel.getRangeAt(0); rng.deleteContents(); rng.insertNode(ph);
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount && editor.contains(sel.getRangeAt(0).commonAncestorContainer)) {
+        const rng = sel.getRangeAt(0); rng.deleteContents(); rng.insertNode(ph);
         rng.setStartAfter(ph); rng.collapse(true); sel.removeAllRanges(); sel.addRange(rng);
       } else { editor.appendChild(ph); }
-      const uid=Date.now()+''+Math.random().toString(36).slice(2,6);
-      syncPush('_up_'+uid,{image:b64,filename:'sb_'+uid+'.jpg'});
-      let tries=0;
-      const poll=setInterval(async()=>{
-        tries++;
-        try{
-          const res=await jsonpGet(SYNC_URL+'?key='+encodeURIComponent('_ur_'+uid));
-          if(res&&res.data){ clearInterval(poll);
-            if(res.data.ok&&res.data.url){ const i=document.createElement('img');i.src=res.data.url;ph.replaceWith(i); }
-            else { const i=document.createElement('img');i.src=b64;ph.replaceWith(i); } }
-        }catch(e){}
-        if(tries>=30){ clearInterval(poll); const i=document.createElement('img');i.src=b64;ph.replaceWith(i); }
-      },1500);
+      const uid = Date.now() + '' + Math.random().toString(36).slice(2, 6);
+      syncPush('_up_' + uid, { image: b64, filename: 'sb_' + uid + '.jpg' });
+      pollUploadResult(uid, ph);
     };
-    img.src=e.target.result;
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
@@ -559,17 +693,18 @@ function richAddImage(id){
   inp.click();
 }
 
-function setupRichDnD(){
-  document.querySelectorAll('.rich-editor-wrap').forEach(wrap => {
-    const editor=wrap.querySelector('.rich-content');
-    wrap.addEventListener('dragover',e=>{e.preventDefault();wrap.classList.add('drag-over');});
-    wrap.addEventListener('dragleave',e=>{if(!wrap.contains(e.relatedTarget))wrap.classList.remove('drag-over');});
-    wrap.addEventListener('drop',e=>{
-      e.preventDefault();wrap.classList.remove('drag-over');
-      const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
-      if(files.length){files.forEach(f=>compressAndInsert(editor,f));}
-    });
+function attachRichDnD(wrap){
+  const editor=wrap.querySelector('.rich-content');
+  wrap.addEventListener('dragover',e=>{e.preventDefault();wrap.classList.add('drag-over');});
+  wrap.addEventListener('dragleave',e=>{if(!wrap.contains(e.relatedTarget))wrap.classList.remove('drag-over');});
+  wrap.addEventListener('drop',e=>{
+    e.preventDefault();wrap.classList.remove('drag-over');
+    const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
+    if(files.length){files.forEach(f=>compressAndInsert(editor,f));}
   });
+}
+function setupRichDnD(){
+  document.querySelectorAll('.rich-editor-wrap').forEach(attachRichDnD);
 }
 
 // ── Sync countdown ──
@@ -590,4 +725,295 @@ if(resolveSubject()){
   syncPull();
   setInterval(syncPull, 60000);
   startCountdown();
+}
+
+/* ══════════════════════════════════════════════
+   STUDYBASE — MOBILE SIDEBAR TOGGLE
+   ══════════════════════════════════════════════ */
+
+(function () {
+  var BREAK = 700;
+
+  function isMobile() { return window.innerWidth <= BREAK; }
+
+  function setup() {
+    if (document.getElementById('mobScrim')) return;
+
+    var scrim = document.createElement('div');
+    scrim.id = 'mobScrim';
+    scrim.className = 'mob-scrim';
+    scrim.addEventListener('click', closeSidebar);
+    document.body.appendChild(scrim);
+
+    var bar = document.createElement('div');
+    bar.id = 'mobBar';
+    bar.className = 'mob-bar';
+    bar.innerHTML =
+      '<button class="mob-toggle" id="mobToggleBtn" onclick="window._mobToggle()">☰ Topics</button>' +
+      '<span class="mob-bar-title" id="mobBarTitle">Select a topic</span>';
+
+    var appBody = document.querySelector('.app-body');
+    if (appBody) appBody.parentNode.insertBefore(bar, appBody);
+  }
+
+  function openSidebar() {
+    var s = document.querySelector('.sidebar');
+    var sc = document.getElementById('mobScrim');
+    var btn = document.getElementById('mobToggleBtn');
+    if (s)  s.classList.add('mob-open');
+    if (sc) sc.classList.add('mob-open');
+    if (btn) btn.textContent = '✕ Close';
+  }
+
+  function closeSidebar() {
+    var s = document.querySelector('.sidebar');
+    var sc = document.getElementById('mobScrim');
+    var btn = document.getElementById('mobToggleBtn');
+    if (s)  s.classList.remove('mob-open');
+    if (sc) sc.classList.remove('mob-open');
+    if (btn) btn.textContent = '☰ Topics';
+  }
+
+  window._mobToggle = function () {
+    var s = document.querySelector('.sidebar');
+    if (s && s.classList.contains('mob-open')) { closeSidebar(); }
+    else { openSidebar(); }
+  };
+
+  var _orig = window.viewTopic;
+  if (typeof _orig === 'function') {
+    window.viewTopic = function (id, subIdx) {
+      _orig(id, subIdx);
+      if (!isMobile()) return;
+      closeSidebar();
+      try {
+        var topics = JSON.parse(localStorage.getItem(ST) || '[]');
+        var t = topics.find(function (x) { return x.id == id; });
+        var titleEl = document.getElementById('mobBarTitle');
+        if (t && titleEl) titleEl.textContent = subIdx !== undefined ? t.name + ' · ' + (t.subtopics||[])[subIdx]?.name : t.name;
+      } catch (e) {}
+    };
+  }
+
+  function onResize() {
+    var bar = document.getElementById('mobBar');
+    if (!bar) return;
+    if (!isMobile()) { closeSidebar(); }
+  }
+  window.addEventListener('resize', onResize);
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
+})();
+
+// ── Toast ──
+(function(){
+  const s=document.createElement('style');
+  s.textContent='#sb-toast-c{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none}.sb-toast{display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--border2);border-radius:8px;padding:9px 13px;font-size:12px;font-family:\'Inter\',sans-serif;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:180px;max-width:280px;animation:tb-in .2s ease;transition:opacity .3s,transform .3s}.sb-toast.out{opacity:0;transform:translateX(16px)}.sb-toast.success{border-color:#86efac}.sb-toast.error{border-color:#fca5a5}.sb-toast.warning{border-color:#fcd34d}@keyframes tb-in{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}';
+  document.head.appendChild(s);
+  const c=document.createElement('div');c.id='sb-toast-c';document.body.appendChild(c);
+  window.showToast=function(msg,type='info',duration=2500){
+    const icons={success:'✓',error:'✕',info:'ℹ',warning:'⚠'};
+    const t=document.createElement('div');t.className='sb-toast '+(type||'info');
+    t.innerHTML=`<span>${icons[type]||'ℹ'}</span><span>${msg}</span>`;
+    c.appendChild(t);setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),350);},duration);
+  };
+})();
+
+// ── AI Fill Gaps ──
+function _gKey(){
+  const a="wac6rvA43LkJB_Cs9ry80JfzhYL3d61g6eglwef7b89J6";
+  const b="AQ.Ab8RN";
+  let k=b+a;
+  k=k.substring(0,8)+k.substring(8).split('').reverse().join('');
+  return k;
+}
+const GEMINI_URL=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${_gKey()}`;
+
+// ── AI Fill inside the modal ──
+// Reads the current form state (name + any existing field values) and fills
+// only the empty / missing fields, writing the results directly into the form.
+async function aiFillModal(){
+  const name = document.getElementById('fName').value.trim();
+  if(!name){ showToast('Enter a topic name first', 'info'); document.getElementById('fName').focus(); return; }
+
+  // Snapshot current form values
+  const curDef    = document.getElementById('fDefinition').value.trim();
+  const curKps    = Array.from(document.getElementById('kpList').querySelectorAll('.kp-row input')).map(i=>i.value.trim()).filter(Boolean);
+  const curFormula  = getRichVal('fFormula');
+  const curMaterials= getRichVal('fMaterials');
+  const curProcess  = getRichVal('fProcess');
+  const curSafety   = getRichVal('fSafety');
+  const curExamTip  = getRichVal('fExamTip');
+
+  // Decide what's missing
+  const want = [];
+  if(!curDef)           want.push('definition');
+  if(!curKps.length)    want.push('keyPoints');
+  if(!curExamTip)       want.push('examTip');
+  // Only suggest formula / process if the subject seems technical
+  // (we always request them so the user can ignore blanks)
+  if(!curFormula)       want.push('formula');
+  if(!curProcess)       want.push('process');
+
+  if(!want.length){ showToast('All fields already filled!', 'info'); return; }
+
+  const btn = document.getElementById('btnAiFillModal');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Filling…'; }
+
+  const subjectCtx = SUBJECT ? `Subject: "${SUBJECT.name}".` : '';
+  const prompt = `You are a concise study assistant. ${subjectCtx} The topic is "${name}".
+${curDef ? `Existing definition: "${curDef}"` : ''}
+${curKps.length ? `Existing key points: ${curKps.join('; ')}` : ''}
+
+Generate ONLY the following fields as a JSON object. Include a key even if the field doesn't apply — use an empty string or empty array in that case.
+Fields to generate: ${want.join(', ')}.
+
+Field rules:
+- definition: 1-2 sentences, clear and academic. Empty string if not applicable.
+- keyPoints: array of 3-4 concise strings. Empty array if not applicable.
+- examTip: one practical exam tip sentence. Empty string if not applicable.
+- formula: LaTeX or plain-text formula/equation if relevant, else empty string.
+- process: step-by-step method or process as plain text (steps separated by \\n), else empty string.
+
+Return ONLY valid JSON, no markdown, no explanation.`;
+
+  try{
+    const res = await fetch(GEMINI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] })
+    });
+    if(res.status===429) throw new Error('RATE_LIMIT');
+    if(!res.ok) throw new Error('API error ' + res.status);
+    const data = await res.json();
+    let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    text = text.replace(/```json|```/g,'').trim();
+    const filled = JSON.parse(text);
+
+    // Write into form — only overwrite fields that were empty
+    if(!curDef && filled.definition)
+      document.getElementById('fDefinition').value = filled.definition;
+
+    if(!curKps.length && (filled.keyPoints||filled.key_points||[]).length){
+      const kps = filled.keyPoints || filled.key_points || [];
+      // Clear existing rows first, then add
+      document.getElementById('kpList').innerHTML = '';
+      kps.forEach(k => { if(k) addKpRow(k); });
+    }
+
+    if(!curExamTip && (filled.examTip||filled.exam_tip))
+      setRichVal('fExamTip', filled.examTip || filled.exam_tip);
+
+    if(!curFormula && filled.formula)
+      setRichVal('fFormula', filled.formula);
+
+    if(!curProcess && filled.process)
+      setRichVal('fProcess', filled.process);
+
+    // Persist filled values to storage immediately so reopening the modal shows them
+    if(editId){
+      let topics = getTopics();
+      const idx = topics.findIndex(t => t.id === editId);
+      if(idx !== -1){
+        const t = topics[idx];
+        if(!curDef && filled.definition)           t.definition = filled.definition;
+        if(!curKps.length && (filled.keyPoints||filled.key_points||[]).length) t.keyPoints = filled.keyPoints || filled.key_points;
+        if(!curExamTip && (filled.examTip||filled.exam_tip))  t.examTip = filled.examTip || filled.exam_tip;
+        if(!curFormula && filled.formula)          t.formula = filled.formula;
+        if(!curProcess && filled.process)          t.process = filled.process;
+        t.updatedAt = new Date().toISOString();
+        topics[idx] = t;
+        saveTopics(topics);
+        renderList();
+        viewTopic(editId);
+      }
+    }
+
+    showToast('Gaps filled — review and edit as needed', 'success');
+  } catch(e){
+    console.error(e);
+    showToast(e.message==='RATE_LIMIT' ? 'Rate limit hit — wait a moment and try again' : 'AI fill failed — try again', 'error');
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent='✨ Fill gaps'; }
+  }
+}
+
+// ── AI Fill for a single subtopic card ──
+async function aiFillSubtopic(uid){
+  const card = document.getElementById(uid);
+  if(!card) return;
+
+  const topicName = document.getElementById('fName').value.trim();
+  const subName   = card.querySelector('.subtopic-name-i').value.trim();
+  if(!subName){ showToast('Enter a subtopic name first', 'info'); card.querySelector('.subtopic-name-i').focus(); return; }
+
+  const curDef     = card.querySelector('.subtopic-def-i').value.trim();
+  const curKps     = card.querySelector('.subtopic-kp-i').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const curFormula = card.querySelector('.subtopic-formula-i').innerHTML.trim();
+  const curNotes   = card.querySelector('.subtopic-notes-i').innerHTML.trim();
+
+  const want = [];
+  if(!curDef)         want.push('definition');
+  if(!curKps.length)  want.push('keyPoints');
+  if(!curFormula)     want.push('formula');
+  if(!curNotes)       want.push('notes');
+
+  if(!want.length){ showToast('All fields already filled!', 'info'); return; }
+
+  const btn = card.querySelector('.btn-ai-sub');
+  if(btn){ btn.disabled=true; btn.textContent='⏳…'; }
+
+  const subjectCtx = SUBJECT ? `Subject: "${SUBJECT.name}".` : '';
+  const topicCtx   = topicName ? `Parent topic: "${topicName}".` : '';
+  const prompt = `You are a concise study assistant. ${subjectCtx} ${topicCtx} The specific subtopic is "${subName}".
+${curDef  ? `Existing definition: "${curDef}"` : ''}
+${curKps.length ? `Existing key points: ${curKps.join('; ')}` : ''}
+
+Generate ONLY the following fields as a JSON object. Include a key even if the field doesn't apply — use an empty string or empty array.
+Fields to generate: ${want.join(', ')}.
+
+Field rules:
+- definition: 1-2 sentences, clear and academic. Empty string if not applicable.
+- keyPoints: array of 3-4 concise strings. Empty array if not applicable.
+- formula: LaTeX or plain-text formula/equation if relevant, else empty string.
+- notes: 1-2 sentences of additional context or common pitfalls. Empty string if not applicable.
+
+Return ONLY valid JSON, no markdown, no explanation.`;
+
+  try{
+    const res = await fetch(GEMINI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] })
+    });
+    if(res.status===429) throw new Error('RATE_LIMIT');
+    if(!res.ok) throw new Error('API error ' + res.status);
+    const data = await res.json();
+    let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    text = text.replace(/```json|```/g,'').trim();
+    const filled = JSON.parse(text);
+
+    if(!curDef && filled.definition)
+      card.querySelector('.subtopic-def-i').value = filled.definition;
+
+    if(!curKps.length && (filled.keyPoints||[]).length)
+      card.querySelector('.subtopic-kp-i').value = (filled.keyPoints||[]).join('\n');
+
+    if(!curFormula && filled.formula)
+      card.querySelector('.subtopic-formula-i').innerHTML = filled.formula;
+
+    if(!curNotes && filled.notes)
+      card.querySelector('.subtopic-notes-i').innerHTML = filled.notes;
+
+    showToast('Subtopic filled — review and edit as needed', 'success');
+  } catch(e){
+    console.error(e);
+    showToast(e.message==='RATE_LIMIT' ? 'Rate limit hit — wait a moment and try again' : 'AI fill failed — try again', 'error');
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent='✨ Fill'; }
+  }
 }
