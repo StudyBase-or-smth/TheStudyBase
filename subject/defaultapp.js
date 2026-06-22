@@ -106,45 +106,68 @@ function togglePinTopic(id){
 
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+function getDescendantIds(id, topics){
+  const direct = topics.filter(t => t.parentId === id).map(t => t.id);
+  return direct.concat(direct.flatMap(cid => getDescendantIds(cid, topics)));
+}
+
 // ── State ──
 let activeId = null, editId = null, activeUnit = 'all', tempTags = [], pendingAction = null;
-let activeSubIdx = null, expandedTopics = new Set();
+let expandedTopics = new Set();
 
 // ── Sidebar list ──
+
+function renderSubtree(c, topics){
+  const kids = topics.filter(k => k.parentId === c.id);
+  const hasKids = kids.length > 0;
+  const isExpanded = hasKids && expandedTopics.has(c.id);
+  const childrenHtml = isExpanded
+    ? `<div class="subtopic-sidebar-list">` + kids.map(k => renderSubtree(k, topics)).join('') + `</div>`
+    : '';
+  return `
+    <div class="tree-node">
+      <div class="subtopic-sidebar-item${(activeId==c.id)?' active':''}" onclick="event.stopPropagation();viewTopic(${c.id})">
+        ${hasKids
+          ? `<button class="ti-expand-btn sub-expand" onclick="event.stopPropagation();toggleTopicExpand(${c.id})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>`
+          : `<span class="ssi-dot"></span>`}
+        <span class="ssi-label">${esc(c.name)}</span>
+      </div>
+      ${childrenHtml}
+    </div>`;
+}
+
 function renderList(){
   const q = document.getElementById('searchInput').value.toLowerCase();
   const topics = getTopics();
   const pinned = getPinned();
-  const filtered = topics.filter(t => {
+  const matches = t => {
     const mu = activeUnit === 'all' || t.unit === activeUnit;
     const mq = !q || t.name.toLowerCase().includes(q) ||
       (t.definition||'').toLowerCase().includes(q) ||
       (t.unit||'').toLowerCase().includes(q) ||
       (t.relatedTerms||[]).some(r => r.toLowerCase().includes(q));
     return mu && mq;
-  }).sort((a,b) => {
+  };
+  const topLevel = topics.filter(t => !t.parentId && matches(t)).sort((a,b) => {
     const ap = pinned.includes(a.id), bp = pinned.includes(b.id);
     if(ap && !bp) return -1;
     if(!ap && bp) return 1;
     return a.name.localeCompare(b.name);
   });
 
-  document.getElementById('topicList').innerHTML = filtered.length === 0
+  document.getElementById('topicList').innerHTML = topLevel.length === 0
     ? `<div class="sidebar-empty">${q ? 'No results for "'+esc(q)+'"' : 'No topics yet.<br>Click <strong>+ New topic</strong> to begin.'}</div>`
-    : filtered.map(t => {
+    : topLevel.map(t => {
         const isPinned = pinned.includes(t.id);
-        const subs = t.subtopics || [];
-        const hasSubs = subs.length > 0;
-        const isExpanded = expandedTopics.has(t.id);
-        const subListHtml = hasSubs && isExpanded
-          ? `<div class="subtopic-sidebar-list">` + subs.map((s,i) => `
-              <div class="subtopic-sidebar-item${(activeId==t.id && activeSubIdx===i)?' active':''}" onclick="event.stopPropagation();viewTopic(${t.id},${i})">
-                <span class="ssi-dot"></span>${esc(s.name)}
-              </div>`).join('') + `</div>`
+        const children = topics.filter(c => c.parentId === t.id);
+        const hasSubs = children.length > 0;
+        const isExpanded = hasSubs && expandedTopics.has(t.id);
+        const subListHtml = isExpanded
+          ? `<div class="subtopic-sidebar-list">` + children.map(c => renderSubtree(c, topics)).join('') + `</div>`
           : '';
         return `
         <div class="topic-item-wrap">
-          <div class="topic-item${(t.id==activeId && activeSubIdx===null)?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${t.id})">
+          <div class="topic-item${(t.id==activeId)?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${t.id})">
             <div class="ti-top">
               <div class="ti-name">
                 ${hasSubs ? `<button class="ti-expand-btn" onclick="event.stopPropagation();toggleTopicExpand(${t.id})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>` : ''}
@@ -186,12 +209,21 @@ function toggleTopicExpand(id){
 }
 
 // ── Topic detail ──
-function viewTopic(id, subIdx){
+function viewTopic(id){
   activeId = id;
-  activeSubIdx = (subIdx===undefined || subIdx===null) ? null : Number(subIdx);
-  if(activeSubIdx !== null) expandedTopics.add(Number(id));
   const t = getTopics().find(x => x.id == id);
   if(!t) return;
+  // Collapse everything except the path down to the newly selected topic
+  const allTopics = getTopics();
+  expandedTopics = new Set();
+  let cur = t;
+  while(cur.parentId){
+    const parent = allTopics.find(x => x.id === cur.parentId);
+    if(!parent) break;
+    expandedTopics.add(parent.id);
+    cur = parent;
+  }
+  if(allTopics.some(c => c.parentId === t.id)) expandedTopics.add(Number(id));
   if(location.protocol !== 'file:') history.replaceState(null,'', '#' + SUBJECT.id);
   renderList();
 
@@ -232,46 +264,15 @@ function viewTopic(id, subIdx){
     extraHtml += `<div class="section"><div class="section-header"><span class="sh-icon">🃏</span>Flashcard Questions</div><div class="section-body">${qaRows}</div></div>`;
   }
 
-  const subtopics = t.subtopics || [];
+  const ancestorChain = [];
+  { const allTopics = getTopics(); let cur = t;
+    while(cur.parentId){ const p = allTopics.find(x => x.id === cur.parentId); if(!p) break; ancestorChain.unshift(p); cur = p; } }
 
-  // If a subtopic is selected, render just that subtopic's content
-  if(activeSubIdx !== null && subtopics[activeSubIdx]){
-    const s = subtopics[activeSubIdx];
-    const skpHtml = (s.keyPoints||[]).length
-      ? `<ul class="key-points">${s.keyPoints.map(k=>`<li class="kp-item"><div class="kp-dot"></div><span>${esc(k)}</span></li>`).join('')}</ul>`
-      : '<p class="empty-note">No key points added yet.</p>';
-    let sExtra = '';
-    if(s.formula) sExtra += `<div class="section"><div class="section-header"><span class="sh-icon">∑</span>Formula / Equation</div><div class="section-body"><div class="formula-box">${sanitizeRich(s.formula)}</div></div></div>`;
-    if(s.notes)   sExtra += `<div class="section"><div class="section-header"><span class="sh-icon">📋</span>Notes</div><div class="section-body"><p class="plain-text">${sanitizeRich(s.notes)}</p></div></div>`;
-    el.innerHTML = `
+  // Main topic overview (children are now full topics, rendered the same way)
+  el.innerHTML = `
       <div class="dh">
         <div>
-          <div class="dh-name">${esc(t.name)} <span class="dh-sub-badge">${esc(s.name)}</span></div>
-          <div class="dh-meta">
-            ${t.unit ? `<span class="dh-unit">${esc(t.unit)}</span>` : ''}
-            <span class="dh-date">Added ${created}</span>${editedStr}
-          </div>
-        </div>
-        <div class="dh-actions">
-          <button class="btn-act" onclick="openModal(${t.id})">Edit</button>
-          <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>
-        </div>
-      </div>
-      <div class="section">
-        <div class="section-header"><span class="sh-icon">📝</span>Definition</div>
-        <div class="section-body">${s.definition ? `<p class="def-text">${esc(s.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>'}</div>
-      </div>
-      <div class="section">
-        <div class="section-header"><span class="sh-icon">✦</span>Key Points</div>
-        <div class="section-body">${skpHtml}</div>
-      </div>
-      ${sExtra}`;
-  } else {
-    // Main topic overview
-    el.innerHTML = `
-      <div class="dh">
-        <div>
-          <div class="dh-name">${esc(t.name)}</div>
+          <div class="dh-name">${ancestorChain.length ? `${ancestorChain.map(a=>esc(a.name)).join(' <span class="dh-crumb-sep">›</span> ')} <span class="dh-sub-badge">${esc(t.name)}</span>` : esc(t.name)}</div>
           <div class="dh-meta">
             ${t.unit ? `<span class="dh-unit">${esc(t.unit)}</span>` : ''}
             <span class="dh-date">Added ${created}</span>${editedStr}
@@ -295,7 +296,6 @@ function viewTopic(id, subIdx){
         <div class="section-header"><span class="sh-icon">🔗</span>Related Terms</div>
         <div class="section-body">${relHtml}</div>
       </div>`;
-  }
 
   el.style.display = 'block';
   void el.offsetWidth;
@@ -324,7 +324,7 @@ function openModal(id){
     setRichVal('fExamTip', t.examTip || '');
     (t.keyPoints||[]).forEach(k => addKpRow(k));
     (t.relatedTerms||[]).forEach(addTag);
-    (t.subtopics||[]).forEach(s => addSubtopicRow(s));
+    getTopics().filter(c => c.parentId === t.id).forEach(c => addSubtopicRow(c));
     document.getElementById('fqaList').innerHTML = '';
     (t.flashcardQA||[]).forEach(qa => addFqaRow(qa.q, qa.a));
   } else {
@@ -384,55 +384,15 @@ function addFqaRow(q, a){
 function addSubtopicRow(s){
   s = s || {};
   const uid = 'sub_' + Date.now() + '_' + Math.floor(Math.random()*9999);
-  const card = document.createElement('div');
-  card.className = 'subtopic-card';
-  card.id = uid;
-  card.innerHTML = `
-    <div class="subtopic-card-head">
-      <input type="text" class="form-i subtopic-name-i" placeholder="Subtopic name — e.g. Density">
-      <button type="button" class="btn-ai-sub" title="AI fill this subtopic">✨ Fill</button>
-      <button type="button" class="btn-kp-del" title="Remove subtopic">✕</button>
-    </div>
-    <div class="form-g">
-      <label class="form-l" style="font-size:10px">Definition</label>
-      <textarea class="form-ta subtopic-def-i" rows="2" placeholder="Definition…"></textarea>
-    </div>
-    <div class="form-g">
-      <label class="form-l" style="font-size:10px">Key Points <span>— one per line</span></label>
-      <textarea class="form-ta subtopic-kp-i" rows="2" placeholder="One key point per line…"></textarea>
-    </div>
-    <div class="form-g">
-      <label class="form-l" style="font-size:10px">Formula / Equation</label>
-      <div class="rich-editor-wrap">
-        <div class="rich-toolbar">
-          <span class="rich-toolbar-label">text &amp; images</span>
-          <button type="button" class="rich-btn" onclick="richAddImage('${uid}_formula')">🖼 Insert image</button>
-          <input type="file" id="img_${uid}_formula" accept="image/*" style="display:none">
-        </div>
-        <div class="rich-content mono subtopic-formula-i" id="${uid}_formula" contenteditable="true" data-placeholder="e.g. ρ = m/V" style="min-height:56px"></div>
-      </div>
-    </div>
-    <div class="form-g" style="margin-bottom:0">
-      <label class="form-l" style="font-size:10px">Notes</label>
-      <div class="rich-editor-wrap">
-        <div class="rich-toolbar">
-          <span class="rich-toolbar-label">text &amp; images</span>
-          <button type="button" class="rich-btn" onclick="richAddImage('${uid}_notes')">🖼 Insert image</button>
-          <input type="file" id="img_${uid}_notes" accept="image/*" style="display:none">
-        </div>
-        <div class="rich-content subtopic-notes-i" id="${uid}_notes" contenteditable="true" data-placeholder="Additional notes…" style="min-height:48px"></div>
-      </div>
-    </div>`;
-  card.querySelector('.subtopic-name-i').value = s.name || '';
-  card.querySelector('.subtopic-def-i').value = s.definition || '';
-  card.querySelector('.subtopic-kp-i').value = (s.keyPoints||[]).join('\n');
-  card.querySelector('.btn-kp-del').onclick = () => document.getElementById(uid).remove();
-  card.querySelector('.btn-ai-sub').onclick = () => aiFillSubtopic(uid);
-  document.getElementById('subtopicEditorList').appendChild(card);
-  setRichVal(uid+'_formula', s.formula || '');
-  setRichVal(uid+'_notes', s.notes || '');
-  card.querySelectorAll('.rich-editor-wrap').forEach(attachRichDnD);
-  if(!s.name) card.querySelector('.subtopic-name-i').focus();
+  const row = document.createElement('div'); row.className = 'kp-row'; row.id = uid;
+  row.dataset.childId = s.id || '';
+  const inp = document.createElement('input'); inp.type='text'; inp.placeholder='Subtopic name — e.g. Density'; inp.value = s.name || '';
+  inp.className = 'subtopic-name-i';
+  const btn = document.createElement('button'); btn.className='btn-kp-del'; btn.title='Remove subtopic'; btn.textContent='✕';
+  btn.onclick = () => document.getElementById(uid).remove();
+  row.appendChild(inp); row.appendChild(btn);
+  document.getElementById('subtopicEditorList').appendChild(row);
+  if(!s.name) inp.focus();
 }
 
 function addTag(text){
@@ -469,16 +429,10 @@ function saveTopic(){
     const inputs = row.querySelectorAll('.fqa-input');
     return { q: (inputs[0]?.value||'').trim(), a: (inputs[1]?.value||'').trim() };
   }).filter(qa => qa.q);
-  const subtopics = Array.from(document.getElementById('subtopicEditorList').children).map(card => {
-    const name = card.querySelector('.subtopic-name-i').value.trim();
-    if(!name) return null;
-    return {
-      name,
-      definition: card.querySelector('.subtopic-def-i').value.trim(),
-      keyPoints: card.querySelector('.subtopic-kp-i').value.split('\n').map(s=>s.trim()).filter(Boolean),
-      formula: card.querySelector('.subtopic-formula-i').innerHTML.trim(),
-      notes: card.querySelector('.subtopic-notes-i').innerHTML.trim()
-    };
+  const subtopicRows = Array.from(document.getElementById('subtopicEditorList').children).map(row => {
+    const name = row.querySelector('.subtopic-name-i').value.trim();
+    const childId = row.dataset.childId ? Number(row.dataset.childId) : null;
+    return name ? { id: childId, name } : null;
   }).filter(Boolean);
   const ex = editId ? (getTopics().find(t => t.id===editId)||{}) : {};
   const topic = {
@@ -494,13 +448,43 @@ function saveTopic(){
     examTip:   getRichVal('fExamTip'),
     relatedTerms,
     flashcardQA,
-    subtopics,
+    parentId: ex.parentId || null,
     addedBy: ex.addedBy || window.currentUid || null,
     createdAt: ex.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
   let topics = getTopics();
   topics = editId ? topics.map(t => t.id===editId ? topic : t) : [...topics, topic];
+
+  // Sync linked subtopics (child topics) against the rows in the editor
+  const keptChildIds = new Set();
+  subtopicRows.forEach(row => {
+    if(row.id){
+      // update existing child topic's name
+      topics = topics.map(t => t.id===row.id ? { ...t, name: row.name, updatedAt: new Date().toISOString() } : t);
+      keptChildIds.add(row.id);
+    } else {
+      // create a new linked child topic
+      const childId = Date.now() + Math.floor(Math.random()*1000);
+      topics.push({
+        id: childId,
+        name: row.name,
+        unit: topic.unit,
+        definition: '', keyPoints: [], formula: '', materials: '', process: '', safety: '', examTip: '',
+        relatedTerms: [], flashcardQA: [],
+        parentId: topic.id,
+        addedBy: window.currentUid || null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+      keptChildIds.add(childId);
+    }
+  });
+  // remove children that were deleted from the editor list (and any of their own descendants)
+  const removedChildIds = topics.filter(t => t.parentId === topic.id && !keptChildIds.has(t.id)).map(t => t.id);
+  const toRemove = new Set(removedChildIds.flatMap(cid => [cid, ...getDescendantIds(cid, topics)]));
+  topics = topics.filter(t => !toRemove.has(t.id));
+
   saveTopics(topics); closeModal(); renderList(); viewTopic(topic.id);
 }
 
@@ -523,7 +507,9 @@ function closeConfirm(){ document.getElementById('confirmOverlay').classList.rem
 function doDelete(){
   if(!pendingAction) return;
   if(pendingAction.type==='topic'){
-    saveTopics(getTopics().filter(t => t.id!==pendingAction.id));
+    const topics = getTopics();
+    const toRemove = new Set([pendingAction.id, ...getDescendantIds(pendingAction.id, topics)]);
+    saveTopics(topics.filter(t => !toRemove.has(t.id)));
     if(activeId==pendingAction.id){ activeId=null; document.getElementById('welcomeState').style.display=''; document.getElementById('detailContent').classList.remove('on'); }
   } else {
     saveTopics(getTopics().map(t => t.unit===pendingAction.name ? {...t,unit:''} : t));
@@ -782,15 +768,15 @@ if(resolveSubject()){
 
   var _orig = window.viewTopic;
   if (typeof _orig === 'function') {
-    window.viewTopic = function (id, subIdx) {
-      _orig(id, subIdx);
+    window.viewTopic = function (id) {
+      _orig(id);
       if (!isMobile()) return;
       closeSidebar();
       try {
         var topics = JSON.parse(localStorage.getItem(ST) || '[]');
         var t = topics.find(function (x) { return x.id == id; });
         var titleEl = document.getElementById('mobBarTitle');
-        if (t && titleEl) titleEl.textContent = subIdx !== undefined ? t.name + ' · ' + (t.subtopics||[])[subIdx]?.name : t.name;
+        if (t && titleEl) titleEl.textContent = t.name;
       } catch (e) {}
     };
   }
@@ -939,81 +925,5 @@ Return ONLY valid JSON, no markdown, no explanation.`;
     showToast(e.message==='RATE_LIMIT' ? 'Rate limit hit — wait a moment and try again' : 'AI fill failed — try again', 'error');
   } finally {
     if(btn){ btn.disabled=false; btn.textContent='✨ Fill gaps'; }
-  }
-}
-
-// ── AI Fill for a single subtopic card ──
-async function aiFillSubtopic(uid){
-  const card = document.getElementById(uid);
-  if(!card) return;
-
-  const topicName = document.getElementById('fName').value.trim();
-  const subName   = card.querySelector('.subtopic-name-i').value.trim();
-  if(!subName){ showToast('Enter a subtopic name first', 'info'); card.querySelector('.subtopic-name-i').focus(); return; }
-
-  const curDef     = card.querySelector('.subtopic-def-i').value.trim();
-  const curKps     = card.querySelector('.subtopic-kp-i').value.split('\n').map(s=>s.trim()).filter(Boolean);
-  const curFormula = card.querySelector('.subtopic-formula-i').innerHTML.trim();
-  const curNotes   = card.querySelector('.subtopic-notes-i').innerHTML.trim();
-
-  const want = [];
-  if(!curDef)         want.push('definition');
-  if(!curKps.length)  want.push('keyPoints');
-  if(!curFormula)     want.push('formula');
-  if(!curNotes)       want.push('notes');
-
-  if(!want.length){ showToast('All fields already filled!', 'info'); return; }
-
-  const btn = card.querySelector('.btn-ai-sub');
-  if(btn){ btn.disabled=true; btn.textContent='⏳…'; }
-
-  const subjectCtx = SUBJECT ? `Subject: "${SUBJECT.name}".` : '';
-  const topicCtx   = topicName ? `Parent topic: "${topicName}".` : '';
-  const prompt = `You are a concise study assistant. ${subjectCtx} ${topicCtx} The specific subtopic is "${subName}".
-${curDef  ? `Existing definition: "${curDef}"` : ''}
-${curKps.length ? `Existing key points: ${curKps.join('; ')}` : ''}
-
-Generate ONLY the following fields as a JSON object. Include a key even if the field doesn't apply — use an empty string or empty array.
-Fields to generate: ${want.join(', ')}.
-
-Field rules:
-- definition: 1-2 sentences, clear and academic. Empty string if not applicable.
-- keyPoints: array of 3-4 concise strings. Empty array if not applicable.
-- formula: LaTeX or plain-text formula/equation if relevant, else empty string.
-- notes: 1-2 sentences of additional context or common pitfalls. Empty string if not applicable.
-
-Return ONLY valid JSON, no markdown, no explanation.`;
-
-  try{
-    const res = await fetch(GEMINI_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] })
-    });
-    if(res.status===429) throw new Error('RATE_LIMIT');
-    if(!res.ok) throw new Error('API error ' + res.status);
-    const data = await res.json();
-    let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    text = text.replace(/```json|```/g,'').trim();
-    const filled = JSON.parse(text);
-
-    if(!curDef && filled.definition)
-      card.querySelector('.subtopic-def-i').value = filled.definition;
-
-    if(!curKps.length && (filled.keyPoints||[]).length)
-      card.querySelector('.subtopic-kp-i').value = (filled.keyPoints||[]).join('\n');
-
-    if(!curFormula && filled.formula)
-      card.querySelector('.subtopic-formula-i').innerHTML = filled.formula;
-
-    if(!curNotes && filled.notes)
-      card.querySelector('.subtopic-notes-i').innerHTML = filled.notes;
-
-    showToast('Subtopic filled — review and edit as needed', 'success');
-  } catch(e){
-    console.error(e);
-    showToast(e.message==='RATE_LIMIT' ? 'Rate limit hit — wait a moment and try again' : 'AI fill failed — try again', 'error');
-  } finally {
-    if(btn){ btn.disabled=false; btn.textContent='✨ Fill'; }
   }
 }
