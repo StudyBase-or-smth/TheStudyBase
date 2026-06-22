@@ -93,6 +93,15 @@ const savePinned = p => {
   localStorage.setItem(SP, JSON.stringify(p));
 };
 
+// ── Teacher notes ──
+const TN_KEY = () => 'tnotes_' + (SUBJECT ? SUBJECT.id : 'default');
+const getTeacherNotes = () => { try{ return JSON.parse(localStorage.getItem(TN_KEY())||'{}'); }catch(e){ return {}; } };
+const saveTeacherNotes = obj => {
+  localStorage.setItem(TN_KEY(), JSON.stringify(obj));
+  syncPush(TN_KEY(), obj);
+  setSyncStatus('ok');
+};
+
 // ── Pin / unpin a topic ──
 function togglePinTopic(id){
   id = Number(id);
@@ -228,7 +237,8 @@ function viewTopic(id){
   renderList();
 
   document.getElementById('welcomeState').style.display = 'none';
-  const el = document.getElementById('detailContent');
+  const outer = document.getElementById('detailOuter');
+  const el    = document.getElementById('detailContent');
   el.classList.remove('on');
 
   const kpHtml = (t.keyPoints||[]).length
@@ -279,8 +289,8 @@ function viewTopic(id){
           </div>
         </div>
         <div class="dh-actions">
-          <button class="btn-act" onclick="openModal(${t.id})">Edit</button>
-          <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>
+          ${window.isTeacher ? '' : `<button class="btn-act" onclick="openModal(${t.id})">Edit</button>
+          <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>`}
         </div>
       </div>
       <div class="section">
@@ -297,12 +307,75 @@ function viewTopic(id){
         <div class="section-body">${relHtml}</div>
       </div>`;
 
+  outer.style.display = 'flex';
   el.style.display = 'block';
   void el.offsetWidth;
   el.classList.add('on');
+  renderTeacherPanel(t.id);
 }
 
-// ── Modal ──
+// ── Teacher notes panel ──
+function renderTeacherPanel(topicId){
+  const panel = document.getElementById('teacherNotesPanel');
+  if(!panel) return;
+  const allNotes = getTeacherNotes();
+  const notes = allNotes[topicId] || [];
+  if(!notes.length && !window.isTeacher){ panel.style.display = 'none'; return; }
+  panel.style.display = 'flex';
+
+  const notesHtml = notes.map(n => `
+    <div class="tn-note">
+      <div class="tn-note-meta">
+        <span class="tn-note-author">${esc(n.author)}</span>
+        <span class="tn-note-date">${n.date}</span>
+        ${window.isTeacher ? `<button class="tn-del-btn" onclick="deleteTeacherNote(${topicId},'${n.id}')" title="Delete">✕</button>` : ''}
+      </div>
+      <p class="tn-note-text">${esc(n.text)}</p>
+    </div>`).join('');
+
+  const addForm = window.isTeacher ? `
+    <div class="tn-add-form">
+      <textarea class="tn-textarea" id="tnInput_${topicId}" placeholder="Add a note for students — exam tips, common mistakes, what to focus on…"></textarea>
+      <button class="tn-post-btn" onclick="postTeacherNote(${topicId})">Post note</button>
+    </div>` : '';
+
+  panel.innerHTML = `
+    <div class="tn-header">
+      <span class="tn-icon">🎓</span>
+      <span class="tn-header-label">Teacher notes</span>
+      ${window.isTeacher ? '<span class="tn-header-badge">Teacher</span>' : ''}
+    </div>
+    <div class="tn-notes-list">${notesHtml || '<p class="tn-empty">No notes yet — add one below.</p>'}</div>
+    ${addForm}`;
+}
+
+function postTeacherNote(topicId){
+  const inp = document.getElementById('tnInput_' + topicId);
+  if(!inp) return;
+  const text = inp.value.trim();
+  if(!text){ showToast('Write a note first', 'info'); return; }
+  const allNotes = getTeacherNotes();
+  if(!allNotes[topicId]) allNotes[topicId] = [];
+  allNotes[topicId].push({
+    id: Date.now().toString(36),
+    text,
+    author: window.teacherName || 'Teacher',
+    uid: window.currentUid || '',
+    date: new Date().toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})
+  });
+  saveTeacherNotes(allNotes);
+  inp.value = '';
+  renderTeacherPanel(topicId);
+  showToast('Note posted', 'success');
+}
+
+function deleteTeacherNote(topicId, noteId){
+  const allNotes = getTeacherNotes();
+  if(!allNotes[topicId]) return;
+  allNotes[topicId] = allNotes[topicId].filter(n => n.id !== noteId);
+  saveTeacherNotes(allNotes);
+  renderTeacherPanel(topicId);
+}
 function openModal(id){
   if(window.isGuest){ showToast('Sign in to add or edit topics','info'); return; }
   editId = id || null;
@@ -600,6 +673,12 @@ async function syncPull(){
           localStorage.setItem(key, JSON.stringify(res.data));
         }
       }
+    }
+    // Pull shared teacher notes
+    const tnRes = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(TN_KEY()));
+    if(tnRes && tnRes.data !== null && tnRes.data !== undefined){
+      localStorage.setItem(TN_KEY(), JSON.stringify(tnRes.data));
+      if(activeId) renderTeacherPanel(activeId);
     }
     setSyncStatus('ok');
     renderList();

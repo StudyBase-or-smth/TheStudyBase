@@ -32,6 +32,13 @@
       sessionStorage.removeItem('studybase_guest');
       window.currentUid = user.uid;
       localStorage.setItem('studybase_uid', user.uid);
+      user.getIdTokenResult().then(result => {
+        if (result.claims.role === 'teacher') {
+          window.isTeacher = true;
+          window.teacherName = user.displayName || user.email.split('@')[0];
+          document.body.classList.add('teacher-mode');
+        }
+      });
     } else if (isGuest) {
       window.isGuest = true;
       document.body.classList.add('guest-mode');
@@ -112,7 +119,10 @@
       <h2 id="welcomeTitle"></h2>
       <p>Select a topic on the left, or add a new one to get started.</p>
     </div>
-    <div class="detail-content" id="detailContent"></div>
+    <div class="detail-outer" id="detailOuter" style="display:none">
+      <div class="detail-content" id="detailContent"></div>
+      <div class="teacher-notes-panel" id="teacherNotesPanel" style="display:none"></div>
+    </div>
   </div>
 </div>
 

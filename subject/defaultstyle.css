@@ -86,8 +86,33 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;display:fle
 .welcome-icon{font-size:40px;margin-bottom:4px}
 .welcome h2{font-family:'Lora',serif;font-size:20px;font-weight:400}
 .welcome p{font-size:13px;color:var(--muted);max-width:260px;line-height:1.6}
-.detail-content{display:none;max-width:720px}
-.detail-content.on{display:block !important;animation:up .2s ease}
+.detail-outer{display:none;flex:1;gap:0;overflow:hidden;align-items:flex-start}
+.detail-content{flex:1;min-width:0;overflow-y:auto;max-width:720px;padding:0}
+.detail-content{display:block}
+.detail-content.on{animation:up .2s ease}
+/* Teacher notes panel */
+.teacher-notes-panel{display:none;width:240px;flex-shrink:0;flex-direction:column;background:#fffbeb;border-left:1px solid #fde68a;height:100%;overflow-y:auto;position:sticky;top:0}
+.tn-header{display:flex;align-items:center;gap:8px;padding:13px 14px;border-bottom:1px solid #fde68a;flex-shrink:0}
+.tn-icon{font-size:15px}
+.tn-header-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:#92400e;flex:1}
+.tn-header-badge{font-size:10px;background:#f59e0b;color:#fff;border-radius:4px;padding:2px 7px;font-weight:600}
+.tn-notes-list{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.tn-note{background:#fff8e1;border-radius:7px;padding:10px 11px;border:1px solid #fde68a}
+.tn-note-meta{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.tn-note-author{font-size:11px;font-weight:600;color:#b45309;flex:1}
+.tn-note-date{font-size:10px;color:#d97706}
+.tn-del-btn{background:none;border:none;color:#d97706;cursor:pointer;font-size:12px;padding:0 2px;opacity:.6;transition:opacity .12s}
+.tn-del-btn:hover{opacity:1;color:#dc2626}
+.tn-note-text{font-size:12px;color:#78350f;line-height:1.6;margin:0;white-space:pre-wrap}
+.tn-empty{font-size:12px;color:#d97706;font-style:italic;margin:0;padding:4px 0}
+.tn-add-form{padding:10px 12px;border-top:1px solid #fde68a;flex-shrink:0}
+.tn-textarea{width:100%;min-height:72px;resize:vertical;border:1px solid #fde68a;border-radius:6px;padding:8px 10px;font-size:12px;font-family:'Inter',sans-serif;color:#78350f;background:#fff8e1;box-sizing:border-box;outline:none}
+.tn-textarea:focus{border-color:#f59e0b}
+.tn-post-btn{width:100%;margin-top:7px;padding:7px;border-radius:6px;border:none;background:#f59e0b;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s}
+.tn-post-btn:hover{opacity:.85}
+/* Hide new-topic button for teachers */
+body.teacher-mode #btnNewTopic{display:none}
+.detail-content.on{animation:up .2s ease}
 @keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 /*pin*/
 .ti-top         { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; }
