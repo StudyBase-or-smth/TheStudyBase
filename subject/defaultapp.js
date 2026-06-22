@@ -108,6 +108,7 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 
 // ── State ──
 let activeId = null, editId = null, activeUnit = 'all', tempTags = [], pendingAction = null;
+let activeSubIdx = null, expandedTopics = new Set();
 
 // ── Sidebar list ──
 function renderList(){
@@ -132,14 +133,29 @@ function renderList(){
     ? `<div class="sidebar-empty">${q ? 'No results for "'+esc(q)+'"' : 'No topics yet.<br>Click <strong>+ New topic</strong> to begin.'}</div>`
     : filtered.map(t => {
         const isPinned = pinned.includes(t.id);
+        const subs = t.subtopics || [];
+        const hasSubs = subs.length > 0;
+        const isExpanded = expandedTopics.has(t.id);
+        const subListHtml = hasSubs && isExpanded
+          ? `<div class="subtopic-sidebar-list">` + subs.map((s,i) => `
+              <div class="subtopic-sidebar-item${(activeId==t.id && activeSubIdx===i)?' active':''}" onclick="event.stopPropagation();viewTopic(${t.id},${i})">
+                <span class="ssi-dot"></span>${esc(s.name)}
+              </div>`).join('') + `</div>`
+          : '';
         return `
-        <div class="topic-item${t.id==activeId?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${t.id})">
-          <div class="ti-top">
-            <div class="ti-name">${isPinned?'<span class="ti-pin-icon"></span>':''}${esc(t.name)}</div>
-            <button class="ti-pin-btn" onclick="event.stopPropagation();togglePinTopic(${t.id})" title="${isPinned?'Unpin':'Pin'}">${isPinned?'★':'☆'}</button>
+        <div class="topic-item-wrap">
+          <div class="topic-item${(t.id==activeId && activeSubIdx===null)?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${t.id})">
+            <div class="ti-top">
+              <div class="ti-name">
+                ${hasSubs ? `<button class="ti-expand-btn" onclick="event.stopPropagation();toggleTopicExpand(${t.id})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>` : ''}
+                ${isPinned?'<span class="ti-pin-icon"></span>':''}${esc(t.name)}
+              </div>
+              <button class="ti-pin-btn" onclick="event.stopPropagation();togglePinTopic(${t.id})" title="${isPinned?'Unpin':'Pin'}">${isPinned?'★':'☆'}</button>
+            </div>
+            ${t.unit ? `<div class="ti-unit">${esc(t.unit)}</div>` : ''}
+            ${t.definition ? `<div class="ti-prev">${esc(t.definition.substring(0,55))}…</div>` : ''}
           </div>
-          ${t.unit ? `<div class="ti-unit">${esc(t.unit)}</div>` : ''}
-          ${t.definition ? `<div class="ti-prev">${esc(t.definition.substring(0,55))}…</div>` : ''}
+          ${subListHtml}
         </div>`;
       }).join('');
 
@@ -162,9 +178,18 @@ function renderPills(){
 
 function setUnit(u){ activeUnit = u; renderList(); }
 
+function toggleTopicExpand(id){
+  id = Number(id);
+  if(expandedTopics.has(id)) expandedTopics.delete(id);
+  else expandedTopics.add(id);
+  renderList();
+}
+
 // ── Topic detail ──
-function viewTopic(id){
+function viewTopic(id, subIdx){
   activeId = id;
+  activeSubIdx = (subIdx===undefined || subIdx===null) ? null : Number(subIdx);
+  if(activeSubIdx !== null) expandedTopics.add(Number(id));
   const t = getTopics().find(x => x.id == id);
   if(!t) return;
   if(location.protocol !== 'file:') history.replaceState(null,'', '#' + SUBJECT.id);
@@ -208,55 +233,55 @@ function viewTopic(id){
   }
 
   const subtopics = t.subtopics || [];
-  let subtopicNav = '';
-  let subtopicPanels = '';
-  if(subtopics.length){
-    subtopicNav = `
-      <div class="subtopic-nav">
-        <span class="subtopic-nav-label">Viewing</span>
-        <select class="subtopic-select" id="subtopicSelect" onchange="switchSubtopic(this.value)">
-          <option value="main">Overview</option>
-          ${subtopics.map((s,i)=>`<option value="${i}">${esc(s.name)}</option>`).join('')}
-        </select>
-      </div>`;
-    subtopicPanels = subtopics.map((s,i) => {
-      const skpHtml = (s.keyPoints||[]).length
-        ? `<ul class="key-points">${s.keyPoints.map(k=>`<li class="kp-item"><div class="kp-dot"></div><span>${esc(k)}</span></li>`).join('')}</ul>`
-        : '<p class="empty-note">No key points added yet.</p>';
-      let sExtra = '';
-      if(s.formula) sExtra += `<div class="section"><div class="section-header"><span class="sh-icon">∑</span>Formula / Equation</div><div class="section-body"><div class="formula-box">${sanitizeRich(s.formula)}</div></div></div>`;
-      if(s.notes)   sExtra += `<div class="section"><div class="section-header"><span class="sh-icon">📋</span>Notes</div><div class="section-body"><p class="plain-text">${sanitizeRich(s.notes)}</p></div></div>`;
-      return `
-      <div class="subtopic-panel" id="subPanel${i}" style="display:none">
-        <div class="section">
-          <div class="section-header"><span class="sh-icon">📝</span>Definition</div>
-          <div class="section-body">${s.definition ? `<p class="def-text">${esc(s.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>'}</div>
-        </div>
-        <div class="section">
-          <div class="section-header"><span class="sh-icon">✦</span>Key Points</div>
-          <div class="section-body">${skpHtml}</div>
-        </div>
-        ${sExtra}
-      </div>`;
-    }).join('');
-  }
 
-  el.innerHTML = `
-    <div class="dh">
-      <div>
-        <div class="dh-name">${esc(t.name)}</div>
-        <div class="dh-meta">
-          ${t.unit ? `<span class="dh-unit">${esc(t.unit)}</span>` : ''}
-          <span class="dh-date">Added ${created}</span>${editedStr}
+  // If a subtopic is selected, render just that subtopic's content
+  if(activeSubIdx !== null && subtopics[activeSubIdx]){
+    const s = subtopics[activeSubIdx];
+    const skpHtml = (s.keyPoints||[]).length
+      ? `<ul class="key-points">${s.keyPoints.map(k=>`<li class="kp-item"><div class="kp-dot"></div><span>${esc(k)}</span></li>`).join('')}</ul>`
+      : '<p class="empty-note">No key points added yet.</p>';
+    let sExtra = '';
+    if(s.formula) sExtra += `<div class="section"><div class="section-header"><span class="sh-icon">∑</span>Formula / Equation</div><div class="section-body"><div class="formula-box">${sanitizeRich(s.formula)}</div></div></div>`;
+    if(s.notes)   sExtra += `<div class="section"><div class="section-header"><span class="sh-icon">📋</span>Notes</div><div class="section-body"><p class="plain-text">${sanitizeRich(s.notes)}</p></div></div>`;
+    el.innerHTML = `
+      <div class="dh">
+        <div>
+          <div class="dh-name">${esc(t.name)} <span class="dh-sub-badge">${esc(s.name)}</span></div>
+          <div class="dh-meta">
+            ${t.unit ? `<span class="dh-unit">${esc(t.unit)}</span>` : ''}
+            <span class="dh-date">Added ${created}</span>${editedStr}
+          </div>
+        </div>
+        <div class="dh-actions">
+          <button class="btn-act" onclick="openModal(${t.id})">Edit</button>
+          <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>
         </div>
       </div>
-      <div class="dh-actions">
-        <button class="btn-act" onclick="openModal(${t.id})">Edit</button>
-        <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>
+      <div class="section">
+        <div class="section-header"><span class="sh-icon">📝</span>Definition</div>
+        <div class="section-body">${s.definition ? `<p class="def-text">${esc(s.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>'}</div>
       </div>
-    </div>
-    ${subtopicNav}
-    <div class="subtopic-panel" id="subPanelMain">
+      <div class="section">
+        <div class="section-header"><span class="sh-icon">✦</span>Key Points</div>
+        <div class="section-body">${skpHtml}</div>
+      </div>
+      ${sExtra}`;
+  } else {
+    // Main topic overview
+    el.innerHTML = `
+      <div class="dh">
+        <div>
+          <div class="dh-name">${esc(t.name)}</div>
+          <div class="dh-meta">
+            ${t.unit ? `<span class="dh-unit">${esc(t.unit)}</span>` : ''}
+            <span class="dh-date">Added ${created}</span>${editedStr}
+          </div>
+        </div>
+        <div class="dh-actions">
+          <button class="btn-act" onclick="openModal(${t.id})">Edit</button>
+          <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>
+        </div>
+      </div>
       <div class="section">
         <div class="section-header"><span class="sh-icon">📝</span>Definition</div>
         <div class="section-body">${t.definition ? `<p class="def-text">${esc(t.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>'}</div>
@@ -269,23 +294,12 @@ function viewTopic(id){
       <div class="section">
         <div class="section-header"><span class="sh-icon">🔗</span>Related Terms</div>
         <div class="section-body">${relHtml}</div>
-      </div>
-    </div>
-    ${subtopicPanels}`;
+      </div>`;
+  }
 
   el.style.display = 'block';
   void el.offsetWidth;
   el.classList.add('on');
-}
-
-// ── Subtopic switcher ──
-function switchSubtopic(val){
-  document.getElementById('subPanelMain').style.display = val==='main' ? '' : 'none';
-  document.querySelectorAll('[id^="subPanel"]').forEach(p => { if(p.id!=='subPanelMain') p.style.display='none'; });
-  if(val!=='main'){
-    const p = document.getElementById('subPanel'+val);
-    if(p) p.style.display = '';
-  }
 }
 
 // ── Modal ──
@@ -376,6 +390,7 @@ function addSubtopicRow(s){
   card.innerHTML = `
     <div class="subtopic-card-head">
       <input type="text" class="form-i subtopic-name-i" placeholder="Subtopic name — e.g. Density">
+      <button type="button" class="btn-ai-sub" title="AI fill this subtopic">✨ Fill</button>
       <button type="button" class="btn-kp-del" title="Remove subtopic">✕</button>
     </div>
     <div class="form-g">
@@ -412,6 +427,7 @@ function addSubtopicRow(s){
   card.querySelector('.subtopic-def-i').value = s.definition || '';
   card.querySelector('.subtopic-kp-i').value = (s.keyPoints||[]).join('\n');
   card.querySelector('.btn-kp-del').onclick = () => document.getElementById(uid).remove();
+  card.querySelector('.btn-ai-sub').onclick = () => aiFillSubtopic(uid);
   document.getElementById('subtopicEditorList').appendChild(card);
   setRichVal(uid+'_formula', s.formula || '');
   setRichVal(uid+'_notes', s.notes || '');
@@ -766,15 +782,15 @@ if(resolveSubject()){
 
   var _orig = window.viewTopic;
   if (typeof _orig === 'function') {
-    window.viewTopic = function (id) {
-      _orig(id);
+    window.viewTopic = function (id, subIdx) {
+      _orig(id, subIdx);
       if (!isMobile()) return;
       closeSidebar();
       try {
         var topics = JSON.parse(localStorage.getItem(ST) || '[]');
         var t = topics.find(function (x) { return x.id == id; });
         var titleEl = document.getElementById('mobBarTitle');
-        if (t && titleEl) titleEl.textContent = t.name;
+        if (t && titleEl) titleEl.textContent = subIdx !== undefined ? t.name + ' · ' + (t.subtopics||[])[subIdx]?.name : t.name;
       } catch (e) {}
     };
   }
@@ -923,5 +939,81 @@ Return ONLY valid JSON, no markdown, no explanation.`;
     showToast(e.message==='RATE_LIMIT' ? 'Rate limit hit — wait a moment and try again' : 'AI fill failed — try again', 'error');
   } finally {
     if(btn){ btn.disabled=false; btn.textContent='✨ Fill gaps'; }
+  }
+}
+
+// ── AI Fill for a single subtopic card ──
+async function aiFillSubtopic(uid){
+  const card = document.getElementById(uid);
+  if(!card) return;
+
+  const topicName = document.getElementById('fName').value.trim();
+  const subName   = card.querySelector('.subtopic-name-i').value.trim();
+  if(!subName){ showToast('Enter a subtopic name first', 'info'); card.querySelector('.subtopic-name-i').focus(); return; }
+
+  const curDef     = card.querySelector('.subtopic-def-i').value.trim();
+  const curKps     = card.querySelector('.subtopic-kp-i').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const curFormula = card.querySelector('.subtopic-formula-i').innerHTML.trim();
+  const curNotes   = card.querySelector('.subtopic-notes-i').innerHTML.trim();
+
+  const want = [];
+  if(!curDef)         want.push('definition');
+  if(!curKps.length)  want.push('keyPoints');
+  if(!curFormula)     want.push('formula');
+  if(!curNotes)       want.push('notes');
+
+  if(!want.length){ showToast('All fields already filled!', 'info'); return; }
+
+  const btn = card.querySelector('.btn-ai-sub');
+  if(btn){ btn.disabled=true; btn.textContent='⏳…'; }
+
+  const subjectCtx = SUBJECT ? `Subject: "${SUBJECT.name}".` : '';
+  const topicCtx   = topicName ? `Parent topic: "${topicName}".` : '';
+  const prompt = `You are a concise study assistant. ${subjectCtx} ${topicCtx} The specific subtopic is "${subName}".
+${curDef  ? `Existing definition: "${curDef}"` : ''}
+${curKps.length ? `Existing key points: ${curKps.join('; ')}` : ''}
+
+Generate ONLY the following fields as a JSON object. Include a key even if the field doesn't apply — use an empty string or empty array.
+Fields to generate: ${want.join(', ')}.
+
+Field rules:
+- definition: 1-2 sentences, clear and academic. Empty string if not applicable.
+- keyPoints: array of 3-4 concise strings. Empty array if not applicable.
+- formula: LaTeX or plain-text formula/equation if relevant, else empty string.
+- notes: 1-2 sentences of additional context or common pitfalls. Empty string if not applicable.
+
+Return ONLY valid JSON, no markdown, no explanation.`;
+
+  try{
+    const res = await fetch(GEMINI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] })
+    });
+    if(res.status===429) throw new Error('RATE_LIMIT');
+    if(!res.ok) throw new Error('API error ' + res.status);
+    const data = await res.json();
+    let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    text = text.replace(/```json|```/g,'').trim();
+    const filled = JSON.parse(text);
+
+    if(!curDef && filled.definition)
+      card.querySelector('.subtopic-def-i').value = filled.definition;
+
+    if(!curKps.length && (filled.keyPoints||[]).length)
+      card.querySelector('.subtopic-kp-i').value = (filled.keyPoints||[]).join('\n');
+
+    if(!curFormula && filled.formula)
+      card.querySelector('.subtopic-formula-i').innerHTML = filled.formula;
+
+    if(!curNotes && filled.notes)
+      card.querySelector('.subtopic-notes-i').innerHTML = filled.notes;
+
+    showToast('Subtopic filled — review and edit as needed', 'success');
+  } catch(e){
+    console.error(e);
+    showToast(e.message==='RATE_LIMIT' ? 'Rate limit hit — wait a moment and try again' : 'AI fill failed — try again', 'error');
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent='✨ Fill'; }
   }
 }
