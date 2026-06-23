@@ -1,0 +1,15 @@
+# Environment variables — never commit real API keys
+.env
+.env.local
+.env.*.local
+
+# Netlify
+.netlify/
+
+# Node
+node_modules/
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*.log

@@ -129,7 +129,7 @@ function renderSubjects() {
     const meta = topics.length
       ? `${topics.length} topic${topics.length !== 1 ? 's' : ''} · ${units.length} unit${units.length !== 1 ? 's' : ''}`
       : 'No topics yet';
-    return `<a href="subject/default.html#${s.id}" class="subj-card" style="border-top:4px solid ${s.colour}">
+    return `<a href="subject/subject.html#${s.id}" class="subj-card" style="border-top:4px solid ${s.colour}">
       <div class="subj-emoji">${s.emoji || '📚'}</div>
       <div class="subj-count" style="background:${s.colour}">${topics.length}</div>
       <div class="subj-name">${s.name}</div>
@@ -151,7 +151,7 @@ function renderClasses() {
     const meta = topics.length
       ? `${topics.length} topic${topics.length !== 1 ? 's' : ''} · ${units.length} unit${units.length !== 1 ? 's' : ''}`
       : 'No topics yet';
-    return `<a href="class/default.html#${s.id}" class="subj-card class-card" style="border-top:4px solid ${s.colour}">
+    return `<a href="subject/class.html#${s.id}" class="subj-card class-card" style="border-top:4px solid ${s.colour}">
       <div class="subj-emoji">${s.emoji || '🏫'}</div>
       <div class="subj-count" style="background:${s.colour}">${topics.length}</div>
       <div class="subj-name" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
@@ -196,7 +196,7 @@ function renderSidebar() {
   let allTopics = [];
   subjects.forEach(s => {
     const topics = getTopics(s);
-    topics.forEach(t => allTopics.push({ ...t, sName: s.name, sColour: s.colour, sFile: 'subject/default.html#' + s.id }));
+    topics.forEach(t => allTopics.push({ ...t, sName: s.name, sColour: s.colour, sFile: 'subject/subject.html#' + s.id }));
   });
 
   // Recently Added
