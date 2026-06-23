@@ -93,7 +93,39 @@ const savePinned = p => {
   localStorage.setItem(SP, JSON.stringify(p));
 };
 
-// ── Teacher notes ──
+// ── Layouts ──
+const LAYOUTS = ['basic','overview','math','text'];
+const LAYOUT_LABELS = { basic:'Basic', overview:'Overview', math:'Math', text:'Text' };
+let currentLayout = 'basic';
+
+function cycleLayout(dir){
+  let idx = LAYOUTS.indexOf(currentLayout);
+  idx = (idx + dir + LAYOUTS.length) % LAYOUTS.length;
+  currentLayout = LAYOUTS[idx];
+  applyLayoutUI();
+}
+
+function applyLayoutUI(){
+  const nameEl = document.getElementById('layoutName');
+  if(nameEl) nameEl.textContent = LAYOUT_LABELS[currentLayout] || 'Basic';
+  document.querySelectorAll('[data-layout-group]').forEach(el => {
+    const groups = el.dataset.layoutGroup.split(' ');
+    el.style.display = groups.includes(currentLayout) ? '' : 'none';
+  });
+  const kpLabel = document.getElementById('kpFieldLabel');
+  if(kpLabel) kpLabel.textContent = currentLayout === 'text' ? 'Points of Interest' : 'Key Points';
+  const bodyLabel = document.getElementById('bodyTextLabel');
+  const bodyEl = document.getElementById('fBodyText');
+  if(bodyLabel && bodyEl){
+    if(currentLayout === 'text'){ bodyLabel.textContent = 'Main Text'; bodyEl.style.minHeight = '260px'; }
+    else { bodyLabel.textContent = 'Overview'; bodyEl.style.minHeight = '120px'; }
+  }
+  // Hide Fill Gaps button in overview layout
+  const fillBtn = document.getElementById('btnAiFillModal');
+  if(fillBtn) fillBtn.style.display = currentLayout === 'overview' ? 'none' : '';
+}
+
+// ── Teacher notes (per block) ──
 const TN_KEY = () => 'tnotes_' + (SUBJECT ? SUBJECT.id : 'default');
 const getTeacherNotes = () => { try{ return JSON.parse(localStorage.getItem(TN_KEY())||'{}'); }catch(e){ return {}; } };
 const saveTeacherNotes = obj => {
@@ -101,6 +133,177 @@ const saveTeacherNotes = obj => {
   syncPush(TN_KEY(), obj);
   setSyncStatus('ok');
 };
+
+// Notes are stored as { [topicId]: { [blockKey]: [note, ...] } }.
+// Legacy data may have { [topicId]: [note, ...] } — normalise on read.
+function getTopicBlockNotes(topicId){
+  const all = getTeacherNotes();
+  let n = all[topicId];
+  if(Array.isArray(n)) return { general: n };
+  return n || {};
+}
+function getBlockNotes(topicId, block){
+  return getTopicBlockNotes(topicId)[block] || [];
+}
+function saveBlockNote(topicId, block, text){
+  const all = getTeacherNotes();
+  if(Array.isArray(all[topicId])) all[topicId] = { general: all[topicId] };
+  if(!all[topicId]) all[topicId] = {};
+  if(!all[topicId][block]) all[topicId][block] = [];
+  all[topicId][block].push({
+    id: Date.now().toString(36),
+    text,
+    author: window.teacherName || 'Teacher',
+    uid: window.currentUid || '',
+    date: new Date().toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})
+  });
+  saveTeacherNotes(all);
+}
+function deleteBlockNote(topicId, block, noteId){
+  const all = getTeacherNotes();
+  if(Array.isArray(all[topicId])) all[topicId] = { general: all[topicId] };
+  if(all[topicId] && all[topicId][block]){
+    all[topicId][block] = all[topicId][block].filter(n => n.id !== noteId);
+    saveTeacherNotes(all);
+  }
+  viewTopic(topicId);
+}
+
+function noteBtnHtml(topicId, block){
+  const notes = getBlockNotes(topicId, block);
+  const has = notes.length > 0;
+  if(!has && !window.isTeacher) return '';
+  return `<button class="sb-note-btn${has?' has-notes':''}" onclick="event.stopPropagation();toggleBlockNotes(${topicId},'${block}')" title="Teacher notes">🎓${has?`<span class="sb-note-count">${notes.length}</span>`:''}</button>`;
+}
+
+function blockNotesDrawerHtml(topicId, block){
+  const notes = getBlockNotes(topicId, block);
+  if(!notes.length && !window.isTeacher) return '';
+  const rows = notes.map(n => `
+    <div class="sb-note">
+      <div class="sb-note-meta">
+        <span class="sb-note-author">${esc(n.author)}</span>
+        <span class="sb-note-date">${n.date}</span>
+        ${window.isTeacher ? `<button class="sb-note-del" onclick="deleteBlockNote(${topicId},'${block}','${n.id}')" title="Delete">✕</button>` : ''}
+      </div>
+      <p class="sb-note-text">${esc(n.text)}</p>
+    </div>`).join('');
+  const addForm = window.isTeacher ? `
+    <div class="sb-note-add">
+      <textarea class="sb-note-textarea" id="sbni_${topicId}_${block}" placeholder="Add a note for students about this section…"></textarea>
+      <button class="sb-note-post" onclick="postBlockNote(${topicId},'${block}')">Post note</button>
+    </div>` : '';
+  return `<div class="sb-note-drawer" id="sbnd_${topicId}_${block}" style="display:none">
+    <div class="sb-note-list">${rows || '<p class="sb-note-empty">No notes yet for this section.</p>'}</div>
+    ${addForm}
+  </div>`;
+}
+
+function toggleBlockNotes(topicId, block){
+  const d = document.getElementById(`sbnd_${topicId}_${block}`);
+  if(!d) return;
+  d.style.display = d.style.display === 'none' ? 'block' : 'none';
+}
+
+function postBlockNote(topicId, block){
+  const inp = document.getElementById(`sbni_${topicId}_${block}`);
+  if(!inp) return;
+  const text = inp.value.trim();
+  if(!text){ showToast('Write a note first', 'info'); return; }
+  saveBlockNote(topicId, block, text);
+  viewTopic(topicId);
+  showToast('Note added', 'success');
+}
+
+// Builds a section row: block box on left, comment note inline on right at same height
+function sectionHtml(topicId, icon, label, block, bodyHtml){
+  const notes = getBlockNotes(topicId, block);
+  const hasNotes = notes.length > 0;
+  const showIcon = hasNotes || window.isTeacher;
+
+  // Build the inline comment column content
+  let commentColHtml = '';
+  if(showIcon){
+    const notesHtml = notes.map(n => `
+      <div class="blk-note" id="tnpn_${n.id}">
+        <div class="blk-note-meta">
+          <span class="blk-note-author">🎓 ${esc(n.author)}</span>
+          <span class="blk-note-date">${n.date}</span>
+          ${window.isTeacher ? `<button class="blk-note-del" onclick="deleteBlockNote(${topicId},'${block}','${n.id}')" title="Delete">✕</button>` : ''}
+        </div>
+        <p class="blk-note-text">${esc(n.text)}</p>
+      </div>`).join('');
+
+    const addForm = window.isTeacher ? `
+      <div class="blk-add-form" id="blkForm_${block}" style="display:none">
+        <textarea class="blk-textarea" id="blkTA_${block}" placeholder="Comment on ${esc(label)}…" rows="3"></textarea>
+        <div class="blk-form-btns">
+          <button class="blk-cancel-btn" onclick="closeBlockForm('${block}')">Cancel</button>
+          <button class="blk-post-btn" onclick="postBlockComment(${topicId},'${block}')">Post</button>
+        </div>
+      </div>` : '';
+
+    const iconBtn = `<button class="blk-comment-btn${hasNotes?' has-notes':''}"
+      onclick="focusBlockComment(${topicId},'${block}')"
+      title="${hasNotes ? notes.length+' comment'+(notes.length>1?'s':'') : 'Add comment'}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      ${hasNotes ? `<span class="blk-comment-count">${notes.length}</span>` : ''}
+    </button>`;
+
+    commentColHtml = `
+      <div class="blk-col" id="blkCol_${block}">
+        ${iconBtn}
+        ${hasNotes || window.isTeacher ? `<div class="blk-notes-wrap" id="blkWrap_${block}" style="display:${hasNotes?'flex':'none'}">
+          <div class="blk-notes-list">${notesHtml}</div>
+          ${addForm}
+        </div>` : ''}
+      </div>`;
+  } else {
+    commentColHtml = `<div class="blk-col blk-col-empty"></div>`;
+  }
+
+  return `<div class="section-row" data-block-row="${block}">
+    <div class="section">
+      <div class="section-header">
+        <span class="sh-label-wrap"><span class="sh-icon">${icon}</span>${label}</span>
+      </div>
+      <div class="section-body">${bodyHtml}</div>
+    </div>
+    ${commentColHtml}
+  </div>`;
+}
+
+// ── Inline block comment helpers ──
+function focusBlockComment(topicId, block){
+  const wrap = document.getElementById(`blkWrap_${block}`);
+  if(!wrap) return;
+  // Show the notes wrap if hidden
+  wrap.style.display = 'flex';
+  // Teachers: open the add form
+  if(window.isTeacher){
+    const form = document.getElementById(`blkForm_${block}`);
+    if(form){ form.style.display = 'flex'; setTimeout(()=>document.getElementById(`blkTA_${block}`)?.focus(), 50); }
+  }
+  wrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function closeBlockForm(block){
+  const form = document.getElementById(`blkForm_${block}`);
+  if(form){ form.style.display = 'none'; const ta = document.getElementById(`blkTA_${block}`); if(ta) ta.value = ''; }
+}
+
+function postBlockComment(topicId, block){
+  const ta = document.getElementById(`blkTA_${block}`);
+  if(!ta) return;
+  const text = ta.value.trim();
+  if(!text){ showToast('Write a comment first','info'); return; }
+  saveBlockNote(topicId, block, text);
+  viewTopic(topicId);
+  showToast('Comment posted','success');
+}
+
+// buildTeacherPanel is no longer needed — comments are inline in sectionHtml
+function buildTeacherPanel(topicId, visibleBlocks){ /* no-op: inline rendering */ }
 
 // ── Pin / unpin a topic ──
 function togglePinTopic(id){
@@ -218,6 +421,17 @@ function toggleTopicExpand(id){
 }
 
 // ── Topic detail ──
+function qaRowsHtml(t){
+  return (t.flashcardQA||[]).map(qa=>`
+    <div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px">${esc(qa.q)}</div>
+        ${qa.a?`<div style="font-size:12px;color:var(--muted);font-style:italic">${esc(qa.a)}</div>`:'<div style="font-size:11px;color:var(--muted2);font-style:italic">No answer set</div>'}
+      </div>
+      <span style="font-size:10px;background:var(--ac-l);border:1px solid var(--ac-b);color:var(--accent);border-radius:4px;padding:2px 7px;font-weight:700;white-space:nowrap;flex-shrink:0">Flashcard</span>
+    </div>`).join('');
+}
+
 function viewTopic(id){
   activeId = id;
   const t = getTopics().find(x => x.id == id);
@@ -241,6 +455,9 @@ function viewTopic(id){
   const el    = document.getElementById('detailContent');
   el.classList.remove('on');
 
+  const layout = t.layout || 'basic';
+  const children = allTopics.filter(c => c.parentId === t.id);
+
   const kpHtml = (t.keyPoints||[]).length
     ? `<ul class="key-points">${t.keyPoints.map(k=>`<li class="kp-item"><div class="kp-dot"></div><span>${esc(k)}</span></li>`).join('')}</ul>`
     : '<p class="empty-note">No key points added yet.</p>';
@@ -248,37 +465,72 @@ function viewTopic(id){
   const relHtml = (t.relatedTerms||[]).length
     ? `<div class="related-tags">${t.relatedTerms.map(r => {
         const m = getTopics().find(x => x.name.toLowerCase()===r.toLowerCase());
-        return `<span class="rtag"${m?` onclick="viewTopic(${m.id})"`:''}>${esc(r)}</span>`;
+        if(m){
+          return `<a class="rtag rtag-linked" href="javascript:void(0)" onclick="viewTopic(${m.id})" title="Go to topic: ${esc(m.name)}">🔗 ${esc(r)}</a>`;
+        }
+        return `<span class="rtag rtag-plain">${esc(r)}</span>`;
       }).join('')}</div>`
     : '<p class="empty-note">None listed.</p>';
+
+  const subtopicsHtml = children.length
+    ? `<ul class="subtopic-link-list">${children.map(c => `<li class="subtopic-link-item"><div class="kp-dot"></div><a class="subtopic-link" onclick="viewTopic(${c.id})" href="javascript:void(0)">${esc(c.name)}</a></li>`).join('')}</ul>`
+    : '<p class="empty-note">No subtopics yet.</p>';
 
   const created = new Date(t.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
   const editedStr = t.updatedAt && t.updatedAt !== t.createdAt
     ? '<span class="dh-date">· Edited '+new Date(t.updatedAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})+'</span>' : '';
 
-  let extraHtml = '';
-  if(t.formula)    extraHtml += `<div class="section"><div class="section-header"><span class="sh-icon">∑</span>Formula / Equation</div><div class="section-body"><div class="formula-box">${sanitizeRich(t.formula)}</div></div></div>`;
-  if(t.materials)  extraHtml += `<div class="section"><div class="section-header"><span class="sh-icon">📋</span>Extra Notes</div><div class="section-body"><p class="plain-text">${sanitizeRich(t.materials)}</p></div></div>`;
-  if(t.process)    extraHtml += `<div class="section"><div class="section-header"><span class="sh-icon">⚙</span>Process / Method</div><div class="section-body"><div class="formula-box">${sanitizeRich(t.process)}</div></div></div>`;
-  if(t.safety)     extraHtml += `<div class="section"><div class="section-header"><span class="sh-icon">⚠</span>Safety / Warnings</div><div class="section-body"><div class="warning-box">${sanitizeRich(t.safety)}</div></div></div>`;
-  if(t.examTip)    extraHtml += `<div class="section"><div class="section-header"><span class="sh-icon">⚡</span>Exam Tip</div><div class="section-body"><div class="exam-tip">${sanitizeRich(t.examTip)}</div></div></div>`;
-  if((t.flashcardQA||[]).length){
-    const qaRows = t.flashcardQA.map(qa=>`
-      <div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border)">
-        <div style="flex:1">
-          <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px">${esc(qa.q)}</div>
-          ${qa.a?`<div style="font-size:12px;color:var(--muted);font-style:italic">${esc(qa.a)}</div>`:'<div style="font-size:11px;color:var(--muted2);font-style:italic">No answer set</div>'}
-        </div>
-        <span style="font-size:10px;background:var(--ac-l);border:1px solid var(--ac-b);color:var(--accent);border-radius:4px;padding:2px 7px;font-weight:700;white-space:nowrap;flex-shrink:0">Flashcard</span>
-      </div>`).join('');
-    extraHtml += `<div class="section"><div class="section-header"><span class="sh-icon">🃏</span>Flashcard Questions</div><div class="section-body">${qaRows}</div></div>`;
+  const visibleBlocks = []; // { block, label } — passed to buildTeacherPanel
+  const sec = (block, label, icon, bodyHtml) => {
+    visibleBlocks.push({ block, label });
+    return sectionHtml(t.id, icon, label, block, bodyHtml);
+  };
+
+  let bodyHtml = '';
+  if(layout === 'overview'){
+    bodyHtml += sec('bodyText', 'Overview', '📖',
+      t.bodyText ? `<div class="plain-text">${sanitizeRich(t.bodyText)}</div>` : '<p class="empty-note">No overview written yet.</p>');
+    const overviewListItems = [];
+    (t.keyPoints||[]).forEach(k => {
+      overviewListItems.push(`<li class="ovw-list-item ovw-kp-item"><div class="kp-dot"></div><span>${esc(k)}</span></li>`);
+    });
+    children.forEach(c => {
+      overviewListItems.push(`<li class="ovw-list-item ovw-subtopic-item"><div class="kp-dot kp-dot-link"></div><a class="subtopic-link" href="javascript:void(0)" onclick="viewTopic(${c.id})">${esc(c.name)}</a><span class="ovw-subtopic-badge">subtopic →</span></li>`);
+    });
+    if(overviewListItems.length){
+      bodyHtml += sec('overviewPoints', 'Points & Subtopics', '📋',
+        `<ul class="ovw-list">${overviewListItems.join('')}</ul>`);
+    }
+  } else if(layout === 'math'){
+    bodyHtml += sec('formula', 'Formula / Equation', '∑',
+      t.formula ? `<div class="formula-box">${sanitizeRich(t.formula)}</div>` : '<p class="empty-note">No formula added yet.</p>');
+    bodyHtml += sec('flashcardQA', 'Flashcard Questions', '🃏',
+      (t.flashcardQA||[]).length ? qaRowsHtml(t) : '<p class="empty-note">No flashcard questions yet.</p>');
+    bodyHtml += sec('desmos', 'Desmos Graph', '📐', '<p class="empty-note">Desmos support is coming soon.</p>');
+  } else if(layout === 'text'){
+    bodyHtml += sec('bodyText', 'Main Text', '📄',
+      t.bodyText ? `<div class="plain-text">${sanitizeRich(t.bodyText)}</div>` : '<p class="empty-note">No text added yet.</p>');
+    bodyHtml += sec('keyPoints', 'Points of Interest', '✦', kpHtml);
+  } else { // basic
+    bodyHtml += sec('definition', 'Definition', '📝',
+      t.definition ? `<p class="def-text">${esc(t.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>');
+    bodyHtml += sec('keyPoints', 'Key Points', '✦', kpHtml);
+    if(t.formula)                  bodyHtml += sec('formula',     'Formula / Equation', '∑',  `<div class="formula-box">${sanitizeRich(t.formula)}</div>`);
+    if(t.materials)                bodyHtml += sec('materials',   'Extra Notes',        '📋', `<p class="plain-text">${sanitizeRich(t.materials)}</p>`);
+    if(t.process)                  bodyHtml += sec('process',     'Process / Method',   '⚙',  `<div class="formula-box">${sanitizeRich(t.process)}</div>`);
+    if(t.safety)                   bodyHtml += sec('safety',      'Safety / Warnings',  '⚠',  `<div class="warning-box">${sanitizeRich(t.safety)}</div>`);
+    if(t.examTip)                  bodyHtml += sec('examTip',     'Exam Tip',           '⚡', `<div class="exam-tip">${sanitizeRich(t.examTip)}</div>`);
+    if((t.flashcardQA||[]).length) bodyHtml += sec('flashcardQA', 'Flashcard Questions','🃏', qaRowsHtml(t));
   }
 
-  const ancestorChain = [];
-  { const allTopics = getTopics(); let cur = t;
-    while(cur.parentId){ const p = allTopics.find(x => x.id === cur.parentId); if(!p) break; ancestorChain.unshift(p); cur = p; } }
+  // Common to every layout: subtopics, then related terms
+  bodyHtml += sec('subtopics',    'Subtopics',     '🧩', subtopicsHtml);
+  bodyHtml += sec('relatedTerms', 'Related Terms', '🔗', relHtml);
 
-  // Main topic overview (children are now full topics, rendered the same way)
+  const ancestorChain = [];
+  { let c2 = t;
+    while(c2.parentId){ const p = allTopics.find(x => x.id === c2.parentId); if(!p) break; ancestorChain.unshift(p); c2 = p; } }
+
   el.innerHTML = `
       <div class="dh">
         <div>
@@ -293,88 +545,13 @@ function viewTopic(id){
           <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>`}
         </div>
       </div>
-      <div class="section">
-        <div class="section-header"><span class="sh-icon">📝</span>Definition</div>
-        <div class="section-body">${t.definition ? `<p class="def-text">${esc(t.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>'}</div>
-      </div>
-      <div class="section">
-        <div class="section-header"><span class="sh-icon">✦</span>Key Points</div>
-        <div class="section-body">${kpHtml}</div>
-      </div>
-      ${extraHtml}
-      <div class="section">
-        <div class="section-header"><span class="sh-icon">🔗</span>Related Terms</div>
-        <div class="section-body">${relHtml}</div>
-      </div>`;
+      ${bodyHtml}`;
 
   outer.style.display = 'flex';
   el.style.display = 'block';
   void el.offsetWidth;
   el.classList.add('on');
-  renderTeacherPanel(t.id);
-}
-
-// ── Teacher notes panel ──
-function renderTeacherPanel(topicId){
-  const panel = document.getElementById('teacherNotesPanel');
-  if(!panel) return;
-  const allNotes = getTeacherNotes();
-  const notes = allNotes[topicId] || [];
-  if(!notes.length && !window.isTeacher){ panel.style.display = 'none'; return; }
-  panel.style.display = 'flex';
-
-  const notesHtml = notes.map(n => `
-    <div class="tn-note">
-      <div class="tn-note-meta">
-        <span class="tn-note-author">${esc(n.author)}</span>
-        <span class="tn-note-date">${n.date}</span>
-        ${window.isTeacher ? `<button class="tn-del-btn" onclick="deleteTeacherNote(${topicId},'${n.id}')" title="Delete">✕</button>` : ''}
-      </div>
-      <p class="tn-note-text">${esc(n.text)}</p>
-    </div>`).join('');
-
-  const addForm = window.isTeacher ? `
-    <div class="tn-add-form">
-      <textarea class="tn-textarea" id="tnInput_${topicId}" placeholder="Add a note for students — exam tips, common mistakes, what to focus on…"></textarea>
-      <button class="tn-post-btn" onclick="postTeacherNote(${topicId})">Post note</button>
-    </div>` : '';
-
-  panel.innerHTML = `
-    <div class="tn-header">
-      <span class="tn-icon">🎓</span>
-      <span class="tn-header-label">Teacher notes</span>
-      ${window.isTeacher ? '<span class="tn-header-badge">Teacher</span>' : ''}
-    </div>
-    <div class="tn-notes-list">${notesHtml || '<p class="tn-empty">No notes yet — add one below.</p>'}</div>
-    ${addForm}`;
-}
-
-function postTeacherNote(topicId){
-  const inp = document.getElementById('tnInput_' + topicId);
-  if(!inp) return;
-  const text = inp.value.trim();
-  if(!text){ showToast('Write a note first', 'info'); return; }
-  const allNotes = getTeacherNotes();
-  if(!allNotes[topicId]) allNotes[topicId] = [];
-  allNotes[topicId].push({
-    id: Date.now().toString(36),
-    text,
-    author: window.teacherName || 'Teacher',
-    uid: window.currentUid || '',
-    date: new Date().toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})
-  });
-  saveTeacherNotes(allNotes);
-  inp.value = '';
-  renderTeacherPanel(topicId);
-  showToast('Note posted', 'success');
-}
-
-function deleteTeacherNote(topicId, noteId){
-  const allNotes = getTeacherNotes();
-  if(!allNotes[topicId]) return;
-  allNotes[topicId] = allNotes[topicId].filter(n => n.id !== noteId);
-  saveTeacherNotes(allNotes);
-  renderTeacherPanel(topicId);
+  buildTeacherPanel(t.id, visibleBlocks);
 }
 function openModal(id){
   if(window.isGuest){ showToast('Sign in to add or edit topics','info'); return; }
@@ -395,18 +572,22 @@ function openModal(id){
     setRichVal('fProcess', t.process || '');
     setRichVal('fSafety', t.safety || '');
     setRichVal('fExamTip', t.examTip || '');
+    setRichVal('fBodyText', t.bodyText || '');
     (t.keyPoints||[]).forEach(k => addKpRow(k));
     (t.relatedTerms||[]).forEach(addTag);
     getTopics().filter(c => c.parentId === t.id).forEach(c => addSubtopicRow(c));
     document.getElementById('fqaList').innerHTML = '';
     (t.flashcardQA||[]).forEach(qa => addFqaRow(qa.q, qa.a));
+    currentLayout = LAYOUTS.includes(t.layout) ? t.layout : 'basic';
   } else {
     document.getElementById('modalTitle').textContent = 'New topic';
     ['fName','fDefinition'].forEach(i => document.getElementById(i).value = '');
-    ['fFormula','fMaterials','fProcess','fSafety','fExamTip'].forEach(clearRich);
+    ['fFormula','fMaterials','fProcess','fSafety','fExamTip','fBodyText'].forEach(clearRich);
     document.getElementById('fUnit').value = '';
     document.getElementById('fqaList').innerHTML = '';
+    currentLayout = 'basic';
   }
+  applyLayoutUI();
   document.getElementById('modalOverlay').classList.add('open');
   setTimeout(() => document.getElementById('fName').focus(), 80);
 }
@@ -519,6 +700,8 @@ function saveTopic(){
     process:   getRichVal('fProcess'),
     safety:    getRichVal('fSafety'),
     examTip:   getRichVal('fExamTip'),
+    bodyText:  getRichVal('fBodyText'),
+    layout:    currentLayout,
     relatedTerms,
     flashcardQA,
     parentId: ex.parentId || null,
@@ -678,7 +861,7 @@ async function syncPull(){
     const tnRes = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(TN_KEY()));
     if(tnRes && tnRes.data !== null && tnRes.data !== undefined){
       localStorage.setItem(TN_KEY(), JSON.stringify(tnRes.data));
-      if(activeId) renderTeacherPanel(activeId);
+      if(activeId) viewTopic(activeId);
     }
     setSyncStatus('ok');
     renderList();
