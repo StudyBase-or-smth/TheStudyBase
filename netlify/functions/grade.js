@@ -10,29 +10,31 @@
 // optional textbox on the page, that key is sent per-request in the request
 // body and used instead -- it is NOT stored anywhere server-side either.
 
+const JSON_HEADERS = { 'Content-Type': 'application/json' };
+
 exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   let body;
   try {
     body = JSON.parse(event.body || '{}');
   } catch (e) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+    return { statusCode: 400, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
   const { provider, prompt, userKey } = body;
 
   if (!prompt || typeof prompt !== 'string') {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Missing prompt' }) };
+    return { statusCode: 400, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Missing prompt' }) };
   }
 
   try {
     if (provider === 'claude') {
       const apiKey = (userKey && userKey.trim()) || process.env.CLAUDE_API_KEY;
       if (!apiKey) {
-        return { statusCode: 500, body: JSON.stringify({ error: 'No Claude API key configured on server and none provided by user.' }) };
+        return { statusCode: 500, headers: JSON_HEADERS, body: JSON.stringify({ error: 'No Claude API key configured on server and none provided by user.' }) };
       }
 
       const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -53,7 +55,7 @@ exports.handler = async function (event) {
 
       if (!res.ok) {
         const msg = (data && data.error && data.error.message) || 'Claude API request failed';
-        return { statusCode: res.status, body: JSON.stringify({ error: msg }) };
+        return { statusCode: res.status, headers: JSON_HEADERS, body: JSON.stringify({ error: msg }) };
       }
 
       const text = (data.content || [])
@@ -63,6 +65,7 @@ exports.handler = async function (event) {
 
       return {
         statusCode: 200,
+        headers: JSON_HEADERS,
         body: JSON.stringify({ text }),
       };
     }
@@ -70,7 +73,7 @@ exports.handler = async function (event) {
     if (provider === 'gemini') {
       const apiKey = (userKey && userKey.trim()) || process.env.GEMINI_API_KEY;
       if (!apiKey) {
-        return { statusCode: 500, body: JSON.stringify({ error: 'No Gemini API key configured on server and none provided by user.' }) };
+        return { statusCode: 500, headers: JSON_HEADERS, body: JSON.stringify({ error: 'No Gemini API key configured on server and none provided by user.' }) };
       }
 
       const res = await fetch(
@@ -86,19 +89,20 @@ exports.handler = async function (event) {
 
       if (!res.ok) {
         const msg = (data && data.error && data.error.message) || 'Gemini API request failed';
-        return { statusCode: res.status, body: JSON.stringify({ error: msg }) };
+        return { statusCode: res.status, headers: JSON_HEADERS, body: JSON.stringify({ error: msg }) };
       }
 
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
       return {
         statusCode: 200,
+        headers: JSON_HEADERS,
         body: JSON.stringify({ text }),
       };
     }
 
-    return { statusCode: 400, body: JSON.stringify({ error: 'Unknown provider: ' + provider }) };
+    return { statusCode: 400, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Unknown provider: ' + provider }) };
   } catch (err) {
-    return { statusCode: 500, body: JSON.stringify({ error: err.message || 'Unexpected server error' }) };
+    return { statusCode: 500, headers: JSON_HEADERS, body: JSON.stringify({ error: err.message || 'Unexpected server error' }) };
   }
 };
