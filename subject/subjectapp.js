@@ -120,9 +120,6 @@ function applyLayoutUI(){
     if(currentLayout === 'text'){ bodyLabel.textContent = 'Main Text'; bodyEl.style.minHeight = '260px'; }
     else { bodyLabel.textContent = 'Overview'; bodyEl.style.minHeight = '120px'; }
   }
-  // Hide Fill Gaps button in overview layout
-  const fillBtn = document.getElementById('btnAiFillModal');
-  if(fillBtn) fillBtn.style.display = currentLayout === 'overview' ? 'none' : '';
 }
 
 // ── Teacher notes (per block) ──
@@ -169,141 +166,188 @@ function deleteBlockNote(topicId, block, noteId){
   viewTopic(topicId);
 }
 
-function noteBtnHtml(topicId, block){
-  const notes = getBlockNotes(topicId, block);
-  const has = notes.length > 0;
-  if(!has && !window.isTeacher) return '';
-  return `<button class="sb-note-btn${has?' has-notes':''}" onclick="event.stopPropagation();toggleBlockNotes(${topicId},'${block}')" title="Teacher notes">🎓${has?`<span class="sb-note-count">${notes.length}</span>`:''}</button>`;
-}
-
-function blockNotesDrawerHtml(topicId, block){
-  const notes = getBlockNotes(topicId, block);
-  if(!notes.length && !window.isTeacher) return '';
-  const rows = notes.map(n => `
-    <div class="sb-note">
-      <div class="sb-note-meta">
-        <span class="sb-note-author">${esc(n.author)}</span>
-        <span class="sb-note-date">${n.date}</span>
-        ${window.isTeacher ? `<button class="sb-note-del" onclick="deleteBlockNote(${topicId},'${block}','${n.id}')" title="Delete">✕</button>` : ''}
-      </div>
-      <p class="sb-note-text">${esc(n.text)}</p>
-    </div>`).join('');
-  const addForm = window.isTeacher ? `
-    <div class="sb-note-add">
-      <textarea class="sb-note-textarea" id="sbni_${topicId}_${block}" placeholder="Add a note for students about this section…"></textarea>
-      <button class="sb-note-post" onclick="postBlockNote(${topicId},'${block}')">Post note</button>
-    </div>` : '';
-  return `<div class="sb-note-drawer" id="sbnd_${topicId}_${block}" style="display:none">
-    <div class="sb-note-list">${rows || '<p class="sb-note-empty">No notes yet for this section.</p>'}</div>
-    ${addForm}
+// ── Section rendering ──
+function sectionHtml(topicId, icon, label, block, bodyHtml){
+  return `<div class="section" data-block="${block}">
+    <div class="section-header">
+      <span class="sh-label-wrap"><span class="sh-icon">${icon}</span>${label}</span>
+    </div>
+    <div class="section-body">${bodyHtml}</div>
   </div>`;
 }
 
-function toggleBlockNotes(topicId, block){
-  const d = document.getElementById(`sbnd_${topicId}_${block}`);
-  if(!d) return;
-  d.style.display = d.style.display === 'none' ? 'block' : 'none';
-}
-
-function postBlockNote(topicId, block){
-  const inp = document.getElementById(`sbni_${topicId}_${block}`);
-  if(!inp) return;
-  const text = inp.value.trim();
-  if(!text){ showToast('Write a note first', 'info'); return; }
-  saveBlockNote(topicId, block, text);
-  viewTopic(topicId);
-  showToast('Note added', 'success');
-}
-
-// Builds a section row: block box on left, comment note inline on right at same height
-function sectionHtml(topicId, icon, label, block, bodyHtml){
+// ── Right-hand comments sidebar ──
+function blockCommentHtml(topicId, block, label, icon){
   const notes = getBlockNotes(topicId, block);
   const hasNotes = notes.length > 0;
-  const showIcon = hasNotes || window.isTeacher;
+  if(!hasNotes && !window.isTeacher) return '';
 
-  // Build the inline comment column content
-  let commentColHtml = '';
-  if(showIcon){
-    const notesHtml = notes.map(n => `
-      <div class="blk-note" id="tnpn_${n.id}">
-        <div class="blk-note-meta">
-          <span class="blk-note-author">🎓 ${esc(n.author)}</span>
-          <span class="blk-note-date">${n.date}</span>
-          ${window.isTeacher ? `<button class="blk-note-del" onclick="deleteBlockNote(${topicId},'${block}','${n.id}')" title="Delete">✕</button>` : ''}
-        </div>
-        <p class="blk-note-text">${esc(n.text)}</p>
-      </div>`).join('');
+  const notesHtml = notes.map(n => `
+    <div class="blk-note">
+      <div class="blk-note-meta">
+        <span class="blk-note-author">🎓 ${esc(n.author)}</span>
+        <span class="blk-note-date">${n.date}</span>
+        ${window.isTeacher ? `<button class="blk-note-del" onclick="deleteBlockNote(${topicId},'${block}','${n.id}')" title="Delete">✕</button>` : ''}
+      </div>
+      <p class="blk-note-text">${esc(n.text)}</p>
+    </div>`).join('');
 
-    const addForm = window.isTeacher ? `
-      <div class="blk-add-form" id="blkForm_${block}" style="display:none">
-        <textarea class="blk-textarea" id="blkTA_${block}" placeholder="Comment on ${esc(label)}…" rows="3"></textarea>
-        <div class="blk-form-btns">
-          <button class="blk-cancel-btn" onclick="closeBlockForm('${block}')">Cancel</button>
-          <button class="blk-post-btn" onclick="postBlockComment(${topicId},'${block}')">Post</button>
-        </div>
-      </div>` : '';
+  const iconAction = window.isTeacher
+    ? `openCommentPopover(${topicId},'${block}','${esc(label).replace(/'/g,"\\'")}',this)`
+    : `toggleBlockCard('${block}')`;
 
-    const iconBtn = `<button class="blk-comment-btn${hasNotes?' has-notes':''}"
-      onclick="focusBlockComment(${topicId},'${block}')"
-      title="${hasNotes ? notes.length+' comment'+(notes.length>1?'s':'') : 'Add comment'}">
+  const commentIcon = `
+    <button class="blk-comment-btn${hasNotes?' has-notes':''}" onclick="${iconAction}"
+      title="${window.isTeacher ? 'Add comment' : (hasNotes ? notes.length+' comment'+(notes.length>1?'s':'') : '')}">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       ${hasNotes ? `<span class="blk-comment-count">${notes.length}</span>` : ''}
     </button>`;
 
-    commentColHtml = `
-      <div class="blk-col" id="blkCol_${block}">
-        ${iconBtn}
-        ${hasNotes || window.isTeacher ? `<div class="blk-notes-wrap" id="blkWrap_${block}" style="display:${hasNotes?'flex':'none'}">
-          <div class="blk-notes-list">${notesHtml}</div>
-          ${addForm}
-        </div>` : ''}
-      </div>`;
-  } else {
-    commentColHtml = `<div class="blk-col blk-col-empty"></div>`;
-  }
+  const collapseArrow = hasNotes ? `
+    <button class="blk-collapse-btn" id="blkArrow_${block}" onclick="toggleBlockCard('${block}')" title="Toggle">‹</button>` : '';
 
-  return `<div class="section-row" data-block-row="${block}">
-    <div class="section">
-      <div class="section-header">
-        <span class="sh-label-wrap"><span class="sh-icon">${icon}</span>${label}</span>
-      </div>
-      <div class="section-body">${bodyHtml}</div>
+  const cardBody = hasNotes ? `
+    <div class="blk-card-body" id="blkCard_${block}" style="display:block">
+      <div class="blk-notes-list">${notesHtml}</div>
+    </div>` : '';
+
+  return `<div class="cs-item" id="blkCol_${block}">
+    <div class="cs-item-head">
+      ${commentIcon}
+      ${collapseArrow}
     </div>
-    ${commentColHtml}
+    ${cardBody}
   </div>`;
 }
 
-// ── Inline block comment helpers ──
-function focusBlockComment(topicId, block){
-  const wrap = document.getElementById(`blkWrap_${block}`);
-  if(!wrap) return;
-  // Show the notes wrap if hidden
-  wrap.style.display = 'flex';
-  // Teachers: open the add form
-  if(window.isTeacher){
-    const form = document.getElementById(`blkForm_${block}`);
-    if(form){ form.style.display = 'flex'; setTimeout(()=>document.getElementById(`blkTA_${block}`)?.focus(), 50); }
+function toggleBlockCard(block){
+  const card = document.getElementById(`blkCard_${block}`);
+  const arrow = document.getElementById(`blkArrow_${block}`);
+  if(!card) return;
+  const isOpen = card.style.display !== 'none';
+  card.style.display = isOpen ? 'none' : 'block';
+  if(arrow) arrow.textContent = isOpen ? '›' : '‹';
+  if(_lastVisibleBlocks.length) requestAnimationFrame(() => alignCommentsSidebar(_lastVisibleBlocks));
+}
+
+// ── Floating comment popover (teacher only) ──
+function ensureCommentPopover(){
+  let pop = document.getElementById('commentPopover');
+  if(pop) return pop;
+  pop = document.createElement('div');
+  pop.id = 'commentPopover';
+  pop.className = 'comment-popover';
+  pop.innerHTML = `
+    <div class="comment-popover-title" id="popoverTitle"></div>
+    <textarea class="blk-textarea" id="popoverTA" rows="4"></textarea>
+    <div class="blk-form-btns">
+      <button class="blk-cancel-btn" onclick="closeCommentPopover()">Cancel</button>
+      <button class="blk-post-btn" onclick="postPopoverComment()">Post</button>
+    </div>`;
+  document.body.appendChild(pop);
+  return pop;
+}
+
+function openCommentPopover(topicId, block, label, anchorEl){
+  const pop = ensureCommentPopover();
+  pop.dataset.topicId = topicId;
+  pop.dataset.block = block;
+  document.getElementById('popoverTitle').textContent = 'Comment on ' + label;
+  const ta = document.getElementById('popoverTA');
+  ta.value = '';
+  const rect = anchorEl.getBoundingClientRect();
+  const popWidth = Math.min(320, window.innerWidth - 32);
+  let left = rect.left - popWidth - 8;
+  if(left < 12) left = Math.max(12, rect.right + 8);
+  let top = Math.min(rect.top, window.innerHeight - 200);
+  pop.style.width = popWidth + 'px';
+  pop.style.left = left + 'px';
+  pop.style.top = Math.max(12, top) + 'px';
+  pop.classList.add('open');
+  setTimeout(() => ta.focus(), 50);
+  document.addEventListener('mousedown', _popoverOutsideHandler);
+  document.addEventListener('keydown', _popoverEscHandler);
+}
+
+function closeCommentPopover(){
+  const pop = document.getElementById('commentPopover');
+  if(pop) pop.classList.remove('open');
+  document.removeEventListener('mousedown', _popoverOutsideHandler);
+  document.removeEventListener('keydown', _popoverEscHandler);
+}
+
+function _popoverOutsideHandler(e){
+  const pop = document.getElementById('commentPopover');
+  if(pop && pop.classList.contains('open') && !pop.contains(e.target) && !e.target.closest('.blk-comment-btn')){
+    closeCommentPopover();
   }
-  wrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
 }
+function _popoverEscHandler(e){ if(e.key === 'Escape') closeCommentPopover(); }
 
-function closeBlockForm(block){
-  const form = document.getElementById(`blkForm_${block}`);
-  if(form){ form.style.display = 'none'; const ta = document.getElementById(`blkTA_${block}`); if(ta) ta.value = ''; }
-}
-
-function postBlockComment(topicId, block){
-  const ta = document.getElementById(`blkTA_${block}`);
-  if(!ta) return;
+function postPopoverComment(){
+  const pop = document.getElementById('commentPopover');
+  const ta = document.getElementById('popoverTA');
+  if(!pop || !ta) return;
   const text = ta.value.trim();
   if(!text){ showToast('Write a comment first','info'); return; }
+  const topicId = Number(pop.dataset.topicId);
+  const block = pop.dataset.block;
   saveBlockNote(topicId, block, text);
+  closeCommentPopover();
   viewTopic(topicId);
+  setTimeout(() => {
+    const card = document.getElementById(`blkCard_${block}`);
+    const arrow = document.getElementById(`blkArrow_${block}`);
+    if(card) card.style.display='block'; if(arrow) arrow.textContent='‹';
+    if(_lastVisibleBlocks.length) alignCommentsSidebar(_lastVisibleBlocks);
+  }, 60);
   showToast('Comment posted','success');
 }
 
-// buildTeacherPanel is no longer needed — comments are inline in sectionHtml
-function buildTeacherPanel(topicId, visibleBlocks){ /* no-op: inline rendering */ }
+// ── Build & align the right-hand sidebar ──
+let _lastVisibleBlocks = [];
+
+function buildTeacherPanel(topicId, visibleBlocks){
+  const panel = document.getElementById('teacherNotesPanel');
+  if(!panel) return;
+  _lastVisibleBlocks = visibleBlocks;
+  const itemsHtml = visibleBlocks.map(b => blockCommentHtml(topicId, b.block, b.label, b.icon)).join('');
+  if(!itemsHtml){
+    panel.innerHTML = '';
+    panel.style.display = 'none';
+    panel.style.height = '';
+    return;
+  }
+  panel.innerHTML = itemsHtml;
+  panel.style.display = 'block';
+  requestAnimationFrame(() => alignCommentsSidebar(visibleBlocks));
+}
+
+function alignCommentsSidebar(visibleBlocks){
+  const panel = document.getElementById('teacherNotesPanel');
+  const content = document.getElementById('detailContent');
+  if(!panel || !content || panel.style.display === 'none') return;
+  const contentRect = content.getBoundingClientRect();
+  let maxBottom = 0;
+  visibleBlocks.forEach(b => {
+    const sectionEl = content.querySelector(`.section[data-block="${b.block}"]`);
+    const item = panel.querySelector(`#blkCol_${b.block}`);
+    if(!sectionEl || !item) return;
+    const top = sectionEl.getBoundingClientRect().top - contentRect.top;
+    item.style.top = top + 'px';
+    maxBottom = Math.max(maxBottom, top + item.offsetHeight, top + sectionEl.offsetHeight);
+  });
+  panel.style.height = maxBottom + 'px';
+}
+
+let _alignResizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(_alignResizeTimer);
+  _alignResizeTimer = setTimeout(() => {
+    if(_lastVisibleBlocks.length) alignCommentsSidebar(_lastVisibleBlocks);
+  }, 150);
+});
+
 
 // ── Pin / unpin a topic ──
 function togglePinTopic(id){
@@ -465,24 +509,22 @@ function viewTopic(id){
   const relHtml = (t.relatedTerms||[]).length
     ? `<div class="related-tags">${t.relatedTerms.map(r => {
         const m = getTopics().find(x => x.name.toLowerCase()===r.toLowerCase());
-        if(m){
-          return `<a class="rtag rtag-linked" href="javascript:void(0)" onclick="viewTopic(${m.id})" title="Go to topic: ${esc(m.name)}">🔗 ${esc(r)}</a>`;
-        }
-        return `<span class="rtag rtag-plain">${esc(r)}</span>`;
+        return `<span class="rtag"${m?` onclick="viewTopic(${m.id})"`:''}>${esc(r)}</span>`;
       }).join('')}</div>`
     : '<p class="empty-note">None listed.</p>';
 
   const subtopicsHtml = children.length
-    ? `<ul class="subtopic-link-list">${children.map(c => `<li class="subtopic-link-item"><div class="kp-dot"></div><a class="subtopic-link" onclick="viewTopic(${c.id})" href="javascript:void(0)">${esc(c.name)}</a></li>`).join('')}</ul>`
+    ? `<div class="related-tags">${children.map(c => `<span class="rtag" onclick="viewTopic(${c.id})">${esc(c.name)}</span>`).join('')}</div>`
     : '<p class="empty-note">No subtopics yet.</p>';
 
   const created = new Date(t.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
   const editedStr = t.updatedAt && t.updatedAt !== t.createdAt
     ? '<span class="dh-date">· Edited '+new Date(t.updatedAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})+'</span>' : '';
 
-  const visibleBlocks = []; // { block, label } — passed to buildTeacherPanel
+  // visibleBlocks tracks each section for sidebar alignment
+  const visibleBlocks = [];
   const sec = (block, label, icon, bodyHtml) => {
-    visibleBlocks.push({ block, label });
+    visibleBlocks.push({ block, label, icon });
     return sectionHtml(t.id, icon, label, block, bodyHtml);
   };
 
@@ -490,17 +532,10 @@ function viewTopic(id){
   if(layout === 'overview'){
     bodyHtml += sec('bodyText', 'Overview', '📖',
       t.bodyText ? `<div class="plain-text">${sanitizeRich(t.bodyText)}</div>` : '<p class="empty-note">No overview written yet.</p>');
-    const overviewListItems = [];
-    (t.keyPoints||[]).forEach(k => {
-      overviewListItems.push(`<li class="ovw-list-item ovw-kp-item"><div class="kp-dot"></div><span>${esc(k)}</span></li>`);
-    });
-    children.forEach(c => {
-      overviewListItems.push(`<li class="ovw-list-item ovw-subtopic-item"><div class="kp-dot kp-dot-link"></div><a class="subtopic-link" href="javascript:void(0)" onclick="viewTopic(${c.id})">${esc(c.name)}</a><span class="ovw-subtopic-badge">subtopic →</span></li>`);
-    });
-    if(overviewListItems.length){
-      bodyHtml += sec('overviewPoints', 'Points & Subtopics', '📋',
-        `<ul class="ovw-list">${overviewListItems.join('')}</ul>`);
-    }
+    const ovwItems = [];
+    (t.keyPoints||[]).forEach(k => ovwItems.push(`<li class="ovw-list-item ovw-kp-item"><div class="kp-dot"></div><span>${esc(k)}</span></li>`));
+    children.forEach(c => ovwItems.push(`<li class="ovw-list-item ovw-subtopic-item"><div class="kp-dot kp-dot-link"></div><a class="subtopic-link" href="javascript:void(0)" onclick="viewTopic(${c.id})">${esc(c.name)}</a><span class="ovw-subtopic-badge">subtopic →</span></li>`));
+    if(ovwItems.length) bodyHtml += sec('overviewPoints', 'Points & Subtopics', '📋', `<ul class="ovw-list">${ovwItems.join('')}</ul>`);
   } else if(layout === 'math'){
     bodyHtml += sec('formula', 'Formula / Equation', '∑',
       t.formula ? `<div class="formula-box">${sanitizeRich(t.formula)}</div>` : '<p class="empty-note">No formula added yet.</p>');
