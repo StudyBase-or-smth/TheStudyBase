@@ -26,19 +26,39 @@
     appId:"1:434992387793:web:e5bcae8cad63b4eb6f17f0"
   };
   const auth = getAuth(initializeApp(cfg));
-  onAuthStateChanged(auth, user => {
+  onAuthStateChanged(auth, async user => {
     const isGuest = sessionStorage.getItem('studybase_guest') === '1';
     if (user) {
       sessionStorage.removeItem('studybase_guest');
       window.currentUid = user.uid;
       localStorage.setItem('studybase_uid', user.uid);
-      user.getIdTokenResult().then(result => {
-        if (result.claims.role === 'teacher') {
-          window.isTeacher = true;
-          window.teacherName = user.displayName || user.email.split('@')[0];
-          document.body.classList.add('teacher-mode');
-        }
-      });
+
+      // Force-refresh so we always have the latest claims
+      const token  = await user.getIdTokenResult(true);
+      const role   = token.claims.role   || '';
+      const status = token.claims.status || '';
+
+      if (status === 'pending') {
+        // Pending users: read-only access with a clear banner
+        window.isGuest   = true;
+        window.isPending = true;
+        document.body.classList.add('guest-mode');
+        document.getElementById('guest-border').style.display = 'block';
+        const nudge = document.getElementById('guest-nudge');
+        nudge.innerHTML = `
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Awaiting approval</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Your <strong>${role || 'teacher'}</strong> access request is being reviewed. You have read-only access for now.</div>
+          <button onclick="sbSignOut()" style="background:var(--text);color:var(--card);border:none;border-radius:6px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;transition:opacity .15s">Sign Out</button>`;
+        nudge.style.display = 'block';
+        return;
+      }
+
+      if (role === 'teacher' || role === 'dev') {
+        window.isTeacher  = true;
+        window.teacherName = user.displayName || user.email.split('@')[0];
+        document.body.classList.add('teacher-mode');
+      }
+
     } else if (isGuest) {
       window.isGuest = true;
       document.body.classList.add('guest-mode');

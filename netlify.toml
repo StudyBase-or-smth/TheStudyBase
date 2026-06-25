@@ -6,3 +6,8 @@
   from = "/api/grade"
   to = "/.netlify/functions/grade"
   status = 200
+
+[[redirects]]
+  from = "/api/registerRole"
+  to = "/.netlify/functions/registerRole"
+  status = 200
