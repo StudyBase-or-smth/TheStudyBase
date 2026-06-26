@@ -885,7 +885,6 @@ async function syncPull(){
             });
             return m;
           });
-          local.forEach(lt => { if(!merged.find(t => t.id===lt.id)) merged.push(lt); });
           localStorage.setItem(key, JSON.stringify(merged));
         } else {
           localStorage.setItem(key, JSON.stringify(res.data));
