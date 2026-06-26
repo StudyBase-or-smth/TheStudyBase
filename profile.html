@@ -17,8 +17,6 @@ body{background:#f5f2ed;color:#1c1917;display:flex;flex-direction:column}
   --shadow:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
   --accent:#f59e0b;
 }
-
-/* Header */
 .hdr-outer{background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:stretch;flex-shrink:0}
 .accent-bar{width:6px;flex-shrink:0;background:var(--accent)}
 .hdr-main{flex:1;display:flex;flex-direction:column;min-width:0}
@@ -35,30 +33,31 @@ body{background:#f5f2ed;color:#1c1917;display:flex;flex-direction:column}
 .hdr-right{margin-left:auto;display:flex;align-items:center;gap:6px}
 .hdr-ghost{background:none;border:1px solid var(--border);border-radius:5px;padding:4px 7px;font-size:12px;color:var(--text);cursor:pointer;transition:all .12s;line-height:1;display:flex;align-items:center;justify-content:center;font-family:inherit}
 .hdr-ghost:hover{background:var(--card2);border-color:var(--muted2)}
-
-/* Page */
 .page{flex:1;padding:32px 24px 60px;max-width:800px;margin:0 auto;width:100%}
-
-/* Avatar + name block */
 .profile-hero{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px 32px;box-shadow:var(--shadow);display:flex;align-items:center;gap:24px;margin-bottom:20px}
 .profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-size:28px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:-1px}
 .profile-name{font-family:'Lora',serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:4px}
-.profile-email{font-size:13px;color:var(--muted);margin-bottom:6px}
-.profile-since{font-size:11px;color:var(--muted2)}
-.profile-badge{display:inline-flex;align-items:center;gap:5px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--muted);margin-top:8px}
-
-/* Grid */
+.profile-email{font-size:13px;color:var(--muted);margin-bottom:4px}
+.profile-since{font-size:11px;color:var(--muted2);margin-bottom:8px}
+.profile-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+/* Role badges */
+.profile-badge{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;border:1px solid}
+.badge-student{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+.badge-teacher{background:#fef9c3;border-color:#fde68a;color:#92400e}
+.badge-dev{background:#f3e8ff;border-color:#d8b4fe;color:#6b21a8}
+.badge-pending{background:#fff7ed;border-color:#fed7aa;color:#c2410c}
+.badge-guest{background:var(--card2);border-color:var(--border);color:var(--muted)}
+body.dark .badge-student{background:#1e3a5f!important;border-color:#2563eb!important;color:#93c5fd!important}
+body.dark .badge-teacher{background:#1c1a08!important;border-color:#3d3410!important;color:#fde68a!important}
+body.dark .badge-dev{background:#2e1a47!important;border-color:#7c3aed!important;color:#c4b5fd!important}
+body.dark .badge-pending{background:#1f1208!important;border-color:#c2410c!important;color:#fdba74!important}
 .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
 .profile-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;box-shadow:var(--shadow)}
 .profile-card-title{font-family:'Lora',serif;font-size:14px;font-weight:600;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
-
-/* Stat rows */
 .stat-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
 .stat-row:last-child{border-bottom:none}
 .stat-label{font-size:13px;color:var(--muted)}
 .stat-val{font-size:15px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
-
-/* FC breakdown bars */
 .fc-breakdown{display:flex;flex-direction:column;gap:10px}
 .fc-bar-row{display:flex;flex-direction:column;gap:4px}
 .fc-bar-label{display:flex;justify-content:space-between;font-size:12px}
@@ -69,38 +68,19 @@ body{background:#f5f2ed;color:#1c1917;display:flex;flex-direction:column}
 .fc-bar-fill.correct{background:#22c55e}
 .fc-bar-fill.close{background:#f59e0b}
 .fc-bar-fill.incorrect{background:#ef4444}
-
-/* Subject links */
 .subj-links{display:flex;flex-direction:column;gap:6px}
 .subj-link-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card2);text-decoration:none;transition:all .12s;cursor:pointer}
 .subj-link-item:hover{border-color:var(--border2);background:var(--card);transform:translateX(3px)}
 .subj-link-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .subj-link-name{font-size:13px;font-weight:500;color:var(--text);flex:1}
 .subj-link-count{font-size:11px;color:var(--muted2)}
-
-/* Most active */
-.most-active-bar{margin-top:16px}
-.most-active-subject{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px}
-
-/* Dark mode */
-body.dark{background:#141210;color:#e8e3dc}
-body.dark{
-  --card:#1e1c19;--card2:#252220;--border:#302d29;--border2:#3d3935;
-  --text:#e8e3dc;--muted:#9e9890;--muted2:#6b6560;
-  --shadow:0 1px 3px rgba(0,0,0,.3);
-}
+body.dark{background:#141210;color:#e8e3dc;--card:#1e1c19;--card2:#252220;--border:#302d29;--border2:#3d3935;--text:#e8e3dc;--muted:#9e9890;--muted2:#6b6560;--shadow:0 1px 3px rgba(0,0,0,.3)}
 body.dark .hdr-outer{background:var(--card)}
-
-/* Toast */
 #sb-toast-c{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none}
 .sb-toast{display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--border2);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:180px;animation:tb-in .2s ease;transition:opacity .3s,transform .3s}
 .sb-toast.out{opacity:0;transform:translateX(16px)}
 @keyframes tb-in{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
-
-@media(max-width:600px){
-  .profile-grid{grid-template-columns:1fr}
-  .profile-hero{flex-direction:column;text-align:center}
-}
+@media(max-width:600px){.profile-grid{grid-template-columns:1fr}.profile-hero{flex-direction:column;text-align:center}}
 </style>
 </head>
 <body>
@@ -117,31 +97,43 @@ body.dark .hdr-outer{background:var(--card)}
     appId:"1:434992387793:web:e5bcae8cad63b4eb6f17f0"
   };
   const auth = getAuth(initializeApp(cfg));
-  onAuthStateChanged(auth, user => {
+
+  onAuthStateChanged(auth, async user => {
     const isGuest = sessionStorage.getItem('studybase_guest') === '1';
-    if(user){
+    if (user) {
       const email = user.email || '';
-      const uid = user.uid;
-      const namePart = email.split('@')[0];
-      const displayName = namePart.split('.').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      const uid   = user.uid;
+
+      // Use the displayName stored at sign-up (updateProfile), fall back to
+      // formatting the email prefix if no name was ever set
+      const displayName = user.displayName ||
+        email.split('@')[0].split('.').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+      // Force-refresh token to get the latest role / status claims
+      const token  = await user.getIdTokenResult(true);
+      const role   = token.claims.role   || 'student';
+      const status = token.claims.status || 'active';
+
       localStorage.setItem('studybase_display_name', displayName);
       localStorage.setItem('studybase_email', email);
       localStorage.setItem('studybase_uid', uid);
-      if(!localStorage.getItem('studybase_member_since'))
+      if (!localStorage.getItem('studybase_member_since'))
         localStorage.setItem('studybase_member_since', new Date().toISOString());
-      buildProfile(displayName, email, uid, false);
-    } else if(isGuest){
-      buildProfile('Guest', '', 'guest', true);
+
+      buildProfile(displayName, email, uid, false, role, status);
+    } else if (isGuest) {
+      buildProfile('Guest', '', 'guest', true, 'guest', 'active');
     } else {
       window.location.href = 'login.html';
     }
   });
+
   window.sbSignOut = () => {
-    if(sessionStorage.getItem('studybase_guest')==='1'){
+    if (sessionStorage.getItem('studybase_guest') === '1') {
       sessionStorage.removeItem('studybase_guest');
-      window.location.href='login.html'; return;
+      window.location.href = 'login.html'; return;
     }
-    signOut(auth).then(()=>window.location.href='login.html');
+    signOut(auth).then(() => window.location.href = 'login.html');
   };
 </script>
 
@@ -177,93 +169,107 @@ body.dark .hdr-outer{background:var(--card)}
 <div id="sb-toast-c"></div>
 <script src="subjects.js"></script>
 <script>
-// Dark mode
+// ── Dark mode ──
 (function(){
-  const on = localStorage.getItem('studybase_dark')==='1';
-  if(on) document.body.classList.add('dark');
+  const on = localStorage.getItem('studybase_dark') === '1';
+  if (on) document.body.classList.add('dark');
   const btn = document.getElementById('darkToggle');
-  if(btn) btn.textContent = on ? '☀️' : '🌙';
+  if (btn) btn.textContent = on ? '☀️' : '🌙';
 })();
 function toggleDark(){
   const on = document.body.classList.toggle('dark');
-  localStorage.setItem('studybase_dark', on?'1':'0');
-  document.getElementById('darkToggle').textContent = on?'☀️':'🌙';
+  localStorage.setItem('studybase_dark', on ? '1' : '0');
+  document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
 }
 
 function getInitials(name){
-  return name.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
+  return name.split(' ').map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
 }
 
 function formatDate(iso){
-  if(!iso) return 'Unknown';
-  try{
-    return new Date(iso).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
-  }catch(e){ return 'Unknown'; }
+  if (!iso) return 'Unknown';
+  try { return new Date(iso).toLocaleDateString('en-AU', {day:'numeric',month:'long',year:'numeric'}); }
+  catch(e) { return 'Unknown'; }
 }
 
 function getTopics(s){
-  const key = s.storageKey||(s.id+'_topics');
-  try{ return JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){ return []; }
+  const key = s.storageKey || (s.id + '_topics');
+  try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { return []; }
 }
 
-function buildProfile(displayName, email, uid, isGuest){
-  const subjects = (typeof subjectsData !== 'undefined') ? (subjectsData.subjects||[]) : [];
+// Returns a styled badge for the user's role + status
+function roleBadge(role, status) {
+  if (status === 'pending') {
+    return `<span class="profile-badge badge-pending">⏳ Pending approval (${role})</span>`;
+  }
+  const map = {
+    teacher: `<span class="profile-badge badge-teacher">🎓 Teacher</span>`,
+    dev:     `<span class="profile-badge badge-dev">⚙ Dev</span>`,
+    student: `<span class="profile-badge badge-student">🎒 Student</span>`,
+  };
+  return map[role] || `<span class="profile-badge badge-student">🎒 Student</span>`;
+}
+
+function buildProfile(displayName, email, uid, isGuest, role, status) {
+  const subjects = (typeof subjectsData !== 'undefined') ? (subjectsData.subjects || []) : [];
 
   // Count topics added by this user
-  let totalTopics = 0;
-  let mostActive = null, mostActiveCount = 0;
+  let totalTopics = 0, mostActive = null, mostActiveCount = 0;
   subjects.forEach(s => {
-    const all = getTopics(s);
+    const all  = getTopics(s);
     const mine = uid === 'guest' ? all : all.filter(t => !t.addedBy || t.addedBy === uid);
     totalTopics += mine.length;
-    if(mine.length > mostActiveCount){ mostActiveCount = mine.length; mostActive = s; }
+    if (mine.length > mostActiveCount) { mostActiveCount = mine.length; mostActive = s; }
   });
 
-  // Flashcard stats keyed by UID
+  // Flashcard stats
   const statsKey = 'studybase_fc_stats_' + uid;
   let fcStats = {correct:0,close:0,incorrect:0,total:0};
-  try{ fcStats = JSON.parse(localStorage.getItem(statsKey)||'{}'); }catch(e){}
-  const fcTotal = (fcStats.total||0);
-  const fcCorrect = fcStats.correct||0;
-  const fcClose = fcStats.close||0;
-  const fcIncorrect = fcStats.incorrect||0;
-  const accuracy = fcTotal > 0 ? Math.round((fcCorrect/fcTotal)*100) : 0;
+  try { fcStats = JSON.parse(localStorage.getItem(statsKey) || '{}'); } catch(e) {}
+  const fcTotal     = fcStats.total     || 0;
+  const fcCorrect   = fcStats.correct   || 0;
+  const fcClose     = fcStats.close     || 0;
+  const fcIncorrect = fcStats.incorrect || 0;
+  const accuracy    = fcTotal > 0 ? Math.round((fcCorrect / fcTotal) * 100) : 0;
 
   const memberSince = formatDate(localStorage.getItem('studybase_member_since'));
-  const initials = getInitials(displayName);
+  const initials    = getInitials(displayName);
+  const avatarColor = isGuest ? '#6b7280' : (subjects[0]?.colour || '#f59e0b');
 
-  // Subject links HTML
-  const subjLinksHtml = subjects.length ? subjects.map(s => {
-    const all = getTopics(s);
-    const mine = uid === 'guest' ? all : all.filter(t => !t.addedBy || t.addedBy === uid);
-    const total = all.length;
-    return `<a class="subj-link-item" href="subject.html#${s.id}">
-      <div class="subj-link-dot" style="background:${s.colour}"></div>
-      <span class="subj-link-name">${s.emoji||''} ${s.name}</span>
-      <span class="subj-link-count">${mine.length} mine · ${total} total</span>
-    </a>`;
-  }).join('') : '<div style="font-size:13px;color:var(--muted2)">No subjects configured.</div>';
+  const badgesHtml = isGuest
+    ? `<span class="profile-badge badge-guest">👤 Guest</span>`
+    : roleBadge(role, status);
 
-  // Flashcard bar widths
-  const barW = (n) => fcTotal > 0 ? Math.round((n/fcTotal)*100) : 0;
+  const subjLinksHtml = subjects.length
+    ? subjects.map(s => {
+        const all  = getTopics(s);
+        const mine = uid === 'guest' ? all : all.filter(t => !t.addedBy || t.addedBy === uid);
+        return `<a class="subj-link-item" href="subject.html#${s.id}">
+          <div class="subj-link-dot" style="background:${s.colour}"></div>
+          <span class="subj-link-name">${s.emoji || ''} ${s.name}</span>
+          <span class="subj-link-count">${mine.length} mine · ${all.length} total</span>
+        </a>`;
+      }).join('')
+    : '<div style="font-size:13px;color:var(--muted2)">No subjects configured.</div>';
+
+  const barW = n => fcTotal > 0 ? Math.round((n / fcTotal) * 100) : 0;
 
   document.getElementById('profilePage').innerHTML = `
     <div class="profile-hero">
-      <div class="profile-avatar" style="background:${isGuest?'#6b7280':subjects[0]?.colour||'#f59e0b'}">${initials||'?'}</div>
+      <div class="profile-avatar" style="background:${avatarColor}">${initials || '?'}</div>
       <div>
         <div class="profile-name">${displayName}</div>
         ${email ? `<div class="profile-email">${email}</div>` : ''}
         <div class="profile-since">Member since ${memberSince}</div>
-        <div class="profile-badge">${isGuest ? '👤 Guest' : '✓ Signed in'}</div>
+        <div class="profile-badges">${badgesHtml}</div>
       </div>
     </div>
 
     <div class="profile-grid">
-      <!-- Study stats -->
       <div class="profile-card">
         <div class="profile-card-title">Study Stats</div>
         <div class="stat-row">
-          <span class="stat-label">Total topics added</span>
+          <span class="stat-label">Topics added</span>
           <span class="stat-val">${totalTopics}</span>
         </div>
         <div class="stat-row">
@@ -284,7 +290,6 @@ function buildProfile(displayName, email, uid, isGuest){
         </div>
       </div>
 
-      <!-- Flashcard breakdown -->
       <div class="profile-card">
         <div class="profile-card-title">Flashcard Breakdown</div>
         ${fcTotal === 0
@@ -307,9 +312,9 @@ function buildProfile(displayName, email, uid, isGuest){
               <span style="font-size:12px;color:var(--muted)">Total answered</span>
               <span style="font-size:15px;font-weight:700">${fcTotal}</span>
             </div>
-            <button onclick="if(confirm('Reset all flashcard stats?')){localStorage.removeItem('studybase_fc_stats_${uid}');location.reload();}" 
+            <button onclick="if(confirm('Reset all flashcard stats?')){localStorage.removeItem('studybase_fc_stats_${uid}');location.reload();}"
               style="margin-top:10px;background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);cursor:pointer;transition:all .12s"
-              onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444'" 
+              onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444'"
               onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
               Reset stats
             </button>`
@@ -317,7 +322,6 @@ function buildProfile(displayName, email, uid, isGuest){
       </div>
     </div>
 
-    <!-- Subjects -->
     <div class="profile-card" style="margin-bottom:20px">
       <div class="profile-card-title">Subjects</div>
       <div class="subj-links">${subjLinksHtml}</div>

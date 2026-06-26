@@ -302,17 +302,21 @@ body.dark .login-title,body.dark .login-sub{color:var(--text)!important}
         // Safer to treat as pending if we can't reach the server
       }
 
-      // Force-refresh the ID token so the new claim is live immediately
+      // Wait briefly for Firebase to propagate the custom claims,
+      // then force-refresh the token so the new claims are live
+      await new Promise(r => setTimeout(r, 1500));
       await cred.user.getIdToken(true);
 
       if (result.status === 'active') {
-        // School student — go straight in, no pending screen needed
+        // School student — go straight in
         window.location.href = 'index.html';
         return;
       }
 
-      // Pending (teacher or unrecognised school) — show the approval screen
+      // Pending (teacher or non-school) — show the approval screen
+      // and drop into guest mode so they can browse read-only
       suppressAutoRedirect = true;
+      sessionStorage.setItem('studybase_guest', '1');
       document.getElementById('pendingRoleLabel').textContent = result.requestedRole || requestedRole;
       document.getElementById('authForms').style.display = 'none';
       document.getElementById('pendingScreen').classList.add('show');
