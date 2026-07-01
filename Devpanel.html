@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyBase — Dev Panel</title>
+<link rel="icon" href="icon.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f5f2ed;--card:#ffffff;--card2:#faf8f5;
+  --border:#e2ddd7;--border2:#d4cec7;--text:#1c1917;
+  --muted:#78716c;--muted2:#a8a29e;--accent:#7c3aed;--ac-l:rgba(124,58,237,.08);--ac-b:rgba(124,58,237,.22);
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh}
+body.dark{
+  --bg:#141210;--card:#1e1c19;--card2:#252220;--border:#302d29;--border2:#3d3935;
+  --text:#e8e3dc;--muted:#9e9890;--muted2:#6b6560;--ac-l:rgba(167,139,250,.1);--ac-b:rgba(167,139,250,.25);
+}
+
+.hdr{background:var(--card);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:14px}
+.hdr h1{font-family:'Lora',serif;font-size:19px;font-weight:700}
+.hdr .badge{background:var(--ac-l);border:1px solid var(--ac-b);color:var(--accent);font-size:11px;font-weight:700;padding:2px 9px;border-radius:5px;text-transform:uppercase;letter-spacing:.5px}
+.hdr a{margin-left:auto;font-size:12px;color:var(--muted);text-decoration:none;border:1px solid var(--border);border-radius:6px;padding:6px 12px;transition:all .12s}
+.hdr a:hover{background:var(--card2);color:var(--text)}
+.dark-toggle{background:none;border:1px solid var(--border);border-radius:6px;width:32px;height:32px;cursor:pointer;font-size:15px}
+
+.wrap{max-width:1080px;margin:0 auto;padding:28px 24px 60px}
+.sec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);margin:28px 0 12px}
+.sec-title:first-child{margin-top:0}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.stat-num{font-family:'Lora',serif;font-size:26px;font-weight:700;color:var(--accent)}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+
+.subjects-table,.activity-table{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.subjects-row,.activity-row{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);gap:12px;font-size:13px}
+.subjects-row:last-child,.activity-row:last-child{border-bottom:none}
+.subjects-row .sname,.activity-row .sname{font-weight:600;flex:1}
+.subjects-row .scount{color:var(--muted);font-size:12px}
+.activity-row .stime{color:var(--muted2);font-size:12px;margin-left:auto}
+
+.queue-empty{padding:28px;text-align:center;color:var(--muted2);font-size:13px;font-style:italic;background:var(--card);border:1px solid var(--border);border-radius:10px}
+.queue-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.q-info{flex:1;min-width:200px}
+.q-name{font-weight:600;font-size:13.5px;display:flex;align-items:center;gap:6px}
+.q-name .name-edit-btn{cursor:pointer;font-size:11px;color:var(--muted2);border:none;background:none;padding:2px 4px}
+.q-name .name-edit-btn:hover{color:var(--accent)}
+.q-name input{font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;border:1px solid var(--ac-b);border-radius:5px;padding:3px 6px;background:var(--card2);color:var(--text);width:160px}
+.q-email{color:var(--muted);font-size:12px;margin-top:1px}
+.q-meta{display:flex;gap:8px;margin-top:6px;align-items:center}
+.q-role{font-size:10.5px;font-weight:700;text-transform:uppercase;background:var(--ac-l);border:1px solid var(--ac-b);color:var(--accent);padding:2px 8px;border-radius:4px}
+.q-date{font-size:11px;color:var(--muted2)}
+.q-actions{display:flex;gap:6px;flex-shrink:0}
+.q-actions select{font-family:'Inter',sans-serif;font-size:12px;border:1px solid var(--border);border-radius:6px;padding:6px 8px;background:var(--card2);color:var(--text)}
+.btn{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;border-radius:6px;padding:7px 12px;cursor:pointer;border:1px solid var(--border);background:var(--card2);color:var(--text);transition:all .12s}
+.btn:hover{border-color:var(--border2)}
+.btn.approve{background:#dcfce7;border-color:#86efac;color:#15803d}
+.btn.approve:hover{background:#bbf7d0}
+.btn.deny{background:#fef9c3;border-color:#fde68a;color:#92400e}
+.btn.deny:hover{background:#fef08a}
+.btn.delete{background:#fef2f2;border-color:#fca5a5;color:#dc2626}
+.btn.delete:hover{background:#fee2e2}
+body.dark .btn.approve{background:#0f2a18;border-color:#1d5230;color:#86efac}
+body.dark .btn.deny{background:#2a2308;border-color:#5c4a13;color:#fde68a}
+body.dark .btn.delete{background:#2a1414;border-color:#5c2424;color:#f29b9b}
+
+.tab-nav{display:flex;gap:2px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:3px;margin-bottom:24px}
+.tab-btn{flex:1;text-align:center;padding:8px 0;border-radius:6px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;border:none;background:none}
+.tab-btn.active{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
+body.dark .tab-btn.active{background:var(--border)}
+.users-table{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.users-row{display:grid;grid-template-columns:1fr 1fr 90px 90px 150px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);gap:10px;font-size:12.5px}
+.users-row:last-child{border-bottom:none}
+.users-row.header{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted2);background:var(--card2)}
+.ur-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:5px}
+.ur-name .ur-name-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ur-name .name-edit-btn{cursor:pointer;font-size:11px;color:var(--muted2);border:none;background:none;padding:2px 4px;flex-shrink:0}
+.ur-name .name-edit-btn:hover{color:var(--accent)}
+.ur-name input{font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;border:1px solid var(--ac-b);border-radius:5px;padding:3px 6px;background:var(--card2);color:var(--text);width:100%}
+.ur-email{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.role-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:capitalize;text-align:center;border:1px solid;display:inline-block}
+.role-badge.student{background:#f0fdf4;border-color:#86efac;color:#15803d}
+.role-badge.teacher{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
+.role-badge.dev{background:var(--ac-l);border-color:var(--ac-b);color:var(--accent)}
+.role-badge.pending{background:#fef9c3;border-color:#fde68a;color:#92400e}
+.role-badge.rejected{background:#fef2f2;border-color:#fca5a5;color:#dc2626}
+.role-badge.none{background:var(--card2);border-color:var(--border);color:var(--muted2)}
+body.dark .role-badge.student{background:#0f2a18;border-color:#1d5230;color:#86efac}
+body.dark .role-badge.teacher{background:#0c1a2e;border-color:#1e3a5f;color:#93c5fd}
+body.dark .role-badge.pending{background:#2a2308;border-color:#5c4a13;color:#fde68a}
+body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f29b9b}
+.ur-actions{display:flex;gap:4px;flex-wrap:wrap}
+.ur-actions select{font-family:'Inter',sans-serif;font-size:11px;border:1px solid var(--border);border-radius:5px;padding:4px 6px;background:var(--card2);color:var(--text);width:100%}
+body.dark .ur-actions select{background:var(--card2)!important;color:var(--text)!important}
+.bootstrap-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px}
+.bootstrap-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px}
+.bootstrap-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bootstrap-row input,.bootstrap-row select{font-family:'Inter',sans-serif;font-size:13px;border:1px solid var(--border);border-radius:7px;padding:8px 11px;background:var(--card2);color:var(--text);outline:none}
+.bootstrap-row input{flex:1;min-width:200px}
+body.dark .bootstrap-row input,body.dark .bootstrap-row select{background:var(--card2)!important;color:var(--text)!important;border-color:var(--border)!important}
+
+.gate{display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;flex-direction:column;gap:10px}
+.gate .spin{font-size:22px;animation:spin 1.1s linear infinite}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+#toast-container{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:999}
+.toast{background:var(--card);border:1.5px solid var(--border2);border-radius:7px;padding:9px 14px;font-size:12.5px;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.toast.success{border-color:#86efac}
+.toast.error{border-color:#fca5a5}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="spin">✦</div>
+  <div>Checking access…</div>
+</div>
+
+<div id="panel" style="display:none">
+  <div class="hdr">
+    <h1>StudyBase</h1>
+    <span class="badge">Dev Panel</span>
+    <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">🌙</button>
+    <a href="index.html">← Back to Hub</a>
+  </div>
+
+  <div class="wrap">
+
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('queue')">📋 Approval Queue</button>
+      <button class="tab-btn" onclick="switchTab('users')">👥 All Users</button>
+      <button class="tab-btn" onclick="switchTab('stats')">📊 Site Stats</button>
+      <button class="tab-btn" onclick="switchTab('tools')">🔧 Tools</button>
+    </div>
+
+    <!-- Approval Queue tab -->
+    <div id="tabQueue">
+      <div class="sec-title">Approval queue</div>
+      <div id="queueList"><div class="queue-empty">Loading…</div></div>
+    </div>
+
+    <!-- All Users tab -->
+    <div id="tabUsers" style="display:none">
+      <div class="sec-title">All accounts</div>
+      <div id="usersList"><div class="queue-empty">Loading…</div></div>
+    </div>
+
+    <!-- Stats tab -->
+    <div id="tabStats" style="display:none">
+      <div class="sec-title">Site overview</div>
+      <div class="stats-grid" id="statsGrid"></div>
+
+      <div class="sec-title">Subjects</div>
+      <div class="subjects-table" id="subjectsTable"></div>
+
+      <div class="sec-title">Recent activity <span style="font-weight:400;text-transform:none;color:var(--muted2)">— most recently updated topic per subject</span></div>
+      <div class="activity-table" id="activityTable"></div>
+    </div>
+
+    <!-- Tools tab -->
+    <div id="tabTools" style="display:none">
+      <div class="sec-title">Bootstrap a dev account</div>
+      <div class="bootstrap-card">
+        <div class="bootstrap-desc">
+          Dev accounts can't be created via sign-up. Enter a user's UID (from Firebase Console → Authentication, or from the All Users tab above) and assign them any role directly. Use with care — this bypasses the normal approval flow.
+        </div>
+        <div class="bootstrap-row">
+          <input type="text" id="bootstrapUid" placeholder="Firebase UID…">
+          <select id="bootstrapRole">
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+            <option value="dev">Dev</option>
+          </select>
+          <button class="btn approve" onclick="bootstrapRole()">Set role</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- Needs subjects.js for the list of subjects (storage keys etc.) -->
+<script src="subjects.js"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAZeyBIaTstTJ5Pr9o86MHk8dhDPAJFFCA",
+    authDomain: "studybase-8cfa1.firebaseapp.com",
+    projectId: "studybase-8cfa1",
+    storageBucket: "studybase-8cfa1.firebasestorage.app",
+    messagingSenderId: "434992387793",
+    appId: "1:434992387793:web:e5bcae8cad63b4eb6f17f0"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  let idToken = null;
+  let usersLoaded = false;
+  let statsLoaded = false;
+  let lastUsers = [];   // cached All Users list, so we don't refetch on every small action
+  let lastQueue = [];   // cached pending queue
+
+  function showToast(msg, type='info'){
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  }
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // Safer fetch wrapper — if the response isn't JSON (e.g. a Netlify function
+  // crashed and returned a raw stack trace / HTML error page), this surfaces
+  // a readable error instead of throwing "Unexpected token ... is not valid JSON".
+  async function apiFetch(url, options = {}) {
+    const res = await fetch(url, options);
+    const raw = await res.text();
+    let data;
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      const snippet = raw.slice(0, 120).replace(/\s+/g, ' ').trim();
+      throw new Error(`Server returned a non-JSON response (status ${res.status}): ${snippet || '(empty body)'}`);
+    }
+    if (!res.ok) throw new Error(data.error || `Request failed (status ${res.status})`);
+    return data;
+  }
+
+  // ── Dark mode ──
+  function applyDark(){
+    const on = localStorage.getItem('studybase_dark') === '1';
+    document.body.classList.toggle('dark', on);
+    const btn = document.getElementById('darkToggle');
+    if(btn) btn.textContent = on ? '☀️' : '🌙';
+  }
+  applyDark();
+  document.getElementById('darkToggle')?.addEventListener('click', () => {
+    const on = document.body.classList.toggle('dark');
+    localStorage.setItem('studybase_dark', on ? '1' : '0');
+    document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
+  });
+
+  // ── Tab switching ──
+  window.switchTab = function(tab){
+    ['queue','users','stats','tools'].forEach(t => {
+      document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = t===tab ? '' : 'none';
+    });
+    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', ['queue','users','stats','tools'][i] === tab);
+    });
+    if(tab === 'users' && !usersLoaded){ loadAllUsers(); usersLoaded = true; }
+    if(tab === 'stats' && !statsLoaded){ loadStats(); statsLoaded = true; }
+  };
+
+  // ── Auth gate ──
+  onAuthStateChanged(auth, async (user) => {
+    if(!user){ window.location.href = 'login.html'; return; }
+    const token = await user.getIdTokenResult(true);
+    if(token.claims.role !== 'dev' || token.claims.status !== 'active'){
+      window.location.href = 'index.html';
+      return;
+    }
+    idToken = await user.getIdToken();
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+    loadQueue();
+  });
+
+  // ── Approval queue ──
+  async function loadQueue(){
+    const list = document.getElementById('queueList');
+    try{
+      const data = await apiFetch('/api/getPendingUsers', {
+        headers: { 'Authorization': 'Bearer ' + idToken }
+      });
+      lastQueue = data.pending || [];
+      renderQueue(lastQueue);
+    } catch(e){
+      list.innerHTML = `<div class="queue-empty">Couldn't load the approval queue — ${esc(e.message)}</div>`;
+    }
+  }
+
+  function renderQueue(pending){
+    const list = document.getElementById('queueList');
+    if(!pending.length){
+      list.innerHTML = '<div class="queue-empty">No pending requests right now. 🎉</div>';
+      return;
+    }
+    list.innerHTML = pending.map(p => {
+      const date = p.requestedAt ? new Date(p.requestedAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : '—';
+      return `
+        <div class="queue-card" id="q_${p.uid}">
+          <div class="q-info">
+            <div class="q-name" id="qname_${p.uid}">
+              <span class="q-name-text">${esc(p.displayName || '(no name)')}</span>
+              <button class="name-edit-btn" title="Rename" onclick="startRename('${p.uid}', 'q')">✏️</button>
+            </div>
+            <div class="q-email">${esc(p.email)}</div>
+            <div class="q-meta">
+              <span class="q-role">Requested: ${esc(p.requestedRole)}</span>
+              <span class="q-date">${date}</span>
+            </div>
+          </div>
+          <div class="q-actions">
+            <select id="roleSel_${p.uid}">
+              <option value="student" ${p.requestedRole==='student'?'selected':''}>Student</option>
+              <option value="teacher" ${p.requestedRole==='teacher'?'selected':''}>Teacher</option>
+              <option value="dev">Dev</option>
+            </select>
+            <button class="btn approve" onclick="approve('${p.uid}')">✅ Approve</button>
+            <button class="btn deny" onclick="deny('${p.uid}')">❌ Deny</button>
+            <button class="btn delete" onclick="remove('${p.uid}')">🗑️ Remove</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  window.approve = async function(uid){
+    const sel = document.getElementById('roleSel_' + uid) || document.getElementById('urSel_' + uid);
+    const role = sel?.value || 'student';
+    await callAction('/api/approveUser', { uid, role }, '✅ Approved as ' + role);
+  };
+  window.deny = async function(uid){
+    if(!confirm('Deny this request? The account stays but the user sees a rejection message.')) return;
+    await callAction('/api/rejectUser', { uid, mode: 'deny' }, '❌ Request denied');
+  };
+  window.remove = async function(uid){
+    if(!confirm('Permanently delete this Firebase account? This cannot be undone.')) return;
+    await callAction('/api/rejectUser', { uid, mode: 'delete' }, '🗑️ Account deleted');
+  };
+
+  async function callAction(url, body, successMsg){
+    try{
+      await apiFetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
+        body: JSON.stringify(body)
+      });
+      showToast(successMsg, 'success');
+      // Refresh whichever views are loaded so state stays consistent
+      await loadQueue();
+      if(usersLoaded) await loadAllUsers();
+    } catch(e){
+      showToast(e.message, 'error');
+    }
+  }
+
+  // ── Inline rename (used from both Queue cards and All Users rows) ──
+  // scope is 'q' (queue card) or 'u' (users row)
+  window.startRename = function(uid, scope){
+    const wrap = document.getElementById((scope === 'q' ? 'qname_' : 'urname_') + uid);
+    if(!wrap) return;
+    const current = wrap.querySelector(scope === 'q' ? '.q-name-text' : '.ur-name-text')?.textContent || '';
+    wrap.innerHTML = `
+      <input type="text" id="${scope}rename_${uid}" value="${esc(current)}" maxlength="100">
+      <button class="name-edit-btn" title="Save" onclick="saveRename('${uid}','${scope}')">✅</button>
+      <button class="name-edit-btn" title="Cancel" onclick="cancelRename('${uid}','${scope}')">✖️</button>
+    `;
+    const input = document.getElementById(`${scope}rename_${uid}`);
+    input.focus();
+    input.select();
+    input.addEventListener('keydown', (ev) => {
+      if(ev.key === 'Enter') saveRename(uid, scope);
+      if(ev.key === 'Escape') cancelRename(uid, scope);
+    });
+  };
+
+  window.cancelRename = function(uid, scope){
+    if(scope === 'q') renderQueue(lastQueue);
+    else renderAllUsers(lastUsers);
+  };
+
+  window.saveRename = async function(uid, scope){
+    const input = document.getElementById(`${scope}rename_${uid}`);
+    const newName = (input?.value || '').trim();
+    if(!newName){ showToast('Name cannot be empty', 'error'); return; }
+    try{
+      await apiFetch('/api/updateUserName', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
+        body: JSON.stringify({ uid, displayName: newName })
+      });
+      showToast('✅ Name updated', 'success');
+      const qItem = lastQueue.find(p => p.uid === uid); if(qItem) qItem.displayName = newName;
+      const uItem = lastUsers.find(u => u.uid === uid); if(uItem) uItem.displayName = newName;
+      renderQueue(lastQueue);
+      if(usersLoaded) renderAllUsers(lastUsers);
+    } catch(e){
+      showToast(e.message, 'error');
+      cancelRename(uid, scope);
+    }
+  };
+
+  // ── All users ──
+  async function loadAllUsers(){
+    const list = document.getElementById('usersList');
+    list.innerHTML = '<div class="queue-empty">Loading…</div>';
+    try{
+      const data = await apiFetch('/api/getAllUsers', {
+        headers: { 'Authorization': 'Bearer ' + idToken }
+      });
+      lastUsers = data.users || [];
+      renderAllUsers(lastUsers);
+    } catch(e){
+      list.innerHTML = `<div class="queue-empty">Couldn't load users — ${esc(e.message)}</div>`;
+    }
+  }
+
+  function renderAllUsers(users){
+    const list = document.getElementById('usersList');
+    if(!users.length){
+      list.innerHTML = '<div class="queue-empty">No accounts found.</div>';
+      return;
+    }
+    list.innerHTML = `
+      <div class="users-table">
+        <div class="users-row header">
+          <span>Name</span><span>Email</span><span>Role</span><span>Status</span><span>Actions</span>
+        </div>
+        ${users.map(u => `
+          <div class="users-row" id="ur_${u.uid}">
+            <span class="ur-name" id="urname_${u.uid}">
+              <span class="ur-name-text" title="${esc(u.displayName)}">${esc(u.displayName || '(no name)')}</span>
+              <button class="name-edit-btn" title="Rename" onclick="startRename('${u.uid}', 'u')">✏️</button>
+            </span>
+            <span class="ur-email" title="${esc(u.email)}">${esc(u.email)}</span>
+            <span><span class="role-badge ${esc(u.role)}">${esc(u.role)}</span></span>
+            <span><span class="role-badge ${esc(u.status)}">${esc(u.status)}</span></span>
+            <div class="ur-actions">
+              <select id="urSel_${u.uid}">
+                <option value="student" ${u.role==='student'?'selected':''}>Student</option>
+                <option value="teacher" ${u.role==='teacher'?'selected':''}>Teacher</option>
+                <option value="dev" ${u.role==='dev'?'selected':''}>Dev</option>
+              </select>
+              <button class="btn approve" style="font-size:11px;padding:4px 8px" onclick="approve('${u.uid}')">Approve</button>
+              <button class="btn delete" style="font-size:11px;padding:4px 8px" onclick="deleteAccount('${u.uid}','${esc(u.displayName || u.email || u.uid)}')">Permanatly Delete</button>
+            </div>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  window.deleteAccount = async function(uid, label){
+    if(!confirm(`Permanently delete the account for "${label}"? This cannot be undone.`)) return;
+    await callAction('/api/rejectUser', { uid, mode: 'delete' }, '🗑️ Account deleted');
+  };
+
+  // ── Bootstrap a dev account (Tools tab) ──
+  window.bootstrapRole = async function(){
+    const uid  = document.getElementById('bootstrapUid').value.trim();
+    const role = document.getElementById('bootstrapRole').value;
+    if(!uid){ showToast('Enter a UID first', 'error'); return; }
+    if(!confirm(`Set UID "${uid}" to role "${role}" with status "active"? This bypasses the normal approval flow.`)) return;
+    await callAction('/api/approveUser', { uid, role }, `✅ Bootstrapped as ${role}`);
+    document.getElementById('bootstrapUid').value = '';
+  };
+
+  // ── Site stats (local storage) ──
+  function loadStats(){
+    const subjects = (typeof subjectsData !== 'undefined' && subjectsData.subjects) ? subjectsData.subjects : [];
+    let totalTopics = 0, totalUnits = 0, totalNotes = 0;
+    const subjectRows = [], activityRows = [];
+
+    subjects.forEach(s => {
+      let topics = [], units = [], notesObj = {};
+      try{ topics   = JSON.parse(localStorage.getItem(s.storageKey || s.id+'_topics') || '[]'); }catch(e){}
+      try{ units    = JSON.parse(localStorage.getItem(s.unitsKey   || s.id+'_units')  || '[]'); }catch(e){}
+      try{ notesObj = JSON.parse(localStorage.getItem('tnotes_'+s.id) || '{}'); }catch(e){}
+
+      let noteCount = 0;
+      Object.values(notesObj).forEach(blocks => {
+        if(Array.isArray(blocks)) noteCount += blocks.length;
+        else if(blocks && typeof blocks==='object') Object.values(blocks).forEach(arr => { if(Array.isArray(arr)) noteCount += arr.length; });
+      });
+      totalTopics += topics.length; totalUnits += units.length; totalNotes += noteCount;
+      subjectRows.push({ name: s.name||s.id, count: topics.length });
+      let latest = null;
+      topics.forEach(t => { const ts = t.updatedAt||t.createdAt; if(ts&&(!latest||new Date(ts)>new Date(latest))) latest=ts; });
+      activityRows.push({ name: s.name||s.id, latest });
+    });
+
+    document.getElementById('statsGrid').innerHTML = [
+      { num: totalTopics, label: 'Total topics' },
+      { num: totalUnits,  label: 'Total units' },
+      { num: totalNotes,  label: 'Teacher comments' },
+      { num: subjects.length, label: 'Subjects' },
+    ].map(s => `<div class="stat-box"><div class="stat-num">${s.num}</div><div class="stat-label">${s.label}</div></div>`).join('');
+
+    document.getElementById('subjectsTable').innerHTML = subjectRows.length
+      ? subjectRows.sort((a,b)=>b.count-a.count).map(r =>
+          `<div class="subjects-row"><span class="sname">${esc(r.name)}</span><span class="scount">${r.count} topic${r.count!==1?'s':''}</span></div>`).join('')
+      : '<div class="subjects-row"><span class="sname" style="color:var(--muted2);font-style:italic;font-weight:400">No subjects found — make sure subjects.js is loaded.</span></div>';
+
+    document.getElementById('activityTable').innerHTML = activityRows.length
+      ? activityRows.sort((a,b)=>new Date(b.latest||0)-new Date(a.latest||0)).map(r =>
+          `<div class="activity-row"><span class="sname">${esc(r.name)}</span><span class="stime">${r.latest ? new Date(r.latest).toLocaleString('en-AU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'No topics yet'}</span></div>`).join('')
+      : '<div class="activity-row"><span class="sname" style="color:var(--muted2);font-style:italic;font-weight:400">No activity yet.</span></div>';
+  }
+</script>
+</body>
+</html>

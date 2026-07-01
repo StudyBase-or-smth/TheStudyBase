@@ -6,9 +6,9 @@
 <title>StudyBase</title>
 <!-- Favicon -->
 <link rel="icon" href="../icon.png" type="image/png">
-<link rel="apple-touch-icon" href="../icon.png">
+<link rel="apple-touch-icon" href="icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="sharedstyle.css">
+<link rel="stylesheet" href="defaultstyle.css">
 </head>
 <body>
 
@@ -26,55 +26,55 @@
     appId:"1:434992387793:web:e5bcae8cad63b4eb6f17f0"
   };
   const auth = getAuth(initializeApp(cfg));
-  onAuthStateChanged(auth, async user => {
+  onAuthStateChanged(auth, user => {
     const isGuest = sessionStorage.getItem('studybase_guest') === '1';
     if (user) {
       sessionStorage.removeItem('studybase_guest');
       window.currentUid = user.uid;
       localStorage.setItem('studybase_uid', user.uid);
+      user.getIdTokenResult().then(result => {
+        const role   = result.claims.role   || '';
+        const status = result.claims.status || '';
+        window.userRole = role;
 
-      // Force-refresh so we always have the latest claims
-      const token  = await user.getIdTokenResult(true);
-      const role   = token.claims.role   || '';
-      const status = token.claims.status || '';
+        if (status === 'pending') {
+          // Pending approval — restrict to guest-mode until a dev approves
+          window.isGuest = true;
+          document.body.classList.add('guest-mode');
+          document.getElementById('guest-border').style.display = 'block';
+          document.getElementById('guest-nudge').style.display = 'block';
+          return;
+        }
 
-      if (status === 'pending') {
-        // Pending users: read-only access with a clear banner
-        window.isGuest   = true;
-        window.isPending = true;
-        document.body.classList.add('guest-mode');
-        document.getElementById('guest-border').style.display = 'block';
-        const nudge = document.getElementById('guest-nudge');
-        nudge.innerHTML = `
-          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Awaiting approval</div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Your <strong>${role || 'teacher'}</strong> access request is being reviewed. You have read-only access for now.</div>
-          <button onclick="sbSignOut()" style="background:var(--text);color:var(--card);border:none;border-radius:6px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;transition:opacity .15s">Sign Out</button>`;
-        nudge.style.display = 'block';
-        return;
-      }
+        if (status === 'rejected') {
+          // Request was denied — send them back to login to see the rejection message
+          window.location.href = '../login.html';
+          return;
+        }
 
-      if (role === 'teacher' || role === 'dev') {
-        window.isTeacher  = true;
-        window.teacherName = user.displayName || user.email.split('@')[0];
-        document.body.classList.add('teacher-mode');
-      }
-
+        if (role === 'teacher' || role === 'dev') {
+          window.isTeacher = true;
+          window.teacherName = user.displayName || user.email.split('@')[0];
+          document.body.classList.add('teacher-mode');
+        }
+        // role === 'student', status === 'active' — full normal access, nothing extra needed
+      });
     } else if (isGuest) {
       window.isGuest = true;
       document.body.classList.add('guest-mode');
       document.getElementById('guest-border').style.display = 'block';
       document.getElementById('guest-nudge').style.display = 'block';
     } else {
-      window.location.href = "../login.html";
+      window.location.href = "login.html";
     }
   });
   window.sbSignOut = () => {
     if (sessionStorage.getItem('studybase_guest') === '1') {
       sessionStorage.removeItem('studybase_guest');
-      window.location.href = "../login.html";
+      window.location.href = "login.html";
       return;
     }
-    signOut(auth).then(() => window.location.href = "../login.html");
+    signOut(auth).then(() => window.location.href = "login.html");
   };
 </script>
 
@@ -151,11 +151,7 @@
   <div class="modal">
     <div class="modal-head">
   <div class="modal-title" id="modalTitle">New topic</div>
-  <div class="layout-switcher" id="layoutSwitcher">
-    <button type="button" class="layout-arrow" onclick="cycleLayout(-1)" title="Previous layout">‹</button>
-    <span class="layout-name" id="layoutName">Basic</span>
-    <button type="button" class="layout-arrow" onclick="cycleLayout(1)" title="Next layout">›</button>
-  </div>
+
 </div>
 
     
@@ -180,33 +176,16 @@
         </div>
       </div>
     </div>
-    <div class="form-g" data-layout-group="basic">
+    <div class="form-g">
       <label class="form-l">Definition</label>
       <textarea class="form-ta" id="fDefinition" rows="3" placeholder="A clear, concise definition…"></textarea>
     </div>
-    <div class="form-g" data-layout-group="overview text">
-      <label class="form-l" id="bodyTextLabel">Overview</label>
-      <div class="rich-editor-wrap">
-        <div class="rich-toolbar">
-          <span class="rich-toolbar-label">text &amp; images</span>
-          <button type="button" class="rich-btn" onclick="richAddImage('fBodyText')">🖼 Insert image</button>
-          <input type="file" id="img_fBodyText" accept="image/*" style="display:none">
-        </div>
-        <div class="rich-content" id="fBodyText" contenteditable="true" data-placeholder="Write the overview here…" style="min-height:120px"></div>
-      </div>
-    </div>
-    <div class="form-g" data-layout-group="math">
-      <label class="form-l">Desmos Graph <span>— coming soon</span></label>
-      <div class="desmos-stub" style="border:1.5px dashed var(--border2);border-radius:8px;padding:18px;text-align:center;color:var(--muted2);font-size:12px;background:var(--card2)">
-        📐 Desmos integration isn't available yet — check back later.
-      </div>
-    </div>
-    <div class="form-g" data-layout-group="basic text">
-      <label class="form-l" id="kpFieldLabel">Key Points</label>
+    <div class="form-g">
+      <label class="form-l">Key Points</label>
       <div class="kp-list" id="kpList"></div>
       <button class="btn-add-kp" onclick="addKpRow()">+ Add key point</button>
     </div>
-    <div class="form-g" data-layout-group="basic math">
+    <div class="form-g">
       <label class="form-l">Formula / Equation <span>— leave blank if none</span></label>
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
@@ -217,7 +196,7 @@
         <div class="rich-content mono" id="fFormula" contenteditable="true" data-placeholder="e.g. σ = F/A" style="min-height:88px"></div>
       </div>
     </div>
-    <div class="form-g" data-layout-group="basic">
+    <div class="form-g">
       <label class="form-l">Extra Notes</label>
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
@@ -228,7 +207,7 @@
         <div class="rich-content" id="fMaterials" contenteditable="true" data-placeholder="Any additional notes…" style="min-height:52px"></div>
       </div>
     </div>
-    <div class="form-g" data-layout-group="basic">
+    <div class="form-g">
       <label class="form-l">Process / Method</label>
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
@@ -239,7 +218,7 @@
         <div class="rich-content" id="fProcess" contenteditable="true" data-placeholder="How does it work? Step-by-step if applicable…" style="min-height:66px"></div>
       </div>
     </div>
-    <div class="form-g" data-layout-group="basic">
+    <div class="form-g">
       <label class="form-l">Safety / Warnings</label>
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
@@ -250,7 +229,7 @@
         <div class="rich-content" id="fSafety" contenteditable="true" data-placeholder="Hazards, warnings, failure modes…" style="min-height:52px"></div>
       </div>
     </div>
-    <div class="form-g" data-layout-group="basic">
+    <div class="form-g">
       <label class="form-l">Exam Tip</label>
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
@@ -266,7 +245,7 @@
       <div class="subtopic-editor-list" id="subtopicEditorList"></div>
       <button class="btn-add-kp" onclick="addSubtopicRow()">+ Add subtopic</button>
     </div>
-    <div class="form-g" data-layout-group="basic math">
+    <div class="form-g">
       <label class="form-l">Flashcard Questions <span>— custom Q&amp;A for this topic's cards</span></label>
       <div class="fqa-list" id="fqaList"></div>
       <button class="btn-add-kp" onclick="addFqaRow()">+ Add question</button>
@@ -298,14 +277,14 @@
 </div>
 
 <script src="../subjects.js"></script>
-<script src="subjectapp.js"></script>
+<script src="defaultapp.js"></script>
 
 <!-- Guest overlays -->
 <div id="guest-border"></div>
 <div id="guest-nudge">
   <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Viewing as guest</div>
   <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Sign in to add and edit topics.</div>
-  <button onclick="window.location.href='../login.html'" style="background:var(--text);color:var(--card);border:none;border-radius:6px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;transition:opacity .15s">Sign In</button>
+  <button onclick="window.location.href='login.html'" style="background:var(--text);color:var(--card);border:none;border-radius:6px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;transition:opacity .15s">Sign In</button>
   <button onclick="document.getElementById('guest-nudge').style.display='none'" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;margin-top:6px;width:100%;font-family:'Inter',sans-serif">Dismiss</button>
 </div>
 </body>

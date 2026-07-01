@@ -2,6 +2,12 @@
   functions = "netlify/functions"
   publish = "."
 
+[functions]
+  node_bundler = "esbuild"
+
+[dev]
+  port = 8888
+
 [[redirects]]
   from = "/api/grade"
   to = "/.netlify/functions/grade"
@@ -10,4 +16,24 @@
 [[redirects]]
   from = "/api/registerRole"
   to = "/.netlify/functions/registerRole"
+  status = 200
+
+[[redirects]]
+  from = "/api/getPendingUsers"
+  to = "/.netlify/functions/getPendingUsers"
+  status = 200
+
+[[redirects]]
+  from = "/api/getAllUsers"
+  to = "/.netlify/functions/getAllUsers"
+  status = 200
+
+[[redirects]]
+  from = "/api/approveUser"
+  to = "/.netlify/functions/approveUser"
+  status = 200
+
+[[redirects]]
+  from = "/api/rejectUser"
+  to = "/.netlify/functions/rejectUser"
   status = 200

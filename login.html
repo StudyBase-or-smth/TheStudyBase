@@ -53,7 +53,7 @@ body.dark .success-msg{background:#142a1a!important;border-color:#245c34!importa
 .btn-ghost:hover{background:var(--card2);color:var(--text);border-color:var(--border2)}
 body.dark .btn-ghost{border-color:var(--border);color:var(--muted)}
 body.dark .btn-ghost:hover{background:var(--card2);color:var(--text)}
-/* Pending screen */
+/* Pending / rejected screens */
 .pending-screen{display:none;text-align:center}
 .pending-screen.show{display:block}
 .pending-icon{font-size:34px;margin-bottom:10px}
@@ -157,6 +157,17 @@ body.dark .login-title,body.dark .login-sub{color:var(--text)!important}
       <button class="btn-primary" onclick="continueAsPending()">Continue as Guest</button>
     </div>
 
+    <!-- Rejected screen (shown when a previously-denied user signs back in) -->
+    <div class="pending-screen" id="rejectedScreen">
+      <div class="pending-icon">🚫</div>
+      <div class="pending-title">Request denied</div>
+      <div class="pending-text">
+        Your <span class="pending-role" id="rejectedRoleLabel">teacher</span> access request
+        was not approved. You can still browse StudyBase as a guest, or contact a dev if you think this was a mistake.
+      </div>
+      <button class="btn-primary" onclick="continueAsPending()">Continue as Guest</button>
+    </div>
+
   </div>
 </div>
 
@@ -178,7 +189,7 @@ body.dark .login-title,body.dark .login-sub{color:var(--text)!important}
   const auth = getAuth(app);
 
   // Prevents the auth-state listener auto-redirecting during sign-up flow
-  // or when we've already determined the user is pending.
+  // or when we've already determined the user is pending/rejected.
   let suppressAutoRedirect = false;
 
   onAuthStateChanged(auth, async (user) => {
@@ -195,6 +206,15 @@ body.dark .login-title,body.dark .login-sub{color:var(--text)!important}
       document.getElementById('pendingRoleLabel').textContent = role || 'teacher';
       document.getElementById('authForms').style.display = 'none';
       document.getElementById('pendingScreen').classList.add('show');
+      return;
+    }
+
+    // Rejected users stay on this page and see the rejected screen
+    if (status === 'rejected') {
+      suppressAutoRedirect = true;
+      document.getElementById('rejectedRoleLabel').textContent = role || 'teacher';
+      document.getElementById('authForms').style.display = 'none';
+      document.getElementById('rejectedScreen').classList.add('show');
       return;
     }
 
@@ -260,7 +280,7 @@ body.dark .login-title,body.dark .login-sub{color:var(--text)!important}
     btn.disabled = true; btn.textContent = 'Signing in…';
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-      // onAuthStateChanged handles the rest (pending check + redirect)
+      // onAuthStateChanged handles the rest (pending/rejected check + redirect)
     } catch (e) {
       showError(friendlyError(e.code));
       btn.disabled = false; btn.textContent = 'Sign In';
@@ -327,7 +347,7 @@ body.dark .login-title,body.dark .login-sub{color:var(--text)!important}
     }
   };
 
-  // Pending user clicks "Continue as Guest" — drop them into guest mode
+  // Pending/rejected user clicks "Continue as Guest" — drop them into guest mode
   window.continueAsPending = function() {
     sessionStorage.setItem('studybase_guest', '1');
     window.location.href = 'index.html';
