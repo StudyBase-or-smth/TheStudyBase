@@ -22,8 +22,7 @@ body.dark{
 
 .hdr{background:var(--card);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:14px}
 .hdr h1{font-family:'Lora',serif;font-size:19px;font-weight:700}
-.hdr .badge{background:var(--ac-l);border:1px solid var(--ac-b);color:var(--accent);font-size:11px;font-weight:700;padding:2px 9px;border-radius:5px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;transition:all .2s}
-.hdr .badge:hover{filter:brightness(1.1);transform:scale(1.05)}
+.hdr .badge{background:var(--ac-l);border:1px solid var(--ac-b);color:var(--accent);font-size:11px;font-weight:700;padding:2px 9px;border-radius:5px;text-transform:uppercase;letter-spacing:.5px}
 .hdr a{margin-left:auto;font-size:12px;color:var(--muted);text-decoration:none;border:1px solid var(--border);border-radius:6px;padding:6px 12px;transition:all .12s}
 .hdr a:hover{background:var(--card2);color:var(--text)}
 .dark-toggle{background:none;border:1px solid var(--border);border-radius:6px;width:32px;height:32px;cursor:pointer;font-size:15px}
@@ -112,52 +111,6 @@ body.dark .bootstrap-row input,body.dark .bootstrap-row select{background:var(--
 .toast{background:var(--card);border:1.5px solid var(--border2);border-radius:7px;padding:9px 14px;font-size:12.5px;box-shadow:0 4px 16px rgba(0,0,0,.15)}
 .toast.success{border-color:#86efac}
 .toast.error{border-color:#fca5a5}
-
-/* Tetris Styles */
-#tetris-modal {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.85);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
-#tetris-container {
-  background: var(--card);
-  border: 3px solid var(--accent);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-  text-align: center;
-}
-#tetris-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  color: var(--text);
-}
-#tetris-game {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-}
-canvas {
-  image-rendering: pixelated;
-  border: 3px solid var(--border2);
-  background: #111;
-}
-#tetris-sidebar {
-  text-align: left;
-  min-width: 140px;
-  color: var(--text);
-}
-#tetris-sidebar div {
-  margin: 12px 0;
-  font-size: 15px;
-}
-#tetris-sidebar .label { font-size: 12px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -170,7 +123,8 @@ canvas {
 <div id="panel" style="display:none">
   <div class="hdr">
     <h1>StudyBase</h1>
-    <span class="badge" onclick="toggleTetris()" title="Secret: click me">Dev Panel</span>
+    <span class="badge" onclick="window.location.href='devbackend.html'">Dev Panel</span>
+    
     <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">🌙</button>
     <a href="index.html">← Back to Hub</a>
   </div>
@@ -230,34 +184,6 @@ canvas {
   </div>
 </div>
 
-<!-- Tetris Modal -->
-<div id="tetris-modal">
-  <div id="tetris-container">
-    <div id="tetris-header">
-      <h2 style="font-family:'Lora',serif;color:var(--accent)">TETRIS</h2>
-      <button onclick="toggleTetris()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);padding:0 8px;">✕</button>
-    </div>
-    <div id="tetris-game">
-      <canvas id="tetris-canvas" width="240" height="480"></canvas>
-      <div id="tetris-sidebar">
-        <div><span class="label">SCORE</span><br><span id="score">0</span></div>
-        <div><span class="label">LEVEL</span><br><span id="level">1</span></div>
-        <div><span class="label">LINES</span><br><span id="lines">0</span></div>
-        <div style="margin-top:20px;font-size:13px;color:var(--muted)">
-          ← → : Move<br>
-          ↓ : Soft drop<br>
-          ↑ / X : Rotate<br>
-          Space : Hard drop<br>
-          P : Pause
-        </div>
-        <div style="margin-top:30px">
-          <button onclick="togglePause()" style="font-size:13px;padding:6px 14px">Pause / Resume</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div id="toast-container"></div>
 
 <!-- Needs subjects.js for the list of subjects (storage keys etc.) -->
@@ -295,6 +221,9 @@ canvas {
 
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+  // Safer fetch wrapper — if the response isn't JSON (e.g. a Netlify function
+  // crashed and returned a raw stack trace / HTML error page), this surfaces
+  // a readable error instead of throwing "Unexpected token ... is not valid JSON".
   async function apiFetch(url, options = {}) {
     const res = await fetch(url, options);
     const raw = await res.text();
@@ -420,6 +349,7 @@ canvas {
         body: JSON.stringify(body)
       });
       showToast(successMsg, 'success');
+      // Refresh whichever views are loaded so state stays consistent
       await loadQueue();
       if(usersLoaded) await loadAllUsers();
     } catch(e){
@@ -427,6 +357,8 @@ canvas {
     }
   }
 
+  // ── Inline rename (used from both Queue cards and All Users rows) ──
+  // scope is 'q' (queue card) or 'u' (users row)
   window.startRename = function(uid, scope){
     const wrap = document.getElementById((scope === 'q' ? 'qname_' : 'urname_') + uid);
     if(!wrap) return;
@@ -471,6 +403,7 @@ canvas {
     }
   };
 
+  // ── All users ──
   async function loadAllUsers(){
     const list = document.getElementById('usersList');
     list.innerHTML = '<div class="queue-empty">Loading…</div>';
@@ -523,6 +456,7 @@ canvas {
     await callAction('/api/rejectUser', { uid, mode: 'delete' }, '🗑️ Account deleted');
   };
 
+  // ── Bootstrap a dev account (Tools tab) ──
   window.bootstrapRole = async function(){
     const uid  = document.getElementById('bootstrapUid').value.trim();
     const role = document.getElementById('bootstrapRole').value;
@@ -532,6 +466,7 @@ canvas {
     document.getElementById('bootstrapUid').value = '';
   };
 
+  // ── Site stats (local storage) ──
   function loadStats(){
     const subjects = (typeof subjectsData !== 'undefined' && subjectsData.subjects) ? subjectsData.subjects : [];
     let totalTopics = 0, totalUnits = 0, totalNotes = 0;
@@ -572,236 +507,6 @@ canvas {
           `<div class="activity-row"><span class="sname">${esc(r.name)}</span><span class="stime">${r.latest ? new Date(r.latest).toLocaleString('en-AU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'No topics yet'}</span></div>`).join('')
       : '<div class="activity-row"><span class="sname" style="color:var(--muted2);font-style:italic;font-weight:400">No activity yet.</span></div>';
   }
-
-  /* ==================== TETRIS ==================== */
-  let tetrisCanvas, ctx, board, score, linesCleared, level, dropInterval, lastDrop, paused, gameOver;
-  const COLS = 10, ROWS = 20, BLOCK = 24;
-  let currentPiece, nextPiece;
-  let boardArray = [];
-
-  const PIECES = [
-    [[1,1,1,1]],           // I
-    [[1,1],[1,1]],         // O
-    [[0,1,0],[1,1,1]],     // T
-    [[1,1,0],[0,1,1]],     // S
-    [[0,1,1],[1,1,0]],     // Z
-    [[1,0,0],[1,1,1]],     // J
-    [[0,0,1],[1,1,1]]      // L
-  ];
-
-  const COLORS = ['#00f0f0','#f0f000','#a000f0','#00f000','#f00000','#0000f0','#f0a000'];
-
-  function newPiece() {
-    const type = Math.floor(Math.random() * PIECES.length);
-    return {
-      shape: PIECES[type],
-      color: COLORS[type],
-      x: Math.floor(COLS/2) - Math.floor(PIECES[type][0].length/2),
-      y: 0
-    };
-  }
-
-  function drawBlock(x, y, color) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x * BLOCK, y * BLOCK, BLOCK, BLOCK);
-    ctx.strokeStyle = '#222';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(x * BLOCK, y * BLOCK, BLOCK, BLOCK);
-  }
-
-  function drawBoard() {
-    ctx.clearRect(0, 0, tetrisCanvas.width, tetrisCanvas.height);
-    // Draw placed blocks
-    for (let y = 0; y < ROWS; y++) {
-      for (let x = 0; x < COLS; x++) {
-        if (boardArray[y][x] !== 0) {
-          drawBlock(x, y, boardArray[y][x]);
-        }
-      }
-    }
-    // Draw current piece
-    if (currentPiece) {
-      for (let y = 0; y < currentPiece.shape.length; y++) {
-        for (let x = 0; x < currentPiece.shape[y].length; x++) {
-          if (currentPiece.shape[y][x]) {
-            drawBlock(currentPiece.x + x, currentPiece.y + y, currentPiece.color);
-          }
-        }
-      }
-    }
-  }
-
-  function collide(piece, board) {
-    for (let y = 0; y < piece.shape.length; y++) {
-      for (let x = 0; x < piece.shape[y].length; x++) {
-        if (!piece.shape[y][x]) continue;
-        const newX = piece.x + x;
-        const newY = piece.y + y;
-        if (newX < 0 || newX >= COLS || newY >= ROWS) return true;
-        if (newY < 0) continue;
-        if (board[newY][newX] !== 0) return true;
-      }
-    }
-    return false;
-  }
-
-  function merge() {
-    for (let y = 0; y < currentPiece.shape.length; y++) {
-      for (let x = 0; x < currentPiece.shape[y].length; x++) {
-        if (currentPiece.shape[y][x]) {
-          const py = currentPiece.y + y;
-          const px = currentPiece.x + x;
-          if (py >= 0) boardArray[py][px] = currentPiece.color;
-        }
-      }
-    }
-  }
-
-  function clearLines() {
-    let lines = 0;
-    outer: for (let y = ROWS - 1; y >= 0; y--) {
-      for (let x = 0; x < COLS; x++) {
-        if (boardArray[y][x] === 0) continue outer;
-      }
-      boardArray.splice(y, 1);
-      boardArray.unshift(new Array(COLS).fill(0));
-      lines++;
-      y++; // recheck this row
-    }
-    if (lines > 0) {
-      linesCleared += lines;
-      score += [100, 300, 500, 800][lines-1] * level;
-      level = Math.floor(linesCleared / 10) + 1;
-      dropInterval = 800 - (level-1)*70;
-      updateUI();
-    }
-  }
-
-  function drop() {
-    currentPiece.y++;
-    if (collide(currentPiece, boardArray)) {
-      currentPiece.y--;
-      merge();
-      clearLines();
-      currentPiece = nextPiece;
-      nextPiece = newPiece();
-      if (collide(currentPiece, boardArray)) {
-        gameOver = true;
-        alert("Game Over! Score: " + score);
-        toggleTetris();
-      }
-    }
-    lastDrop = Date.now();
-    drawBoard();
-  }
-
-  function rotate() {
-    const oldShape = currentPiece.shape;
-    const n = oldShape.length;
-    const m = oldShape[0].length;
-    let rotated = Array.from({length: m}, () => Array(n).fill(0));
-    for (let i = 0; i < n; i++) {
-      for (let j = 0; j < m; j++) {
-        rotated[j][n-1-i] = oldShape[i][j];
-      }
-    }
-    const oldX = currentPiece.x;
-    currentPiece.shape = rotated;
-    if (collide(currentPiece, boardArray)) {
-      currentPiece.shape = oldShape;
-      currentPiece.x = oldX;
-    }
-    drawBoard();
-  }
-
-  function hardDrop() {
-    while (!collide({ ...currentPiece, y: currentPiece.y + 1 }, boardArray)) {
-      currentPiece.y++;
-      score += 2;
-    }
-    drop();
-    updateUI();
-  }
-
-  function updateUI() {
-    document.getElementById('score').textContent = score;
-    document.getElementById('level').textContent = level;
-    document.getElementById('lines').textContent = linesCleared;
-  }
-
-  function gameLoop() {
-    if (gameOver || paused) return;
-    const now = Date.now();
-    if (now - lastDrop > dropInterval) {
-      drop();
-    }
-    drawBoard();
-    requestAnimationFrame(gameLoop);
-  }
-
-  window.toggleTetris = function() {
-    const modal = document.getElementById('tetris-modal');
-    if (modal.style.display === 'flex') {
-      modal.style.display = 'none';
-      document.removeEventListener('keydown', handleKey);
-      return;
-    }
-    modal.style.display = 'flex';
-    
-    // Init game
-    tetrisCanvas = document.getElementById('tetris-canvas');
-    ctx = tetrisCanvas.getContext('2d');
-    ctx.scale(BLOCK, BLOCK); // wait, no — we already set pixel size
-    // Better to keep coordinate in blocks
-    boardArray = Array.from({length: ROWS}, () => Array(COLS).fill(0));
-    score = 0; linesCleared = 0; level = 1; dropInterval = 800; paused = false; gameOver = false;
-    currentPiece = newPiece();
-    nextPiece = newPiece();
-    lastDrop = Date.now();
-    updateUI();
-    drawBoard();
-    document.addEventListener('keydown', handleKey);
-    gameLoop();
-  };
-
-  function handleKey(e) {
-    if (gameOver || paused) {
-      if (e.key.toLowerCase() === 'p') togglePause();
-      return;
-    }
-    switch(e.key) {
-      case 'ArrowLeft':
-        currentPiece.x--;
-        if (collide(currentPiece, boardArray)) currentPiece.x++;
-        break;
-      case 'ArrowRight':
-        currentPiece.x++;
-        if (collide(currentPiece, boardArray)) currentPiece.x--;
-        break;
-      case 'ArrowDown':
-        drop();
-        score++;
-        break;
-      case 'ArrowUp':
-      case 'x':
-      case 'X':
-        rotate();
-        break;
-      case ' ':
-        hardDrop();
-        break;
-      case 'p':
-      case 'P':
-        togglePause();
-        break;
-    }
-    drawBoard();
-  }
-
-  window.togglePause = function() {
-    paused = !paused;
-    if (!paused) gameLoop();
-  };
 </script>
 </body>
 </html>
