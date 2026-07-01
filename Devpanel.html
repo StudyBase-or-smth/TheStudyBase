@@ -444,7 +444,7 @@ body.dark .bootstrap-row input,body.dark .bootstrap-row select{background:var(--
                 <option value="dev" ${u.role==='dev'?'selected':''}>Dev</option>
               </select>
               <button class="btn approve" style="font-size:11px;padding:4px 8px" onclick="approve('${u.uid}')">Approve</button>
-              <button class="btn delete" style="font-size:11px;padding:4px 8px" onclick="deleteAccount('${u.uid}','${esc(u.displayName || u.email || u.uid)}')">Permanatly Delete</button>
+              <button class="btn delete" style="font-size:11px;padding:4px 8px" onclick="deleteAccount('${u.uid}','${esc(u.displayName || u.email || u.uid)}')">Delete account</button>
             </div>
           </div>`).join('')}
       </div>`;
