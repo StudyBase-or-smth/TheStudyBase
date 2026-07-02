@@ -133,7 +133,7 @@
 
     <input type="text" id="username" placeholder="Your name" value="Player">
 
-    <div id="hint">ESC / Backspace to exit &middot; P to pause &middot; R to reset</div>
+    <div id="hint">ESC to exit &middot; P to pause &middot; R to reset</div>
   </div>
 
   <div id="side-col">
@@ -548,7 +548,7 @@
   };
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' || e.key === 'Backspace') {
+    if (e.key === 'Escape') {
       e.preventDefault();
       goBackToPanel();
       return;
