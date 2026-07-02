@@ -595,7 +595,9 @@
 
   const savedName = localStorage.getItem('tetrisUsername');
   if (savedName) document.getElementById('username').value = savedName;
-
+document.getElementById('username').addEventListener('input', function() {
+  localStorage.setItem('tetrisUsername', this.value);
+});
   document.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => btn.blur());
   });
