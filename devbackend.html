@@ -100,8 +100,16 @@
   #scoreboard .label { font-size:11px; color:#777; text-transform:uppercase; letter-spacing:1px; }
   #scoreboard ol { padding-left:0; margin:8px 0 0; list-style:none; }
   #scoreboard li {
-    padding:2px 0; overflow:hidden; text-overflow:ellipsis;
-    white-space:nowrap;
+    padding:5px 0; overflow:hidden;
+    border-bottom:1px solid #1e1e1e;
+  }
+  #scoreboard li:last-child { border-bottom:none; }
+  #scoreboard li .lb-name {
+    display:block; font-size:11px; color:#eee;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  #scoreboard li .lb-score {
+    display:block; font-size:10px; color:#7c3aed; margin-top:1px;
   }
   #hint { font-size:10px; color:#555; text-align:center; line-height:1.4; }
 
@@ -321,6 +329,13 @@
     return scoreHistory.reduce((m, s) => Math.max(m, s.score), 0);
   }
 
+  // Compact number formatting for the leaderboard (e.g. 27489 -> "27.5K")
+  function formatCompactScore(n) {
+    if (n >= 1000000) return (Math.round(n / 100000) / 10).toString().replace(/\.0$/, '') + 'M';
+    if (n >= 1000) return (Math.round(n / 100) / 10).toString().replace(/\.0$/, '') + 'K';
+    return n.toString();
+  }
+
   function showToast(text) {
     const t = document.getElementById('toast');
     t.textContent = text;
@@ -394,7 +409,9 @@
   function updateScoreboard() {
     const sorted = [...scoreHistory].sort((a,b) => b.score - a.score).slice(0,5);
     let html = '';
-    sorted.forEach(s => html += `<li>${s.name} — ${s.score}</li>`);
+    sorted.forEach(s => {
+      html += `<li><span class="lb-name">${s.name}</span><span class="lb-score">${formatCompactScore(s.score)}</span></li>`;
+    });
     document.getElementById('topScores').innerHTML = html || '<li>No scores yet</li>';
     document.getElementById('highscore').textContent = highScore;
   }
