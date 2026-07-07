@@ -57,15 +57,20 @@ body.dark{
 .q-actions{display:flex;gap:6px;flex-shrink:0}
 .q-actions select{font-family:'Inter',sans-serif;font-size:12px;border:1px solid var(--border);border-radius:6px;padding:6px 8px;background:var(--card2);color:var(--text)}
 .btn{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;border-radius:6px;padding:7px 12px;cursor:pointer;border:1px solid var(--border);background:var(--card2);color:var(--text);transition:all .12s}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:disabled:hover{background:var(--card2);color:var(--text)}
 .btn:hover{border-color:var(--border2)}
 .btn.approve{background:#dcfce7;border-color:#86efac;color:#15803d}
 .btn.approve:hover{background:#bbf7d0}
 .btn.deny{background:#fef9c3;border-color:#fde68a;color:#92400e}
 .btn.deny:hover{background:#fef08a}
+.btn.gray{background:var(--card2);border-color:var(--border2);color:var(--muted)}
+.btn.gray:hover{background:var(--border2);color:var(--text)}
 .btn.delete{background:#fef2f2;border-color:#fca5a5;color:#dc2626}
 .btn.delete:hover{background:#fee2e2}
 body.dark .btn.approve{background:#0f2a18;border-color:#1d5230;color:#86efac}
 body.dark .btn.deny{background:#2a2308;border-color:#5c4a13;color:#fde68a}
+body.dark .btn.gray{background:var(--card2);border-color:var(--border2);color:var(--muted)}
 body.dark .btn.delete{background:#2a1414;border-color:#5c2424;color:#f29b9b}
 
 .tab-nav{display:flex;gap:2px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:3px;margin-bottom:24px}
@@ -205,6 +210,7 @@ body.dark .bootstrap-row input,body.dark .bootstrap-row select{background:var(--
   const auth = getAuth(app);
 
   let idToken = null;
+  let myUid = null;
   let usersLoaded = false;
   let statsLoaded = false;
   let lastUsers = [];   // cached All Users list, so we don't refetch on every small action
@@ -273,6 +279,7 @@ body.dark .bootstrap-row input,body.dark .bootstrap-row select{background:var(--
       return;
     }
     idToken = await user.getIdToken();
+    myUid = user.uid;
     document.getElementById('gate').style.display = 'none';
     document.getElementById('panel').style.display = 'block';
     loadQueue();
@@ -331,6 +338,17 @@ body.dark .bootstrap-row input,body.dark .bootstrap-row select{background:var(--
     const sel = document.getElementById('roleSel_' + uid) || document.getElementById('urSel_' + uid);
     const role = sel?.value || 'student';
     await callAction('/api/approveUser', { uid, role }, '✅ Approved as ' + role);
+  };
+  window.deactivate = async function(uid, role){
+    if(uid === myUid){
+      showToast("You can't deactivate the account you're currently signed in as", 'error');
+      return;
+    }
+    const msg = role === 'dev'
+      ? '⚠️ This is a DEV account. Deactivating it will immediately revoke dev-panel and marker access for this user. Are you sure?'
+      : 'Deactivate this account? They will lose access until re-approved.';
+    if(!confirm(msg)) return;
+    await callAction('/api/rejectUser', { uid, mode: 'deny' }, '⏸️ Account deactivated');
   };
   window.deny = async function(uid){
     if(!confirm('Deny this request? The account stays but the user sees a rejection message.')) return;
@@ -444,7 +462,11 @@ body.dark .bootstrap-row input,body.dark .bootstrap-row select{background:var(--
                 <option value="teacher" ${u.role==='teacher'?'selected':''}>Teacher</option>
                 <option value="dev" ${u.role==='dev'?'selected':''}>Dev</option>
               </select>
-              <button class="btn approve" style="font-size:11px;padding:4px 8px" onclick="approve('${u.uid}')">Approve</button>
+              ${u.status === 'active'
+                ? (u.uid === myUid
+                    ? `<button class="btn gray" style="font-size:11px;padding:4px 8px" disabled title="You can't deactivate the account you're currently signed in as">Deactivate</button>`
+                    : `<button class="btn ${u.role === 'dev' ? 'gray' : 'deny'}" style="font-size:11px;padding:4px 8px" onclick="deactivate('${u.uid}','${esc(u.role)}')">Deactivate</button>`)
+                : `<button class="btn approve" style="font-size:11px;padding:4px 8px" onclick="approve('${u.uid}')">Approve</button>`}
               <button class="btn delete" style="font-size:11px;padding:4px 8px" onclick="deleteAccount('${u.uid}','${esc(u.displayName || u.email || u.uid)}')">Delete account</button>
             </div>
           </div>`).join('')}
