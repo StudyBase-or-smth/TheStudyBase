@@ -576,7 +576,7 @@ function viewTopic(id){
           </div>
         </div>
         <div class="dh-actions">
-          ${window.isTeacher ? '' : `<button class="btn-act" onclick="openModal(${t.id})">Edit</button>
+          ${window.isGuest ? '' : `<button class="btn-act" onclick="openModal(${t.id})">Edit</button>
           <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>`}
         </div>
       </div>
@@ -590,6 +590,7 @@ function viewTopic(id){
 }
 function openModal(id){
   if(window.isGuest){ showToast('Sign in to add or edit topics','info'); return; }
+  // Teachers and devs can add/edit topics just like students
   editId = id || null;
   tempTags = [];
   document.getElementById('kpList').innerHTML = '';
