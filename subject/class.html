@@ -6,7 +6,7 @@
 <title>StudyBase</title>
 <!-- Favicon -->
 <link rel="icon" href="../icon.png" type="image/png">
-<link rel="apple-touch-icon" href="../icon.png">
+<link rel="apple-touch-icon" href="icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="sharedstyle.css">
 </head>
@@ -33,11 +33,31 @@
       window.currentUid = user.uid;
       localStorage.setItem('studybase_uid', user.uid);
       user.getIdTokenResult().then(result => {
-        if (result.claims.role === 'teacher') {
+        const role   = result.claims.role   || '';
+        const status = result.claims.status || '';
+        window.userRole = role;
+
+        if (status === 'pending') {
+          // Pending approval — restrict to guest-mode until a dev approves
+          window.isGuest = true;
+          document.body.classList.add('guest-mode');
+          document.getElementById('guest-border').style.display = 'block';
+          document.getElementById('guest-nudge').style.display = 'block';
+          return;
+        }
+
+        if (status === 'rejected') {
+          // Request was denied — send them back to login to see the rejection message
+          window.location.href = '../login.html';
+          return;
+        }
+
+        if (role === 'teacher' || role === 'dev') {
           window.isTeacher = true;
           window.teacherName = user.displayName || user.email.split('@')[0];
           document.body.classList.add('teacher-mode');
         }
+        // role === 'student', status === 'active' — full normal access, nothing extra needed
       });
     } else if (isGuest) {
       window.isGuest = true;
@@ -45,16 +65,16 @@
       document.getElementById('guest-border').style.display = 'block';
       document.getElementById('guest-nudge').style.display = 'block';
     } else {
-      window.location.href = "../login.html";
+      window.location.href = "login.html";
     }
   });
   window.sbSignOut = () => {
     if (sessionStorage.getItem('studybase_guest') === '1') {
       sessionStorage.removeItem('studybase_guest');
-      window.location.href = "../login.html";
+      window.location.href = "login.html";
       return;
     }
-    signOut(auth).then(() => window.location.href = "../login.html");
+    signOut(auth).then(() => window.location.href = "login.html");
   };
 </script>
 
@@ -264,7 +284,7 @@
 <div id="guest-nudge">
   <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Viewing as guest</div>
   <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Sign in to add and edit topics.</div>
-  <button onclick="window.location.href='../login.html'" style="background:var(--text);color:var(--card);border:none;border-radius:6px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;transition:opacity .15s">Sign In</button>
+  <button onclick="window.location.href='login.html'" style="background:var(--text);color:var(--card);border:none;border-radius:6px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;transition:opacity .15s">Sign In</button>
   <button onclick="document.getElementById('guest-nudge').style.display='none'" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;margin-top:6px;width:100%;font-family:'Inter',sans-serif">Dismiss</button>
 </div>
 </body>

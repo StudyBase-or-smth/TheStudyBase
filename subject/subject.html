@@ -6,7 +6,7 @@
 <title>StudyBase</title>
 <!-- Favicon -->
 <link rel="icon" href="../icon.png" type="image/png">
-<link rel="apple-touch-icon" href="../icon.png">
+<link rel="apple-touch-icon" href="icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="sharedstyle.css">
 </head>
@@ -33,11 +33,31 @@
       window.currentUid = user.uid;
       localStorage.setItem('studybase_uid', user.uid);
       user.getIdTokenResult().then(result => {
-        if (result.claims.role === 'teacher') {
+        const role   = result.claims.role   || '';
+        const status = result.claims.status || '';
+        window.userRole = role;
+
+        if (status === 'pending') {
+          // Pending approval — restrict to guest-mode until a dev approves
+          window.isGuest = true;
+          document.body.classList.add('guest-mode');
+          document.getElementById('guest-border').style.display = 'block';
+          document.getElementById('guest-nudge').style.display = 'block';
+          return;
+        }
+
+        if (status === 'rejected') {
+          // Request was denied — send them back to login to see the rejection message
+          window.location.href = '../login.html';
+          return;
+        }
+
+        if (role === 'teacher' || role === 'dev') {
           window.isTeacher = true;
           window.teacherName = user.displayName || user.email.split('@')[0];
           document.body.classList.add('teacher-mode');
         }
+        // role === 'student', status === 'active' — full normal access, nothing extra needed
       });
     } else if (isGuest) {
       window.isGuest = true;

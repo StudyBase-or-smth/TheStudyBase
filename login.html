@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StudyBase — Sign In</title>
-<!-- Favicon -->
 <link rel="icon" href="icon.png" type="image/png">
 <link rel="apple-touch-icon" href="icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -17,85 +16,60 @@
   --shadow:0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);
 }
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;font-size:14px;display:flex;flex-direction:column}
-
 header{background:var(--card);border-bottom:1px solid var(--border);box-shadow:var(--shadow)}
 .header-inner{display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 24px}
-
 .wordmark{display:flex;align-items:center;gap:12px;text-decoration:none}
 .wordmark-icon{width:36px;height:36px;background:#1c1917;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
 .wordmark h1{font-family:'Lora',serif;font-size:20px;font-weight:700;color:var(--text);line-height:1}
 .wordmark span{font-size:11px;color:var(--muted);display:block;letter-spacing:.5px;margin-top:1px}
-
-.dark-toggle{
-  background:none;border:1px solid var(--border);border-radius:6px;
-  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
-  font-size:18px;cursor:pointer;transition:all .15s;
-}
+.dark-toggle{background:none;border:1px solid var(--border);border-radius:6px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all .15s}
 .dark-toggle:hover{background:var(--card2);border-color:var(--border2)}
-
 .page{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 24px}
 .login-card{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);width:100%;max-width:380px;padding:36px}
 .login-title{font-family:'Lora',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px}
-.login-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:22px}
+.auth-tabs{display:flex;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:3px;margin-bottom:22px}
+.auth-tab{flex:1;text-align:center;padding:8px 0;border-radius:6px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;border:none;background:none}
+.auth-tab.active{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
+body.dark .auth-tab.active{background:var(--card2)}
 .form-group{margin-bottom:14px}
 label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:5px;letter-spacing:.3px}
-
-/* Input Fields - Stronger Dark Mode Support */
-.form-i{
-  width:100%;background:var(--card2);border:1px solid var(--border);
-  border-radius:7px;padding:9px 12px;font-family:'Inter',sans-serif;
-  font-size:14px;color:var(--text);outline:none;transition:border-color .15s;
-}
-.form-i:focus{border-color:var(--border2);background:var(--card)}
-
-/* Sign In Button */
-.btn-primary{
-  width:100%;background:var(--text);color:#fff;border:none;
-  border-radius:7px;padding:11px;font-family:'Inter',sans-serif;
-  font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s;margin-top:4px;
-}
+.form-i,.form-sel{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;font-family:'Inter',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .15s}
+.form-i:focus,.form-sel:focus{border-color:var(--border2);background:var(--card)}
+.form-sel{cursor:pointer}
+.form-hint{font-size:11px;color:var(--muted2);margin-top:5px;line-height:1.5}
+.btn-primary{width:100%;background:var(--text);color:#fff;border:none;border-radius:7px;padding:11px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s;margin-top:4px}
 .btn-primary:hover{opacity:.85}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
-
-/* DARK MODE */
-body.dark{
-  --bg:#141210;--card:#1e1c19;--card2:#252220;--border:#302d29;
-  --border2:#3d3935;--text:#e8e3dc;--muted:#9e9890;--muted2:#6b6560;
-}
-body.dark .wordmark-icon{background:#e8e3dc}
-body.dark header{background:var(--card)}
-
-/* Fix Inputs + Password Field in Dark Mode */
-body.dark .form-i{
-  background:#252220 !important;
-  color:#e8e3dc !important;
-  border-color:#302d29 !important;
-}
-body.dark .form-i:focus{
-  background:#1e1c19 !important;
-  border-color:#3d3935 !important;
-}
-
-/* Fix Sign In Button in Dark Mode */
-body.dark .btn-primary{
-  background:#e8e3dc;
-  color:#1c1917;
-}
-body.dark .btn-primary:hover{
-  opacity:0.9;
-}
-
-/* Ensure title and subtitle are visible */
-body.dark .login-title,
-body.dark .login-sub {
-  color: var(--text) !important;
-}
+.error-msg{display:none;background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;font-size:12.5px;border-radius:7px;padding:9px 12px;margin-bottom:14px;line-height:1.5}
+.error-msg.show{display:block}
+body.dark .error-msg{background:#2a1414!important;border-color:#5c2424!important;color:#f29b9b!important}
+.success-msg{display:none;background:#f0fdf4;border:1px solid #86efac;color:#15803d;font-size:12.5px;border-radius:7px;padding:9px 12px;margin-bottom:14px;line-height:1.5}
+.success-msg.show{display:block}
+body.dark .success-msg{background:#142a1a!important;border-color:#245c34!important;color:#9bf2b4!important}
 .or-divider{display:flex;align-items:center;gap:10px;margin:14px 0 6px;color:var(--muted2);font-size:12px}
 .or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border)}
 .btn-ghost{width:100%;background:none;border:1px solid var(--border);border-radius:7px;padding:10px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s;margin-top:0}
 .btn-ghost:hover{background:var(--card2);color:var(--text);border-color:var(--border2)}
 body.dark .btn-ghost{border-color:var(--border);color:var(--muted)}
 body.dark .btn-ghost:hover{background:var(--card2);color:var(--text)}
+/* Pending / rejected screens */
+.pending-screen{display:none;text-align:center}
+.pending-screen.show{display:block}
+.pending-icon{font-size:34px;margin-bottom:10px}
+.pending-title{font-family:'Lora',serif;font-size:19px;font-weight:700;margin-bottom:8px}
+.pending-text{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:22px}
+.pending-role{display:inline-block;background:var(--card2);border:1px solid var(--border);border-radius:5px;padding:2px 9px;font-size:11px;font-weight:600;color:var(--text);text-transform:capitalize}
+/* Dark mode */
+body.dark{--bg:#141210;--card:#1e1c19;--card2:#252220;--border:#302d29;--border2:#3d3935;--text:#e8e3dc;--muted:#9e9890;--muted2:#6b6560}
+body.dark .wordmark-icon{background:#e8e3dc}
+body.dark header{background:var(--card)}
+body.dark .form-i,body.dark .form-sel{background:#252220!important;color:#e8e3dc!important;border-color:#302d29!important}
+body.dark .form-i:focus,body.dark .form-sel:focus{background:#1e1c19!important;border-color:#3d3935!important}
+body.dark .form-sel option{background:#252220;color:#e8e3dc}
+body.dark .btn-primary{background:#e8e3dc;color:#1c1917}
+body.dark .btn-primary:hover{opacity:.9}
+body.dark .login-title,body.dark .login-sub{color:var(--text)!important}
 </style>
 </head>
 <body>
@@ -104,41 +78,102 @@ body.dark .btn-ghost:hover{background:var(--card2);color:var(--text)}
   <div class="header-inner">
     <a class="wordmark" href="#">
       <div class="wordmark-icon">📚</div>
-      <div>
-        <h1>StudyBase</h1>
-        <span>YOUR STUDY HUB</span>
-      </div>
+      <div><h1>StudyBase</h1><span>YOUR STUDY HUB</span></div>
     </a>
-    
     <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">🌙</button>
   </div>
 </header>
 
 <div class="page">
   <div class="login-card">
-    <div class="login-title">Welcome back</div>
-    <div class="login-sub">Sign in to access your study notes</div>
 
-    <div class="error-msg" id="errorMsg"></div>
+    <!-- Auth forms -->
+    <div id="authForms">
+      <div class="login-title" id="cardTitle">Welcome back</div>
+      <div class="login-sub" id="cardSub">Sign in to access your study notes</div>
 
-    <div class="form-group">
-      <label>Email address</label>
-      <input class="form-i" type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" id="tabSignIn" onclick="switchTab('signin')">Sign In</button>
+        <button type="button" class="auth-tab" id="tabSignUp" onclick="switchTab('signup')">Sign Up</button>
+      </div>
+
+      <div class="error-msg" id="errorMsg"></div>
+      <div class="success-msg" id="successMsg"></div>
+
+      <!-- Sign In -->
+      <div id="signInFields">
+        <div class="form-group">
+          <label>Email address</label>
+          <input class="form-i" type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input class="form-i" type="password" id="passInput" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="btn-primary" id="mainBtn" onclick="handleSignIn()">Sign In</button>
+      </div>
+
+      <!-- Sign Up -->
+      <div id="signUpFields" style="display:none">
+        <div class="form-group">
+          <label>Full name</label>
+          <input class="form-i" type="text" id="nameInput" placeholder="Jane Smith" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label>Email address</label>
+          <input class="form-i" type="email" id="suEmailInput" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input class="form-i" type="password" id="suPassInput" placeholder="At least 6 characters" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label>I am a…</label>
+          <!-- Dev option removed — devs add themselves manually -->
+          <select class="form-sel" id="roleSelect">
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+          </select>
+          <div class="form-hint">
+            School (<strong>@pcs.nsw.edu.au</strong>) emails requesting <strong>Student</strong> are activated instantly.
+            <strong>Teacher</strong> requests are reviewed before access is granted — you can still browse as a guest in the meantime.
+          </div>
+        </div>
+        <button class="btn-primary" id="suBtn" onclick="handleSignUp()">Create account</button>
+      </div>
+
+      <div class="or-divider">or</div>
+      <button class="btn-ghost" onclick="enterGuest()">Continue as Guest</button>
     </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input class="form-i" type="password" id="passInput" placeholder="••••••••" autocomplete="current-password">
+
+    <!-- Pending approval screen (shown after sign-up OR when a pending user signs back in) -->
+    <div class="pending-screen" id="pendingScreen">
+      <div class="pending-icon">⏳</div>
+      <div class="pending-title">Awaiting approval</div>
+      <div class="pending-text">
+        Your <span class="pending-role" id="pendingRoleLabel">teacher</span> access request
+        has been sent for review. You can browse StudyBase as a guest until a dev approves your account.
+      </div>
+      <button class="btn-primary" onclick="continueAsPending()">Continue as Guest</button>
     </div>
 
-    <button class="btn-primary" id="mainBtn" onclick="handleSignIn()">Sign In</button>
-    <div class="or-divider">or</div>
-    <button class="btn-ghost" onclick="enterGuest()">Continue as Guest</button>
+    <!-- Rejected screen (shown when a previously-denied user signs back in) -->
+    <div class="pending-screen" id="rejectedScreen">
+      <div class="pending-icon">🚫</div>
+      <div class="pending-title">Request denied</div>
+      <div class="pending-text">
+        Your <span class="pending-role" id="rejectedRoleLabel">teacher</span> access request
+        was not approved. You can still browse StudyBase as a guest, or contact a dev if you think this was a mistake.
+      </div>
+      <button class="btn-primary" onclick="continueAsPending()">Continue as Guest</button>
+    </div>
+
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged }
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -147,81 +182,187 @@ body.dark .btn-ghost:hover{background:var(--card2);color:var(--text)}
     projectId: "studybase-8cfa1",
     storageBucket: "studybase-8cfa1.firebasestorage.app",
     messagingSenderId: "434992387793",
-    appId: "1:434992387793:web:e5bcae8cad63b4eb6f17f0",
-    measurementId: "G-834RTT2S7P"
+    appId: "1:434992387793:web:e5bcae8cad63b4eb6f17f0"
   };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      sessionStorage.removeItem('studybase_guest');
-      window.location.href = 'index.html';
+  // Prevents the auth-state listener auto-redirecting during sign-up flow
+  // or when we've already determined the user is pending/rejected.
+  let suppressAutoRedirect = false;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user || suppressAutoRedirect) return;
+
+    // Force-refresh so we always have the latest claims (e.g. after admin approval)
+    const token = await user.getIdTokenResult(true);
+    const role   = token.claims.role   || '';
+    const status = token.claims.status || '';
+
+    // Pending users stay on this page and see the pending screen
+    if (status === 'pending') {
+      suppressAutoRedirect = true;
+      document.getElementById('pendingRoleLabel').textContent = role || 'teacher';
+      document.getElementById('authForms').style.display = 'none';
+      document.getElementById('pendingScreen').classList.add('show');
+      return;
     }
+
+    // Rejected users stay on this page and see the rejected screen
+    if (status === 'rejected') {
+      suppressAutoRedirect = true;
+      document.getElementById('rejectedRoleLabel').textContent = role || 'teacher';
+      document.getElementById('authForms').style.display = 'none';
+      document.getElementById('rejectedScreen').classList.add('show');
+      return;
+    }
+
+    // Everyone else (active student, teacher, dev) goes straight in
+    sessionStorage.removeItem('studybase_guest');
+    window.location.href = 'index.html';
   });
 
-  // === DARK MODE (Consistent with index.html) ===
-  const darkKey = 'studybase_dark';
-  
-  function applyDarkMode() {
-    const isDark = localStorage.getItem(darkKey) === '1';
-    document.body.classList.toggle('dark', isDark);
-    const toggleBtn = document.getElementById('darkToggle');
-    if (toggleBtn) toggleBtn.textContent = isDark ? '☀️' : '🌙';
+  // ── Dark mode ──
+  function applyDark() {
+    const on = localStorage.getItem('studybase_dark') === '1';
+    document.body.classList.toggle('dark', on);
+    document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
   }
-
-  // Initial load
-  applyDarkMode();
-
-  // Toggle button
+  applyDark();
   document.getElementById('darkToggle').addEventListener('click', () => {
-    const isDark = document.body.classList.toggle('dark');
-    localStorage.setItem(darkKey, isDark ? '1' : '0');
-    document.getElementById('darkToggle').textContent = isDark ? '☀️' : '🌙';
+    const on = document.body.classList.toggle('dark');
+    localStorage.setItem('studybase_dark', on ? '1' : '0');
+    document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
   });
 
+  // ── Tabs ──
+  window.switchTab = function(tab) {
+    const su = tab === 'signup';
+    document.getElementById('tabSignIn').classList.toggle('active', !su);
+    document.getElementById('tabSignUp').classList.toggle('active', su);
+    document.getElementById('signInFields').style.display = su ? 'none' : 'block';
+    document.getElementById('signUpFields').style.display = su ? 'block' : 'none';
+    document.getElementById('cardTitle').textContent = su ? 'Create your account' : 'Welcome back';
+    document.getElementById('cardSub').textContent   = su ? 'Sign up to start adding and tracking your notes' : 'Sign in to access your study notes';
+    hideMessages();
+  };
+
+  function hideMessages() {
+    document.getElementById('errorMsg').classList.remove('show');
+    document.getElementById('successMsg').classList.remove('show');
+  }
   function showError(msg) {
+    hideMessages();
     const el = document.getElementById('errorMsg');
     el.textContent = msg;
     el.classList.add('show');
   }
   function friendlyError(code) {
-    const map = {
-      'auth/invalid-email': 'That email address looks invalid.',
-      'auth/user-not-found': 'No account found with that email.',
-      'auth/wrong-password': 'Incorrect password — try again.',
-      'auth/too-many-requests': 'Too many attempts. Try again later.',
-      'auth/invalid-credential': 'Email or password is incorrect.',
-    };
-    return map[code] || 'Something went wrong. Please try again.';
+    return ({
+      'auth/invalid-email':        'That email address looks invalid.',
+      'auth/user-not-found':       'No account found with that email.',
+      'auth/wrong-password':       'Incorrect password — try again.',
+      'auth/too-many-requests':    'Too many attempts. Try again later.',
+      'auth/invalid-credential':   'Email or password is incorrect.',
+      'auth/email-already-in-use': 'An account with that email already exists.',
+      'auth/weak-password':        'Password must be at least 6 characters.',
+    })[code] || 'Something went wrong. Please try again.';
   }
 
+  // ── Sign In ──
   window.handleSignIn = async function() {
-    document.getElementById('errorMsg').classList.remove('show');
+    hideMessages();
     const email = document.getElementById('emailInput').value.trim();
     const pass  = document.getElementById('passInput').value;
     if (!email || !pass) { showError('Please fill in both fields.'); return; }
     const btn = document.getElementById('mainBtn');
-    btn.disabled = true;
-    btn.textContent = 'Signing in…';
+    btn.disabled = true; btn.textContent = 'Signing in…';
     try {
       await signInWithEmailAndPassword(auth, email, pass);
+      // onAuthStateChanged handles the rest (pending/rejected check + redirect)
     } catch (e) {
       showError(friendlyError(e.code));
-      btn.disabled = false;
-      btn.textContent = 'Sign In';
+      btn.disabled = false; btn.textContent = 'Sign In';
     }
   };
 
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Enter') handleSignIn();
-  });
+  // ── Sign Up ──
+  window.handleSignUp = async function() {
+    hideMessages();
+    const name          = document.getElementById('nameInput').value.trim();
+    const email         = document.getElementById('suEmailInput').value.trim();
+    const pass          = document.getElementById('suPassInput').value;
+    const requestedRole = document.getElementById('roleSelect').value;
+
+    if (!name || !email || !pass) { showError('Please fill in all fields.'); return; }
+    if (pass.length < 6)          { showError('Password must be at least 6 characters.'); return; }
+
+    // Belt-and-braces: dev role is not in the dropdown but block it server-side too
+    if (requestedRole === 'dev') { showError('Dev accounts must be created manually.'); return; }
+
+    const btn = document.getElementById('suBtn');
+    btn.disabled = true; btn.textContent = 'Creating account…';
+
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      await updateProfile(cred.user, { displayName: name });
+
+      // Ask the server to set the role claim (active or pending)
+      let result = { status: 'pending', requestedRole };
+      try {
+        const res = await fetch('/api/registerRole', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid: cred.user.uid, email, requestedRole }),
+        });
+        if (res.ok) result = await res.json();
+      } catch (netErr) {
+        console.error('registerRole call failed:', netErr);
+        // Safer to treat as pending if we can't reach the server
+      }
+
+      // Wait briefly for Firebase to propagate the custom claims,
+      // then force-refresh the token so the new claims are live
+      await new Promise(r => setTimeout(r, 1500));
+      await cred.user.getIdToken(true);
+
+      if (result.status === 'active') {
+        // School student — go straight in
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Pending (teacher or non-school) — show the approval screen
+      // and drop into guest mode so they can browse read-only
+      suppressAutoRedirect = true;
+      sessionStorage.setItem('studybase_guest', '1');
+      document.getElementById('pendingRoleLabel').textContent = result.requestedRole || requestedRole;
+      document.getElementById('authForms').style.display = 'none';
+      document.getElementById('pendingScreen').classList.add('show');
+
+    } catch (e) {
+      showError(friendlyError(e.code));
+      btn.disabled = false; btn.textContent = 'Create account';
+    }
+  };
+
+  // Pending/rejected user clicks "Continue as Guest" — drop them into guest mode
+  window.continueAsPending = function() {
+    sessionStorage.setItem('studybase_guest', '1');
+    window.location.href = 'index.html';
+  };
 
   window.enterGuest = function() {
     sessionStorage.setItem('studybase_guest', '1');
     window.location.href = 'index.html';
   };
+
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const su = document.getElementById('signUpFields').style.display !== 'none';
+    if (su) handleSignUp(); else handleSignIn();
+  });
 </script>
 </body>
 </html>

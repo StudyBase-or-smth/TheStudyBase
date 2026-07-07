@@ -293,14 +293,14 @@ function applyTheme(){
 
   const bar = document.getElementById('accentBar');
   bar.style.background = c;
-  bar.href = 'default.html#' + SUBJECT.id;
+  bar.href = 'subject.html#' + SUBJECT.id;
 
   const emojiEl = document.getElementById('hdrEmoji');
   emojiEl.textContent = SUBJECT.emoji || '📚';
 
   const subjectLink = document.getElementById('hdrSubjectLink');
   subjectLink.textContent = SUBJECT.name;
-  subjectLink.href = 'default.html#' + SUBJECT.id;
+  subjectLink.href = 'subject.html#' + SUBJECT.id;
 
   document.title = 'Flashcards — ' + SUBJECT.name + ' — StudyBase';
 }
@@ -332,7 +332,7 @@ function render(){
     wrap.innerHTML = `<div class="fc-empty">
       <div class="fc-empty-icon">${SUBJECT.emoji || '📚'}</div>
       <div style="font-size:16px;font-family:'Lora',serif;font-weight:600;color:var(--text);margin-bottom:6px">No topics yet</div>
-      <div>Add topics in <a href="default.html#${SUBJECT.id}" style="color:var(--accent)">the ${esc(SUBJECT.name)} page</a> to start using flashcards.</div>
+      <div>Add topics in <a href="subject.html#${SUBJECT.id}" style="color:var(--accent)">the ${esc(SUBJECT.name)} page</a> to start using flashcards.</div>
     </div>`;
     return;
   }
