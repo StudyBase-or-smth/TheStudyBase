@@ -38,10 +38,12 @@ async function loadBranchVersion() {
     const res = await fetch('BranchVersion.json', { cache: 'no-store' });
     if (!res.ok) throw new Error('not found');
     const data = await res.json();
-    const branch = data.branch || 'unknown', version = data.version || '0.0.0';
+    const branch  = data.branch  || 'unknown';
+    const version = data.version || '0.0.0';
+    const date    = data.date    || 'unknown';
     const colorMap = { dev: '#e11d48', bug: '#c2410c', main: '#15803d', other: '#1e40af' };
     const color = colorMap[data.colour || data.color || 'other'] || '#1e40af';
-    badge.innerHTML = `<strong>${branch}</strong> · v${version}`;
+    badge.innerHTML = `<strong>${branch}</strong> · v${version} · ( ${date} )`;
     badge.style.cssText = `font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;color:${color}`;
   } catch (e) {
     badge.innerHTML = '<strong>dev</strong> · Local';
