@@ -145,6 +145,7 @@
     <div class="topic-list" id="topicList"></div>
     <div class="class-sections" id="classSections" style="display:none"></div>
   </div>
+  <button class="sidebar-edge-toggle" id="sidebarCollapseBtn" onclick="toggleSidebarCollapsed()" data-tip="Hide sidebar">‹</button>
 
   <div class="detail-panel">
     <div class="welcome" id="welcomeState">
@@ -164,10 +165,14 @@
   <div class="modal">
     <div class="modal-head">
   <div class="modal-title" id="modalTitle">New topic</div>
-
+  <div class="layout-switcher">
+    <button type="button" class="layout-arrow" onclick="cycleLayout(-1)" title="Previous type">‹</button>
+    <span class="layout-name" id="layoutName">Basic</span>
+    <button type="button" class="layout-arrow" onclick="cycleLayout(1)" title="Next type">›</button>
+  </div>
 </div>
 
-    
+
     <div class="form-row">
       <div class="form-g" style="flex:2">
         <label class="form-l">Term / Concept <span>*</span></label>
@@ -189,16 +194,27 @@
         </div>
       </div>
     </div>
-    <div class="form-g">
+    <div class="form-g" data-layout-group="basic">
       <label class="form-l">Definition</label>
       <textarea class="form-ta" id="fDefinition" rows="3" placeholder="A clear, concise definition…"></textarea>
     </div>
-    <div class="form-g">
-      <label class="form-l">Key Points</label>
+    <div class="form-g" data-layout-group="overview text">
+      <label class="form-l" id="bodyTextLabel">Overview</label>
+      <div class="rich-editor-wrap">
+        <div class="rich-toolbar">
+          <span class="rich-toolbar-label">text &amp; images</span>
+          <button type="button" class="rich-btn" onclick="richAddImage('fBodyText')">🖼 Insert image</button>
+          <input type="file" id="img_fBodyText" accept="image/*" style="display:none">
+        </div>
+        <div class="rich-content" id="fBodyText" contenteditable="true" data-placeholder="Write the overview or main text here…" style="min-height:120px"></div>
+      </div>
+    </div>
+    <div class="form-g" data-layout-group="basic overview text">
+      <label class="form-l" id="kpFieldLabel">Key Points</label>
       <div class="kp-list" id="kpList"></div>
       <button class="btn-add-kp" onclick="addKpRow()">+ Add key point</button>
     </div>
-    <div class="form-g">
+    <div class="form-g" data-layout-group="basic math">
       <label class="form-l">Formula / Equation <span>— leave blank if none</span></label>
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
@@ -209,7 +225,12 @@
         <div class="rich-content mono" id="fFormula" contenteditable="true" data-placeholder="e.g. σ = F/A" style="min-height:88px"></div>
       </div>
     </div>
-    <div class="form-g">
+    <div class="form-g" data-layout-group="pdf">
+      <label class="form-l">PDF Document</label>
+      <input type="file" id="fPdfFile" accept="application/pdf" style="display:none" onchange="onPdfFileSelected(this)">
+      <div id="pdfPreviewArea"></div>
+    </div>
+    <div class="form-g" data-layout-group="basic">
       <label class="form-l">Extra Notes</label>
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
@@ -220,7 +241,7 @@
         <div class="rich-content" id="fMaterials" contenteditable="true" data-placeholder="Any additional notes…" style="min-height:52px"></div>
       </div>
     </div>
-    <div class="form-g">
+    <div class="form-g" data-layout-group="basic">
       <label class="form-l">Process / Method</label>
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
@@ -231,7 +252,7 @@
         <div class="rich-content" id="fProcess" contenteditable="true" data-placeholder="How does it work? Step-by-step if applicable…" style="min-height:66px"></div>
       </div>
     </div>
-    <div class="form-g">
+    <div class="form-g" data-layout-group="basic">
       <label class="form-l">Safety / Warnings</label>
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
@@ -242,7 +263,7 @@
         <div class="rich-content" id="fSafety" contenteditable="true" data-placeholder="Hazards, warnings, failure modes…" style="min-height:52px"></div>
       </div>
     </div>
-    <div class="form-g">
+    <div class="form-g" data-layout-group="basic">
       <label class="form-l">Exam Tip</label>
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
@@ -258,7 +279,7 @@
       <div class="subtopic-editor-list" id="subtopicEditorList"></div>
       <button class="btn-add-kp" onclick="addSubtopicRow()">+ Add subtopic</button>
     </div>
-    <div class="form-g">
+    <div class="form-g" data-layout-group="basic math">
       <label class="form-l">Flashcard Questions <span>— custom Q&amp;A for this topic's cards</span></label>
       <div class="fqa-list" id="fqaList"></div>
       <button class="btn-add-kp" onclick="addFqaRow()">+ Add question</button>

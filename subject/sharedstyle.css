@@ -3,6 +3,13 @@
 *::-webkit-scrollbar{display:none}
 html,body{height:100%;overflow:hidden}
 body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;display:flex;flex-direction:column;font-size:14px}
+/* Native form controls (select dropdown lists, scrollbars) follow the OS/
+   browser light or dark rendering based on this — without it, a dark body
+   with light --text still gets a white native dropdown popup underneath,
+   producing white-on-white text. Recurring bug source; keep this in sync
+   with the .dark toggle rather than only theming our own CSS. */
+select{color-scheme:light}
+body.dark select{color-scheme:dark}
 :root{
   --card:#fff;--card2:#faf8f5;--border:#e2ddd7;--border2:#d4cec7;
   --text:#1c1917;--muted:#6c7778;--muted2:#8199a4;
@@ -39,8 +46,16 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;display:fle
 .hdr-action:hover{opacity:.82}
 
 /* ── App body ── */
-.app-body{display:flex;flex:1;overflow:hidden}
-.sidebar{width:268px;flex-shrink:0;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.app-body{display:flex;flex:1;overflow:hidden;position:relative}
+.sidebar{width:268px;flex-shrink:0;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .16s ease,min-width .16s ease,border-color .16s ease}
+.sidebar.collapsed{width:0;min-width:0;border-right-color:transparent}
+.sidebar.collapsed > *{visibility:hidden}
+
+/* ── Slim edge arrow — sits just outside the sidebar, in the content pane,
+   so it never overlaps the topic list text ── */
+.sidebar-edge-toggle{position:absolute;top:50%;left:268px;transform:translateY(-50%);width:14px;height:48px;background:var(--card2);border:1px solid var(--border);border-left:none;border-radius:0 6px 6px 0;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:20;color:var(--muted);font-size:12px;line-height:1;opacity:1;box-shadow:1px 0 3px rgba(0,0,0,.08);transition:left .16s ease,background .12s,color .12s,border-color .12s}
+.sidebar-edge-toggle:hover{background:var(--ac-l);color:var(--accent);border-color:var(--ac-b)}
+.sidebar.collapsed + .sidebar-edge-toggle{left:0}
 .sidebar-top{padding:12px;border-bottom:1px solid var(--border)}
 .search-wrap{position:relative}
 .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted2);font-size:13px;pointer-events:none}
@@ -59,6 +74,7 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;display:fle
 .unit-select-row{display:flex;gap:6px;align-items:center}
 .unit-select{width:100%;flex:1;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-family:'Inter',sans-serif;font-size:12.5px;outline:none;cursor:pointer;transition:border-color .15s}
 .unit-select:focus{border-color:var(--accent)}
+.unit-select option{background:var(--card2);color:var(--text)}
 .unit-del-btn{flex-shrink:0;background:none;border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12px;cursor:pointer;color:var(--muted2);transition:all .12s}
 .unit-del-btn:hover{border-color:#fca5a5;color:#dc2626;background:#fef2f2}
 body.dark .unit-del-btn:hover{background:#2a1414!important;border-color:#5c2424!important;color:#f29b9b!important}
@@ -104,7 +120,7 @@ body.dark .unit-del-btn:hover{background:#2a1414!important;border-color:#5c2424!
 .welcome-icon{font-size:40px;margin-bottom:4px}
 .welcome h2{font-family:'Lora',serif;font-size:20px;font-weight:400}
 .welcome p{font-size:13px;color:var(--muted);max-width:260px;line-height:1.6}
-.detail-outer{display:none;flex:1;gap:16px;overflow:hidden;align-items:flex-start}
+.detail-outer{display:none;gap:16px;align-items:flex-start;max-width:940px;width:100%;margin:0 auto}
 .detail-content{flex:1;min-width:0;overflow-y:auto;max-width:720px;padding:0}
 .detail-content{display:block}
 .detail-content.on{animation:up .2s ease}
@@ -229,6 +245,20 @@ body.dark .blk-textarea{background:#1c1a08!important;border-color:#3d3410!import
 .modal-title{font-family:'Lora',serif;font-size:19px;font-weight:600}
 .modal-x{background:var(--card2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .12s}
 .modal-x:hover{color:var(--text);border-color:var(--border2)}
+
+/* ── Topic type switcher (New/Edit modal) ── */
+.layout-switcher{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.layout-arrow{background:var(--card2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .12s;font-family:inherit}
+.layout-arrow:hover{color:var(--accent);border-color:var(--ac-b);background:var(--ac-l)}
+.layout-name{font-size:12px;font-weight:700;color:var(--accent);min-width:56px;text-align:center;text-transform:uppercase;letter-spacing:.5px}
+
+/* ── PDF topic type ── */
+.pdf-picked-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pdf-picked-name{font-size:13px;color:var(--text);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:6px 10px}
+.pdf-viewer-wrap{display:flex;flex-direction:column;gap:8px}
+.pdf-viewer{width:100%;height:85vh;min-height:640px;border:1px solid var(--border);border-radius:8px;background:var(--card2)}
+.pdf-open-link{align-self:flex-start;font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;background:var(--ac-l);border:1px solid var(--ac-b);border-radius:6px;padding:6px 12px}
+.pdf-open-link:hover{opacity:.85}
 .form-g{margin-bottom:14px}
 .form-l{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:600;margin-bottom:6px}
 .form-l span{text-transform:none;letter-spacing:0;font-weight:400;font-size:11px}
@@ -236,7 +266,7 @@ body.dark .blk-textarea{background:#1c1a08!important;border-color:#3d3410!import
 .form-i:focus,.form-ta:focus,.form-sel:focus{border-color:var(--accent);background:var(--card2)}.form-i::placeholder,.form-ta::placeholder{color:var(--muted2)}
 .form-ta{resize:vertical;line-height:1.6}
 .form-mono{font-family:'JetBrains Mono',monospace;font-size:12px}
-.form-sel option{background:#fff}
+.form-sel option{background:var(--card2);color:var(--text)}
 .form-row{display:flex;gap:10px}
 .form-row .form-g{flex:1}
 .unit-row{display:flex;gap:7px}
@@ -361,6 +391,11 @@ body.dark img:not(.no-invert){filter:invert(.88) hue-rotate(180deg) brightness(1
 .mob-scrim { display: none; }
 
 @media (max-width: 700px) {
+
+  /* The mobile hamburger (☰ Topics bar) already opens/closes the sidebar
+     here — the desktop collapse button would just be a confusing second
+     control for the same thing. */
+  #sidebarCollapseBtn { display: none !important; }
 
   /* ── Kill the side-by-side layout ── */
   .app-body {

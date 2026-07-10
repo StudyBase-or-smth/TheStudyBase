@@ -117,7 +117,8 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;min-height:
 .ev-input,.ev-sel{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
 .ev-input:focus,.ev-sel:focus{border-color:var(--text)}
 .ev-input::placeholder{color:var(--muted2)}
-.ev-sel option{background:var(--card)}
+.ev-sel option{background:var(--card);color:var(--text)}
+select{color-scheme:light}
 .ev-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
 .ev-btn{padding:8px 16px;border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:opacity .12s}
 .ev-btn.primary{background:var(--text);color:var(--card)}
@@ -193,6 +194,7 @@ body.dark .sug-tag-btn.active.bug{background:#7f1d1d;border-color:#991b1b;color:
 body.dark .sug-tag-btn.active.request{background:#1e3a5f;border-color:#1d4ed8;color:#bfdbfe}
 body.dark .sug-tag-btn.active.idea{background:#14532d;border-color:#15803d;color:#d9f99d}
 body.dark .ev-input,body.dark .ev-sel{background:var(--card2);border-color:var(--border);color:var(--text)}
+body.dark select{color-scheme:dark}
 body.dark .sug-input{background:var(--card2);border-color:var(--border);color:var(--text)}
 
 /* ── GUEST MODE ── */

@@ -15,10 +15,12 @@
   --shadow:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
 }
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh}
+select{color-scheme:light}
 body.dark{
   --bg:#141210;--card:#1e1c19;--card2:#252220;--border:#302d29;--border2:#3d3935;
   --text:#e8e3dc;--muted:#9e9890;--muted2:#6b6560;--ac-l:rgba(167,139,250,.1);--ac-b:rgba(167,139,250,.25);
 }
+body.dark select{color-scheme:dark}
 
 .hdr{background:var(--card);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:14px}
 .hdr h1{font-family:'Lora',serif;font-size:19px;font-weight:700}
@@ -226,11 +228,6 @@ body.dark .bootstrap-row input,body.dark .bootstrap-row select{background:var(--
   }
 
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-  // Firebase uids are a fixed alphanumeric format today, so this is
-  // defense-in-depth rather than a fix for a known-exploitable bug — but
-  // every uid interpolated into an onclick="...('...')" string should still
-  // be escaped in case that assumption ever changes upstream.
-  function escAttr(s){ return esc(s).replace(/'/g,'&#39;'); }
 
   // Safer fetch wrapper — if the response isn't JSON (e.g. a Netlify function
   // crashed and returned a raw stack trace / HTML error page), this surfaces
@@ -312,13 +309,12 @@ body.dark .bootstrap-row input,body.dark .bootstrap-row select{background:var(--
     }
     list.innerHTML = pending.map(p => {
       const date = p.requestedAt ? new Date(p.requestedAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : '—';
-      const uid = escAttr(p.uid);
       return `
-        <div class="queue-card" id="q_${uid}">
+        <div class="queue-card" id="q_${p.uid}">
           <div class="q-info">
-            <div class="q-name" id="qname_${uid}">
+            <div class="q-name" id="qname_${p.uid}">
               <span class="q-name-text">${esc(p.displayName || '(no name)')}</span>
-              <button class="name-edit-btn" title="Rename" onclick="startRename('${uid}', 'q')">✏️</button>
+              <button class="name-edit-btn" title="Rename" onclick="startRename('${p.uid}', 'q')">✏️</button>
             </div>
             <div class="q-email">${esc(p.email)}</div>
             <div class="q-meta">
@@ -327,14 +323,14 @@ body.dark .bootstrap-row input,body.dark .bootstrap-row select{background:var(--
             </div>
           </div>
           <div class="q-actions">
-            <select id="roleSel_${uid}">
+            <select id="roleSel_${p.uid}">
               <option value="student" ${p.requestedRole==='student'?'selected':''}>Student</option>
               <option value="teacher" ${p.requestedRole==='teacher'?'selected':''}>Teacher</option>
               <option value="dev">Dev</option>
             </select>
-            <button class="btn approve" onclick="approve('${uid}')">✅ Approve</button>
-            <button class="btn deny" onclick="deny('${uid}')">❌ Deny</button>
-            <button class="btn delete" onclick="remove('${uid}')">🗑️ Remove</button>
+            <button class="btn approve" onclick="approve('${p.uid}')">✅ Approve</button>
+            <button class="btn deny" onclick="deny('${p.uid}')">❌ Deny</button>
+            <button class="btn delete" onclick="remove('${p.uid}')">🗑️ Remove</button>
           </div>
         </div>`;
     }).join('');
@@ -387,11 +383,10 @@ body.dark .bootstrap-row input,body.dark .bootstrap-row select{background:var(--
     const wrap = document.getElementById((scope === 'q' ? 'qname_' : 'urname_') + uid);
     if(!wrap) return;
     const current = wrap.querySelector(scope === 'q' ? '.q-name-text' : '.ur-name-text')?.textContent || '';
-    const safeUid = escAttr(uid);
     wrap.innerHTML = `
-      <input type="text" id="${scope}rename_${safeUid}" value="${esc(current)}" maxlength="100">
-      <button class="name-edit-btn" title="Save" onclick="saveRename('${safeUid}','${scope}')">✅</button>
-      <button class="name-edit-btn" title="Cancel" onclick="cancelRename('${safeUid}','${scope}')">✖️</button>
+      <input type="text" id="${scope}rename_${uid}" value="${esc(current)}" maxlength="100">
+      <button class="name-edit-btn" title="Save" onclick="saveRename('${uid}','${scope}')">✅</button>
+      <button class="name-edit-btn" title="Cancel" onclick="cancelRename('${uid}','${scope}')">✖️</button>
     `;
     const input = document.getElementById(`${scope}rename_${uid}`);
     input.focus();
@@ -454,17 +449,17 @@ body.dark .bootstrap-row input,body.dark .bootstrap-row select{background:var(--
         <div class="users-row header">
           <span>Name</span><span>Email</span><span>Role</span><span>Status</span><span>Actions</span>
         </div>
-        ${users.map(u => { const uid = escAttr(u.uid); return `
-          <div class="users-row" id="ur_${uid}">
-            <span class="ur-name" id="urname_${uid}">
+        ${users.map(u => `
+          <div class="users-row" id="ur_${u.uid}">
+            <span class="ur-name" id="urname_${u.uid}">
               <span class="ur-name-text" title="${esc(u.displayName)}">${esc(u.displayName || '(no name)')}</span>
-              <button class="name-edit-btn" title="Rename" onclick="startRename('${uid}', 'u')">✏️</button>
+              <button class="name-edit-btn" title="Rename" onclick="startRename('${u.uid}', 'u')">✏️</button>
             </span>
             <span class="ur-email" title="${esc(u.email)}">${esc(u.email)}</span>
             <span><span class="role-badge ${esc(u.role)}">${esc(u.role)}</span></span>
             <span><span class="role-badge ${esc(u.status)}">${esc(u.status)}</span></span>
             <div class="ur-actions">
-              <select id="urSel_${uid}">
+              <select id="urSel_${u.uid}">
                 <option value="student" ${u.role==='student'?'selected':''}>Student</option>
                 <option value="teacher" ${u.role==='teacher'?'selected':''}>Teacher</option>
                 <option value="dev" ${u.role==='dev'?'selected':''}>Dev</option>
@@ -472,11 +467,11 @@ body.dark .bootstrap-row input,body.dark .bootstrap-row select{background:var(--
               ${u.status === 'active'
                 ? (u.uid === myUid
                     ? `<button class="btn gray" style="font-size:11px;padding:4px 8px" disabled title="You can't deactivate the account you're currently signed in as">Deactivate</button>`
-                    : `<button class="btn ${u.role === 'dev' ? 'gray' : 'deny'}" style="font-size:11px;padding:4px 8px" onclick="deactivate('${uid}','${esc(u.role)}')">Deactivate</button>`)
-                : `<button class="btn approve" style="font-size:11px;padding:4px 8px" onclick="approve('${uid}')">Approve</button>`}
-              <button class="btn delete" style="font-size:11px;padding:4px 8px" onclick="deleteAccount('${uid}','${escAttr(u.displayName || u.email || u.uid)}')">Delete account</button>
+                    : `<button class="btn ${u.role === 'dev' ? 'gray' : 'deny'}" style="font-size:11px;padding:4px 8px" onclick="deactivate('${u.uid}','${esc(u.role)}')">Deactivate</button>`)
+                : `<button class="btn approve" style="font-size:11px;padding:4px 8px" onclick="approve('${u.uid}')">Approve</button>`}
+              <button class="btn delete" style="font-size:11px;padding:4px 8px" onclick="deleteAccount('${u.uid}','${esc(u.displayName || u.email || u.uid)}')">Delete account</button>
             </div>
-          </div>`; }).join('')}
+          </div>`).join('')}
       </div>`;
   }
 

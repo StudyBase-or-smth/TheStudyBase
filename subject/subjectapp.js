@@ -85,6 +85,28 @@ function toggleDark(){
   document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
 }
 
+// ── Sidebar collapse (desktop) ──
+// Shared with class.html via the same localStorage key, so collapsing it on
+// one page keeps it collapsed on the other.
+const SIDEBAR_COLLAPSE_KEY = 'studybase_sidebar_collapsed';
+function applySidebarCollapsed(){
+  const collapsed = localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === '1';
+  const sidebar = document.querySelector('.sidebar');
+  const btn = document.getElementById('sidebarCollapseBtn');
+  if(sidebar) sidebar.classList.toggle('collapsed', collapsed);
+  if(btn){
+    btn.classList.toggle('collapsed', collapsed);
+    btn.textContent = collapsed ? '›' : '‹';
+    btn.setAttribute('data-tip', collapsed ? 'Show sidebar' : 'Hide sidebar');
+  }
+}
+function toggleSidebarCollapsed(){
+  const collapsed = localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === '1';
+  localStorage.setItem(SIDEBAR_COLLAPSE_KEY, collapsed ? '0' : '1');
+  applySidebarCollapsed();
+}
+applySidebarCollapsed();
+
 // ── Rich editor helpers ──
 function getRichVal(id){ const el=document.getElementById(id); if(!el)return''; return el.contentEditable==='true'?el.innerHTML.trim():el.value.trim(); }
 function setRichVal(id,html){ const el=document.getElementById(id); if(!el)return; if(el.contentEditable==='true'){el.innerHTML=html||'';}else{el.value=html||'';} }
@@ -109,6 +131,8 @@ const getPinned  = () => { try{ return JSON.parse(localStorage.getItem(SP)||'[]'
 // `activeOrigin` is null while viewing/editing the subject's own content, or
 // one of LINKED_CLASSES while viewing a class's aggregated (read-only) topic.
 let activeOrigin = null;
+let _lastRenderedTopicKey = null;
+let openCommentBlocks = new Set();
 
 // Read-only accessors into a linked class's own storage — used only by the
 // aggregated "From your classes" sidebar sections and the read-only detail
@@ -139,9 +163,57 @@ const savePinned = p => {
 };
 
 // ── Layouts ──
-const LAYOUTS = ['basic','overview','math','text'];
-const LAYOUT_LABELS = { basic:'Basic', overview:'Overview', math:'Math', text:'Text' };
+const LAYOUTS = ['basic','overview','math','text','pdf'];
+const LAYOUT_LABELS = { basic:'Basic', overview:'Overview', math:'Math', text:'Text', pdf:'PDF' };
 let currentLayout = 'basic';
+
+// ── PDF topic type ──
+// PDFs are embedded as base64 data URLs directly on the topic (like the
+// rich-text image uploads, but simpler — no server round trip). This bloats
+// sync payloads for large files, so we cap it rather than let it silently
+// break syncPush/localStorage.
+const PDF_MAX_BYTES = 6 * 1024 * 1024; // ~6MB (base64 already ~33% bigger than the raw file)
+let pendingPdfData = null;   // null = no change; '' = explicitly removed; string = new data URL
+let pendingPdfName = null;
+
+function onPdfFileSelected(input){
+  const file = input.files && input.files[0];
+  input.value = '';
+  if(!file) return;
+  if(file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')){
+    showToast('Please choose a PDF file', 'info'); return;
+  }
+  if(file.size > PDF_MAX_BYTES){
+    showToast(`PDF is too large (${(file.size/1024/1024).toFixed(1)}MB) — max ${(PDF_MAX_BYTES/1024/1024).toFixed(0)}MB`, 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingPdfData = e.target.result;
+    pendingPdfName = file.name;
+    renderPdfPreview();
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePdfFile(){
+  pendingPdfData = '';
+  pendingPdfName = '';
+  renderPdfPreview();
+}
+
+function renderPdfPreview(){
+  const area = document.getElementById('pdfPreviewArea');
+  if(!area) return;
+  const ex = editId ? (getTopics().find(t => t.id===editId)||{}) : {};
+  const name = pendingPdfData !== null ? pendingPdfName : (ex.pdfName || '');
+  const hasFile = pendingPdfData !== null ? !!pendingPdfData : !!ex.pdfData;
+  area.innerHTML = hasFile
+    ? `<div class="pdf-picked-row"><span class="pdf-picked-name">📄 ${esc(name || 'document.pdf')}</span>
+        <button type="button" class="btn-small" onclick="document.getElementById('fPdfFile').click()">Replace</button>
+        <button type="button" class="btn-small" onclick="removePdfFile()">Remove</button></div>`
+    : `<button type="button" class="btn-small" onclick="document.getElementById('fPdfFile').click()">+ Choose PDF</button>`;
+}
 
 function cycleLayout(dir){
   let idx = LAYOUTS.indexOf(currentLayout);
@@ -252,11 +324,13 @@ function blockCommentHtml(topicId, block, label, icon){
       ${hasNotes ? `<span class="blk-comment-count">${notes.length}</span>` : ''}
     </button>`;
 
+  const isOpen = openCommentBlocks.has(block);
+
   const collapseArrow = hasNotes ? `
-    <button class="blk-collapse-btn" id="blkArrow_${block}" onclick="toggleBlockCard('${block}')" title="Toggle">‹</button>` : '';
+    <button class="blk-collapse-btn" id="blkArrow_${block}" onclick="toggleBlockCard('${block}')" title="Toggle">${isOpen ? '‹' : '›'}</button>` : '';
 
   const cardBody = hasNotes ? `
-    <div class="blk-card-body" id="blkCard_${block}" style="display:block">
+    <div class="blk-card-body" id="blkCard_${block}" style="display:${isOpen ? 'block' : 'none'}">
       <div class="blk-notes-list">${notesHtml}</div>
     </div>` : '';
 
@@ -274,6 +348,7 @@ function toggleBlockCard(block){
   const arrow = document.getElementById(`blkArrow_${block}`);
   if(!card) return;
   const isOpen = card.style.display !== 'none';
+  if(isOpen) openCommentBlocks.delete(block); else openCommentBlocks.add(block);
   card.style.display = isOpen ? 'none' : 'block';
   if(arrow) arrow.textContent = isOpen ? '›' : '‹';
   if(_lastVisibleBlocks.length) requestAnimationFrame(() => alignCommentsSidebar(_lastVisibleBlocks));
@@ -306,8 +381,10 @@ function openCommentPopover(topicId, block, label, anchorEl){
   ta.value = '';
   const rect = anchorEl.getBoundingClientRect();
   const popWidth = Math.min(320, window.innerWidth - 32);
-  let left = rect.left - popWidth - 8;
-  if(left < 12) left = Math.max(12, rect.right + 8);
+  // Prefer opening to the right of the comment icon; only fall back to the
+  // left if there isn't enough room on the right of the viewport.
+  let left = rect.right + 8;
+  if(left + popWidth > window.innerWidth - 12) left = Math.max(12, rect.left - popWidth - 8);
   let top = Math.min(rect.top, window.innerHeight - 200);
   pop.style.width = popWidth + 'px';
   pop.style.left = left + 'px';
@@ -343,11 +420,9 @@ function postPopoverComment(){
   const block = pop.dataset.block;
   saveBlockNote(topicId, block, text);
   closeCommentPopover();
+  openCommentBlocks.add(block);
   viewTopic(topicId);
   setTimeout(() => {
-    const card = document.getElementById(`blkCard_${block}`);
-    const arrow = document.getElementById(`blkArrow_${block}`);
-    if(card) card.style.display='block'; if(arrow) arrow.textContent='‹';
     if(_lastVisibleBlocks.length) alignCommentsSidebar(_lastVisibleBlocks);
   }, 60);
   showToast('Comment posted','success');
@@ -614,6 +689,9 @@ function viewTopic(id, originId){
   const t = allTopics.find(x => x.id == id);
   if(!t) return;
   const oid = jsArg(origin ? origin.id : null);
+  const renderKey = id + '::' + (origin ? origin.id : '');
+  const isTopicSwitch = renderKey !== _lastRenderedTopicKey;
+  if(isTopicSwitch) openCommentBlocks = new Set();
   // Collapse everything except the path down to the newly selected topic
   expandedTopics = new Set();
   let cur = t;
@@ -630,7 +708,7 @@ function viewTopic(id, originId){
   document.getElementById('welcomeState').style.display = 'none';
   const outer = document.getElementById('detailOuter');
   const el    = document.getElementById('detailContent');
-  el.classList.remove('on');
+  if(isTopicSwitch) el.classList.remove('on');
 
   const layout = t.layout || 'basic';
   const children = allTopics.filter(c => c.parentId === t.id);
@@ -679,6 +757,12 @@ function viewTopic(id, originId){
     bodyHtml += sec('bodyText', 'Main Text', '📄',
       t.bodyText ? `<div class="plain-text">${sanitizeRich(t.bodyText)}</div>` : '<p class="empty-note">No text added yet.</p>');
     bodyHtml += sec('keyPoints', 'Points of Interest', '✦', kpHtml);
+  } else if(layout === 'pdf'){
+    bodyHtml += sec('pdfDoc', 'PDF Document', '📄',
+      t.pdfData
+        ? `<div class="pdf-viewer-wrap"><iframe class="pdf-viewer" src="${t.pdfData}" title="${esc(t.pdfName||'PDF document')}"></iframe>
+            <a class="pdf-open-link" href="${t.pdfData}" download="${esc(t.pdfName||'document.pdf')}">⬇ ${esc(t.pdfName||'document.pdf')}</a></div>`
+        : '<p class="empty-note">No PDF uploaded yet.</p>');
   } else { // basic
     bodyHtml += sec('definition', 'Definition', '📝',
       t.definition ? `<p class="def-text">${esc(t.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>');
@@ -722,8 +806,11 @@ function viewTopic(id, originId){
 
   outer.style.display = 'flex';
   el.style.display = 'block';
-  void el.offsetWidth;
-  el.classList.add('on');
+  if(isTopicSwitch){
+    void el.offsetWidth;
+    el.classList.add('on');
+  }
+  _lastRenderedTopicKey = renderKey;
   buildTeacherPanel(t.id, visibleBlocks);
 }
 function openModal(id){
@@ -754,6 +841,7 @@ function openModal(id){
     document.getElementById('fqaList').innerHTML = '';
     (t.flashcardQA||[]).forEach(qa => addFqaRow(qa.q, qa.a));
     currentLayout = LAYOUTS.includes(t.layout) ? t.layout : 'basic';
+    pendingPdfData = null; pendingPdfName = null;
   } else {
     document.getElementById('modalTitle').textContent = 'New topic';
     ['fName','fDefinition'].forEach(i => document.getElementById(i).value = '');
@@ -761,7 +849,9 @@ function openModal(id){
     document.getElementById('fUnit').value = '';
     document.getElementById('fqaList').innerHTML = '';
     currentLayout = 'basic';
+    pendingPdfData = null; pendingPdfName = null;
   }
+  renderPdfPreview();
   applyLayoutUI();
   document.getElementById('modalOverlay').classList.add('open');
   setTimeout(() => document.getElementById('fName').focus(), 80);
@@ -876,6 +966,8 @@ function saveTopic(){
     safety:    getRichVal('fSafety'),
     examTip:   getRichVal('fExamTip'),
     bodyText:  getRichVal('fBodyText'),
+    pdfData:   pendingPdfData !== null ? pendingPdfData : (ex.pdfData || ''),
+    pdfName:   pendingPdfData !== null ? pendingPdfName : (ex.pdfName || ''),
     layout:    currentLayout,
     relatedTerms,
     flashcardQA,
