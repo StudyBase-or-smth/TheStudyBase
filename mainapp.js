@@ -107,6 +107,7 @@ function init() {
   renderSidebar();
   renderCalendar();
   calSync();
+  syncAllSubjectsAndUnits();
   startSyncCountdown();
 
   document.getElementById('todayDate').textContent =
@@ -140,9 +141,21 @@ function renderSubjects() {
   }).join('');
 }
 // ── class cards ──
+// Classes are teacher/dev-only content (per-class rosters, aggregated into
+// students' subject pages already) — students and guests shouldn't see the
+// section at all on the hub. index.html's auth callback sets
+// window.isTeacher once the signed-in user's role claim resolves and
+// re-invokes this function; until then (and for anyone who never qualifies)
+// #classesSection stays hidden via its default inline style.
 function renderClasses() {
+  const section = document.getElementById('classesSection');
   const el = document.getElementById('classesGrid');
   if (!el) return;
+  if (!window.isTeacher) {
+    if (section) section.style.display = 'none';
+    return;
+  }
+  if (section) section.style.display = '';
   if (typeof classesData === 'undefined' || !classesData.subjects || !classesData.subjects.length) {
     el.innerHTML = '<p class="empty-note" style="grid-column:1/-1;padding:8px 0">No classes defined yet.</p>';
     return;
@@ -279,7 +292,13 @@ function renderCalendar() {
     let html = `<div class="cal-day${isToday(d) ? ' today' : ''}" onclick="openEventModal(null,'${dateStr}')">`;
     html += `<div class="cal-day-num">${d.day}</div>`;
     dayEvents.slice(0, 2).forEach(ev => {
-      html += `<div class="cal-event type-${ev.type}" onclick="event.stopPropagation();openEventModal('${ev.id}',null)" title="${ev.title}">${ev.title}${ev.time ? ' ' + ev.time : ''}</div>`;
+      // Tooltip field lets a note ride along with the entry (e.g. "Bring
+      // calculator, covers ch. 4-6") without cluttering the compact calendar
+      // cell — falls back to the title so every entry still shows something
+      // on hover. escapeHtml keeps quotes/HTML in either field from breaking
+      // out of the title="..." attribute.
+      const tip = ev.tooltip ? ev.tooltip : ev.title;
+      html += `<div class="cal-event type-${ev.type}" onclick="event.stopPropagation();openEventModal('${ev.id}',null)" title="${escapeHtml(tip)}">${escapeHtml(ev.title)}${ev.time ? ' ' + escapeHtml(ev.time) : ''}</div>`;
     });
     if (dayEvents.length > 2) html += `<div class="cal-more">+${dayEvents.length - 2} more</div>`;
     return html + '</div>';
@@ -303,12 +322,13 @@ function renderUpcoming(events) {
       const d = new Date(ev.date + 'T00:00:00');
       const diff = Math.round((d - today) / 864e5);
       const diffLabel = diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : `In ${diff}d`;
-      return `<div class="upcoming-item" onclick="openEventModal('${ev.id}',null)">
+      const tip = ev.tooltip ? ev.tooltip : ev.title;
+      return `<div class="upcoming-item" onclick="openEventModal('${ev.id}',null)" title="${escapeHtml(tip)}">
         <div class="upcoming-date">${abbr[d.getMonth()]}<span>${d.getDate()}</span></div>
         <div class="upcoming-dot" style="background:${typeColors[ev.type] || '#78716c'}"></div>
         <div class="upcoming-info">
-          <div class="upcoming-title">${ev.title}</div>
-          <div class="upcoming-meta">${diffLabel}${ev.time ? ' · ' + ev.time : ''}${ev.subject ? ' · ' + ev.subject : ''} · ${typeLabels[ev.type] || ev.type}</div>
+          <div class="upcoming-title">${escapeHtml(ev.title)}</div>
+          <div class="upcoming-meta">${diffLabel}${ev.time ? ' · ' + escapeHtml(ev.time) : ''}${ev.subject ? ' · ' + escapeHtml(ev.subject) : ''} · ${typeLabels[ev.type] || ev.type}</div>
         </div>
       </div>`;
     }).join('');
@@ -335,6 +355,7 @@ window.openEventModal = function (id, dateStr) {
     document.getElementById('evTime').value = ev.time || '';
     document.getElementById('evType').value = ev.type;
     document.getElementById('evSubject').value = ev.subject || '';
+    document.getElementById('evTooltip').value = ev.tooltip || '';
     deleteBtn.style.display = 'block';
   } else {
     document.getElementById('evModalTitle').textContent = 'Add Event';
@@ -344,6 +365,7 @@ window.openEventModal = function (id, dateStr) {
     document.getElementById('evTime').value = '';
     document.getElementById('evType').value = 'assessment';
     document.getElementById('evSubject').value = '';
+    document.getElementById('evTooltip').value = '';
     deleteBtn.style.display = 'none';
   }
   document.getElementById('evOverlay').classList.add('open');
@@ -362,6 +384,7 @@ window.saveEvent = function () {
     time: document.getElementById('evTime').value || '',
     type: document.getElementById('evType').value,
     subject: document.getElementById('evSubject').value,
+    tooltip: document.getElementById('evTooltip').value.trim(),
   };
   const events = getEvents();
   if (editingEventId) { const i = events.findIndex(e => e.id === editingEventId); if (i > -1) events[i] = ev; else events.push(ev); }
@@ -432,6 +455,39 @@ async function calSync() {
   _nextSync = Date.now() + 60000;
 }
 setInterval(calSync, 60000);
+
+// The hub only ever showed a subject's topics/units as they existed in this
+// browser's own localStorage — populated whenever *this device* previously
+// visited that subject's page. Add/edit a unit on your phone, then open the
+// hub on your laptop without ever opening that subject page there, and the
+// laptop's "Units Overview" / subject card counts were permanently stale.
+// Pull every subject's (and, for teacher/dev, every class's) topics + units
+// keys straight from the sync backend so the hub reflects the latest data
+// regardless of which device last edited it.
+async function syncAllSubjectsAndUnits() {
+  if (typeof subjectsData === 'undefined') return;
+  try {
+    const subjects = subjectsData.subjects || [];
+    const classes = (typeof classesData !== 'undefined' && classesData.subjects) ? classesData.subjects : [];
+    for (const s of [...subjects, ...classes]) {
+      const tKey = s.storageKey || (s.id + '_topics');
+      const uKey = s.unitsKey || (s.id + '_units');
+      for (const key of [tKey, uKey]) {
+        try {
+          const res = await jsonpGet(SYNC_URL + '?key=' + encodeURIComponent(key));
+          if (res && res.data !== null && res.data !== undefined) {
+            localStorage.setItem(key, JSON.stringify(res.data));
+          }
+        } catch (e) { /* keep whatever's already cached locally on failure */ }
+      }
+    }
+    renderSubjects();
+    renderClasses();
+    renderStats();
+    renderSidebar();
+  } catch (e) { console.warn('Subject/unit sync failed', e); }
+}
+setInterval(syncAllSubjectsAndUnits, 60000);
 
 function startSyncCountdown() {
   const el = document.getElementById('syncCountdown');

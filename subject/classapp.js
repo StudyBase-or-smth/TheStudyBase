@@ -660,7 +660,7 @@ function viewTopic(id){
           </div>
         </div>
         <div class="dh-actions">
-          ${window.isTeacher ? '' : `<button class="btn-act" onclick="openModal(${t.id})">Edit</button>
+          ${(window.isGuest || !window.isTeacher) ? '' : `<button class="btn-act" onclick="openModal(${t.id})">Edit</button>
           <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>`}
         </div>
       </div>
@@ -887,13 +887,33 @@ function confirmDeleteUnit(name){
   document.getElementById('confirmOverlay').classList.add('open');
 }
 function closeConfirm(){ document.getElementById('confirmOverlay').classList.remove('open'); pendingAction=null; }
+
+// Fully resets the detail panel back to the "nothing selected" welcome
+// state. Previously, deleting the open topic only unhid #welcomeState and
+// stripped the .on animation class — #detailOuter (display:flex) and its
+// stale innerHTML were left in place, so the deleted topic's content kept
+// rendering underneath/alongside the welcome message (a "ghost" of the
+// removed topic). Clearing everything here fixes that.
+function closeTopicView(){
+  activeId = null;
+  _lastRenderedTopicKey = null;
+  document.getElementById('welcomeState').style.display = '';
+  const outer = document.getElementById('detailOuter');
+  const el = document.getElementById('detailContent');
+  outer.style.display = 'none';
+  el.classList.remove('on');
+  el.innerHTML = '';
+  const panel = document.getElementById('teacherNotesPanel');
+  if(panel){ panel.innerHTML = ''; panel.style.display = 'none'; }
+}
+
 function doDelete(){
   if(!pendingAction) return;
   if(pendingAction.type==='topic'){
     const topics = getTopics();
     const toRemove = new Set([pendingAction.id, ...getDescendantIds(pendingAction.id, topics)]);
     saveTopics(topics.filter(t => !toRemove.has(t.id)));
-    if(activeId==pendingAction.id){ activeId=null; document.getElementById('welcomeState').style.display=''; document.getElementById('detailContent').classList.remove('on'); }
+    if(activeId==pendingAction.id) closeTopicView();
   } else {
     saveTopics(getTopics().map(t => t.unit===pendingAction.name ? {...t,unit:''} : t));
     saveUnits(getUnits().filter(u => u!==pendingAction.name));

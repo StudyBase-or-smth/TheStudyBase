@@ -33,11 +33,20 @@
       const isGuest = sessionStorage.getItem('studybase_guest') === '1';
       if (user) {
         sessionStorage.removeItem('studybase_guest');
-        // Show the Dev Panel button only for role:'dev', status:'active' accounts
+        // Show the Dev Panel button only for role:'dev', status:'active' accounts,
+        // and the Classes section only for teacher/dev accounts.
         user.getIdTokenResult().then((token) => {
-          if (token.claims.role === 'dev' && token.claims.status === 'active') {
+          const role = token.claims.role || '';
+          window.userRole = role;
+          if (role === 'dev' && token.claims.status === 'active') {
             const btn = document.getElementById('devPanelBtn');
             if (btn) btn.style.display = '';
+          }
+          if (role === 'teacher' || role === 'dev') {
+            window.isTeacher = true;
+            const sec = document.getElementById('classesSection');
+            if (sec) sec.style.display = '';
+            if (typeof renderClasses === 'function') renderClasses();
           }
         }).catch(() => {});
       } else if (isGuest) {
@@ -101,8 +110,10 @@
         <div class="sec-title">Subjects</div>
         <div class="subjects-grid" id="subjectsGrid"></div>
 
-        <div class="sec-title sec-title-classes">Classes</div>
-        <div class="classes-grid" id="classesGrid"></div>
+        <div id="classesSection" style="display:none">
+          <div class="sec-title sec-title-classes">Classes</div>
+          <div class="classes-grid" id="classesGrid"></div>
+        </div>
 
         <div class="cal-section">
           <div class="cal-card">
@@ -197,6 +208,10 @@
         <select class="ev-sel" id="evSubject">
           <option value="">— General —</option>
         </select>
+      </div>
+      <div class="ev-row">
+        <div class="ev-label">Tooltip <span style="font-weight:400;text-transform:none;letter-spacing:0">— shown on hover over this entry</span></div>
+        <textarea class="ev-input" id="evTooltip" rows="2" placeholder="e.g. Bring calculator, covers chapters 4–6…" style="resize:vertical"></textarea>
       </div>
       <div class="ev-actions">
         <button class="ev-btn danger" id="evDeleteBtn" onclick="deleteEvent()" style="display:none">Delete</button>

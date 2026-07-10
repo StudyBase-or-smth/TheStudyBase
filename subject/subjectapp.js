@@ -146,6 +146,30 @@ function unitsForOrigin(origin){
   if(!origin) return getUnits();
   try{ return JSON.parse(localStorage.getItem(origin.unitsKey || (origin.id + '_units')) || '[]'); }catch(e){ return []; }
 }
+// Write counterparts — only ever reached when window.userRole === 'dev' and
+// the user explicitly edits/deletes a class topic from the subject page's
+// aggregated Classes tab (see openModal/saveTopic/confirmDeleteTopic/
+// doDelete). Devs get full access everywhere; everyone else stays read-only
+// here and edits a class's content from that class's own page instead.
+function saveTopicsForOrigin(origin, topics){
+  if(!origin){ saveTopics(topics); return; }
+  const key = origin.storageKey || (origin.id + '_topics');
+  localStorage.setItem(key, JSON.stringify(topics));
+  const sd = sanitizeForSync(topics);
+  if(JSON.stringify(sd).length > CELL_LIMIT){ setSyncStatus('warn'); }
+  else{ syncPush(key, sd); setSyncStatus('ok'); }
+}
+function saveUnitsForOrigin(origin, units){
+  if(!origin){ saveUnits(units); return; }
+  const key = origin.unitsKey || (origin.id + '_units');
+  localStorage.setItem(key, JSON.stringify(units));
+  if(JSON.stringify(units).length > CELL_LIMIT){ setSyncStatus('warn'); }
+  else{ syncPush(key, units); setSyncStatus('ok'); }
+}
+// Tracks which class (if any) the currently-open modal is editing into —
+// set by openModal, read by saveTopic. Null means "the subject's own
+// topics", same as before this feature existed.
+let editOrigin = null;
 
 const saveTopics = t => {
   localStorage.setItem(ST, JSON.stringify(t));
@@ -205,7 +229,7 @@ function removePdfFile(){
 function renderPdfPreview(){
   const area = document.getElementById('pdfPreviewArea');
   if(!area) return;
-  const ex = editId ? (getTopics().find(t => t.id===editId)||{}) : {};
+  const ex = editId ? ((editOrigin ? topicsForOrigin(editOrigin) : getTopics()).find(t => t.id===editId)||{}) : {};
   const name = pendingPdfData !== null ? pendingPdfName : (ex.pdfName || '');
   const hasFile = pendingPdfData !== null ? !!pendingPdfData : !!ex.pdfData;
   area.innerHTML = hasFile
@@ -798,7 +822,7 @@ function viewTopic(id, originId){
           </div>
         </div>
         <div class="dh-actions">
-          ${(window.isGuest || origin) ? '' : `<button class="btn-act" onclick="openModal(${t.id})">Edit</button>
+          ${(window.isGuest || (origin && window.userRole !== 'dev')) ? '' : `<button class="btn-act" onclick="openModal(${t.id})">Edit</button>
           <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>`}
         </div>
       </div>
@@ -815,7 +839,13 @@ function viewTopic(id, originId){
 }
 function openModal(id){
   if(window.isGuest){ showToast('Sign in to add or edit topics','info'); return; }
-  if(id && activeOrigin){ showToast("This topic belongs to a class — edit it from that class's page", 'info'); return; }
+  // Dev accounts get full edit/delete access everywhere, including a class's
+  // aggregated topics viewed read-only from the subject page's Classes tab.
+  // Everyone else is still routed to that class's own page to edit it.
+  const canEditClassTopic = activeOrigin && window.userRole === 'dev';
+  if(id && activeOrigin && !canEditClassTopic){ showToast("This topic belongs to a class — edit it from that class's page", 'info'); return; }
+  editOrigin = (id && canEditClassTopic) ? activeOrigin : null;
+  const topicsSrc = () => editOrigin ? topicsForOrigin(editOrigin) : getTopics();
   // Teachers and devs can add/edit topics just like students
   editId = id || null;
   tempTags = [];
@@ -824,8 +854,8 @@ function openModal(id){
   document.getElementById('tagsWrap').querySelectorAll('.tag-chip').forEach(e => e.remove());
   populateSel();
   if(id){
-    const t = getTopics().find(x => x.id == id);
-    document.getElementById('modalTitle').textContent = 'Edit topic';
+    const t = topicsSrc().find(x => x.id == id);
+    document.getElementById('modalTitle').textContent = editOrigin ? `Edit topic (${editOrigin.name})` : 'Edit topic';
     document.getElementById('fName').value = t.name || '';
     document.getElementById('fUnit').value = t.unit || '';
     document.getElementById('fDefinition').value = t.definition || '';
@@ -837,7 +867,7 @@ function openModal(id){
     setRichVal('fBodyText', t.bodyText || '');
     (t.keyPoints||[]).forEach(k => addKpRow(k));
     (t.relatedTerms||[]).forEach(addTag);
-    getTopics().filter(c => c.parentId === t.id).forEach(c => addSubtopicRow(c));
+    topicsSrc().filter(c => c.parentId === t.id).forEach(c => addSubtopicRow(c));
     document.getElementById('fqaList').innerHTML = '';
     (t.flashcardQA||[]).forEach(qa => addFqaRow(qa.q, qa.a));
     currentLayout = LAYOUTS.includes(t.layout) ? t.layout : 'basic';
@@ -856,10 +886,11 @@ function openModal(id){
   document.getElementById('modalOverlay').classList.add('open');
   setTimeout(() => document.getElementById('fName').focus(), 80);
 }
-function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); editId = null; }
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); editId = null; editOrigin = null; }
 
 function populateSel(){
-  const units = getUnits(), sel = document.getElementById('fUnit'), cur = sel.value;
+  const units = editOrigin ? unitsForOrigin(editOrigin) : getUnits();
+  const sel = document.getElementById('fUnit'), cur = sel.value;
   sel.innerHTML = '<option value="">— No unit —</option>' +
     units.map(u => `<option value="${esc(u)}"${u===cur?' selected':''}>${esc(u)}</option>`).join('');
 }
@@ -953,7 +984,8 @@ function saveTopic(){
     const childId = row.dataset.childId ? Number(row.dataset.childId) : null;
     return name ? { id: childId, name } : null;
   }).filter(Boolean);
-  const ex = editId ? (getTopics().find(t => t.id===editId)||{}) : {};
+  const topicsSrc = () => editOrigin ? topicsForOrigin(editOrigin) : getTopics();
+  const ex = editId ? (topicsSrc().find(t => t.id===editId)||{}) : {};
   const topic = {
     id: editId || Date.now(),
     name,
@@ -976,7 +1008,7 @@ function saveTopic(){
     createdAt: ex.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
-  let topics = getTopics();
+  let topics = topicsSrc();
   topics = editId ? topics.map(t => t.id===editId ? topic : t) : [...topics, topic];
 
   // Sync linked subtopics (child topics) against the rows in the editor
@@ -1008,16 +1040,21 @@ function saveTopic(){
   const toRemove = new Set(removedChildIds.flatMap(cid => [cid, ...getDescendantIds(cid, topics)]));
   topics = topics.filter(t => !toRemove.has(t.id));
 
-  saveTopics(topics); closeModal(); renderList(); viewTopic(topic.id);
+  const savedOrigin = editOrigin;
+  saveTopicsForOrigin(savedOrigin, topics);
+  closeModal(); renderList();
+  viewTopic(topic.id, savedOrigin ? savedOrigin.id : null);
 }
 
 // ── Delete confirm ──
 function confirmDeleteTopic(id){
-  if(activeOrigin){ showToast("This topic belongs to a class — remove it from that class's page", 'info'); return; }
-  const t = getTopics().find(x => x.id==id);
-  pendingAction = { type:'topic', id };
+  const canDeleteClassTopic = activeOrigin && window.userRole === 'dev';
+  if(activeOrigin && !canDeleteClassTopic){ showToast("This topic belongs to a class — remove it from that class's page", 'info'); return; }
+  const origin = canDeleteClassTopic ? activeOrigin : null;
+  const t = (origin ? topicsForOrigin(origin) : getTopics()).find(x => x.id==id);
+  pendingAction = { type:'topic', id, origin };
   document.getElementById('cTitle').textContent = 'Delete this topic?';
-  document.getElementById('cMsg').textContent = '"'+t.name+'" will be permanently removed.';
+  document.getElementById('cMsg').textContent = '"'+t.name+'"'+(origin ? ' (from '+origin.name+')' : '')+' will be permanently removed.';
   document.getElementById('confirmOverlay').classList.add('open');
 }
 function confirmDeleteUnit(name){
@@ -1028,13 +1065,34 @@ function confirmDeleteUnit(name){
   document.getElementById('confirmOverlay').classList.add('open');
 }
 function closeConfirm(){ document.getElementById('confirmOverlay').classList.remove('open'); pendingAction=null; }
+// Fully resets the detail panel back to the "nothing selected" welcome
+// state. Previously, deleting the open topic only unhid #welcomeState and
+// stripped the .on animation class — #detailOuter (display:flex) and its
+// stale innerHTML were left in place, so the deleted topic's content kept
+// rendering underneath/alongside the welcome message (a "ghost" of the
+// removed topic). Clearing everything here fixes that.
+function closeTopicView(){
+  activeId = null;
+  activeOrigin = null;
+  _lastRenderedTopicKey = null;
+  document.getElementById('welcomeState').style.display = '';
+  const outer = document.getElementById('detailOuter');
+  const el = document.getElementById('detailContent');
+  outer.style.display = 'none';
+  el.classList.remove('on');
+  el.innerHTML = '';
+  const panel = document.getElementById('teacherNotesPanel');
+  if(panel){ panel.innerHTML = ''; panel.style.display = 'none'; }
+}
+
 function doDelete(){
   if(!pendingAction) return;
   if(pendingAction.type==='topic'){
-    const topics = getTopics();
+    const origin = pendingAction.origin || null;
+    const topics = origin ? topicsForOrigin(origin) : getTopics();
     const toRemove = new Set([pendingAction.id, ...getDescendantIds(pendingAction.id, topics)]);
-    saveTopics(topics.filter(t => !toRemove.has(t.id)));
-    if(activeId==pendingAction.id){ activeId=null; document.getElementById('welcomeState').style.display=''; document.getElementById('detailContent').classList.remove('on'); }
+    saveTopicsForOrigin(origin, topics.filter(t => !toRemove.has(t.id)));
+    if(activeId==pendingAction.id) closeTopicView();
   } else {
     saveTopics(getTopics().map(t => t.unit===pendingAction.name ? {...t,unit:''} : t));
     saveUnits(getUnits().filter(u => u!==pendingAction.name));
