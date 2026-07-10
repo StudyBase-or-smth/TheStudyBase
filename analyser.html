@@ -548,6 +548,7 @@ loadBranchVersion();
         messagingSenderId:'434992387793',
         appId:'1:434992387793:web:e5bcae8cad63b4eb6f17f0'
       }));
+      window.__sbAuth = auth; // so callAI() can fetch a fresh ID token for /api/grade
       onAuthStateChanged(auth, async user => {
         if(!user){ setAnalyserLocked(true, 'signedout'); return; }
 
@@ -877,9 +878,17 @@ loadBranchVersion();
   async function callAI(provider, prompt, userKey){
     // Try the Netlify proxy first (used in production deployment).
     try{
+      // /api/grade now requires a signed-in user so the server-side API
+      // keys can't be spent by anonymous callers — attach the current
+      // Firebase ID token.
+      const headers = {'Content-Type':'application/json'};
+      const currentUser = window.__sbAuth && window.__sbAuth.currentUser;
+      if(currentUser){
+        headers['Authorization'] = 'Bearer ' + await currentUser.getIdToken();
+      }
       const res=await fetch('/api/grade',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers,
         body:JSON.stringify({provider,prompt,userKey})
       });
       // If the proxy doesn't exist (GitHub Pages etc), this returns an HTML

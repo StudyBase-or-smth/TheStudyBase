@@ -5,6 +5,12 @@ let SU = '';        // localStorage key for units
 let SP = '';        // localStorage key for pinned topics
 let DEF_UNITS = []; // default units if none saved
 
+// Classes whose subjectId points at this subject. Their own topics/units are
+// always recorded separately (under each class's own storageKey/unitsKey) —
+// the subject page only reads them in to display alongside its own content.
+// See topicsForOrigin()/renderClassSections() below.
+let LINKED_CLASSES = [];
+
 function resolveSubject(){
   const id = window.location.hash.slice(1);
   if(!id || typeof subjectsData === 'undefined'){
@@ -19,7 +25,29 @@ function resolveSubject(){
   ST = SUBJECT.storageKey || (id + '_topics');
   SU = SUBJECT.unitsKey   || (id + '_units');
   SP = SUBJECT.pinnedKey  || (id + '_pinned_topics');
+  LINKED_CLASSES = (typeof classesData !== 'undefined' && classesData.subjects || [])
+    .filter(c => c.subjectId === SUBJECT.id);
   return true;
+}
+
+// ── Subject / Classes sidebar tab switcher ──
+let sidebarTab = 'subject';
+function setSidebarTab(tab){
+  sidebarTab = tab;
+  document.querySelectorAll('.sidebar-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  const show = (el, on) => { if(el) el.style.display = on ? '' : 'none'; };
+  show(document.getElementById('unitWrap'), tab === 'subject');
+  show(document.getElementById('topicList'), tab === 'subject');
+  show(document.getElementById('classSelectWrap'), tab === 'classes');
+  show(document.getElementById('classSections'), tab === 'classes');
+  if(tab === 'classes') renderClassSections();
+}
+function initSidebarTabs(){
+  const tabs = document.getElementById('sidebarTabs');
+  if(!tabs) return;
+  tabs.style.display = LINKED_CLASSES.length ? '' : 'none';
+  populateClassSelect();
+  setSidebarTab('subject');
 }
 
 function applySubjectTheme(){
@@ -78,6 +106,23 @@ const getTopics  = () => { try{ return JSON.parse(localStorage.getItem(ST)||'[]'
 const getUnits   = () => { try{ return JSON.parse(localStorage.getItem(SU)||JSON.stringify(DEF_UNITS)); }catch(e){ return []; } };
 const getPinned  = () => { try{ return JSON.parse(localStorage.getItem(SP)||'[]'); }catch(e){ return []; } };
 
+// `activeOrigin` is null while viewing/editing the subject's own content, or
+// one of LINKED_CLASSES while viewing a class's aggregated (read-only) topic.
+let activeOrigin = null;
+
+// Read-only accessors into a linked class's own storage — used only by the
+// aggregated "From your classes" sidebar sections and the read-only detail
+// view. Never written to from here; classes only ever save through their own
+// class.html/classapp.js, keeping each class's content genuinely separate.
+function topicsForOrigin(origin){
+  if(!origin) return getTopics();
+  try{ return JSON.parse(localStorage.getItem(origin.storageKey || (origin.id + '_topics')) || '[]'); }catch(e){ return []; }
+}
+function unitsForOrigin(origin){
+  if(!origin) return getUnits();
+  try{ return JSON.parse(localStorage.getItem(origin.unitsKey || (origin.id + '_units')) || '[]'); }catch(e){ return []; }
+}
+
 const saveTopics = t => {
   localStorage.setItem(ST, JSON.stringify(t));
   const sd = sanitizeForSync(t);
@@ -123,7 +168,11 @@ function applyLayoutUI(){
 }
 
 // ── Teacher notes (per block) ──
-const TN_KEY = () => 'tnotes_' + (SUBJECT ? SUBJECT.id : 'default');
+// When viewing an aggregated class topic (activeOrigin set), notes are kept
+// in that class's own tnotes bucket — not the subject's — so a comment
+// posted here is the same comment you'd see on the class page, not a
+// separate copy.
+const TN_KEY = () => 'tnotes_' + (activeOrigin ? activeOrigin.id : (SUBJECT ? SUBJECT.id : 'default'));
 const getTeacherNotes = () => { try{ return JSON.parse(localStorage.getItem(TN_KEY())||'{}'); }catch(e){ return {}; } };
 const saveTeacherNotes = obj => {
   localStorage.setItem(TN_KEY(), JSON.stringify(obj));
@@ -362,6 +411,15 @@ function togglePinTopic(id){
 
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+// Builds a single-quoted JS string literal (or the bare word null) safe to
+// splice into an onclick="..." attribute. JSON.stringify() must NOT be used
+// here — it wraps the value in double quotes, which prematurely closes the
+// surrounding onclick="..." attribute and silently breaks the click handler.
+function jsArg(v){
+  if(v == null) return 'null';
+  return "'" + String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'") + "'";
+}
+
 function getDescendantIds(id, topics){
   const direct = topics.filter(t => t.parentId === id).map(t => t.id);
   return direct.concat(direct.flatMap(cid => getDescendantIds(cid, topics)));
@@ -423,7 +481,7 @@ function renderList(){
           : '';
         return `
         <div class="topic-item-wrap">
-          <div class="topic-item${(t.id==activeId)?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${t.id})">
+          <div class="topic-item${(t.id==activeId && !activeOrigin)?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${t.id})">
             <div class="ti-top">
               <div class="ti-name">
                 ${hasSubs ? `<button class="ti-expand-btn" onclick="event.stopPropagation();toggleTopicExpand(${t.id})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>` : ''}
@@ -441,18 +499,89 @@ function renderList(){
   document.getElementById('stT').textContent = topics.length;
   document.getElementById('stU').textContent = getUnits().length;
   renderPills();
+  renderClassSections();
+}
+
+// ── Aggregated read-only class content ──
+// Each linked class keeps recording its own content separately (own
+// storageKey/unitsKey, only ever written by class.html/classapp.js) — this
+// just reads it back in and displays it on the Classes tab, using the exact
+// same topic-list/topic-item markup and behaviour as the Subject tab (just
+// scoped to whichever class is picked in the dropdown, and read-only).
+let activeClassId = null;
+
+function populateClassSelect(){
+  const sel = document.getElementById('classSelect');
+  if(!sel) return;
+  if(!activeClassId || !LINKED_CLASSES.find(c => c.id === activeClassId)){
+    activeClassId = LINKED_CLASSES.length ? LINKED_CLASSES[0].id : null;
+  }
+  sel.innerHTML = LINKED_CLASSES.map(c =>
+    `<option value="${esc(c.id)}"${c.id===activeClassId?' selected':''}>${esc(c.emoji||'🏫')} ${esc(c.name)}${c.class?' · '+esc(c.class):''}</option>`
+  ).join('');
+}
+
+function setActiveClass(id){
+  activeClassId = id;
+  renderClassSections();
+}
+
+function renderClassNode(t, topics, cls){
+  const children = topics.filter(k => k.parentId === t.id);
+  const hasKids = children.length > 0;
+  const isExpanded = hasKids && expandedTopics.has(t.id);
+  const originArg = jsArg(cls.id);
+  const childrenHtml = isExpanded
+    ? `<div class="subtopic-sidebar-list">` + children.map(c => renderClassNode(c, topics, cls)).join('') + `</div>`
+    : '';
+  const isActive = t.id == activeId && activeOrigin && activeOrigin.id === cls.id;
+  return `
+    <div class="topic-item-wrap">
+      <div class="topic-item${isActive ? ' active' : ''}" onclick="viewTopic(${t.id}, ${originArg})">
+        <div class="ti-top">
+          <div class="ti-name">
+            ${hasKids ? `<button class="ti-expand-btn" onclick="event.stopPropagation();toggleTopicExpand(${t.id})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>` : ''}
+            ${esc(t.name)}
+          </div>
+        </div>
+        ${t.unit ? `<div class="ti-unit">${esc(t.unit)}</div>` : ''}
+        ${t.definition ? `<div class="ti-prev">${esc(t.definition.substring(0,55))}…</div>` : ''}
+      </div>
+      ${childrenHtml}
+    </div>`;
+}
+
+function renderClassSections(){
+  const container = document.getElementById('classSections');
+  if(!container) return;
+  if(!LINKED_CLASSES.length){ container.innerHTML = ''; return; }
+  populateClassSelect();
+  const cls = LINKED_CLASSES.find(c => c.id === activeClassId);
+  if(!cls){ container.innerHTML = ''; return; }
+
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const matches = t => !q || t.name.toLowerCase().includes(q) ||
+    (t.definition||'').toLowerCase().includes(q) || (t.unit||'').toLowerCase().includes(q);
+
+  const topics = topicsForOrigin(cls);
+  const topLevel = topics.filter(t => !t.parentId && matches(t)).sort((a,b) => a.name.localeCompare(b.name));
+
+  container.innerHTML = topLevel.length === 0
+    ? `<div class="sidebar-empty">${q ? 'No results for "'+esc(q)+'"' : 'No topics in this class yet.'}</div>`
+    : topLevel.map(t => renderClassNode(t, topics, cls)).join('');
 }
 
 function renderPills(){
   const units = getUnits(), topics = getTopics(), counts = {};
   topics.forEach(t => { if(t.unit) counts[t.unit] = (counts[t.unit]||0)+1; });
-  document.getElementById('unitPills').innerHTML =
-    `<button class="unit-pill${activeUnit==='all'?' active':''}" onclick="setUnit('all')">All (${topics.length})</button>` +
-    units.map(u => `
-      <button class="unit-pill${activeUnit===u?' active':''}" data-unit="${esc(u)}" onclick="setUnit(this.dataset.unit)">
-        ${esc(u)} <span style="color:var(--muted2);font-weight:400">(${counts[u]||0})</span>
-        <span class="unit-del" onclick="event.stopPropagation();confirmDeleteUnit(this.closest('[data-unit]').dataset.unit)" title="Remove">×</span>
-      </button>`).join('');
+  const sel = document.getElementById('unitSelect');
+  if(sel){
+    sel.innerHTML = `<option value="all">All (${topics.length})</option>` +
+      units.map(u => `<option value="${esc(u)}"${activeUnit===u?' selected':''}>${esc(u)} (${counts[u]||0})</option>`).join('');
+    sel.value = activeUnit;
+  }
+  const delBtn = document.getElementById('unitDelBtn');
+  if(delBtn) delBtn.style.display = (activeUnit !== 'all') ? '' : 'none';
 }
 
 function setUnit(u){ activeUnit = u; renderList(); }
@@ -476,12 +605,16 @@ function qaRowsHtml(t){
     </div>`).join('');
 }
 
-function viewTopic(id){
+function viewTopic(id, originId){
+  originId = originId || null;
+  const origin = originId ? LINKED_CLASSES.find(c => c.id === originId) : null;
   activeId = id;
-  const t = getTopics().find(x => x.id == id);
+  activeOrigin = origin;
+  const allTopics = topicsForOrigin(origin);
+  const t = allTopics.find(x => x.id == id);
   if(!t) return;
+  const oid = jsArg(origin ? origin.id : null);
   // Collapse everything except the path down to the newly selected topic
-  const allTopics = getTopics();
   expandedTopics = new Set();
   let cur = t;
   while(cur.parentId){
@@ -491,7 +624,7 @@ function viewTopic(id){
     cur = parent;
   }
   if(allTopics.some(c => c.parentId === t.id)) expandedTopics.add(Number(id));
-  if(location.protocol !== 'file:') history.replaceState(null,'', '#' + SUBJECT.id);
+  if(!origin && location.protocol !== 'file:') history.replaceState(null,'', '#' + SUBJECT.id);
   renderList();
 
   document.getElementById('welcomeState').style.display = 'none';
@@ -508,13 +641,13 @@ function viewTopic(id){
 
   const relHtml = (t.relatedTerms||[]).length
     ? `<div class="related-tags">${t.relatedTerms.map(r => {
-        const m = getTopics().find(x => x.name.toLowerCase()===r.toLowerCase());
-        return `<span class="rtag"${m?` onclick="viewTopic(${m.id})"`:''}>${esc(r)}</span>`;
+        const m = allTopics.find(x => x.name.toLowerCase()===r.toLowerCase());
+        return `<span class="rtag"${m?` onclick="viewTopic(${m.id}, ${oid})"`:''}>${esc(r)}</span>`;
       }).join('')}</div>`
     : '<p class="empty-note">None listed.</p>';
 
   const subtopicsHtml = children.length
-    ? `<div class="related-tags">${children.map(c => `<span class="rtag" onclick="viewTopic(${c.id})">${esc(c.name)}</span>`).join('')}</div>`
+    ? `<div class="related-tags">${children.map(c => `<span class="rtag" onclick="viewTopic(${c.id}, ${oid})">${esc(c.name)}</span>`).join('')}</div>`
     : '<p class="empty-note">No subtopics yet.</p>';
 
   const created = new Date(t.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
@@ -534,7 +667,7 @@ function viewTopic(id){
       t.bodyText ? `<div class="plain-text">${sanitizeRich(t.bodyText)}</div>` : '<p class="empty-note">No overview written yet.</p>');
     const ovwItems = [];
     (t.keyPoints||[]).forEach(k => ovwItems.push(`<li class="ovw-list-item ovw-kp-item"><div class="kp-dot"></div><span>${esc(k)}</span></li>`));
-    children.forEach(c => ovwItems.push(`<li class="ovw-list-item ovw-subtopic-item"><div class="kp-dot kp-dot-link"></div><a class="subtopic-link" href="javascript:void(0)" onclick="viewTopic(${c.id})">${esc(c.name)}</a><span class="ovw-subtopic-badge">subtopic →</span></li>`));
+    children.forEach(c => ovwItems.push(`<li class="ovw-list-item ovw-subtopic-item"><div class="kp-dot kp-dot-link"></div><a class="subtopic-link" href="javascript:void(0)" onclick="viewTopic(${c.id}, ${oid})">${esc(c.name)}</a><span class="ovw-subtopic-badge">subtopic →</span></li>`));
     if(ovwItems.length) bodyHtml += sec('overviewPoints', 'Points & Subtopics', '📋', `<ul class="ovw-list">${ovwItems.join('')}</ul>`);
   } else if(layout === 'math'){
     bodyHtml += sec('formula', 'Formula / Equation', '∑',
@@ -566,17 +699,22 @@ function viewTopic(id){
   { let c2 = t;
     while(c2.parentId){ const p = allTopics.find(x => x.id === c2.parentId); if(!p) break; ancestorChain.unshift(p); c2 = p; } }
 
+  const originBadge = origin
+    ? `<span class="dh-unit" style="background:${origin.colour}22;color:${origin.colour};border-color:${origin.colour}55">${esc(origin.emoji||'🏫')} From ${esc(origin.name)}${origin.class?' · '+esc(origin.class):''}</span>`
+    : '';
+
   el.innerHTML = `
       <div class="dh">
         <div>
           <div class="dh-name">${ancestorChain.length ? `${ancestorChain.map(a=>esc(a.name)).join(' <span class="dh-crumb-sep">›</span> ')} <span class="dh-sub-badge">${esc(t.name)}</span>` : esc(t.name)}</div>
           <div class="dh-meta">
+            ${originBadge}
             ${t.unit ? `<span class="dh-unit">${esc(t.unit)}</span>` : ''}
             <span class="dh-date">Added ${created}</span>${editedStr}
           </div>
         </div>
         <div class="dh-actions">
-          ${window.isGuest ? '' : `<button class="btn-act" onclick="openModal(${t.id})">Edit</button>
+          ${(window.isGuest || origin) ? '' : `<button class="btn-act" onclick="openModal(${t.id})">Edit</button>
           <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>`}
         </div>
       </div>
@@ -590,6 +728,7 @@ function viewTopic(id){
 }
 function openModal(id){
   if(window.isGuest){ showToast('Sign in to add or edit topics','info'); return; }
+  if(id && activeOrigin){ showToast("This topic belongs to a class — edit it from that class's page", 'info'); return; }
   // Teachers and devs can add/edit topics just like students
   editId = id || null;
   tempTags = [];
@@ -782,6 +921,7 @@ function saveTopic(){
 
 // ── Delete confirm ──
 function confirmDeleteTopic(id){
+  if(activeOrigin){ showToast("This topic belongs to a class — remove it from that class's page", 'info'); return; }
   const t = getTopics().find(x => x.id==id);
   pendingAction = { type:'topic', id };
   document.getElementById('cTitle').textContent = 'Delete this topic?';
@@ -823,7 +963,7 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
 });
 
 // ── Sync ──
-const SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
+// SYNC_URL is now defined once in ../sync-config.js (loaded via <script> before this file).
 
 function setSyncStatus(s){
   const el = document.getElementById('syncStatus');
@@ -892,11 +1032,31 @@ async function syncPull(){
         }
       }
     }
-    // Pull shared teacher notes
+
+    // Pull each linked class's own topics/units too, so the subject page
+    // shows synced class content even if this browser never visited that
+    // class's own page directly. This only ever caches into the class's own
+    // storage key — it doesn't write anything back, so the class stays the
+    // sole owner of its content.
+    for(const cls of LINKED_CLASSES){
+      const cKeyT = cls.storageKey || (cls.id + '_topics');
+      const cKeyU = cls.unitsKey   || (cls.id + '_units');
+      for(const key of [cKeyT, cKeyU]){
+        try{
+          const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(key));
+          if(res && res.data !== null && res.data !== undefined){
+            localStorage.setItem(key, JSON.stringify(res.data));
+          }
+        } catch(e){ /* one class failing to sync shouldn't block the rest */ }
+      }
+    }
+
+    // Pull shared teacher notes (routed to the right bucket by TN_KEY(),
+    // which follows activeOrigin — see its definition above)
     const tnRes = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(TN_KEY()));
     if(tnRes && tnRes.data !== null && tnRes.data !== undefined){
       localStorage.setItem(TN_KEY(), JSON.stringify(tnRes.data));
-      if(activeId) viewTopic(activeId);
+      if(activeId) viewTopic(activeId, activeOrigin ? activeOrigin.id : null);
     }
     setSyncStatus('ok');
     renderList();
@@ -1003,6 +1163,7 @@ function startCountdown(){
 // ── Boot ──
 if(resolveSubject()){
   applySubjectTheme();
+  initSidebarTabs();
   setupRichDnD();
   renderList();
   syncPull();
@@ -1065,12 +1226,17 @@ if(resolveSubject()){
 
   var _orig = window.viewTopic;
   if (typeof _orig === 'function') {
-    window.viewTopic = function (id) {
-      _orig(id);
+    window.viewTopic = function (id, originId) {
+      _orig(id, originId);
       if (!isMobile()) return;
       closeSidebar();
       try {
-        var topics = JSON.parse(localStorage.getItem(ST) || '[]');
+        var key = ST;
+        if (originId && typeof classesData !== 'undefined') {
+          var cls = (classesData.subjects || []).find(function (c) { return c.id === originId; });
+          if (cls) key = cls.storageKey || (cls.id + '_topics');
+        }
+        var topics = JSON.parse(localStorage.getItem(key) || '[]');
         var t = topics.find(function (x) { return x.id == id; });
         var titleEl = document.getElementById('mobBarTitle');
         if (t && titleEl) titleEl.textContent = t.name;

@@ -37,3 +37,24 @@
   from = "/api/rejectUser"
   to = "/.netlify/functions/rejectUser"
   status = 200
+
+[[redirects]]
+  # Note: the function file is netlify/functions/Updateusername.js, so
+  # Netlify deploys it as function "Updateusername" (case-sensitive) —
+  # the redirect target below must match that exact case, even though the
+  # friendly /api path and Devpanel.html use the more conventional casing.
+  from = "/api/updateUserName"
+  to = "/.netlify/functions/Updateusername"
+  status = 200
+
+# Baseline security headers on every response. NOTE: a real Content-Security-Policy
+# is intentionally not set here — the app relies heavily on inline onclick="..."
+# handlers and inline <script> blocks, so a CSP strict enough to matter would need
+# 'unsafe-inline' anyway (which defeats most of its XSS protection) or a real
+# refactor to externalize scripts and event handlers first.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"

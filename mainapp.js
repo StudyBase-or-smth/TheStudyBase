@@ -387,7 +387,7 @@ document.addEventListener('keydown', e => {
 });
 
 // ── Sync ──
-const SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
+// SYNC_URL is now defined once in sync-config.js (loaded via <script> before this file).
 let _nextSync = Date.now() + 60000;
 
 function jsonpGet(url) {
@@ -448,6 +448,30 @@ window.manualSync = function () { calSync(); renderSidebar(); showToast('Syncing
 const SUG_KEY='studybase_suggestions';
 let _sugCache=[];
 
+// Suggestions are pulled from a shared, publicly-writable store (Google Apps
+// Script), so every field on a suggestion object — including id/tag, not
+// just its text — must be treated as untrusted and HTML-escaped before it
+// ever touches innerHTML. Never re-introduce raw template interpolation of
+// suggestion fields into HTML/attribute strings without going through this.
+function escapeHtml(str){
+  return String(str==null?'':str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+// Single delegated click handler for the suggestions list — avoids ever
+// building inline onclick="...('${untrustedValue}')" strings, which is what
+// let attacker-controlled id/tag values break out of an HTML attribute.
+document.addEventListener('click', function (e) {
+  const delBtn = e.target.closest('[data-sug-delete]');
+  if (delBtn) { deleteSuggestion(delBtn.getAttribute('data-sug-delete')); return; }
+  const toggleBtn = e.target.closest('[data-sug-toggle]');
+  if (toggleBtn) { toggleSuggestion(toggleBtn.getAttribute('data-sug-toggle')); return; }
+});
+
 
 function openSuggestions(){
   document.getElementById('sugOverlay').classList.add('open');
@@ -491,7 +515,18 @@ function toggleSuggestion(id){
   pushSuggestions();
 }
 
+// Rapid clicking (e.g. toggling a few suggestions quickly) used to fire an
+// overlapping push per click, each carrying its own snapshot of _sugCache —
+// whichever request's response the browser processed last would silently win
+// and could stomp a more recent change. Debounce so only one push goes out
+// per short burst, always carrying the latest _sugCache at send time.
+let _pushSuggestionsTimer = null;
 function pushSuggestions(){
+  if(_pushSuggestionsTimer) clearTimeout(_pushSuggestionsTimer);
+  _pushSuggestionsTimer = setTimeout(_doPushSuggestions, 300);
+}
+function _doPushSuggestions(){
+  _pushSuggestionsTimer = null;
   const iframe=document.createElement('iframe');
   const fid='spush'+Date.now(); iframe.name=fid; iframe.style.cssText='display:none;width:0;height:0;border:0';
   const form=document.createElement('form');
@@ -520,13 +555,15 @@ function renderSugList(){
   }
   list.innerHTML=[...filtered].reverse().map(s=>{
     const isClosed=s.status==='closed';
-    const tagHtml=s.tag?`<span class="sug-tag ${s.tag}">${s.tag}</span> `:'';
+    const safeId=escapeHtml(s.id);
+    const safeTag=escapeHtml(s.tag||'');
+    const tagHtml=s.tag?`<span class="sug-tag ${safeTag}">${safeTag}</span> `:'';
     const statusHtml=`<span class="sug-status ${isClosed?'closed':'open'}">${isClosed?'🟣 Closed':'🟢 Open'}</span>`;
     return `<div class="sug-item${isClosed?' closed':''}">
-      <button onclick="deleteSuggestion('${s.id}')" title="Delete" style="position:absolute;top:6px;right:6px;background:none;border:none;cursor:pointer;font-size:14px;line-height:1;color:var(--muted2);padding:2px 4px;border-radius:4px" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--muted2)'">×</button>
-      ${statusHtml} ${tagHtml}<div class="sug-text">${s.text.replace(/</g,'&lt;')}</div>
-      <div class="sug-meta">${s.date}${s.time?' · '+s.time:''}</div>
-      <button class="sug-toggle-btn" onclick="toggleSuggestion('${s.id}')">${isClosed?'↩ Reopen':'✓ Close'}</button>
+      <button data-sug-delete="${safeId}" title="Delete" style="position:absolute;top:6px;right:6px;background:none;border:none;cursor:pointer;font-size:14px;line-height:1;color:var(--muted2);padding:2px 4px;border-radius:4px" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--muted2)'">×</button>
+      ${statusHtml} ${tagHtml}<div class="sug-text">${escapeHtml(s.text)}</div>
+      <div class="sug-meta">${escapeHtml(s.date)}${s.time?' · '+escapeHtml(s.time):''}</div>
+      <button class="sug-toggle-btn" data-sug-toggle="${safeId}">${isClosed?'↩ Reopen':'✓ Close'}</button>
     </div>`;
   }).join('');
 }

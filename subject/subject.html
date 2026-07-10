@@ -126,11 +126,24 @@
         <input class="search-input" type="text" id="searchInput" placeholder="Search…">
       </div>
     </div>
-    <div class="unit-wrap">
-      <div class="unit-label">Units</div>
-      <div class="unit-pills" id="unitPills"></div>
+    <div class="sidebar-tabs" id="sidebarTabs" style="display:none">
+      <button class="sidebar-tab active" data-tab="subject" onclick="setSidebarTab('subject')">📚 Subject</button>
+      <button class="sidebar-tab" data-tab="classes" onclick="setSidebarTab('classes')">🏫 Classes</button>
+    </div>
+    <div class="unit-wrap" id="unitWrap">
+      <label class="unit-label" for="unitSelect">Units</label>
+      <div class="unit-select-row">
+        <select class="unit-select" id="unitSelect" onchange="setUnit(this.value)"></select>
+        <button class="unit-del-btn" id="unitDelBtn" style="display:none" title="Remove this unit"
+          onclick="confirmDeleteUnit(document.getElementById('unitSelect').value)">🗑</button>
+      </div>
+    </div>
+    <div class="unit-wrap" id="classSelectWrap" style="display:none">
+      <label class="unit-label" for="classSelect">Class</label>
+      <select class="unit-select" id="classSelect" onchange="setActiveClass(this.value)"></select>
     </div>
     <div class="topic-list" id="topicList"></div>
+    <div class="class-sections" id="classSections" style="display:none"></div>
   </div>
 
   <div class="detail-panel">
@@ -277,6 +290,7 @@
 </div>
 
 <script src="../subjects.js"></script>
+<script src="../sync-config.js"></script>
 <script src="subjectapp.js"></script>
 
 <!-- Guest overlays -->

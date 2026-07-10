@@ -25,7 +25,7 @@ async function requireDev(event) {
   const authHeader = event.headers.authorization || event.headers.Authorization || '';
   const token = authHeader.replace(/^Bearer\s+/i, '').trim();
   if (!token) throw { statusCode: 401, message: 'Missing Authorization header' };
-  const decoded = await admin.auth().verifyIdToken(token);
+  const decoded = await admin.auth().verifyIdToken(token, true); // checkRevoked
   if (decoded.role !== 'dev' || decoded.status !== 'active') {
     throw { statusCode: 403, message: 'Dev access required' };
   }

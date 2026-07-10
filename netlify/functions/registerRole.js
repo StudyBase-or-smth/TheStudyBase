@@ -9,6 +9,13 @@
 // Everything else goes to status:'pending' for a dev to review in the
 // dev panel.
 //
+// SECURITY: the caller must present a valid Firebase ID token (Authorization:
+// Bearer <idToken>) for the SAME uid they are requesting a role for, and the
+// school-domain check is done against the verified email on that token/user
+// record — never against a client-supplied email field. Without this, anyone
+// who knew (or guessed) another account's uid could overwrite that account's
+// claims by posting a forged uid/email pair.
+//
 // Requires a Firebase service account — set as three Netlify environment
 // variables (Site settings -> Environment variables):
 //   FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
@@ -30,6 +37,14 @@ if (!admin.apps.length) {
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
+async function requireCaller(event) {
+  const authHeader = event.headers.authorization || event.headers.Authorization || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+  if (!token) throw { statusCode: 401, message: 'Missing Authorization header' };
+  const decoded = await admin.auth().verifyIdToken(token, true); // checkRevoked
+  return decoded;
+}
+
 exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
@@ -42,16 +57,24 @@ exports.handler = async function (event) {
     return { statusCode: 400, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
-  const { uid, email, requestedRole } = body;
+  const { uid, requestedRole } = body;
 
-  if (!uid || !email || !requestedRole) {
-    return { statusCode: 400, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Missing uid, email, or requestedRole' }) };
+  if (!uid || !requestedRole) {
+    return { statusCode: 400, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Missing uid or requestedRole' }) };
   }
   if (!ALLOWED_ROLES.includes(requestedRole)) {
     return { statusCode: 400, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Invalid requestedRole' }) };
   }
 
   try {
+    const decoded = await requireCaller(event);
+    if (decoded.uid !== uid) {
+      return { statusCode: 403, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Token uid does not match requested uid' }) };
+    }
+
+    // Use the verified email off the Firebase user record / token — never a
+    // client-supplied field — so the school-domain check can't be spoofed.
+    const email = decoded.email || (await admin.auth().getUser(uid)).email || '';
     const isSchoolEmail = email.toLowerCase().endsWith(SCHOOL_DOMAIN);
     const autoApprove = isSchoolEmail && requestedRole === 'student';
 
@@ -85,6 +108,7 @@ exports.handler = async function (event) {
       body: JSON.stringify({ status: claims.status, role: claims.role, requestedRole }),
     };
   } catch (err) {
-    return { statusCode: 500, headers: JSON_HEADERS, body: JSON.stringify({ error: err.message || 'Unexpected server error' }) };
+    const statusCode = err.statusCode || 500;
+    return { statusCode, headers: JSON_HEADERS, body: JSON.stringify({ error: err.message || 'Unexpected server error' }) };
   }
 };

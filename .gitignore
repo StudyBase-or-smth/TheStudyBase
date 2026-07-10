@@ -15,4 +15,7 @@ node_modules/
 Thumbs.db
 *.log
 
+# Design source file — not needed at runtime, only icon.png is served
+icon.af
+
 

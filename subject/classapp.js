@@ -822,7 +822,7 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
 });
 
 // ── Sync ──
-const SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
+// SYNC_URL is now defined once in ../sync-config.js (loaded via <script> before this file).
 
 function setSyncStatus(s){
   const el = document.getElementById('syncStatus');

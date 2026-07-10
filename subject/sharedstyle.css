@@ -45,7 +45,7 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;display:fle
 .search-wrap{position:relative}
 .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted2);font-size:13px;pointer-events:none}
 .search-input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:8px 10px 8px 30px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:border-color .15s,background .15s}
-.search-input:focus{border-color:var(--accent);background:#fff}
+.search-input:focus{border-color:var(--accent);background:var(--card2)}
 .search-input::placeholder{color:var(--muted2)}
 .unit-wrap{padding:10px 12px 8px;border-bottom:1px solid var(--border)}
 .unit-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);font-weight:600;margin-bottom:6px}
@@ -56,7 +56,25 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;display:fle
 .unit-del{opacity:0;font-size:11px;transition:opacity .12s;color:var(--muted2)}
 .unit-pill:hover .unit-del{opacity:.7}
 .unit-del:hover{opacity:1!important;color:#dc2626}
+.unit-select-row{display:flex;gap:6px;align-items:center}
+.unit-select{width:100%;flex:1;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-family:'Inter',sans-serif;font-size:12.5px;outline:none;cursor:pointer;transition:border-color .15s}
+.unit-select:focus{border-color:var(--accent)}
+.unit-del-btn{flex-shrink:0;background:none;border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12px;cursor:pointer;color:var(--muted2);transition:all .12s}
+.unit-del-btn:hover{border-color:#fca5a5;color:#dc2626;background:#fef2f2}
+body.dark .unit-del-btn:hover{background:#2a1414!important;border-color:#5c2424!important;color:#f29b9b!important}
 .topic-list{flex:1;overflow-y:auto}
+
+/* ── Subject / Classes tab switcher (Subject page only) ── */
+.sidebar-tabs{display:flex;gap:2px;padding:8px 10px 0;border-bottom:1px solid var(--border);flex-shrink:0}
+.sidebar-tab{flex:1;text-align:center;padding:7px 4px;font-size:12px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;border-radius:6px 6px 0 0;transition:background .12s,color .12s;font-family:'Inter',sans-serif}
+.sidebar-tab:hover:not(.active){background:var(--card2);color:var(--text)}
+.sidebar-tab.active{color:var(--accent);background:var(--ac-l)}
+
+/* ── Aggregated class content (Subject page only) — its own tab panel ──
+   Deliberately just reuses .topic-list/.topic-item/.subtopic-sidebar-list
+   (see subjectapp.js renderClassSections/renderClassNode) so the Classes
+   tab looks and behaves exactly like the Subject tab. */
+.class-sections{flex:1;overflow-y:auto}
 .topic-item{padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--border);border-left:4px solid transparent;transition:background .12s,border-color .12s}
 .topic-item-wrap{border-bottom:1px solid var(--border);padding-bottom:6px}
 .topic-item-wrap .topic-item{border-bottom:none}

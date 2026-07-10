@@ -308,13 +308,19 @@ body.dark .login-title,body.dark .login-sub{color:var(--text)!important}
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
       await updateProfile(cred.user, { displayName: name });
 
-      // Ask the server to set the role claim (active or pending)
+      // Ask the server to set the role claim (active or pending). Send the
+      // user's own ID token so the server can verify this request is really
+      // coming from the account being registered.
       let result = { status: 'pending', requestedRole };
       try {
+        const idToken = await cred.user.getIdToken();
         const res = await fetch('/api/registerRole', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uid: cred.user.uid, email, requestedRole }),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + idToken,
+          },
+          body: JSON.stringify({ uid: cred.user.uid, requestedRole }),
         });
         if (res.ok) result = await res.json();
       } catch (netErr) {
