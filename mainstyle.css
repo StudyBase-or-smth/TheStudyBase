@@ -63,6 +63,25 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;min-height:
 .feed-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
 .feed-item:last-child{border-bottom:none;padding-bottom:0}
 .feed-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px}
+
+/* ── Units Overview: capped height, scroll (wheel) for the rest ──
+   A subject list with many units used to just push the whole hub page
+   taller and taller. Bound it to roughly 6 rows and let the mouse wheel
+   scroll the remainder — and unlike the rest of the app (which hides
+   scrollbars globally), show a slim one here so it's obvious there's more
+   to scroll to. */
+/* Modern Chromium/Edge now support the standard scrollbar-color property and
+   use it (ignoring the ::-webkit-scrollbar-thumb color below) whenever it's
+   present — but it needs an explicit color, not just "thin", or it falls
+   back to the OS's native light scrollbar even inside a dark card. Setting
+   it directly, and re-declaring it under body.dark since --border2/--muted2
+   only update their values there, is what actually themes it correctly. */
+#unitsList{max-height:280px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#d4cec7 transparent;padding-right:4px}
+#unitsList::-webkit-scrollbar{display:block;width:6px}
+#unitsList::-webkit-scrollbar-track{background:transparent}
+#unitsList::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+#unitsList::-webkit-scrollbar-thumb:hover{background:var(--muted2)}
+body.dark #unitsList{scrollbar-color:#3d3935 transparent}
 .feed-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;line-height:1.3}
 .feed-sub{font-size:11px;color:var(--muted)}
 .empty-note{font-size:12px;color:var(--muted2);font-style:italic;padding:8px 0}
