@@ -1,0 +1,572 @@
+{
+  "questions": [
+    {
+      "id": "q11",
+      "name": "Question 11",
+      "question": "Consider the composite shape shown. What is the area of the shape in cm2?",
+      "image": "q11-composite-shape.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "6",
+          "correct": true
+        },
+        {
+          "type": "working",
+          "text": "15",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "21",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q12",
+      "name": "Question 12",
+      "question": "Vijay's heart rate before and after his morning run is shown (before run: 72 beats per minute, after run: 126 beats per minute). What is the percentage increase in Vijay's heart rate?",
+      "image": "q12-heart-rate-table.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "54",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "75",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q13a",
+      "name": "Question 13 (a)",
+      "question": "A trapezium is shown, with parallel sides a cm and 30 cm, and height 12 cm (not to scale). Write an expression for the area of this trapezium.",
+      "image": "q13-trapezium.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "answer",
+          "text": "6(a+30)",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q13b",
+      "name": "Question 13 (b)",
+      "question": "Using the trapezium shown in part (a), find the value of a, given that the area of the trapezium is 330 cm2.",
+      "image": "q13-trapezium.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "55",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "25",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q14a",
+      "name": "Question 14 (a)",
+      "question": "The time, in minutes, it takes to travel by road between six towns (A-F) is recorded and shown in the network diagram below. In this network the shortest path corresponds to the minimum travel time. What is the minimum travel time between towns A and F, and what is the corresponding path?",
+      "image": "q14-network.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "ABCDEF",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "58",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q16",
+      "name": "Question 16",
+      "question": "The mass (M) of a box with a square base, in grams, is directly proportional to the area of its base, in cm2 (not to scale). A box with a square base of side length 5 cm has a mass of 500 g. What is the mass of a similar box with a square base of side length 3 cm?",
+      "image": "q16-box.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "M=kA",
+          "correct": true
+        },
+        {
+          "type": "working",
+          "text": "20",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "180",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q15b",
+      "name": "Question 15 (b)",
+      "question": "A researcher is investigating a possible relationship between average number of minutes per day a person spends watching television, and the average number of minutes per day the person spends exercising. Participants' averages were recorded and graphed, with a line of best fit included, as shown. From the graph, identify the dependent variable.",
+      "image": "q15-graph.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "answer",
+          "text": "Average minutes per day exercising",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q15c",
+      "name": "Question 15 (c)",
+      "question": "Using the same graph, describe the bivariate dataset in terms of its form and direction.",
+      "image": "q15-graph.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "Linear",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "Negative",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q17",
+      "name": "Question 17",
+      "question": "Paint is sold in two sizes at a local shop: four-litre cans at $90 per can, and ten-litre cans at $205 per can. Mina needs to purchase 80 litres of paint. Calculate the amount of money Mina will save by purchasing only ten-litre cans of paint rather than only four-litre cans of paint.",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "1640",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "160",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q18a",
+      "name": "Question 18 (a)",
+      "question": "Ramon took 1.25 hours to travel the length of a freeway. The length of the freeway is 100 km. Ramon's total travel time was made up of: 20 minutes to travel to the start of the freeway; the time taken to travel the length of the freeway; and 35 minutes after exiting the freeway to get to his destination. What was the total time Ramon spent travelling? Give your answer in hours and minutes.",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "75",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "2 hours 10 minutes",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q18b",
+      "name": "Question 18 (b)",
+      "question": "Using the same information (Ramon took 1.25 hours to travel the 100 km length of a freeway), what was Ramon's average speed on the freeway?",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "answer",
+          "text": "80",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q19a",
+      "name": "Question 19 (a)",
+      "question": "At the end of the 2024-2025 financial year, Alex's taxable income was $148 600. Using the income tax rate table for Australian residents for the 2024-2025 financial year shown, calculate Alex's tax payable.",
+      "image": "q19-tax-table.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "31288",
+          "correct": true
+        },
+        {
+          "type": "working",
+          "text": "5032",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "36320",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q19b",
+      "name": "Question 19 (b)",
+      "question": "The Medicare levy is 2% of taxable income. Calculate the Medicare levy payable by Alex (taxable income $148 600).",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "answer",
+          "text": "2972",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q20a",
+      "name": "Question 20 (a)",
+      "question": "A map of a park containing a duck pond is shown, with a fence built passing through points A, B and C around the duck pond. Using the scale provided on the map, calculate the length of the fence AB.",
+      "image": "q20-map.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "answer",
+          "text": "75",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q20b",
+      "name": "Question 20 (b)",
+      "question": "The length of AB is equal to the length of BC. Use Pythagoras' theorem to calculate the length of AC in metres. Give your answer correct to 3 significant figures.",
+      "image": "q20-map.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "11250",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "106",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q20c",
+      "name": "Question 20 (c)",
+      "question": "What is the true bearing of point A from point C?",
+      "image": "q20-map.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "45",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "225",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q21",
+      "name": "Question 21",
+      "question": "A credit card has an interest-free period of 45 days from and including the date of purchase. Interest is charged on purchases made, compounding daily at a rate of 13.74% per annum, from and including the day following the interest-free period. Concert tickets were purchased for a total of $392 using this credit card. Full payment was made on the 68th day from the date of purchase. There were no other purchases on this credit card. What was the total interest charged when the account was paid in full?",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "23",
+          "correct": true
+        },
+        {
+          "type": "working",
+          "text": "395.41",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "3.41",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q22a",
+      "name": "Question 22 (a)",
+      "question": "An isosceles triangle is drawn inside a circle as shown. The base of the triangle is 4.8 cm long, the length of the other sides is 4 cm and the height is h cm (not to scale). Calculate the height, h, of triangle ABC.",
+      "image": "q22-triangle-circle.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "10.24",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "3.2",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q22b",
+      "name": "Question 22 (b)",
+      "question": "The area of triangle ABC is 7.68 cm2. The radius of the circle is 2.5 cm. Express the area of triangle ABC as a percentage of the area of the circle, correct to 1 decimal place.",
+      "image": "q22-triangle-circle.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "19.635",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "39.1",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q23",
+      "name": "Question 23",
+      "question": "It costs $465 to register a passenger car and $350 to register a motorcycle. Let P = the number of passenger cars, and B = the number of motorcycles. Write TWO linear equations that represent the relationships below: there are 11 times as many passenger cars as motorcycles; and the total registration fees for passenger cars and motorcycles is $494 million.",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "P=11B",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "465P+350B=494000000",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q24",
+      "name": "Question 24",
+      "question": "A used car has a sale price of $24 200. In addition to the sale price, the following costs are charged: transfer of registration $50; stamp duty which is calculated at $3 for every $100, or part thereof, of the sale price. Kat borrows the total amount to be paid for the car, including transfer of registration and stamp duty. Simple interest at the rate of 6.8% per annum is charged on the loan. The loan is to be repaid in equal monthly repayments over 3 years. Calculate Kat's monthly repayment.",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "242",
+          "correct": true
+        },
+        {
+          "type": "working",
+          "text": "24976",
+          "correct": true
+        },
+        {
+          "type": "working",
+          "text": "5095.10",
+          "correct": true
+        },
+        {
+          "type": "working",
+          "text": "30071.10",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "835.31",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q25",
+      "name": "Question 25",
+      "question": "Bobbie plans to invest $25 000 for 10 years and is offered two investment options. Option A: earns interest at a rate of 5% per annum, compounding monthly. Option B: earns simple interest at a rate of 8% per annum. Which investment option will provide Bobbie with the best return value at the end of 10 years? Justify your answer with calculations.",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "41175.24",
+          "correct": true
+        },
+        {
+          "type": "working",
+          "text": "45000",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "Option B",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q26",
+      "name": "Question 26",
+      "question": "A scale of 1:50 is used to draw a rectangular area on a 2 mm grid as shown. The actual rectangular area is to be tiled. The tiles cost $150 per square metre and the tiler orders 15% extra tiles to allow for cutting and breakage. The tiler charges $90 per hour and will take 20 hours to complete the tiling. Calculate the total cost of the tiles and tiling. Give your answer to the nearest dollar.",
+      "image": "q26-grid.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "5.2",
+          "correct": true
+        },
+        {
+          "type": "working",
+          "text": "24.96",
+          "correct": true
+        },
+        {
+          "type": "working",
+          "text": "4305.60",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "6106",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q27",
+      "name": "Question 27",
+      "question": "The graph shows the salvage value of a car over 5 years, as shown. The salvage values are based on the declining-balance method. By what amount will the car's value depreciate during the 10th year?",
+      "image": "q27-graph.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "20",
+          "correct": true
+        },
+        {
+          "type": "working",
+          "text": "7381.98",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "1476.40",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q28a",
+      "name": "Question 28 (a)",
+      "question": "The table provides information about a $2 coin and a $5 note: 500 $2 coins have a mass of 3.3 kg to make $1000; 200 $5 notes have a mass of 0.157 kg to make $1000. Calculate the mass of a $2 coin in grams, correct to 1 decimal place.",
+      "image": "q28-table.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "0.0066",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "6.6",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q28b",
+      "name": "Question 28 (b)",
+      "question": "Suppose the $2 coin is to be replaced with a note that has the same mass as a $5 note. What is the mass of $1000 in $2 notes in grams? Give your answer correct to the nearest gram.",
+      "image": "q28-table.png",
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "math": true,
+      "answers": [
+        {
+          "type": "working",
+          "text": "0.785",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "393",
+          "correct": true
+        }
+      ]
+    }
+  ]
+}

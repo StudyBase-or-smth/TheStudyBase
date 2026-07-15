@@ -3,772 +3,908 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StudyBase — Quiz</title>
+<title>HSC — StudyBase</title>
+<!-- Favicon -->
+<link rel="icon" href="../icon.png" type="image/png">
+<link rel="apple-touch-icon" href="../icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../mainstyle.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #0f1117;
-    --bg-surface: #181c24;
-    --bg-raised: #1e2330;
-    --bg-hover: #232838;
-    --border: rgba(255,255,255,0.08);
-    --border-strong: rgba(255,255,255,0.14);
-    --text: #e8eaf0;
-    --text-muted: #8b90a0;
-    --text-dim: #555b6e;
-    --accent: #4f8ef7;
-    --accent-bg: rgba(79,142,247,0.12);
-    --green: #34d399;
-    --green-bg: rgba(52,211,153,0.1);
-    --red: #f87171;
-    --red-bg: rgba(248,113,113,0.1);
-    --amber: #fbbf24;
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 14px;
-    --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  /* Quiz UI — uses the app's existing CSS variables, with fallbacks in case any aren't set */
+  .quiz-status {
+    padding: 24px;
+    font-family: 'Inter', sans-serif;
+    color: var(--muted, #666);
   }
+  .quiz-status.quiz-error { color: #c0392b; }
 
-  body {
-    font-family: var(--font);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  /* ── TOP BAR ─────────────────────────────── */
-  .topbar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(15,17,23,0.92);
-    backdrop-filter: blur(12px);
-    border-bottom: 0.5px solid var(--border);
-    padding: 0 24px;
-    height: 52px;
+  /* Overall two-column layout: nav sidebar on the left, question content on the right. */
+  .quiz-layout {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 4px;
   }
-  .topbar-left { display: flex; align-items: center; gap: 12px; }
-  .logo { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--text); text-decoration: none; }
-  .logo-icon { width: 28px; height: 28px; background: var(--accent); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
-  .version-badge { font-size: 10px; background: var(--bg-raised); border: 0.5px solid var(--border); border-radius: 4px; padding: 2px 7px; color: var(--text-muted); font-family: var(--font-mono); }
-  .topbar-right { display: flex; align-items: center; gap: 8px; }
-  .topbar-date { font-size: 12px; color: var(--text-muted); }
-  .icon-btn { width: 32px; height: 32px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: all 0.15s; }
-  .icon-btn:hover { background: var(--bg-raised); color: var(--text); border-color: var(--border-strong); }
-
-  /* ── BREADCRUMB ──────────────────────────── */
-  .breadcrumb {
-    padding: 12px 24px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--text-muted);
-    border-bottom: 0.5px solid var(--border);
-    background: var(--bg-surface);
+  .quiz-sidebar {
+    width: 172px;
+    flex-shrink: 0;
+    font-family: 'Inter', sans-serif;
   }
-  .breadcrumb a { color: var(--text-muted); text-decoration: none; cursor: pointer; }
-  .breadcrumb a:hover { color: var(--text); }
-  .breadcrumb .sep { opacity: 0.3; }
-  .breadcrumb .current { color: var(--text); }
-
-  /* ── MAIN LAYOUT ─────────────────────────── */
-  .main { max-width: 900px; margin: 0 auto; padding: 28px 24px 80px; }
-
-  /* ── SECTION HEADING ─────────────────────── */
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .quiz-sidebar-select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border, #e0e0e0);
+    border-radius: 7px;
+    background: var(--card, #fff);
+    color: var(--text, #1a1a1a);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
     margin-bottom: 14px;
+    cursor: pointer;
   }
-  .section-title { font-size: 12px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-dim); }
-  .add-btn {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 12px; padding: 5px 12px;
-    border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm);
-    background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.15s;
-  }
-  .add-btn:hover { background: var(--bg-raised); color: var(--text); }
-
-  /* ── SUBJECT GRID ────────────────────────── */
-  .subject-grid {
+  .quiz-nav-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    margin-bottom: 28px;
+    gap: 6px;
   }
-  .subject-cell {
-    padding: 16px 14px;
-    cursor: pointer;
-    border-right: 0.5px solid var(--border);
-    border-bottom: 0.5px solid var(--border);
-    transition: background 0.15s;
-    position: relative;
-  }
-  .subject-cell:nth-child(4n),
-  .subject-cell.last-row-end { border-right: none; }
-  .subject-cell.no-bottom { border-bottom: none; }
-  .subject-cell:hover { background: var(--bg-hover); }
-  .subject-cell.active { background: var(--bg-raised); }
-  .subject-cell.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--accent);
-  }
-  .cell-icon { font-size: 20px; margin-bottom: 8px; line-height: 1; }
-  .cell-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
-  .cell-meta { font-size: 11px; color: var(--text-dim); }
-  .cell-count {
-    position: absolute; top: 10px; right: 10px;
-    font-size: 10px; font-weight: 600; font-family: var(--font-mono);
-    background: var(--bg-hover); border-radius: 4px; padding: 2px 6px;
-    color: var(--text-muted);
-  }
-  .cell-count.has-topics { background: var(--accent-bg); color: var(--accent); }
-
-  /* ── EXPANDED SUBJECT PANEL ──────────────── */
-  .subject-panel {
-    display: none;
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    margin-bottom: 28px;
-  }
-  .subject-panel.visible { display: block; }
-  .panel-header {
-    padding: 14px 18px;
-    background: var(--bg-surface);
-    border-bottom: 0.5px solid var(--border);
+  .quiz-nav-btn {
+    aspect-ratio: 1;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-  }
-  .panel-title-group { display: flex; align-items: center; gap: 10px; }
-  .panel-icon { font-size: 18px; }
-  .panel-title { font-size: 15px; font-weight: 600; }
-  .panel-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
-  .panel-actions { display: flex; gap: 8px; }
-  .panel-btn {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 12px; padding: 5px 12px;
-    border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm);
-    background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.15s;
-  }
-  .panel-btn:hover { background: var(--bg-raised); color: var(--text); }
-
-  /* ── TOPIC ROWS ──────────────────────────── */
-  .topic-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 11px 18px;
-    border-bottom: 0.5px solid var(--border);
+    justify-content: center;
+    border: 1px solid var(--border, #e0e0e0);
+    border-radius: 6px;
+    background: var(--card, #fff);
+    color: var(--text, #1a1a1a);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
     cursor: pointer;
-    transition: background 0.12s;
+    padding: 0;
+    transition: border-color .15s, background .15s;
   }
-  .topic-row:last-child { border-bottom: none; }
-  .topic-row:hover { background: var(--bg-hover); }
-  .topic-row.active { background: var(--bg-raised); }
-  .topic-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); flex-shrink: 0; transition: background 0.15s; }
-  .topic-row.active .topic-dot { background: var(--accent); }
-  .topic-name { flex: 1; font-size: 13px; color: var(--text); }
-  .topic-qcount { font-size: 11px; color: var(--text-dim); font-family: var(--font-mono); }
-  .topic-start-btn {
-    font-size: 11px; padding: 4px 10px;
-    border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm);
-    background: transparent; color: var(--text-muted); cursor: pointer;
-    display: flex; align-items: center; gap: 4px; transition: all 0.15s;
+  .quiz-nav-btn:hover { border-color: var(--accent, #4f46e5); }
+  .quiz-nav-btn.current { border-color: var(--accent, #4f46e5); border-width: 2px; font-weight: 700; }
+  .quiz-nav-btn.nav-correct { background: rgba(46,125,50,0.14); border-color: #2e7d32; color: #2e7d32; }
+  .quiz-nav-btn.nav-partial { background: rgba(184,134,11,0.14); border-color: #b8860b; color: #b8860b; }
+  .quiz-nav-btn.nav-incorrect { background: rgba(192,57,43,0.12); border-color: #c0392b; color: #c0392b; }
+  .quiz-nav-legend {
+    margin-top: 12px;
+    font-size: 10px;
+    color: var(--muted2, #999);
+    line-height: 1.7;
   }
-  .topic-start-btn:hover, .topic-row.active .topic-start-btn { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
+  .quiz-nav-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .quiz-nav-dot.nav-correct { background: #2e7d32; }
+  .quiz-nav-dot.nav-partial { background: #b8860b; }
+  .quiz-nav-dot.nav-incorrect { background: #c0392b; }
 
-  /* ── QUIZ AREA ───────────────────────────── */
-  .quiz-area { display: none; }
-  .quiz-area.visible { display: block; }
+  .quiz-main { flex: 1; min-width: 0; }
 
-  .quiz-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 20px;
+  @media (max-width: 640px) {
+    .quiz-layout { flex-direction: column; }
+    .quiz-sidebar { width: 100%; }
+    .quiz-nav-grid { grid-template-columns: repeat(8, 1fr); }
   }
-  .quiz-title-group {}
-  .quiz-subject-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
-  .quiz-topic-name { font-size: 20px; font-weight: 600; }
-  .quiz-controls { display: flex; gap: 8px; }
-  .quiz-ctrl-btn {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 12px; padding: 6px 13px;
-    border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm);
-    background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.15s;
-  }
-  .quiz-ctrl-btn:hover { background: var(--bg-raised); color: var(--text); }
-  .quiz-ctrl-btn.danger:hover { color: var(--red); border-color: var(--red); background: var(--red-bg); }
 
-  /* ── QUESTION CARDS ──────────────────────── */
-  .questions-list { display: flex; flex-direction: column; gap: 12px; }
+  .quiz-wrap {
+    font-family: 'Inter', sans-serif;
+  }
+  .quiz-progress {
+    font-size: 12px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--muted2, #999);
+    margin-bottom: 10px;
+  }
+  /* Exam-style heading: "Question 11" left, "(3 marks)" right, thin rule underneath —
+     mirrors the look of the printed HSC paper. */
+  .quiz-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    font-family: 'Lora', serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text, #1a1a1a);
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border, #e0e0e0);
+  }
+  .quiz-heading-marks {
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--muted2, #999);
+    white-space: nowrap;
+  }
+  /* Question stem — the actual wording, styled like exam-paper body text rather
+     than a UI label. Falls back to holding the full question text on older quiz
+     files that don't have a separate `question` field. */
+  .quiz-stem {
+    font-family: 'Lora', serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text, #1a1a1a);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .quiz-type-hint {
+    font-size: 12px;
+    color: var(--muted2, #999);
+    margin-bottom: 14px;
+  }
+  .quiz-image-wrap:empty { display: none; }
+  .quiz-image-wrap { margin-bottom: 16px; }
+  .quiz-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border, #e0e0e0);
+    background: var(--card, #fff);
+  }
 
-  .q-card {
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    transition: border-color 0.2s;
+  /* Multiple choice / checkbox answers */
+  .quiz-answers {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
   }
-  .q-card.answered-correct { border-color: rgba(52,211,153,0.3); }
-  .q-card.answered-wrong { border-color: rgba(248,113,113,0.3); }
+  .quiz-answer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    padding: 12px 14px;
+    border: 1px solid var(--border, #e0e0e0);
+    border-radius: 8px;
+    background: var(--card, #fff);
+    color: var(--text, #1a1a1a);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-answer:hover:not(.locked) { border-color: var(--accent, #4f46e5); }
+  .quiz-answer.selected { border-color: var(--accent, #4f46e5); background: color-mix(in srgb, var(--accent, #4f46e5) 10%, transparent); }
+  .quiz-answer.locked { cursor: default; }
+  .quiz-answer.correct { border-color: #2e7d32; background: rgba(46,125,50,0.12); }
+  .quiz-answer.incorrect { border-color: #c0392b; background: rgba(192,57,43,0.10); }
+  .quiz-answer input[type="radio"],
+  .quiz-answer input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent, #4f46e5);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .quiz-answer.locked input { cursor: default; }
 
-  .q-card-header {
-    display: flex; align-items: flex-start; gap: 14px;
-    padding: 16px 18px 14px;
-    background: var(--bg-surface);
+  /* Math / fill-in-the-blank answers */
+  .quiz-math-answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
   }
-  .q-num {
-    font-size: 11px; font-family: var(--font-mono); font-weight: 600;
-    color: var(--text-dim); padding-top: 2px; flex-shrink: 0; width: 24px;
+  /* One group per run of consecutive same-type entries (e.g. all "working" rows
+     together, the final "answer" row on its own). Styled as ruled writing lines
+     rather than boxed UI cards, closer to the blank answer space on the printed
+     exam paper. */
+  .quiz-math-group {
+    padding: 4px 0 10px;
   }
-  .q-text { font-size: 14px; color: var(--text); line-height: 1.65; flex: 1; }
-  .q-card-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-  .q-edit-btn {
-    width: 28px; height: 28px; border-radius: var(--radius-sm);
-    border: 0.5px solid var(--border); background: transparent;
-    color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center;
-    font-size: 13px; transition: all 0.15s; opacity: 0;
+  .quiz-math-group-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted2, #999);
+    margin-bottom: 8px;
   }
-  .q-card:hover .q-edit-btn { opacity: 1; }
-  .q-edit-btn:hover { background: var(--bg-raised); color: var(--text); border-color: var(--border-strong); }
+  .quiz-math-input-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .quiz-math-input-row { display: flex; align-items: center; gap: 10px; }
+  .quiz-math-input {
+    flex: 1;
+    border: none;
+    border-bottom: 1px dotted var(--muted2, #999);
+    border-radius: 0;
+    padding: 6px 2px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    background: transparent;
+    color: var(--text, #1a1a1a);
+  }
+  .quiz-math-input:focus { outline: none; border-bottom-style: solid; border-bottom-color: var(--accent, #4f46e5); }
+  .quiz-math-input:disabled { opacity: .85; }
+  .quiz-math-input-row.correct .quiz-math-input { border-bottom-color: #2e7d32; border-bottom-style: solid; }
+  .quiz-math-input-row.incorrect .quiz-math-input { border-bottom-color: #c0392b; border-bottom-style: solid; }
+  /* Working rows: same grading behavior as an answer row, styled as a lighter, secondary step */
+  .quiz-math-group.quiz-math-working .quiz-math-input {
+    font-style: italic;
+  }
+  .quiz-math-mark-label {
+    font-size: 11px;
+    color: var(--muted2, #999);
+    white-space: nowrap;
+  }
+  .quiz-math-hint {
+    font-size: 12px;
+    color: #c0392b;
+    margin-top: 4px;
+  }
 
-  /* ── ANSWER SECTION ──────────────────────── */
-  .q-answer {
-    border-top: 0.5px solid var(--border);
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.3s ease;
-  }
-  .q-answer.revealed { max-height: 400px; }
-  .q-answer-inner {
-    padding: 14px 18px 14px 56px;
-    background: var(--bg-raised);
-    display: flex; flex-direction: column; gap: 12px;
-  }
-  .answer-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 2px; }
-  .answer-text { font-size: 14px; color: var(--text); line-height: 1.65; }
-  .answer-mark { display: flex; gap: 8px; }
-  .mark-btn {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 12px; padding: 5px 13px;
-    border-radius: var(--radius-sm); border: 0.5px solid var(--border-strong);
-    background: transparent; cursor: pointer; transition: all 0.15s; color: var(--text-muted);
-  }
-  .mark-btn.correct-btn:hover, .mark-btn.correct-btn.selected { background: var(--green-bg); color: var(--green); border-color: var(--green); }
-  .mark-btn.wrong-btn:hover, .mark-btn.wrong-btn.selected { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+  .quiz-feedback { font-size: 14px; font-weight: 600; min-height: 20px; margin-bottom: 12px; }
+  .quiz-feedback.quiz-correct { color: #2e7d32; }
+  .quiz-feedback.quiz-partial { color: #b8860b; }
+  .quiz-feedback.quiz-incorrect { color: #c0392b; }
 
-  /* ── REVEAL BUTTON ───────────────────────── */
-  .reveal-row {
-    padding: 10px 18px 10px 56px;
-    display: flex; align-items: center; gap: 10px;
-    background: var(--bg-surface);
-    border-top: 0.5px solid var(--border);
+  .quiz-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .quiz-btn {
+    padding: 9px 18px;
+    border-radius: 7px;
+    border: 1px solid var(--border, #e0e0e0);
+    background: var(--card, #fff);
+    color: var(--text, #1a1a1a);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
   }
-  .reveal-btn {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 12px; padding: 5px 13px;
-    border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm);
-    background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.15s;
-  }
-  .reveal-btn:hover { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
+  .quiz-btn-primary { background: var(--accent, #4f46e5); color: #fff; border-color: transparent; }
+  .quiz-btn:disabled { opacity: .5; cursor: default; }
 
-  /* ── EDIT MODAL ──────────────────────────── */
-  .modal-overlay {
-    display: none;
-    position: fixed; inset: 0; z-index: 200;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(4px);
-    align-items: center; justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--bg-surface);
-    border: 0.5px solid var(--border-strong);
-    border-radius: var(--radius-lg);
-    width: 520px; max-width: 95vw;
-    padding: 24px;
-    display: flex; flex-direction: column; gap: 16px;
-  }
-  .modal-header { display: flex; align-items: center; justify-content: space-between; }
-  .modal-title { font-size: 15px; font-weight: 600; }
-  .modal-close { width: 28px; height: 28px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-  .modal-close:hover { background: var(--bg-raised); color: var(--text); }
-  .field-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-dim); margin-bottom: 6px; }
-  .field-input, .field-textarea {
-    width: 100%; background: var(--bg-raised);
-    border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm);
-    color: var(--text); font-family: var(--font); font-size: 13px;
-    padding: 9px 12px; outline: none; transition: border-color 0.15s;
-    resize: vertical;
-  }
-  .field-input:focus, .field-textarea:focus { border-color: var(--accent); }
-  .field-textarea { min-height: 80px; }
-  .modal-footer { display: flex; justify-content: flex-end; gap: 8px; }
-  .modal-cancel { font-size: 13px; padding: 7px 16px; border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm); background: transparent; color: var(--text-muted); cursor: pointer; }
-  .modal-save { font-size: 13px; padding: 7px 16px; border-radius: var(--radius-sm); border: none; background: var(--accent); color: #fff; cursor: pointer; font-weight: 500; }
-  .modal-save:hover { opacity: 0.88; }
-
-  /* ── ADD QUESTION BUTTON ─────────────────── */
-  .add-question-btn {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    width: 100%; padding: 14px;
-    border: 0.5px dashed var(--border-strong); border-radius: var(--radius-lg);
-    background: transparent; color: var(--text-muted); cursor: pointer;
-    font-size: 13px; transition: all 0.15s; margin-top: 4px;
-  }
-  .add-question-btn:hover { background: var(--bg-surface); color: var(--text); border-color: var(--accent); }
-
-  /* ── PROGRESS BAR ────────────────────────── */
-  .progress-bar-wrap { margin-bottom: 20px; }
-  .progress-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
-  .progress-track { height: 3px; background: var(--bg-raised); border-radius: 2px; }
-  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; }
-
-  /* ── EMPTY STATE ─────────────────────────── */
-  .empty-state { text-align: center; padding: 40px 20px; color: var(--text-dim); }
-  .empty-state p { margin-top: 8px; font-size: 13px; }
-
-  @media (max-width: 600px) {
-    .subject-grid { grid-template-columns: repeat(2, 1fr); }
-    .topbar { padding: 0 14px; }
-    .main { padding: 18px 14px 60px; }
+  .quiz-summary { text-align: center; }
+  .quiz-score {
+    font-family: 'Lora', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text, #1a1a1a);
+    margin: 12px 0 22px;
   }
 </style>
 </head>
-<body>
+<body class="subject-page">
 
-<!-- TOP BAR -->
-<header class="topbar">
-  <div class="topbar-left">
-    <a class="logo" href="#">
-      <div class="logo-icon">📚</div>
-      StudyBase
-    </a>
-    <span class="version-badge">v3.0.0</span>
-  </div>
-  <div class="topbar-right">
-    <span class="topbar-date" id="todayDate"></span>
-    <button class="icon-btn" title="Settings">⚙</button>
-  </div>
-</header>
+<!-- Firebase auth -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  const cfg = {
+    apiKey:"AIzaSyAZeyBIaTstTJ5Pr9o86MHk8dhDPAJFFCA",
+    authDomain:"studybase-8cfa1.firebaseapp.com",
+    projectId:"studybase-8cfa1",
+    storageBucket:"studybase-8cfa1.firebasestorage.app",
+    messagingSenderId:"434992387793",
+    appId:"1:434992387793:web:e5bcae8cad63b4eb6f17f0"
+  };
+  const auth = getAuth(initializeApp(cfg));
+  onAuthStateChanged(auth, user => {
+    const isGuest = sessionStorage.getItem('studybase_guest') === '1';
+    if (user) {
+      sessionStorage.removeItem('studybase_guest');
+      user.getIdTokenResult().then(result => {
+        const status = result.claims.status || '';
+        if (status === 'pending') {
+          window.isGuest = true;
+          document.body.classList.add('guest-mode');
+          document.getElementById('guest-border').style.display = 'block';
+          document.getElementById('guest-nudge').style.display = 'block';
+          return;
+        }
+        if (status === 'rejected') {
+          window.location.href = '../login.html';
+          return;
+        }
+        // teacher / dev / student, active — full access, nothing extra needed
+      });
+    } else if (isGuest) {
+      window.isGuest = true;
+      document.body.classList.add('guest-mode');
+      document.getElementById('guest-border').style.display = 'block';
+      document.getElementById('guest-nudge').style.display = 'block';
+    } else {
+      window.location.href = "../login.html";
+    }
+  });
+  window.sbSignOut = () => {
+    if (sessionStorage.getItem('studybase_guest') === '1') {
+      sessionStorage.removeItem('studybase_guest');
+      window.location.href = "../login.html";
+      return;
+    }
+    signOut(auth).then(() => window.location.href = "../login.html");
+  };
+</script>
 
-<!-- BREADCRUMB -->
-<nav class="breadcrumb" id="breadcrumb">
-  <a onclick="goHome()">Home</a>
-  <span class="sep">/</span>
-  <span class="current" id="breadcrumbCurrent">Subjects</span>
-</nav>
-
-<!-- MAIN -->
-<div class="main">
-
-  <!-- SUBJECT GRID -->
-  <div id="homeView">
-    <div class="section-header">
-      <span class="section-title">Subjects</span>
-      <button class="add-btn" onclick="openAddSubject()">＋ Add subject</button>
-    </div>
-
-    <div class="subject-grid" id="subjectGrid"></div>
-
-    <!-- SUBJECT PANEL (topics) -->
-    <div class="subject-panel" id="subjectPanel">
-      <div class="panel-header">
-        <div class="panel-title-group">
-          <span class="panel-icon" id="panelIcon"></span>
-          <div>
-            <div class="panel-title" id="panelTitle"></div>
-            <div class="panel-subtitle" id="panelSubtitle"></div>
-          </div>
+<!-- Header (same structure as subject.html, minus the Flashcards button) -->
+<div class="hdr-outer">
+  <a class="accent-bar" href="../index.html" title="Back to Index" style="background:var(--accent)"></a>
+  <div class="hdr-main">
+    <div class="hdr-top">
+      <div class="logo-block">
+        <div class="logo-icon2">🎓</div>
+        <div>
+          <div class="logo-text2">StudyBase</div>
+          <span class="logo-sub-txt">SCHOOL REFERENCE</span>
         </div>
-        <div class="panel-actions">
-          <button class="panel-btn" onclick="openEditSubject()">✏ Edit subject</button>
-          <button class="panel-btn" onclick="openAddTopic()">＋ Add topic</button>
-        </div>
       </div>
-      <div id="topicList"></div>
-    </div>
-  </div>
-
-  <!-- QUIZ VIEW -->
-  <div class="quiz-area" id="quizView">
-    <div class="quiz-header">
-      <div class="quiz-title-group">
-        <div class="quiz-subject-label" id="quizSubjectLabel"></div>
-        <div class="quiz-topic-name" id="quizTopicName"></div>
+      <div class="hdr-breadcrumb">
+        <a class="bc-link" href="../index.html">Hub</a>
+        <span class="bc-sep">›</span>
+        <span class="bc-current" id="hdrCurrent">HSC</span>
       </div>
-      <div class="quiz-controls">
-        <button class="quiz-ctrl-btn" onclick="shuffleQuestions()">⇄ Shuffle</button>
-        <button class="quiz-ctrl-btn" onclick="revealAll()">👁 Reveal all</button>
-        <button class="quiz-ctrl-btn" onclick="openAddQuestion()">＋ Question</button>
-        <button class="quiz-ctrl-btn danger" onclick="goHome()">← Back</button>
+      <div class="hdr-right-row">
+        <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out">⎋</button>
+        <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()" data-tip="Dark mode">🌙</button>
       </div>
-    </div>
-
-    <div class="progress-bar-wrap">
-      <div class="progress-meta">
-        <span id="progressLabel">0 answered</span>
-        <span id="progressPercent">0%</span>
-      </div>
-      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    </div>
-
-    <div class="questions-list" id="questionsList"></div>
-
-    <button class="add-question-btn" onclick="openAddQuestion()">＋ Add question to this topic</button>
-  </div>
-
-</div>
-
-<!-- EDIT / ADD MODAL -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title" id="modalTitle">Edit question</span>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div id="modalBody"></div>
-    <div class="modal-footer">
-      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
-      <button class="modal-save" id="modalSaveBtn">Save</button>
     </div>
   </div>
 </div>
 
-<script src="HSC_Subjects.js"></script>
+<!-- Quiz canvas -->
+<div class="app-body">
+  <div class="detail-panel" id="hscCanvas"></div>
+</div>
+
+<!-- Guest overlays -->
+<div id="guest-border"></div>
+<div id="guest-nudge">
+  <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Viewing as guest</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Sign in to add and edit HSC content.</div>
+  <button onclick="window.location.href='../login.html'" style="background:var(--text);color:var(--card);border:none;border-radius:6px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;transition:opacity .15s">Sign In</button>
+  <button onclick="document.getElementById('guest-nudge').style.display='none'" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;margin-top:6px;width:100%;font-family:'Inter',sans-serif">Dismiss</button>
+</div>
+
 <script>
-// ── DATA loaded from HSC_Subjects.js ─────────────────────────
-
-// ── STATE ─────────────────────────────────────────────────────
-let state = {
-  activeSubjectId: null,
-  activeTopicId: null,
-  modalMode: null,
-  editingQIdx: null,
-};
-
-// ── INIT ──────────────────────────────────────────────────────
-function init() {
-  const d = new Date();
-  document.getElementById('todayDate').textContent =
-    d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'long' });
-  renderSubjectGrid();
+// ── Dark mode (shared key with the rest of the app) ──
+(function(){
+  const on = localStorage.getItem('studybase_dark') === '1';
+  if(on) document.body.classList.add('dark');
+  const btn = document.getElementById('darkToggle');
+  if(btn) btn.textContent = on ? '☀️' : '🌙';
+})();
+function toggleDark(){
+  const on = document.body.classList.toggle('dark');
+  localStorage.setItem('studybase_dark', on ? '1' : '0');
+  document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
 }
+</script>
 
-// ── SUBJECT GRID ──────────────────────────────────────────────
-function renderSubjectGrid() {
-  const grid = document.getElementById('subjectGrid');
-  const cols = 4;
-  const total = HSC_Subjects.length;
-  grid.innerHTML = HSC_Subjects.map((s, i) => {
-    const isActive = s.id === state.activeSubjectId;
-    const isLastRow = i >= total - (total % cols || cols);
-    const isEndCol = (i + 1) % cols === 0 || i === total - 1;
-    const topicCount = s.topics.length;
-    return `
-      <div class="subject-cell ${isActive ? 'active' : ''} ${isLastRow ? 'no-bottom' : ''}"
-           onclick="selectSubject('${s.id}')" style="border-right-color: ${isEndCol ? 'transparent' : ''}">
-        <div class="cell-count ${topicCount > 0 ? 'has-topics' : ''}">${topicCount}</div>
-        <div class="cell-icon">${s.icon}</div>
-        <div class="cell-name">${s.name}</div>
-        <div class="cell-meta">${topicCount > 0 ? topicCount + ' topic' + (topicCount !== 1 ? 's' : '') : 'No topics yet'}</div>
-      </div>
-    `;
-  }).join('');
-}
+<!-- ── Quiz engine ──
+     Picks a random quiz JSON from ./storage (via storage/manifest.json, since a static
+     folder can't be listed directly by the browser), then walks its questions in order.
 
-function selectSubject(id) {
-  if (state.activeSubjectId === id) {
-    state.activeSubjectId = null;
-    renderSubjectGrid();
-    document.getElementById('subjectPanel').classList.remove('visible');
-    return;
+     Question types:
+       - Multiple choice, single answer: isMultipleChoice: true, isCheckbox: false (or omitted) → radio group
+       - Multiple choice, multi-select:   isMultipleChoice: true, isCheckbox: true              → checkboxes
+       - Math / fill-in-the-blank:        math: true → one textbox per entry in "answers",
+         each worth 1 mark, graded independently (numeric-aware) against answers[i].text.
+
+     manifest.json is a list of { file, name } entries — "file" is the quiz filename in this
+     folder, "name" is the display name shown in the progress line (e.g. "Section 1"). -->
+<script>
+const STORAGE_FOLDER = 'storage';
+let quizState = null;
+let quizManifest = []; // [{file, name}, ...] — loaded once, reused by the sidebar dropdown
+
+async function loadRandomQuiz() {
+  const canvas = document.getElementById('hscCanvas');
+  canvas.innerHTML = '<div class="quiz-status">Loading quiz…</div>';
+  try {
+    const manifestRes = await fetch(`${STORAGE_FOLDER}/manifest.json`);
+    if (!manifestRes.ok) throw new Error('Could not load storage/manifest.json');
+    const manifest = await manifestRes.json();
+    if (!Array.isArray(manifest) || manifest.length === 0) {
+      throw new Error('manifest.json has no quiz files listed');
+    }
+
+    // Each entry is normally { file, name }; a bare string filename is also accepted
+    // (name falls back to the filename) so older manifest.json files keep working.
+    quizManifest = manifest.map(entry =>
+      typeof entry === 'string' ? { file: entry, name: entry } : { file: entry.file, name: entry.name || entry.file }
+    );
+
+    const chosen = quizManifest[Math.floor(Math.random() * quizManifest.length)];
+    await loadQuizByFile(chosen.file, chosen.name);
+  } catch (err) {
+    canvas.innerHTML = `<div class="quiz-status quiz-error">Error loading quiz: ${escapeHtml(err.message)}</div>`;
   }
-  state.activeSubjectId = id;
-  renderSubjectGrid();
-  renderSubjectPanel();
 }
 
-function renderSubjectPanel() {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  if (!s) return;
-  document.getElementById('panelIcon').textContent = s.icon;
-  document.getElementById('panelTitle').textContent = s.name;
-  document.getElementById('panelSubtitle').textContent =
-    s.topics.length + ' topic' + (s.topics.length !== 1 ? 's' : '');
+// Loads one specific quiz file by name (used for the initial random pick and for the
+// sidebar dropdown). Resets all per-question progress, since switching quizzes starts fresh.
+async function loadQuizByFile(file, name) {
+  const canvas = document.getElementById('hscCanvas');
+  canvas.innerHTML = '<div class="quiz-status">Loading quiz…</div>';
+  try {
+    const quizRes = await fetch(`${STORAGE_FOLDER}/${file}`);
+    if (!quizRes.ok) throw new Error(`Could not load ${file}`);
+    const quizData = await quizRes.json();
 
-  const list = document.getElementById('topicList');
-  if (s.topics.length === 0) {
-    list.innerHTML = `<div class="empty-state">📭<p>No topics yet — add one to get started.</p></div>`;
-  } else {
-    list.innerHTML = s.topics.map(t => `
-      <div class="topic-row ${t.id === state.activeTopicId ? 'active' : ''}" onclick="openQuiz('${s.id}','${t.id}')">
-        <div class="topic-dot"></div>
-        <span class="topic-name">${t.name}</span>
-        <span class="topic-qcount">${t.questions.length}q</span>
-        <button class="topic-start-btn">▶ Start</button>
-      </div>
-    `).join('');
+    if (!Array.isArray(quizData.questions) || quizData.questions.length === 0) {
+      throw new Error(`${file} has no questions`);
+    }
+
+    const totalMarks = quizData.questions.reduce(
+      (sum, q) => sum + (q.math ? q.answers.length : 1), 0
+    );
+
+    quizState = {
+      questions: quizData.questions,
+      filename: file,
+      quizName: name || file,
+      index: 0,
+      // One slot per question: null until answered, then { earned, total, selected | values }
+      // — used both for scoring (no more running accumulator to double-count) and to redraw
+      // a question exactly as the student left it when they jump back to it via the sidebar.
+      perQuestion: new Array(quizData.questions.length).fill(null),
+      totalMarks
+    };
+    renderQuestion();
+  } catch (err) {
+    canvas.innerHTML = `<div class="quiz-status quiz-error">Error loading quiz: ${escapeHtml(err.message)}</div>`;
   }
-  document.getElementById('subjectPanel').classList.add('visible');
 }
 
-// ── QUIZ VIEW ─────────────────────────────────────────────────
-function openQuiz(subjectId, topicId) {
-  const s = HSC_Subjects.find(x => x.id === subjectId);
-  const t = s.topics.find(x => x.id === topicId);
-  state.activeSubjectId = subjectId;
-  state.activeTopicId = topicId;
-
-  document.getElementById('quizSubjectLabel').textContent = s.name;
-  document.getElementById('quizTopicName').textContent = t.name;
-  document.getElementById('breadcrumbCurrent').textContent = s.name + ' › ' + t.name;
-
-  renderQuestions();
-  updateProgress();
-
-  document.getElementById('homeView').style.display = 'none';
-  document.getElementById('quizView').classList.add('visible');
+// Sidebar dropdown "onchange" handler.
+function onQuizSelect(selectEl) {
+  const file = selectEl.value;
+  const entry = quizManifest.find(m => m.file === file);
+  loadQuizByFile(file, entry ? entry.name : file);
 }
 
-function goHome() {
-  state.activeTopicId = null;
-  document.getElementById('homeView').style.display = '';
-  document.getElementById('quizView').classList.remove('visible');
-  document.getElementById('breadcrumbCurrent').textContent = 'Subjects';
-  renderSubjectGrid();
-  if (state.activeSubjectId) renderSubjectPanel();
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
-function renderQuestions() {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const t = s.topics.find(x => x.id === state.activeTopicId);
-  const list = document.getElementById('questionsList');
+function getEarnedMarks() {
+  return quizState.perQuestion.reduce((sum, p) => sum + (p ? p.earned : 0), 0);
+}
 
-  if (t.questions.length === 0) {
-    list.innerHTML = `<div class="empty-state">📝<p>No questions yet — add the first one below.</p></div>`;
-    return;
-  }
-
-  list.innerHTML = t.questions.map((q, i) => `
-    <div class="q-card" id="qcard-${i}" data-idx="${i}">
-      <div class="q-card-header">
-        <span class="q-num">${String(i + 1).padStart(2, '0')}</span>
-        <span class="q-text">${escHtml(q.q)}</span>
-        <div class="q-card-actions">
-          <button class="q-edit-btn" onclick="openEditQuestion(${i})" title="Edit question">✏</button>
-        </div>
-      </div>
-      <div class="reveal-row">
-        <button class="reveal-btn" id="reveal-btn-${i}" onclick="revealAnswer(${i})">👁 Show answer</button>
-      </div>
-      <div class="q-answer" id="answer-${i}">
-        <div class="q-answer-inner">
-          <div>
-            <div class="answer-label">Answer</div>
-            <div class="answer-text">${escHtml(q.a)}</div>
-          </div>
-          <div class="answer-mark">
-            <button class="mark-btn correct-btn" id="mark-correct-${i}" onclick="markAnswer(${i}, true)">✓ Got it</button>
-            <button class="mark-btn wrong-btn" id="mark-wrong-${i}" onclick="markAnswer(${i}, false)">✗ Missed it</button>
-          </div>
-        </div>
-      </div>
+function renderQuestion() {
+  const canvas = document.getElementById('hscCanvas');
+  canvas.innerHTML = `
+    <div class="quiz-layout">
+      <nav class="quiz-sidebar" id="quizSidebar"></nav>
+      <div class="quiz-main" id="quizMain"></div>
     </div>
-  `).join('');
+  `;
+  renderSidebar();
+
+  const { questions, index } = quizState;
+  if (index >= questions.length) {
+    renderSummary();
+    return;
+  }
+
+  const q = questions[index];
+  const prior = quizState.perQuestion[index]; // null if not yet answered
+
+  if (q.math) {
+    renderMathQuestion(q, index, questions.length, prior);
+  } else {
+    renderChoiceQuestion(q, index, questions.length, prior);
+  }
 }
 
-function revealAnswer(idx) {
-  const ansEl = document.getElementById(`answer-${idx}`);
-  const btnEl = document.getElementById(`reveal-btn-${idx}`);
-  ansEl.classList.toggle('revealed');
-  btnEl.textContent = ansEl.classList.contains('revealed') ? '🙈 Hide answer' : '👁 Show answer';
-}
+/* ── Sidebar: quiz-file dropdown + per-question jump grid ── */
 
-function revealAll() {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const t = s.topics.find(x => x.id === state.activeTopicId);
-  t.questions.forEach((_, i) => {
-    document.getElementById(`answer-${i}`).classList.add('revealed');
-    document.getElementById(`reveal-btn-${i}`).textContent = '🙈 Hide answer';
+function renderSidebar() {
+  const sidebar = document.getElementById('quizSidebar');
+  if (!sidebar || !quizState) return;
+
+  const options = quizManifest.map(m =>
+    `<option value="${escapeHtml(m.file)}"${m.file === quizState.filename ? ' selected' : ''}></option>`
+  ).join('');
+
+  const navButtons = quizState.questions.map((q, i) => {
+    const prior = quizState.perQuestion[i];
+    let statusClass = '';
+    if (prior) {
+      statusClass = prior.earned === prior.total ? 'nav-correct' : (prior.earned > 0 ? 'nav-partial' : 'nav-incorrect');
+    }
+    const current = i === quizState.index ? ' current' : '';
+    return `<button type="button" class="quiz-nav-btn ${statusClass}${current}" data-idx="${i}"></button>`;
+  }).join('');
+
+  sidebar.innerHTML = `
+    <select class="quiz-sidebar-select" id="quizSidebarSelect">${options}</select>
+    <div class="quiz-nav-grid">${navButtons}</div>
+    <div class="quiz-nav-legend">
+      <div><span class="quiz-nav-dot nav-correct"></span>Correct</div>
+      <div><span class="quiz-nav-dot nav-partial"></span>Partial</div>
+      <div><span class="quiz-nav-dot nav-incorrect"></span>Incorrect</div>
+    </div>
+  `;
+
+  // Labels set via textContent (not innerHTML) so manifest/question text can never inject markup.
+  sidebar.querySelectorAll('#quizSidebarSelect option').forEach((opt, i) => {
+    opt.textContent = quizManifest[i].name;
+  });
+  sidebar.querySelector('#quizSidebarSelect').addEventListener('change', (e) => onQuizSelect(e.target));
+
+  sidebar.querySelectorAll('.quiz-nav-btn').forEach((btn, i) => {
+    btn.textContent = quizState.questions[i].id.replace(/^q/i, '');
+    btn.addEventListener('click', () => jumpToQuestion(i));
   });
 }
 
-function markAnswer(idx, correct) {
-  const card = document.getElementById(`qcard-${idx}`);
-  card.classList.remove('answered-correct', 'answered-wrong');
-  card.classList.add(correct ? 'answered-correct' : 'answered-wrong');
-  document.getElementById(`mark-correct-${idx}`).classList.toggle('selected', correct);
-  document.getElementById(`mark-wrong-${idx}`).classList.toggle('selected', !correct);
-  card.dataset.marked = correct ? 'correct' : 'wrong';
-  updateProgress();
+function jumpToQuestion(i) {
+  quizState.index = i;
+  renderQuestion();
 }
 
-function updateProgress() {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const t = s ? s.topics.find(x => x.id === state.activeTopicId) : null;
-  if (!t) return;
-  const cards = document.querySelectorAll('.q-card[data-marked]');
-  const answered = cards.length;
-  const total = t.questions.length;
-  const pct = total > 0 ? Math.round(answered / total * 100) : 0;
-  document.getElementById('progressLabel').textContent = answered + ' of ' + total + ' answered';
-  document.getElementById('progressPercent').textContent = pct + '%';
-  document.getElementById('progressFill').style.width = pct + '%';
-}
+/* ── Multiple choice / checkbox ── */
 
-function shuffleQuestions() {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const t = s.topics.find(x => x.id === state.activeTopicId);
-  for (let i = t.questions.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [t.questions[i], t.questions[j]] = [t.questions[j], t.questions[i]];
+function renderChoiceQuestion(q, index, total, prior) {
+  const main = document.getElementById('quizMain');
+  // Radios for single-answer questions (native, mutually exclusive via shared `name`),
+  // checkboxes for multi-answer questions (native, independent toggles).
+  const inputType = q.isCheckbox ? 'checkbox' : 'radio';
+  const answerButtons = q.answers.map((a, i) =>
+    `<label class="quiz-answer" data-idx="${i}">
+       <input type="${inputType}" name="quizAnswer" value="${i}" onchange="selectAnswer()">
+       <span class="quiz-answer-text"></span>
+     </label>`
+  ).join('');
+
+  main.innerHTML = `
+    <div class="quiz-wrap">
+      <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
+      <div class="quiz-heading">
+        <span class="quiz-heading-name"></span>
+        <span class="quiz-heading-marks">(1 mark)</span>
+      </div>
+      <div class="quiz-stem"></div>
+      <div class="quiz-image-wrap" id="quizImageWrap"></div>
+      <div class="quiz-type-hint">${q.isCheckbox ? '☑ Select all that apply' : '◉ Choose one answer'}</div>
+      <div class="quiz-answers">${answerButtons}</div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <div class="quiz-actions">
+        <button class="quiz-btn quiz-btn-primary" id="quizSubmitBtn" onclick="submitAnswer()">Submit</button>
+        <button class="quiz-btn" id="quizNextBtn" style="display:none" onclick="nextQuestion()">Next →</button>
+      </div>
+    </div>
+  `;
+
+  // Set text content via textContent (not innerHTML) so quiz content can never inject markup.
+  // `question` is the exam wording; `name` is the short heading ("Question 11"). Older quiz
+  // files without a `question` field fall back to showing `name` as the stem, no heading.
+  renderHeadingAndStem(main, q);
+  renderQuestionImage(q, main);
+  main.querySelectorAll('.quiz-answer').forEach((label, i) => {
+    label.querySelector('.quiz-answer-text').textContent = q.answers[i].text;
+  });
+
+  // Already answered on a previous visit (jumped back here via the sidebar) — redraw the
+  // locked, graded state instead of a fresh editable form, so nothing can be re-submitted.
+  if (prior) {
+    applyChoiceGrading(main, q, new Set(prior.selected));
+    showFeedback(main, prior.earned, prior.total);
+    document.getElementById('quizSubmitBtn').style.display = 'none';
+    if (index + 1 < total) document.getElementById('quizNextBtn').style.display = 'inline-block';
   }
-  renderQuestions();
-  updateProgress();
 }
 
-// ── MODAL ─────────────────────────────────────────────────────
-function openModal(title) {
-  document.getElementById('modalTitle').textContent = title;
-  document.getElementById('modalOverlay').classList.add('open');
-}
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
-  state.modalMode = null;
-  state.editingQIdx = null;
+function selectAnswer() {
+  // Resync the 'selected' style class from whatever is currently checked —
+  // works the same for radios (browser auto-unchecks the rest of the group)
+  // and checkboxes (each toggles independently).
+  document.querySelectorAll('.quiz-answer').forEach(label => {
+    const input = label.querySelector('input');
+    label.classList.toggle('selected', input.checked);
+  });
 }
 
-function openEditQuestion(idx) {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const t = s.topics.find(x => x.id === state.activeTopicId);
-  const q = t.questions[idx];
-  state.modalMode = 'editQuestion';
-  state.editingQIdx = idx;
-  openModal('Edit question');
-  document.getElementById('modalBody').innerHTML = `
-    <div><div class="field-label">Question</div><textarea class="field-textarea" id="mQ" rows="3">${escHtml(q.q)}</textarea></div>
-    <div><div class="field-label">Answer</div><textarea class="field-textarea" id="mA" rows="3">${escHtml(q.a)}</textarea></div>
-    <button class="quiz-ctrl-btn danger" style="width:100%;justify-content:center;margin-top:4px;" onclick="deleteQuestion(${idx})">🗑 Delete question</button>
+// Locks the answer list, colors it, and returns marks earned (0 or 1). Shared between a
+// live submit and redrawing a previously-answered question from stored state.
+function applyChoiceGrading(main, q, selectedIdxs) {
+  const correctIdxs = new Set(
+    q.answers.map((a, i) => a.correct ? i : null).filter(v => v !== null)
+  );
+  const isCorrect = correctIdxs.size === selectedIdxs.size &&
+    [...correctIdxs].every(i => selectedIdxs.has(i));
+
+  main.querySelectorAll('.quiz-answer').forEach((label, i) => {
+    label.classList.add('locked');
+    const input = label.querySelector('input');
+    input.checked = selectedIdxs.has(i);
+    input.disabled = true;
+    if (correctIdxs.has(i)) label.classList.add('correct');
+    else if (selectedIdxs.has(i)) label.classList.add('incorrect');
+  });
+
+  return isCorrect ? 1 : 0;
+}
+
+function showFeedback(main, earned, total) {
+  const feedback = main.querySelector('#quizFeedback');
+  if (!feedback) return;
+  const markWord = total === 1 ? 'mark' : 'marks';
+  feedback.textContent = total === 1
+    ? (earned === 1 ? 'Correct! (1/1 mark)' : 'Not quite (0/1 mark) — correct answer(s) highlighted above.')
+    : `${earned} / ${total} ${markWord} for this question`;
+  feedback.className = 'quiz-feedback ' + (earned === total ? 'quiz-correct' : (earned > 0 ? 'quiz-partial' : 'quiz-incorrect'));
+}
+
+function submitAnswer() {
+  if (quizState.perQuestion[quizState.index]) return; // already answered — ignore stray resubmits
+
+  const checkedInputs = document.querySelectorAll('input[name="quizAnswer"]:checked');
+  if (checkedInputs.length === 0) return;
+
+  const selectedIdxs = new Set([...checkedInputs].map(inp => parseInt(inp.value, 10)));
+  const q = quizState.questions[quizState.index];
+  const main = document.getElementById('quizMain');
+
+  const earned = applyChoiceGrading(main, q, selectedIdxs);
+  quizState.perQuestion[quizState.index] = { earned, total: 1, selected: [...selectedIdxs] };
+
+  showFeedback(main, earned, 1);
+  document.getElementById('quizSubmitBtn').style.display = 'none';
+  document.getElementById('quizNextBtn').style.display = 'inline-block';
+  renderSidebar(); // reflect the new correct/partial/incorrect color on this question's nav button
+}
+
+/* ── Math / fill-in-the-blank ── */
+
+// Groups consecutive same-type entries in a math question's `answers` array
+// (e.g. two "working" entries in a row → one group; used by both rendering
+// and grading, so the two always agree on what counts as one card/group).
+function groupMathAnswers(answers) {
+  const groups = [];
+  answers.forEach((a, i) => {
+    const type = a.type === 'working' ? 'working' : 'answer';
+    const last = groups[groups.length - 1];
+    if (last && last.type === type) {
+      last.items.push(i);
+    } else {
+      groups.push({ type, items: [i] });
+    }
+  });
+  return groups;
+}
+
+function renderMathQuestion(q, index, total, prior) {
+  const main = document.getElementById('quizMain');
+  // Each entry defaults to type "answer" if not set (keeps older question files working
+  // unchanged). "working" entries behave identically for grading — same textbox, same
+  // numeric-aware matching, same 1 mark — just grouped/labeled as working steps.
+  //
+  // Consecutive entries of the same type are grouped into one card (e.g. two "working"
+  // entries in a row become a single "Working" card with two stacked textboxes), rather
+  // than one card per entry. Boxes within a group are interchangeable at grading time —
+  // see submitMathAnswer — so a student can fill working steps in any order.
+  const groups = groupMathAnswers(q.answers);
+
+  const rows = groups.map((g, gi) => {
+    const isWorking = g.type === 'working';
+    const label = isWorking ? 'Working' : (g.items.length > 1 ? 'Answers' : 'Answer');
+    const placeholder = isWorking ? 'Show your working' : 'Your answer';
+    // data-item is the index into q.answers this row corresponds to — lets us read/restore
+    // a flat, ordered "given values" array regardless of how rows are grouped into cards.
+    const inputRows = g.items.map(itemIdx =>
+      `<div class="quiz-math-input-row" data-group="${gi}" data-item="${itemIdx}">
+         <input type="text" class="quiz-math-input" placeholder="${placeholder}" autocomplete="off">
+         <span class="quiz-math-mark-label">1 mark</span>
+       </div>`
+    ).join('');
+    return `<div class="quiz-math-group${isWorking ? ' quiz-math-working' : ''}" data-group="${gi}">
+       <div class="quiz-math-group-label">${label}</div>
+       <div class="quiz-math-input-rows">${inputRows}</div>
+     </div>`;
+  }).join('');
+
+  const markWord = q.answers.length === 1 ? 'mark' : 'marks';
+
+  main.innerHTML = `
+    <div class="quiz-wrap">
+      <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
+      <div class="quiz-heading">
+        <span class="quiz-heading-name"></span>
+        <span class="quiz-heading-marks">(${q.answers.length} ${markWord})</span>
+      </div>
+      <div class="quiz-stem"></div>
+      <div class="quiz-image-wrap" id="quizImageWrap"></div>
+      <div class="quiz-math-answers">${rows}</div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <div class="quiz-actions">
+        <button class="quiz-btn quiz-btn-primary" id="quizSubmitBtn" onclick="submitMathAnswer()">Submit</button>
+        <button class="quiz-btn" id="quizNextBtn" style="display:none" onclick="nextQuestion()">Next →</button>
+      </div>
+    </div>
   `;
-  document.getElementById('modalSaveBtn').onclick = saveQuestion;
+
+  renderHeadingAndStem(main, q);
+  renderQuestionImage(q, main);
+
+  if (prior) {
+    applyMathGrading(main, q, prior.values);
+    showFeedback(main, prior.earned, q.answers.length);
+    document.getElementById('quizSubmitBtn').style.display = 'none';
+    if (index + 1 < total) document.getElementById('quizNextBtn').style.display = 'inline-block';
+  }
 }
 
-function openAddQuestion() {
-  state.modalMode = 'addQuestion';
-  state.editingQIdx = null;
-  openModal('Add question');
-  document.getElementById('modalBody').innerHTML = `
-    <div><div class="field-label">Question</div><textarea class="field-textarea" id="mQ" rows="3" placeholder="Enter your question…"></textarea></div>
-    <div><div class="field-label">Answer</div><textarea class="field-textarea" id="mA" rows="3" placeholder="Enter the answer…"></textarea></div>
-  `;
-  document.getElementById('modalSaveBtn').onclick = saveQuestion;
-}
+/* ── Shared: heading + stem ──
+   q.name is the short exam-style heading ("Question 11"); q.question is the full
+   wording. Older quiz files (no `question` field) fall back to showing `name` as
+   the stem with no separate heading, so they still render sensibly. Set via
+   textContent (not innerHTML) so quiz content can never inject markup. */
+function renderHeadingAndStem(container, q) {
+  const headingEl = container.querySelector('.quiz-heading');
+  const nameEl = container.querySelector('.quiz-heading-name');
+  const stemEl = container.querySelector('.quiz-stem');
 
-function saveQuestion() {
-  const qText = document.getElementById('mQ').value.trim();
-  const aText = document.getElementById('mA').value.trim();
-  if (!qText || !aText) return;
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const t = s.topics.find(x => x.id === state.activeTopicId);
-  if (state.modalMode === 'editQuestion') {
-    t.questions[state.editingQIdx] = { q: qText, a: aText };
+  if (q.question) {
+    if (nameEl) nameEl.textContent = q.name;
+    if (stemEl) stemEl.textContent = q.question;
   } else {
-    t.questions.push({ q: qText, a: aText });
+    if (headingEl) headingEl.style.display = 'none';
+    if (stemEl) stemEl.textContent = q.name;
   }
-  closeModal();
-  renderQuestions();
-  updateProgress();
 }
 
-function deleteQuestion(idx) {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const t = s.topics.find(x => x.id === state.activeTopicId);
-  t.questions.splice(idx, 1);
-  closeModal();
-  renderQuestions();
-  updateProgress();
-}
+/* ── Shared: optional question image ──
+   q.image is a filename/path relative to STORAGE_FOLDER (e.g. "diagram.png" or
+   "images/q3.png"). Set via property assignment (not string-interpolated into HTML)
+   so a filename can never inject markup. Falls back to a visible error if it 404s. */
+function renderQuestionImage(q, container) {
+  const wrap = container.querySelector('#quizImageWrap');
+  if (!wrap || !q.image) return;
 
-function openAddTopic() {
-  state.modalMode = 'addTopic';
-  openModal('Add topic');
-  document.getElementById('modalBody').innerHTML = `
-    <div><div class="field-label">Topic name</div><input class="field-input" id="mTopicName" placeholder="e.g. Quadratic Equations"></div>
-  `;
-  document.getElementById('modalSaveBtn').onclick = saveTopic;
-}
-
-function saveTopic() {
-  const name = document.getElementById('mTopicName').value.trim();
-  if (!name) return;
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
-  s.topics.push({ id, name, questions: [] });
-  closeModal();
-  renderSubjectPanel();
-}
-
-function openEditSubject() {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  state.modalMode = 'editSubject';
-  openModal('Edit subject');
-  document.getElementById('modalBody').innerHTML = `
-    <div><div class="field-label">Subject name</div><input class="field-input" id="mSubName" value="${escHtml(s.name)}"></div>
-    <div><div class="field-label">Icon (emoji)</div><input class="field-input" id="mSubIcon" value="${s.icon}" style="font-size:20px;width:80px;"></div>
-  `;
-  document.getElementById('modalSaveBtn').onclick = saveSubject;
-}
-
-function saveSubject() {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  s.name = document.getElementById('mSubName').value.trim() || s.name;
-  s.icon = document.getElementById('mSubIcon').value.trim() || s.icon;
-  closeModal();
-  renderSubjectGrid();
-  renderSubjectPanel();
-}
-
-function openAddSubject() {
-  state.modalMode = 'addSubject';
-  openModal('Add subject');
-  document.getElementById('modalBody').innerHTML = `
-    <div><div class="field-label">Subject name</div><input class="field-input" id="mSubName" placeholder="e.g. Biology"></div>
-    <div><div class="field-label">Icon (emoji)</div><input class="field-input" id="mSubIcon" value="📚" style="font-size:20px;width:80px;"></div>
-  `;
-  document.getElementById('modalSaveBtn').onclick = () => {
-    const name = document.getElementById('mSubName').value.trim();
-    if (!name) return;
-    const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
-    HSC_Subjects.push({ id, name, icon: document.getElementById('mSubIcon').value.trim() || '📚', color: '#94a3b8', topics: [] });
-    closeModal();
-    renderSubjectGrid();
+  const img = document.createElement('img');
+  img.className = 'quiz-image';
+  img.alt = q.question || q.name || 'Question image';
+  img.src = `${STORAGE_FOLDER}/${q.image}`;
+  img.onerror = () => {
+    const err = document.createElement('div');
+    err.className = 'quiz-status quiz-error';
+    err.textContent = `Could not load image: ${q.image}`;
+    img.replaceWith(err);
   };
+  wrap.appendChild(img);
 }
 
-// ── UTILS ─────────────────────────────────────────────────────
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function valuesMatch(given, expected) {
+  const g = String(given).trim();
+  const e = String(expected).trim();
+  if (g === '') return false;
+  const gn = Number(g), en = Number(e);
+  if (g !== '' && e !== '' && !isNaN(gn) && !isNaN(en)) return gn === en;
+  return g.toLowerCase() === e.toLowerCase();
 }
 
-document.getElementById('modalOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
+// Finds the best pairing between the boxes a student filled in and the group's
+// expected values — each box can match any not-yet-used expected value, not just
+// the one at the same position. Returns, per given[i], the index into expected[]
+// it was matched to (or -1 if unmatched). Standard augmenting-path bipartite
+// matching; group sizes here are tiny (a handful of boxes) so this is instant.
+function bestMatch(given, expected) {
+  const expectedOwner = new Array(expected.length).fill(-1); // expected idx -> given idx currently matched
+  function tryAugment(gi, visited) {
+    for (let ei = 0; ei < expected.length; ei++) {
+      if (visited[ei] || !valuesMatch(given[gi], expected[ei])) continue;
+      visited[ei] = true;
+      if (expectedOwner[ei] === -1 || tryAugment(expectedOwner[ei], visited)) {
+        expectedOwner[ei] = gi;
+        return true;
+      }
+    }
+    return false;
+  }
+  for (let gi = 0; gi < given.length; gi++) {
+    tryAugment(gi, new Array(expected.length).fill(false));
+  }
+  const givenMatch = new Array(given.length).fill(-1);
+  expectedOwner.forEach((gi, ei) => { if (gi !== -1) givenMatch[gi] = ei; });
+  return givenMatch;
+}
 
-init();
+// Fills/locks/colors the input rows from a flat "given values" array (one entry per
+// q.answers index) and returns marks earned. Shared between a live submit (values read
+// from the inputs) and redrawing a previously-answered question (values read from
+// stored per-question state) — both go through the exact same grading logic.
+function applyMathGrading(main, q, valuesFlat) {
+  const groups = groupMathAnswers(q.answers);
+  let earned = 0;
+
+  groups.forEach((g, gi) => {
+    const rows = [...main.querySelectorAll(`.quiz-math-input-row[data-group="${gi}"]`)];
+    const inputs = rows.map(row => row.querySelector('.quiz-math-input'));
+    const given = g.items.map(idx => valuesFlat[idx] ?? '');
+    const expected = g.items.map(idx => q.answers[idx].text);
+
+    // Any box may match any not-yet-used expected value in this group, so filling
+    // working steps in a different order than the JSON lists them still counts.
+    const matchIdx = bestMatch(given, expected);
+
+    rows.forEach((row, i) => {
+      inputs[i].value = given[i];
+      inputs[i].disabled = true;
+      const isRight = matchIdx[i] !== -1;
+      row.classList.add(isRight ? 'correct' : 'incorrect');
+      if (isRight) earned++;
+    });
+
+    const usedExpected = new Set(matchIdx.filter(v => v !== -1));
+    const missed = expected.filter((_, ei) => !usedExpected.has(ei));
+    if (missed.length > 0) {
+      const hint = document.createElement('div');
+      hint.className = 'quiz-math-hint';
+      hint.textContent = missed.length === 1
+        ? `Missing: ${missed[0]}`
+        : `Missing: ${missed.join(', ')}`;
+      const groupEl = main.querySelector(`.quiz-math-group[data-group="${gi}"]`);
+      if (groupEl) groupEl.appendChild(hint);
+    }
+  });
+
+  return earned;
+}
+
+function submitMathAnswer() {
+  if (quizState.perQuestion[quizState.index]) return; // already answered — ignore stray resubmits
+
+  const q = quizState.questions[quizState.index];
+  const main = document.getElementById('quizMain');
+
+  const valuesFlat = new Array(q.answers.length).fill('');
+  main.querySelectorAll('.quiz-math-input-row').forEach(row => {
+    const itemIdx = parseInt(row.getAttribute('data-item'), 10);
+    valuesFlat[itemIdx] = row.querySelector('.quiz-math-input').value;
+  });
+
+  const earned = applyMathGrading(main, q, valuesFlat);
+  quizState.perQuestion[quizState.index] = { earned, total: q.answers.length, values: valuesFlat };
+
+  showFeedback(main, earned, q.answers.length);
+  document.getElementById('quizSubmitBtn').style.display = 'none';
+  document.getElementById('quizNextBtn').style.display = 'inline-block';
+  renderSidebar(); // reflect the new correct/partial/incorrect color on this question's nav button
+}
+
+/* ── Shared ── */
+
+function nextQuestion() {
+  quizState.index++;
+  renderQuestion();
+}
+
+function renderSummary() {
+  const main = document.getElementById('quizMain');
+  const earnedMarks = getEarnedMarks();
+  const { totalMarks } = quizState;
+  main.innerHTML = `
+    <div class="quiz-wrap quiz-summary">
+      <div class="quiz-progress">Quiz complete</div>
+      <div class="quiz-score">${earnedMarks} / ${totalMarks} marks</div>
+      <button class="quiz-btn quiz-btn-primary" onclick="loadRandomQuiz()">Try another quiz</button>
+    </div>
+  `;
+}
+
+document.addEventListener('DOMContentLoaded', loadRandomQuiz);
 </script>
+
 </body>
 </html>

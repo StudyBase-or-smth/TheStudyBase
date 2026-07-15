@@ -1,0 +1,260 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "name": "Question 1",
+      "question": "Which of the following could be classified as discrete data?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "Colour of a car",
+          "correct": false
+        },
+        {
+          "text": "Time taken to swim 200 m",
+          "correct": false
+        },
+        {
+          "text": "Temperature of an ice block",
+          "correct": false
+        },
+        {
+          "text": "Number of students in a class",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q2",
+      "name": "Question 2",
+      "question": "Mario drives from his home to his friend's house. He watches a movie at his friend's house and then drives home. Which distance-time graph best represents Mario's complete journey? (Options A-D are the four graphs shown in the image.)",
+      "image": "q2-graphs.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A",
+          "correct": false
+        },
+        {
+          "text": "B",
+          "correct": true
+        },
+        {
+          "text": "C",
+          "correct": false
+        },
+        {
+          "text": "D",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "q3",
+      "name": "Question 3",
+      "question": "Consider the network diagram shown. Which vertex has degree 4?",
+      "image": "q3-network.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A",
+          "correct": false
+        },
+        {
+          "text": "B",
+          "correct": true
+        },
+        {
+          "text": "C",
+          "correct": false
+        },
+        {
+          "text": "D",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "q4",
+      "name": "Question 4",
+      "question": "What is 6 280 000 in standard form?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "628 × 10^4",
+          "correct": false
+        },
+        {
+          "text": "62.8 × 10^5",
+          "correct": false
+        },
+        {
+          "text": "6.28 × 10^6",
+          "correct": true
+        },
+        {
+          "text": "0.628 × 10^7",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "q5",
+      "name": "Question 5",
+      "question": "A baker makes and sells cakes. The straight-line graphs represent cost (C) and revenue (R) in dollars, and n is the number of cakes, as shown. What profit will the baker make by selling 6 cakes?",
+      "image": "q5-graph.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "$10",
+          "correct": true
+        },
+        {
+          "text": "$20",
+          "correct": false
+        },
+        {
+          "text": "$40",
+          "correct": false
+        },
+        {
+          "text": "$60",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "q6",
+      "name": "Question 6",
+      "question": "The network shows the distances, in kilometres, along a series of roads that connect towns, as shown (not to scale). What is the value of the largest weighted edge included in the minimum spanning tree for this network?",
+      "image": "q6-network.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "7",
+          "correct": false
+        },
+        {
+          "text": "8",
+          "correct": false
+        },
+        {
+          "text": "9",
+          "correct": true
+        },
+        {
+          "text": "10",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "q7",
+      "name": "Question 7",
+      "question": "A biased die is made from the net shown. The die is rolled once. What is the probability of rolling a 2?",
+      "image": "q7-die-net.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "1/6",
+          "correct": false
+        },
+        {
+          "text": "1/4",
+          "correct": false
+        },
+        {
+          "text": "1/3",
+          "correct": true
+        },
+        {
+          "text": "1/2",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "q8",
+      "name": "Question 8",
+      "question": "A spinner made up of 4 colours is spun 100 times. The frequency histogram shows the results. Which of these spinners is most likely to give the results shown? (Options A-D are the four spinners shown in the image.)",
+      "image": "q8-spinner.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A",
+          "correct": true
+        },
+        {
+          "text": "B",
+          "correct": false
+        },
+        {
+          "text": "C",
+          "correct": false
+        },
+        {
+          "text": "D",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "q9",
+      "name": "Question 9",
+      "question": "An amount of $90 000 is invested at 4% per annum, compounded quarterly. Which expression gives the value of this investment, in dollars, after 6 years?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "90000(1+0.04)^6",
+          "correct": false
+        },
+        {
+          "text": "90000(1+0.04)^24",
+          "correct": false
+        },
+        {
+          "text": "90000(1+0.01)^6",
+          "correct": false
+        },
+        {
+          "text": "90000(1+0.01)^24",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q10",
+      "name": "Question 10",
+      "question": "The ratio of the dimensions of a model car to the dimensions of an actual car is 1:64. The actual car has a length of 4.9 m. What is the length of the model car in cm, correct to 1 decimal place?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "3.1",
+          "correct": false
+        },
+        {
+          "text": "7.7",
+          "correct": true
+        },
+        {
+          "text": "13.1",
+          "correct": false
+        },
+        {
+          "text": "59.1",
+          "correct": false
+        }
+      ]
+    }
+  ]
+}
