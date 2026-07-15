@@ -18,86 +18,39 @@
   }
   .quiz-status.quiz-error { color: #c0392b; }
 
-  /* Overall two-column layout: nav sidebar on the left, question content on the right. */
-  .quiz-layout {
-    display: flex;
-    align-items: flex-start;
-    gap: 24px;
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 24px 4px;
-  }
-  .quiz-sidebar {
-    width: 172px;
-    flex-shrink: 0;
-    font-family: 'Inter', sans-serif;
-  }
-  .quiz-sidebar-select {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid var(--border, #e0e0e0);
-    border-radius: 7px;
-    background: var(--card, #fff);
-    color: var(--text, #1a1a1a);
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 14px;
-    cursor: pointer;
-  }
-  .quiz-nav-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-  }
-  .quiz-nav-btn {
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--border, #e0e0e0);
-    border-radius: 6px;
-    background: var(--card, #fff);
-    color: var(--text, #1a1a1a);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    cursor: pointer;
-    padding: 0;
-    transition: border-color .15s, background .15s;
-  }
-  .quiz-nav-btn:hover { border-color: var(--accent, #4f46e5); }
-  .quiz-nav-btn.current { border-color: var(--accent, #4f46e5); border-width: 2px; font-weight: 700; }
-  .quiz-nav-btn.nav-correct { background: rgba(46,125,50,0.14); border-color: #2e7d32; color: #2e7d32; }
-  .quiz-nav-btn.nav-partial { background: rgba(184,134,11,0.14); border-color: #b8860b; color: #b8860b; }
-  .quiz-nav-btn.nav-incorrect { background: rgba(192,57,43,0.12); border-color: #c0392b; color: #c0392b; }
-  .quiz-nav-legend {
-    margin-top: 12px;
-    font-size: 10px;
-    color: var(--muted2, #999);
-    line-height: 1.7;
-  }
-  .quiz-nav-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 2px;
-    margin-right: 5px;
-    vertical-align: middle;
-  }
-  .quiz-nav-dot.nav-correct { background: #2e7d32; }
-  .quiz-nav-dot.nav-partial { background: #b8860b; }
-  .quiz-nav-dot.nav-incorrect { background: #c0392b; }
+  /* The sidebar (question picker + nav list) reuses the app's real .sidebar/.detail-panel
+     shell and .search-input/.unit-*/.topic-item component classes from mainstyle.css —
+     see the <nav class="sidebar"> markup below — rather than inventing new ones, so this
+     page matches subject.html instead of looking like a bolted-on quiz widget.
 
-  .quiz-main { flex: 1; min-width: 0; }
-
-  @media (max-width: 640px) {
-    .quiz-layout { flex-direction: column; }
-    .quiz-sidebar { width: 100%; }
-    .quiz-nav-grid { grid-template-columns: repeat(8, 1fr); }
-  }
+     The only genuinely new pieces are the per-question mark-delta badges, styled after
+     the ▲/▼ score-change indicators on the analyser page (.strip-delta there). Colors are
+     copied from analyser.html's palette; "partial" is a same-family addition it doesn't
+     have (that page only shows full deltas, never partial-credit ones). */
+  .quiz-nav-delta { font-size: 10px; font-weight: 700; white-space: nowrap; }
+  .quiz-nav-delta.up { color: #15803d; }
+  .quiz-nav-delta.down { color: #dc2626; }
+  .quiz-nav-delta.partial { color: #b45309; }
+  body.dark .quiz-nav-delta.up { color: #4ade80; }
+  body.dark .quiz-nav-delta.down { color: #f87171; }
+  body.dark .quiz-nav-delta.partial { color: #fbbf24; }
 
   .quiz-wrap {
+    max-width: 640px;
+    margin: 0 auto;
     font-family: 'Inter', sans-serif;
+  }
+  @media (min-width: 701px) {
+    /* Above the 700px mobile breakpoint (mainstyle.css's own sidebar breakpoint), .sidebar
+       (268px + 1px border) sits in-flow to the left of .detail-panel, so centering
+       .quiz-wrap within .detail-panel's own content box lands it ~134px right of the true
+       screen center — the "centered in the white space, not the screen" issue. Shift left
+       by half the sidebar's width to compensate, clamped at 0 so it can never run into the
+       sidebar itself on narrower desktop windows. */
+    .quiz-wrap {
+      margin-left: max(0px, calc((100% - 640px) / 2 - 134.5px));
+      margin-right: 0;
+    }
   }
   .quiz-progress {
     font-size: 12px;
@@ -358,8 +311,10 @@
   </div>
 </div>
 
-<!-- Quiz canvas -->
+<!-- Quiz canvas: the app's real .sidebar (question picker + nav list) next to its real
+     .detail-panel (current question) — same shell as subject.html, not a one-off layout. -->
 <div class="app-body">
+  <nav class="sidebar" id="quizSidebar"></nav>
   <div class="detail-panel" id="hscCanvas"></div>
 </div>
 
@@ -481,13 +436,6 @@ function getEarnedMarks() {
 }
 
 function renderQuestion() {
-  const canvas = document.getElementById('hscCanvas');
-  canvas.innerHTML = `
-    <div class="quiz-layout">
-      <nav class="quiz-sidebar" id="quizSidebar"></nav>
-      <div class="quiz-main" id="quizMain"></div>
-    </div>
-  `;
   renderSidebar();
 
   const { questions, index } = quizState;
@@ -506,45 +454,92 @@ function renderQuestion() {
   }
 }
 
-/* ── Sidebar: quiz-file dropdown + per-question jump grid ── */
+/* ── Sidebar: quiz-file picker + searchable per-question nav list ──
+   Reuses the app's real subject-page components (mainstyle.css, scoped to
+   body.subject-page, which this page already is): .search-input for the filter box,
+   .unit-label/.unit-select for the quiz-file dropdown (relabeled "Quiz" here instead
+   of "Units"), and .topic-item/.ti-top/.ti-name/.ti-unit for each question row — same
+   look as the topic list on subject.html, just pointed at questions instead of topics. */
 
 function renderSidebar() {
   const sidebar = document.getElementById('quizSidebar');
   if (!sidebar || !quizState) return;
 
-  const options = quizManifest.map(m =>
+  const fileOptions = quizManifest.map(m =>
     `<option value="${escapeHtml(m.file)}"${m.file === quizState.filename ? ' selected' : ''}></option>`
   ).join('');
 
-  const navButtons = quizState.questions.map((q, i) => {
+  const rows = quizState.questions.map((q, i) => {
     const prior = quizState.perQuestion[i];
-    let statusClass = '';
+    const marks = q.math ? q.answers.length : 1;
+    const activeClass = i === quizState.index ? ' active' : '';
+
+    let badge = '';
     if (prior) {
-      statusClass = prior.earned === prior.total ? 'nav-correct' : (prior.earned > 0 ? 'nav-partial' : 'nav-incorrect');
+      if (prior.earned === prior.total) badge = `<span class="quiz-nav-delta up">▲${prior.total}</span>`;
+      else if (prior.earned === 0) badge = `<span class="quiz-nav-delta down">▼${prior.total}</span>`;
+      else badge = `<span class="quiz-nav-delta partial">${prior.earned}/${prior.total}</span>`;
     }
-    const current = i === quizState.index ? ' current' : '';
-    return `<button type="button" class="quiz-nav-btn ${statusClass}${current}" data-idx="${i}"></button>`;
+
+    return `
+      <div class="topic-item-wrap" data-idx="${i}">
+        <div class="topic-item${activeClass}">
+          <div class="ti-top">
+            <div class="ti-name"><span class="ti-name-text"></span></div>
+            ${badge}
+          </div>
+          <div class="ti-unit">${marks} ${marks === 1 ? 'mark' : 'marks'}</div>
+        </div>
+      </div>`;
   }).join('');
 
   sidebar.innerHTML = `
-    <select class="quiz-sidebar-select" id="quizSidebarSelect">${options}</select>
-    <div class="quiz-nav-grid">${navButtons}</div>
-    <div class="quiz-nav-legend">
-      <div><span class="quiz-nav-dot nav-correct"></span>Correct</div>
-      <div><span class="quiz-nav-dot nav-partial"></span>Partial</div>
-      <div><span class="quiz-nav-dot nav-incorrect"></span>Incorrect</div>
+    <div class="sidebar-top">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input class="search-input" type="text" id="quizSearchInput" placeholder="Search questions…">
+      </div>
     </div>
+    <div class="unit-wrap">
+      <label class="unit-label" for="quizFileSelect">Quiz</label>
+      <div class="unit-select-row">
+        <select class="unit-select" id="quizFileSelect">${fileOptions}</select>
+      </div>
+    </div>
+    <div style="display:flex;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+      <div style="padding:4px 16px;border-right:1px solid var(--border);font-size:11px;color:var(--muted2)">
+        <strong style="color:var(--accent)">${quizState.questions.length}</strong> questions
+      </div>
+      <div style="padding:4px 16px;font-size:11px;color:var(--muted2)">
+        <strong style="color:var(--accent)">${quizState.totalMarks}</strong> marks
+      </div>
+    </div>
+    <div class="topic-list" id="quizNavList">${rows}</div>
   `;
 
-  // Labels set via textContent (not innerHTML) so manifest/question text can never inject markup.
-  sidebar.querySelectorAll('#quizSidebarSelect option').forEach((opt, i) => {
+  // Labels/text set via textContent (not innerHTML) so manifest/question content can
+  // never inject markup.
+  sidebar.querySelectorAll('#quizFileSelect option').forEach((opt, i) => {
     opt.textContent = quizManifest[i].name;
   });
-  sidebar.querySelector('#quizSidebarSelect').addEventListener('change', (e) => onQuizSelect(e.target));
+  sidebar.querySelector('#quizFileSelect').addEventListener('change', (e) => onQuizSelect(e.target));
 
-  sidebar.querySelectorAll('.quiz-nav-btn').forEach((btn, i) => {
-    btn.textContent = quizState.questions[i].id.replace(/^q/i, '');
-    btn.addEventListener('click', () => jumpToQuestion(i));
+  sidebar.querySelectorAll('#quizNavList .topic-item-wrap').forEach((wrap, i) => {
+    wrap.querySelector('.ti-name-text').textContent = quizState.questions[i].name;
+    wrap.addEventListener('click', () => jumpToQuestion(i));
+  });
+
+  sidebar.querySelector('#quizSearchInput').addEventListener('input', (e) => filterQuestionNav(e.target.value));
+}
+
+// Live-filters the question nav list by number, heading, or question text.
+function filterQuestionNav(query) {
+  const needle = query.trim().toLowerCase();
+  document.querySelectorAll('#quizNavList .topic-item-wrap').forEach(wrap => {
+    const i = parseInt(wrap.getAttribute('data-idx'), 10);
+    const q = quizState.questions[i];
+    const haystack = `${q.id} ${q.name} ${q.question || ''}`.toLowerCase();
+    wrap.style.display = (needle === '' || haystack.includes(needle)) ? '' : 'none';
   });
 }
 
@@ -556,7 +551,7 @@ function jumpToQuestion(i) {
 /* ── Multiple choice / checkbox ── */
 
 function renderChoiceQuestion(q, index, total, prior) {
-  const main = document.getElementById('quizMain');
+  const canvas = document.getElementById('hscCanvas');
   // Radios for single-answer questions (native, mutually exclusive via shared `name`),
   // checkboxes for multi-answer questions (native, independent toggles).
   const inputType = q.isCheckbox ? 'checkbox' : 'radio';
@@ -567,7 +562,7 @@ function renderChoiceQuestion(q, index, total, prior) {
      </label>`
   ).join('');
 
-  main.innerHTML = `
+  canvas.innerHTML = `
     <div class="quiz-wrap">
       <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
       <div class="quiz-heading">
@@ -589,17 +584,17 @@ function renderChoiceQuestion(q, index, total, prior) {
   // Set text content via textContent (not innerHTML) so quiz content can never inject markup.
   // `question` is the exam wording; `name` is the short heading ("Question 11"). Older quiz
   // files without a `question` field fall back to showing `name` as the stem, no heading.
-  renderHeadingAndStem(main, q);
-  renderQuestionImage(q, main);
-  main.querySelectorAll('.quiz-answer').forEach((label, i) => {
+  renderHeadingAndStem(canvas, q);
+  renderQuestionImage(q, canvas);
+  canvas.querySelectorAll('.quiz-answer').forEach((label, i) => {
     label.querySelector('.quiz-answer-text').textContent = q.answers[i].text;
   });
 
   // Already answered on a previous visit (jumped back here via the sidebar) — redraw the
   // locked, graded state instead of a fresh editable form, so nothing can be re-submitted.
   if (prior) {
-    applyChoiceGrading(main, q, new Set(prior.selected));
-    showFeedback(main, prior.earned, prior.total);
+    applyChoiceGrading(canvas, q, new Set(prior.selected));
+    showFeedback(canvas, prior.earned, prior.total);
     document.getElementById('quizSubmitBtn').style.display = 'none';
     if (index + 1 < total) document.getElementById('quizNextBtn').style.display = 'inline-block';
   }
@@ -617,14 +612,14 @@ function selectAnswer() {
 
 // Locks the answer list, colors it, and returns marks earned (0 or 1). Shared between a
 // live submit and redrawing a previously-answered question from stored state.
-function applyChoiceGrading(main, q, selectedIdxs) {
+function applyChoiceGrading(canvas, q, selectedIdxs) {
   const correctIdxs = new Set(
     q.answers.map((a, i) => a.correct ? i : null).filter(v => v !== null)
   );
   const isCorrect = correctIdxs.size === selectedIdxs.size &&
     [...correctIdxs].every(i => selectedIdxs.has(i));
 
-  main.querySelectorAll('.quiz-answer').forEach((label, i) => {
+  canvas.querySelectorAll('.quiz-answer').forEach((label, i) => {
     label.classList.add('locked');
     const input = label.querySelector('input');
     input.checked = selectedIdxs.has(i);
@@ -636,8 +631,8 @@ function applyChoiceGrading(main, q, selectedIdxs) {
   return isCorrect ? 1 : 0;
 }
 
-function showFeedback(main, earned, total) {
-  const feedback = main.querySelector('#quizFeedback');
+function showFeedback(canvas, earned, total) {
+  const feedback = canvas.querySelector('#quizFeedback');
   if (!feedback) return;
   const markWord = total === 1 ? 'mark' : 'marks';
   feedback.textContent = total === 1
@@ -654,12 +649,12 @@ function submitAnswer() {
 
   const selectedIdxs = new Set([...checkedInputs].map(inp => parseInt(inp.value, 10)));
   const q = quizState.questions[quizState.index];
-  const main = document.getElementById('quizMain');
+  const canvas = document.getElementById('hscCanvas');
 
-  const earned = applyChoiceGrading(main, q, selectedIdxs);
+  const earned = applyChoiceGrading(canvas, q, selectedIdxs);
   quizState.perQuestion[quizState.index] = { earned, total: 1, selected: [...selectedIdxs] };
 
-  showFeedback(main, earned, 1);
+  showFeedback(canvas, earned, 1);
   document.getElementById('quizSubmitBtn').style.display = 'none';
   document.getElementById('quizNextBtn').style.display = 'inline-block';
   renderSidebar(); // reflect the new correct/partial/incorrect color on this question's nav button
@@ -685,7 +680,7 @@ function groupMathAnswers(answers) {
 }
 
 function renderMathQuestion(q, index, total, prior) {
-  const main = document.getElementById('quizMain');
+  const canvas = document.getElementById('hscCanvas');
   // Each entry defaults to type "answer" if not set (keeps older question files working
   // unchanged). "working" entries behave identically for grading — same textbox, same
   // numeric-aware matching, same 1 mark — just grouped/labeled as working steps.
@@ -716,7 +711,7 @@ function renderMathQuestion(q, index, total, prior) {
 
   const markWord = q.answers.length === 1 ? 'mark' : 'marks';
 
-  main.innerHTML = `
+  canvas.innerHTML = `
     <div class="quiz-wrap">
       <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
       <div class="quiz-heading">
@@ -734,12 +729,12 @@ function renderMathQuestion(q, index, total, prior) {
     </div>
   `;
 
-  renderHeadingAndStem(main, q);
-  renderQuestionImage(q, main);
+  renderHeadingAndStem(canvas, q);
+  renderQuestionImage(q, canvas);
 
   if (prior) {
-    applyMathGrading(main, q, prior.values);
-    showFeedback(main, prior.earned, q.answers.length);
+    applyMathGrading(canvas, q, prior.values);
+    showFeedback(canvas, prior.earned, q.answers.length);
     document.getElementById('quizSubmitBtn').style.display = 'none';
     if (index + 1 < total) document.getElementById('quizNextBtn').style.display = 'inline-block';
   }
@@ -824,12 +819,12 @@ function bestMatch(given, expected) {
 // q.answers index) and returns marks earned. Shared between a live submit (values read
 // from the inputs) and redrawing a previously-answered question (values read from
 // stored per-question state) — both go through the exact same grading logic.
-function applyMathGrading(main, q, valuesFlat) {
+function applyMathGrading(canvas, q, valuesFlat) {
   const groups = groupMathAnswers(q.answers);
   let earned = 0;
 
   groups.forEach((g, gi) => {
-    const rows = [...main.querySelectorAll(`.quiz-math-input-row[data-group="${gi}"]`)];
+    const rows = [...canvas.querySelectorAll(`.quiz-math-input-row[data-group="${gi}"]`)];
     const inputs = rows.map(row => row.querySelector('.quiz-math-input'));
     const given = g.items.map(idx => valuesFlat[idx] ?? '');
     const expected = g.items.map(idx => q.answers[idx].text);
@@ -854,7 +849,7 @@ function applyMathGrading(main, q, valuesFlat) {
       hint.textContent = missed.length === 1
         ? `Missing: ${missed[0]}`
         : `Missing: ${missed.join(', ')}`;
-      const groupEl = main.querySelector(`.quiz-math-group[data-group="${gi}"]`);
+      const groupEl = canvas.querySelector(`.quiz-math-group[data-group="${gi}"]`);
       if (groupEl) groupEl.appendChild(hint);
     }
   });
@@ -866,18 +861,18 @@ function submitMathAnswer() {
   if (quizState.perQuestion[quizState.index]) return; // already answered — ignore stray resubmits
 
   const q = quizState.questions[quizState.index];
-  const main = document.getElementById('quizMain');
+  const canvas = document.getElementById('hscCanvas');
 
   const valuesFlat = new Array(q.answers.length).fill('');
-  main.querySelectorAll('.quiz-math-input-row').forEach(row => {
+  canvas.querySelectorAll('.quiz-math-input-row').forEach(row => {
     const itemIdx = parseInt(row.getAttribute('data-item'), 10);
     valuesFlat[itemIdx] = row.querySelector('.quiz-math-input').value;
   });
 
-  const earned = applyMathGrading(main, q, valuesFlat);
+  const earned = applyMathGrading(canvas, q, valuesFlat);
   quizState.perQuestion[quizState.index] = { earned, total: q.answers.length, values: valuesFlat };
 
-  showFeedback(main, earned, q.answers.length);
+  showFeedback(canvas, earned, q.answers.length);
   document.getElementById('quizSubmitBtn').style.display = 'none';
   document.getElementById('quizNextBtn').style.display = 'inline-block';
   renderSidebar(); // reflect the new correct/partial/incorrect color on this question's nav button
@@ -891,10 +886,10 @@ function nextQuestion() {
 }
 
 function renderSummary() {
-  const main = document.getElementById('quizMain');
+  const canvas = document.getElementById('hscCanvas');
   const earnedMarks = getEarnedMarks();
   const { totalMarks } = quizState;
-  main.innerHTML = `
+  canvas.innerHTML = `
     <div class="quiz-wrap quiz-summary">
       <div class="quiz-progress">Quiz complete</div>
       <div class="quiz-score">${earnedMarks} / ${totalMarks} marks</div>
