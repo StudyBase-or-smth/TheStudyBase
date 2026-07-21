@@ -309,6 +309,8 @@
     body.light .strip-item::before{background:#e2ddd7}
     body.light .improve-badge{background:rgba(21,128,61,.1);color:#15803d;border-color:rgba(21,128,61,.2)}
     body.light .improve-badge.negative{background:rgba(220,38,38,.08);color:#dc2626;border-color:rgba(220,38,38,.15)}
+    body.light .access-banner{background:#fef3c7;border-color:#fde68a;color:#92400e}
+    body.light .access-banner a{color:#78350f}
     .trend-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;padding:6px 0}
 .trend-pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--card2);border:1px solid var(--border2)}
 .trend-pill.up{background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.3);color:#4ade80}
@@ -485,7 +487,7 @@ loadBranchVersion();
     checking: 'Checking your account…',
     signedout: 'Sign in to upload assignments and use the marker. <a href="login.html">Sign in</a>',
     pending: 'Your account is still pending approval — uploading is disabled until a teacher/admin approves it.',
-    norole: 'Your account doesn\'t have Analyser access yet, ask for approvel if this issue continues. <a href="login.html">Sign in</a> with a student, teacher, or dev account to enable uploading.'
+    norole: 'Your account doesn\'t have Analyser access. Ask a teacher or dev to check your account\'s role, or <a href="login.html">sign out and sign in</a> with a student, teacher, or dev account.'
   };
 
   const LOCK_TARGET_IDS = ['studentText','asgFile','criteriaText','criteriaFile'];
@@ -570,7 +572,11 @@ loadBranchVersion();
         }
 
         if(!allowed){
-          setAnalyserLocked(true, role && status !== 'active' ? 'pending' : 'norole');
+          // A brand-new account is usually status:'pending' with no role
+          // claim yet (roles are only assigned on approval) -- check status
+          // first so these accounts get the accurate "pending" message
+          // instead of the more alarming "no access" one.
+          setAnalyserLocked(true, status === 'pending' ? 'pending' : 'norole');
         } else {
           setAnalyserLocked(false);
         }
