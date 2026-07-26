@@ -1,4 +1,6 @@
 [
   { "file": "MathS-S1.json", "name": "Section 1" },
-  { "file": "MathS-S2.json", "name": "Section 2" }
+  { "file": "MathS-S2.json", "name": "Section 2" },
+  { "file": "EngineeringS-S1.json", "name": "Engineering Section 1" },
+  { "file": "EngineeringS-S2.json", "name": "Engineering Section 2" }
 ]

@@ -441,7 +441,7 @@ function getDescendantIds(id, topics){
 }
 
 // ── State ──
-let activeId = null, editId = null, activeUnit = 'all', tempTags = [], pendingAction = null;
+let activeId = null, editId = null, activeUnits = new Set(), tempTags = [], pendingAction = null;
 let _lastRenderedTopicKey = null;
 let openCommentBlocks = new Set();
 let expandedTopics = new Set();
@@ -472,7 +472,7 @@ function renderList(){
   const topics = getTopics();
   const pinned = getPinned();
   const matches = t => {
-    const mu = activeUnit === 'all' || t.unit === activeUnit;
+    const mu = activeUnits.size === 0 || (t.unit && activeUnits.has(t.unit));
     const mq = !q || t.name.toLowerCase().includes(q) ||
       (t.definition||'').toLowerCase().includes(q) ||
       (t.unit||'').toLowerCase().includes(q) ||
@@ -521,16 +521,36 @@ function renderList(){
 function renderPills(){
   const units = getUnits(), topics = getTopics(), counts = {};
   topics.forEach(t => { if(t.unit) counts[t.unit] = (counts[t.unit]||0)+1; });
-  document.getElementById('unitPills').innerHTML =
-    `<button class="unit-pill${activeUnit==='all'?' active':''}" onclick="setUnit('all')">All (${topics.length})</button>` +
-    units.map(u => `
-      <button class="unit-pill${activeUnit===u?' active':''}" data-unit="${esc(u)}" onclick="setUnit(this.dataset.unit)">
-        ${esc(u)} <span style="color:var(--muted2);font-weight:400">(${counts[u]||0})</span>
-        <span class="unit-del" onclick="event.stopPropagation();confirmDeleteUnit(this.closest('[data-unit]').dataset.unit)" title="Remove">×</span>
-      </button>`).join('');
+
+  const body = document.getElementById('unitsListBody');
+  if(body){
+    const q = (document.getElementById('unitsSearchInput')?.value || '').toLowerCase();
+    const shown = units.filter(u => !q || u.toLowerCase().includes(q));
+    body.innerHTML = shown.length === 0
+      ? `<div class="units-empty">No units match "${esc(q)}"</div>`
+      : shown.map(u => `
+        <label class="units-row" data-unit="${esc(u)}">
+          <input type="checkbox" ${activeUnits.has(u)?'checked':''} onclick="event.stopPropagation();toggleUnit(this.closest('[data-unit]').dataset.unit)">
+          <span>${esc(u)}</span>
+          <span class="units-count">${counts[u]||0}</span>
+          <button type="button" class="units-del" title="Remove this unit" onclick="event.stopPropagation();confirmDeleteUnit(this.closest('[data-unit]').dataset.unit)">🗑</button>
+        </label>`).join('');
+  }
+
+  const toggleBtn = document.getElementById('unitsToggleBtn');
+  const badge = document.getElementById('unitsBadge');
+  if(badge){
+    badge.textContent = activeUnits.size;
+    badge.style.display = activeUnits.size ? '' : 'none';
+  }
+  if(toggleBtn) toggleBtn.classList.toggle('on', activeUnits.size > 0);
 }
 
-function setUnit(u){ activeUnit = u; renderList(); }
+function toggleUnit(u){
+  if(activeUnits.has(u)) activeUnits.delete(u);
+  else activeUnits.add(u);
+  renderList();
+}
 
 function toggleTopicExpand(id){
   id = Number(id);
@@ -674,6 +694,15 @@ function viewTopic(id){
   }
   _lastRenderedTopicKey = renderKey;
   buildTeacherPanel(t.id, visibleBlocks);
+
+  // Breadcrumb: Index / Class / Topic
+  const bcTopic = document.getElementById('hdrTopicName');
+  const bcSep = document.getElementById('hdrTopicSep');
+  if(bcTopic && bcSep){
+    bcTopic.textContent = t.name;
+    bcTopic.style.display = '';
+    bcSep.style.display = '';
+  }
 }
 function openModal(id){
   if(window.isGuest){ showToast('Sign in to add or edit topics','info'); return; }
@@ -905,6 +934,15 @@ function closeTopicView(){
   el.innerHTML = '';
   const panel = document.getElementById('teacherNotesPanel');
   if(panel){ panel.innerHTML = ''; panel.style.display = 'none'; }
+
+  // Breadcrumb: drop back to Index / Class
+  const bcTopic = document.getElementById('hdrTopicName');
+  const bcSep = document.getElementById('hdrTopicSep');
+  if(bcTopic && bcSep){
+    bcTopic.textContent = '';
+    bcTopic.style.display = 'none';
+    bcSep.style.display = 'none';
+  }
 }
 
 function doDelete(){
@@ -917,7 +955,7 @@ function doDelete(){
   } else {
     saveTopics(getTopics().map(t => t.unit===pendingAction.name ? {...t,unit:''} : t));
     saveUnits(getUnits().filter(u => u!==pendingAction.name));
-    if(activeUnit===pendingAction.name) activeUnit='all';
+    activeUnits.delete(pendingAction.name);
     populateSel();
   }
   closeConfirm(); renderList();
@@ -932,6 +970,17 @@ document.getElementById('searchInput').addEventListener('input', renderList);
 document.getElementById('modalOverlay').addEventListener('click', e => {
   if(e.target===document.getElementById('modalOverlay')) closeModal();
 });
+
+// ── Units filter panel open/close ──
+(function(){
+  const btn = document.getElementById('unitsToggleBtn');
+  const panel = document.getElementById('unitsPanel');
+  if(!btn || !panel) return;
+  btn.addEventListener('click', () => {
+    const open = panel.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open);
+  });
+})();
 
 // ── Sync ──
 // SYNC_URL is now defined once in ../sync-config.js (loaded via <script> before this file).

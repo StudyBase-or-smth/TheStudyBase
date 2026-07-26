@@ -23,6 +23,20 @@
 
     body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;font-size:13px}
 
+    /* Visible keyboard focus on every interactive element — matches the
+       fix applied across index/subject/class; this page had none before. */
+    a,button,select,[tabindex]{outline:none}
+    a:focus-visible,button:focus-visible,select:focus-visible,[tabindex]:focus-visible{
+      outline:2px solid var(--amber);outline-offset:2px;border-radius:4px;
+    }
+    /* Thin, visible scrollbar on the two internally-scrolling panels below —
+       the global rule above hides scrollbars everywhere, which previously
+       left long lists with no visible affordance that there's more to see. */
+    .right-panel,.raw-panel-body{scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+    .right-panel::-webkit-scrollbar,.raw-panel-body::-webkit-scrollbar{display:block;width:6px}
+    .right-panel::-webkit-scrollbar-thumb,.raw-panel-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+    .right-panel::-webkit-scrollbar-track,.raw-panel-body::-webkit-scrollbar-track{background:transparent}
+
     /* HEADER */
     .hdr{background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;height:46px;padding:0 0 0 0;gap:0;position:sticky;top:0;z-index:100;overflow:visible}
 
@@ -341,7 +355,7 @@
         <input class="api-input" id="customApiKey" type="password" placeholder="Gemini API key (optional)" autocomplete="off" spellcheck="false">
         <div class="api-tip" id="apiTip">Gemini API key requires an 18+ Gemini account.</div>
       </div>
-      <button class="hdr-btn" id="darkToggle" data-tip="Toggle theme">🌙</button>
+      <button class="hdr-btn" id="darkToggle" data-tip="Toggle theme" aria-label="Toggle theme">🌙</button>
     </div>
   </div>
 </div>
@@ -612,7 +626,7 @@ loadBranchVersion();
       const icons={success:'✓',error:'✕',info:'ℹ',warning:'⚠'};
       const t=document.createElement('div');
       t.className='toast '+type;
-      t.innerHTML=`<span class="toast-icon">${icons[type]||'ℹ'}</span><span class="toast-msg">${msg}</span><button class="toast-close" onclick="this.parentElement.remove()">×</button>`;
+      t.innerHTML=`<span class="toast-icon">${icons[type]||'ℹ'}</span><span class="toast-msg">${msg}</span><button class="toast-close" aria-label="Dismiss" onclick="this.parentElement.remove()">×</button>`;
       c.appendChild(t);
       setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),350);},dur);
     };

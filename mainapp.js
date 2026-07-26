@@ -34,10 +34,7 @@ document.getElementById('darkToggle').onclick = function () {
 async function loadBranchVersion() {
   const badge = document.getElementById('branch-badge');
   if (!badge) return;
-  try {
-    const res = await fetch('BranchVersion.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error('not found');
-    const data = await res.json();
+  const apply = data => {
     const branch  = data.branch  || 'unknown';
     const version = data.version || '0.0.0';
     const date    = data.date    || 'unknown';
@@ -45,6 +42,17 @@ async function loadBranchVersion() {
     const color = colorMap[data.colour || data.color || 'other'] || '#1e40af';
     badge.innerHTML = `<strong>${branch}</strong> · v${version} · ( ${date} )`;
     badge.style.cssText = `font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;color:${color}`;
+  };
+  // window.BRANCH_VERSION comes from BranchVersion.js (a plain <script> tag,
+  // loaded before this file) — it works when index.html is opened directly
+  // via file://, where fetch()/XHR of local files is blocked by Chrome and
+  // the branch below would otherwise always throw. Fall back to fetch() for
+  // any deploy that only ships the JSON.
+  if (window.BRANCH_VERSION) { apply(window.BRANCH_VERSION); return; }
+  try {
+    const res = await fetch('BranchVersion.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('not found');
+    apply(await res.json());
   } catch (e) {
     badge.innerHTML = '<strong>dev</strong> · Local';
     badge.style.cssText = 'font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;color:#e0c200';
@@ -186,6 +194,8 @@ function renderClasses() {
 // ── Stats ──
 function renderStats() {
   const subjects = subjectsData.subjects || [];
+  const countEl = document.getElementById('subjCount');
+  if (countEl) countEl.textContent = subjects.length;
   let totalTopics = 0, totalUnits = 0, lastDate = null;
   subjects.forEach(s => {
     const topics = getTopics(s), units = getUnits(s);
@@ -198,10 +208,10 @@ function renderStats() {
   const lastStr = lastDate
     ? new Date(lastDate).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' }) : '—';
   document.getElementById('statsRow').innerHTML = `
-    <div class="stat-card"><div class="stat-num" style="color:var(--text)">${totalTopics}</div><div class="stat-label">Total Topics</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:#22c55e">${totalUnits}</div><div class="stat-label">Total Units</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:#3b82f6">${subjects.length}</div><div class="stat-label">Subjects</div></div>
-    <div class="stat-card"><div class="stat-num" style="font-size:20px;color:#f43f5e">${lastStr}</div><div class="stat-label">Last Updated</div></div>`;
+    <div class="stat-card"><div class="stat-num">${totalTopics}</div><div class="stat-label">Total Topics</div></div>
+    <div class="stat-card"><div class="stat-num">${totalUnits}</div><div class="stat-label">Total Units</div></div>
+    <div class="stat-card"><div class="stat-num">${subjects.length}</div><div class="stat-label">Subjects</div></div>
+    <div class="stat-card"><div class="stat-num" style="font-size:20px">${lastStr}</div><div class="stat-label">Last Updated</div></div>`;
 }
 
 // ── Sidebar: Recently Added + Units + Marker ──
@@ -247,20 +257,10 @@ function renderSidebar() {
   // Marker tool link
   if (document.getElementById('markerSection')) {
     document.getElementById('markerSection').innerHTML = `
-      <a href="analyser.html" class="feed-item" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:12px 8px;border:2px solid var(--accent,#4a9eff);border-radius:8px;background:var(--card2);margin:8px 0;">
-        <div style="font-size:22px;flex-shrink:0;">📍</div>
-        <div>
-          <div class="feed-name" style="font-weight:600;">Marker Tool</div>
-          <div class="feed-sub" style="color:var(--accent,#4a9eff);font-size:13px;">Open analyser.html</div>
-        </div>
-      </a>
-      <a href="HSC/HSC.html" class="feed-item" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:12px 8px;border:2px solid var(--accent,#4a9eff);border-radius:8px;background:var(--card2);margin:8px 0;">
-        <div style="font-size:22px;flex-shrink:0;">🎓</div>
-        <div>
-          <div class="feed-name" style="font-weight:600;">HSC</div>
-          <div class="feed-sub" style="color:var(--accent,#4a9eff);font-size:13px;">Open HSC/HSC.html</div>
-        </div>
-      </a>`;
+      <div class="tools-list">
+        <a href="analyser.html" class="tool-btn">📍 Marker Tool</a>
+        <a href="HSC/HSC.html" class="tool-btn">🎓 HSC</a>
+      </div>`;
   }
 }
 

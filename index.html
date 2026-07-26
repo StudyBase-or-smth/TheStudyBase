@@ -85,15 +85,15 @@
           </div>
         </div>
         <div id="branch-badge" style="font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;">Loading…</div>
-        <button id="devPanelBtn" class="hdr-ghost" onclick="window.location.href='Devpanel.html'" data-tip="Dev Panel" style="display:none;width:auto;padding:4px 12px;font-size:11px;font-weight:600;border-radius:20px;">🛠️ Dev Panel</button>
+        <button id="devPanelBtn" class="hdr-ghost" onclick="window.location.href='Devpanel.html'" data-tip="Dev Panel" aria-label="Dev Panel" style="display:none;width:auto;padding:4px 12px;font-size:11px;font-weight:600;border-radius:20px;">🛠️ Dev Panel</button>
         <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
           <span class="hdr-date-pill">Today — <strong id="todayDate"></strong></span>
           <span id="syncCountdown" style="font-size:11px;color:var(--muted2);font-variant-numeric:tabular-nums"></span>
-          <button class="hdr-ghost" onclick="manualSync()" data-tip="Sync now">⟳</button>
-          <button class="hdr-ghost" onclick="openSuggestions()" data-tip="Suggestions">📝</button>
-          <button class="hdr-ghost" onclick="window.location.href='profile.html'" data-tip="Profile">👤</button>
-          <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out">⎋</button>
-          <button class="hdr-ghost" id="darkToggle" data-tip="Dark mode">🌙</button>
+          <button class="hdr-ghost" onclick="manualSync()" data-tip="Sync now" aria-label="Sync now">⟳</button>
+          <button class="hdr-ghost" onclick="openSuggestions()" data-tip="Suggestions" aria-label="Suggestions">📝</button>
+          <button class="hdr-ghost" onclick="window.location.href='profile.html'" data-tip="Profile" aria-label="Profile">👤</button>
+          <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out" aria-label="Sign out">⎋</button>
+          <button class="hdr-ghost" id="darkToggle" data-tip="Dark mode" aria-label="Toggle dark mode">🌙</button>
         </div>
       </div>
     </div>
@@ -107,7 +107,7 @@
 
       <!-- Left column -->
       <div>
-        <div class="sec-title">Subjects</div>
+        <div class="sec-title">Subjects <span class="count" id="subjCount"></span></div>
         <div class="subjects-grid" id="subjectsGrid"></div>
 
         <div id="classesSection" style="display:none">
@@ -121,9 +121,9 @@
               <div class="cal-title" id="calMonthLabel"></div>
               <div style="display:flex;align-items:center;gap:8px">
                 <div class="cal-nav">
-                  <button class="cal-nav-btn" onclick="calNav(-1)">‹</button>
+                  <button class="cal-nav-btn" onclick="calNav(-1)" aria-label="Previous month">‹</button>
                   <button class="cal-nav-btn" onclick="calGoToday()">Today</button>
-                  <button class="cal-nav-btn" onclick="calNav(1)">›</button>
+                  <button class="cal-nav-btn" onclick="calNav(1)" aria-label="Next month">›</button>
                 </div>
                 <button class="cal-add-btn" onclick="openEventModal(null,null)">+ Add</button>
               </div>
@@ -156,10 +156,8 @@
 
           <div class="collapsible-body" id="toolsBody" style="margin-top:0">
             <div style="height:12px"></div>
-          <div class="sidebar-section">
-            <h3 style="margin:16px 0 8px 0;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;opacity:0.7;">Tools</h3>
             <div id="markerSection"></div>
-          </div>          </div>
+          </div>
         </div>
         <div class="side-card">
           <div class="sec-title-collapsible" id="unitsToggle" onclick="toggleSection('units')" title="Click to collapse">
@@ -264,9 +262,10 @@
   </div>
 
   <!-- ── Scripts ── -->
-  <!-- subjects.js and sync-config.js must load before mainapp.js -->
+  <!-- subjects.js, sync-config.js and BranchVersion.js must load before mainapp.js -->
   <script src="subjects.js"></script>
   <script src="sync-config.js"></script>
+  <script src="BranchVersion.js"></script>
   <script src="mainapp.js"></script>
   
 

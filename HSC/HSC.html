@@ -202,6 +202,28 @@
     margin-top: 4px;
   }
 
+  /* isAICheck: free-text response for questions with no single exact-match
+     answer ("describe...", "explain...", "discuss..."). Boxed like a real
+     textbox rather than the underlined math input, since a full paragraph
+     doesn't read well as a single ruled line. */
+  .quiz-ai-answer {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 140px;
+    padding: 12px 14px;
+    border: 1px solid var(--border, #e0e0e0);
+    border-radius: 8px;
+    background: var(--card, #fff);
+    color: var(--text, #1a1a1a);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    margin-bottom: 16px;
+  }
+  .quiz-ai-answer:focus { outline: none; border-color: var(--accent, #4f46e5); }
+  .quiz-ai-answer:disabled { opacity: .85; resize: none; }
+
   .quiz-feedback { font-size: 14px; font-weight: 600; min-height: 20px; margin-bottom: 12px; }
   .quiz-feedback.quiz-correct { color: #2e7d32; }
   .quiz-feedback.quiz-partial { color: #b8860b; }
@@ -248,6 +270,7 @@
     appId:"1:434992387793:web:e5bcae8cad63b4eb6f17f0"
   };
   const auth = getAuth(initializeApp(cfg));
+  window.__sbAuth = auth; // so the quiz engine's callAI() can fetch a fresh ID token for /api/grade
   onAuthStateChanged(auth, user => {
     const isGuest = sessionStorage.getItem('studybase_guest') === '1';
     if (user) {
@@ -397,9 +420,7 @@ async function loadQuizByFile(file, name) {
       throw new Error(`${file} has no questions`);
     }
 
-    const totalMarks = quizData.questions.reduce(
-      (sum, q) => sum + (q.math ? q.answers.length : 1), 0
-    );
+    const totalMarks = quizData.questions.reduce((sum, q) => sum + marksForQuestion(q), 0);
 
     quizState = {
       questions: quizData.questions,
@@ -449,9 +470,19 @@ function renderQuestion() {
 
   if (q.math) {
     renderMathQuestion(q, index, questions.length, prior);
+  } else if (q.isAICheck) {
+    renderAICheckQuestion(q, index, questions.length, prior);
   } else {
     renderChoiceQuestion(q, index, questions.length, prior);
   }
+}
+
+// Marks for one question, regardless of type — kept as a single function so
+// the sidebar list and the totalMarks sum can never disagree with each other.
+function marksForQuestion(q) {
+  if (q.math) return q.answers.length;
+  if (q.isAICheck) return q.marks;
+  return 1;
 }
 
 /* ── Sidebar: quiz-file picker + searchable per-question nav list ──
@@ -471,7 +502,7 @@ function renderSidebar() {
 
   const rows = quizState.questions.map((q, i) => {
     const prior = quizState.perQuestion[i];
-    const marks = q.math ? q.answers.length : 1;
+    const marks = marksForQuestion(q);
     const activeClass = i === quizState.index ? ' active' : '';
 
     let badge = '';
@@ -631,13 +662,17 @@ function applyChoiceGrading(canvas, q, selectedIdxs) {
   return isCorrect ? 1 : 0;
 }
 
-function showFeedback(canvas, earned, total) {
+// `note` is optional extra text appended after the mark line — used by the
+// AI-check flow to show Gemini's actual feedback sentence, not just the score.
+function showFeedback(canvas, earned, total, note) {
   const feedback = canvas.querySelector('#quizFeedback');
   if (!feedback) return;
   const markWord = total === 1 ? 'mark' : 'marks';
-  feedback.textContent = total === 1
+  let text = total === 1
     ? (earned === 1 ? 'Correct! (1/1 mark)' : 'Not quite (0/1 mark) — correct answer(s) highlighted above.')
     : `${earned} / ${total} ${markWord} for this question`;
+  if (note) text += ` — ${note}`;
+  feedback.textContent = text;
   feedback.className = 'quiz-feedback ' + (earned === total ? 'quiz-correct' : (earned > 0 ? 'quiz-partial' : 'quiz-incorrect'));
 }
 
@@ -876,6 +911,193 @@ function submitMathAnswer() {
   document.getElementById('quizSubmitBtn').style.display = 'none';
   document.getElementById('quizNextBtn').style.display = 'inline-block';
   renderSidebar(); // reflect the new correct/partial/incorrect color on this question's nav button
+}
+
+/* ── isAICheck: free-text response, marked by Gemini ──
+   For questions where there's no single exact-match string worth checking
+   against — "describe...", "explain...", "discuss..." — because the wording
+   of a correct answer genuinely varies. q.answer holds the marking guidance
+   (what a full-marks response should cover, not a literal string to match),
+   q.marks is the total for the sub-part. Reuses the app's existing /api/grade
+   Netlify function (same one analyser.html's marker already calls) so no
+   API key ever reaches the browser — see netlify/functions/grade.js. */
+
+// Same proxy-first-then-direct-fallback pattern as analyser.html's callAI(),
+// trimmed to the one provider this page needs. The direct-call fallback only
+// works if a userKey is supplied (there's no customApiKey box on this page),
+// so in practice it just produces a clear "no proxy" error when /api/grade
+// isn't reachable (e.g. testing without `netlify dev`) rather than a silent
+// hang or a confusing generic network error.
+async function callGeminiDirect(prompt, userKey) {
+  if (!userKey) throw new Error('AI marking needs the live site (no local proxy available here).');
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${userKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error((data.error && data.error.message) || 'Gemini request failed');
+  return { text: data.candidates?.[0]?.content?.parts?.[0]?.text || '' };
+}
+
+async function callAI(provider, prompt, userKey) {
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    // /api/grade requires a signed-in Firebase account so its server-side
+    // keys can't be spent by anonymous callers — attach the current ID token.
+    const currentUser = window.__sbAuth && window.__sbAuth.currentUser;
+    if (currentUser) {
+      headers['Authorization'] = 'Bearer ' + await currentUser.getIdToken();
+    }
+    const res = await fetch('/api/grade', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ provider, prompt, userKey })
+    });
+    // A missing proxy (e.g. a plain static file server, not `netlify dev`)
+    // returns an HTML 404 page, not JSON — detect that and fall back.
+    const contentType = res.headers.get('content-type') || '';
+    if (res.status === 404 || res.status === 405 || !contentType.includes('application/json')) {
+      throw new Error('PROXY_UNAVAILABLE');
+    }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Request failed');
+    return { text: data.text || '' };
+  } catch (err) {
+    if (err.message !== 'PROXY_UNAVAILABLE' && err.name !== 'TypeError') throw err;
+    return callGeminiDirect(prompt, userKey);
+  }
+}
+
+function buildAICheckPrompt(q, studentAnswer) {
+  const markWord = q.marks === 1 ? 'mark' : 'marks';
+  return `You are marking a NSW HSC-style short-answer question worth ${q.marks} ${markWord}.
+
+QUESTION:
+${q.question || q.name}
+
+MARKING GUIDANCE (what a full-marks response should cover — this is guidance for the marker, not a literal string the student needs to reproduce):
+${q.answer}
+
+STUDENT'S RESPONSE:
+${studentAnswer}
+
+Award a whole number of marks from 0 to ${q.marks} based on how well the student's response covers the marking guidance. Be a fair but genuine HSC-style marker: full marks for a response that covers the key points even in different words, partial credit for a partially correct or incomplete response, 0 for a response that doesn't address the question.
+
+Respond in exactly this format and nothing else outside these markers:
+(359-<marks awarded, a single integer>-359)
+(369-<one or two sentence feedback explaining what was missing or well covered, max 40 words>-369)`;
+}
+
+function parseAICheckResult(text, maxMarks) {
+  let earned = 0;
+  const markMatch = (text || '').match(/\(359-([\s\S]*?)-359\)/i);
+  if (markMatch) {
+    const num = parseInt(markMatch[1].trim(), 10);
+    if (!isNaN(num)) earned = Math.max(0, Math.min(maxMarks, num));
+  }
+  const feedbackMatch = (text || '').match(/\(369-([\s\S]*?)-369\)/i);
+  const feedback = feedbackMatch ? feedbackMatch[1].trim() : (text || '').trim().slice(0, 200);
+  return { earned, feedback };
+}
+
+function setAICheckBusy(canvas, busy) {
+  const btn = canvas.querySelector('#quizSubmitBtn');
+  const textarea = canvas.querySelector('#quizAIAnswerInput');
+  if (btn) { btn.disabled = busy; btn.textContent = busy ? 'Marking with AI…' : 'Submit'; }
+  if (textarea) textarea.disabled = busy;
+}
+
+function renderAICheckQuestion(q, index, total, prior) {
+  const canvas = document.getElementById('hscCanvas');
+  const markWord = q.marks === 1 ? 'mark' : 'marks';
+
+  canvas.innerHTML = `
+    <div class="quiz-wrap">
+      <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
+      <div class="quiz-heading">
+        <span class="quiz-heading-name"></span>
+        <span class="quiz-heading-marks">(${q.marks} ${markWord})</span>
+      </div>
+      <div class="quiz-stem"></div>
+      <div class="quiz-image-wrap" id="quizImageWrap"></div>
+      <div class="quiz-type-hint">✎ Written response — marked by AI</div>
+      <textarea class="quiz-ai-answer" id="quizAIAnswerInput" placeholder="Type your answer…" rows="6"></textarea>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <div class="quiz-actions">
+        <button class="quiz-btn quiz-btn-primary" id="quizSubmitBtn" onclick="submitAICheck()">Submit</button>
+        <button class="quiz-btn" id="quizNextBtn" style="display:none" onclick="nextQuestion()">Next →</button>
+      </div>
+    </div>
+  `;
+
+  renderHeadingAndStem(canvas, q);
+  renderQuestionImage(q, canvas);
+
+  if (prior) {
+    const textarea = canvas.querySelector('#quizAIAnswerInput');
+    textarea.value = prior.studentAnswer;
+    textarea.disabled = true;
+    showFeedback(canvas, prior.earned, q.marks, prior.feedback);
+    document.getElementById('quizSubmitBtn').style.display = 'none';
+    if (index + 1 < total) document.getElementById('quizNextBtn').style.display = 'inline-block';
+  }
+}
+
+async function submitAICheck() {
+  if (quizState.perQuestion[quizState.index]) return; // already answered — ignore stray resubmits
+
+  const q = quizState.questions[quizState.index];
+  const canvas = document.getElementById('hscCanvas');
+  const textarea = canvas.querySelector('#quizAIAnswerInput');
+  const studentAnswer = (textarea.value || '').trim();
+  if (!studentAnswer) return;
+
+  const feedbackEl = canvas.querySelector('#quizFeedback');
+
+  // True guests (no real Firebase sign-in at all) have no ID token, so
+  // /api/grade would just 401 — short-circuit with the same message
+  // analyser.html shows for a signed-out/unapproved account instead of
+  // letting a confusing network error surface. A real signed-in user who's
+  // merely "pending" approval still has a valid token — /api/grade only
+  // requires a signed-in account, not an approved role — so they aren't
+  // blocked here.
+  const currentUser = window.__sbAuth && window.__sbAuth.currentUser;
+  if (!currentUser) {
+    feedbackEl.textContent = 'Sign in with an approved role to use AI marking.';
+    feedbackEl.className = 'quiz-feedback quiz-incorrect';
+    return;
+  }
+
+  setAICheckBusy(canvas, true);
+  feedbackEl.textContent = 'Marking with AI…';
+  feedbackEl.className = 'quiz-feedback';
+
+  try {
+    const prompt = buildAICheckPrompt(q, studentAnswer);
+    const result = await callAI('gemini', prompt);
+    const { earned, feedback } = parseAICheckResult(result.text, q.marks);
+
+    quizState.perQuestion[quizState.index] = { earned, total: q.marks, studentAnswer, feedback };
+
+    // Reset the submit button's busy label directly rather than via
+    // setAICheckBusy(canvas, false) — that helper also flips textarea.disabled
+    // back to false, which would silently re-enable editing on an already-
+    // graded answer.
+    const submitBtn = canvas.querySelector('#quizSubmitBtn');
+    if (submitBtn) submitBtn.textContent = 'Submit';
+    textarea.disabled = true;
+    showFeedback(canvas, earned, q.marks, feedback);
+    document.getElementById('quizSubmitBtn').style.display = 'none';
+    if (quizState.index + 1 < quizState.questions.length) {
+      document.getElementById('quizNextBtn').style.display = 'inline-block';
+    }
+    renderSidebar();
+  } catch (err) {
+    setAICheckBusy(canvas, false);
+    feedbackEl.textContent = `AI marking failed: ${err.message}`;
+    feedbackEl.className = 'quiz-feedback quiz-incorrect';
+  }
 }
 
 /* ── Shared ── */

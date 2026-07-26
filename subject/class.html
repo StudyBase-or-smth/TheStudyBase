@@ -80,7 +80,7 @@
 
 <!-- Header (populated by JS once subject is known) -->
 <div class="hdr-outer">
-  <a class="accent-bar" id="accentBar" href="../index.html" title="Back to Index">
+  <a class="accent-bar" id="accentBar" href="../index.html" title="Back to Index" aria-label="Back to Index">
   </a>
   <div class="hdr-main">
     <div class="hdr-top">
@@ -93,17 +93,19 @@
         </div>
       </div>
       <div class="hdr-breadcrumb">
-        <a class="bc-link" href="../index.html">Hub</a>
+        <a class="bc-link" href="../index.html">Index</a>
         <span class="bc-sep">›</span>
-        <span class="bc-current" id="hdrSubjectName"></span>
+        <a class="bc-link" href="javascript:void(0)" onclick="closeTopicView();renderList()" id="hdrSubjectName" title="Back to class overview"></a>
+        <span class="bc-sep" id="hdrTopicSep" style="display:none">›</span>
+        <span class="bc-current" id="hdrTopicName" style="display:none"></span>
       </div>
       <div class="hdr-right-row">
         <span id="syncStatus" style="font-size:11px;font-weight:600"></span>
         <span id="syncCountdown" style="font-size:11px;color:var(--muted2);font-variant-numeric:tabular-nums"></span>
-        <button class="hdr-ghost" onclick="syncPull()" data-tip="Sync now">⟳</button>
-        <button class="hdr-ghost" id="btnFlashcards" onclick="window.location.href='flashcards.html#'" data-tip="Flashcards">🃏</button>
-        <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out">⎋</button>
-        <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()" data-tip="Dark mode">🌙</button>
+        <button class="hdr-ghost" onclick="syncPull()" data-tip="Sync now" aria-label="Sync now">⟳</button>
+        <button class="hdr-ghost" id="btnFlashcards" onclick="window.location.href='flashcards.html#'" data-tip="Flashcards" aria-label="Flashcards">🃏</button>
+        <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out" aria-label="Sign out">⎋</button>
+        <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()" data-tip="Dark mode" aria-label="Toggle dark mode">🌙</button>
         <button class="hdr-action" id="btnNewTopic" onclick="openModal()">+ New topic</button>
       </div>
     </div>
@@ -125,14 +127,15 @@
         <span class="search-icon">⌕</span>
         <input class="search-input" type="text" id="searchInput" placeholder="Search…">
       </div>
+      <button class="filter-btn" id="unitsToggleBtn" aria-expanded="false" aria-label="Filter by unit">Units <span class="filter-badge" id="unitsBadge" style="display:none">0</span></button>
     </div>
-    <div class="unit-wrap">
-      <div class="unit-label">Units</div>
-      <div class="unit-pills" id="unitPills"></div>
+    <div class="units-panel" id="unitsPanel">
+      <div class="units-search"><span>⌕</span><input type="text" id="unitsSearchInput" placeholder="Search units…" aria-label="Search units" oninput="renderPills()"></div>
+      <div class="units-list" id="unitsListBody"></div>
     </div>
-    <div class="topic-list" id="topicList"></div>
+    <div class="topic-list scroll-y" id="topicList"></div>
   </div>
-  <button class="sidebar-edge-toggle" id="sidebarCollapseBtn" onclick="toggleSidebarCollapsed()" data-tip="Hide sidebar">‹</button>
+  <button class="sidebar-edge-toggle" id="sidebarCollapseBtn" onclick="toggleSidebarCollapsed()" data-tip="Hide sidebar" aria-label="Hide sidebar">‹</button>
 
   <div class="detail-panel">
     <div class="welcome" id="welcomeState">
