@@ -231,6 +231,19 @@
       <input type="file" id="fPdfFile" accept="application/pdf" style="display:none" onchange="onPdfFileSelected(this)">
       <div id="pdfPreviewArea"></div>
     </div>
+    <div class="form-g" data-layout-group="table">
+      <label class="form-l">Table <span>— add/remove columns and rows, click a cell to edit</span></label>
+      <div class="table-editor-wrap">
+        <table class="table-editor" id="tableEditorGrid">
+          <thead><tr id="tableEditorHeadRow"></tr></thead>
+          <tbody id="tableEditorBody"></tbody>
+        </table>
+      </div>
+      <div class="table-editor-actions">
+        <button type="button" class="btn-small" onclick="addTableColumn()">+ Add column</button>
+        <button type="button" class="btn-small" onclick="addTableRow()">+ Add row</button>
+      </div>
+    </div>
     <div class="form-g" data-layout-group="basic">
       <label class="form-l">Extra Notes</label>
       <div class="rich-editor-wrap">

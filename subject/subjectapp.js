@@ -52,10 +52,16 @@ function initSidebarTabs(){
 
 function applySubjectTheme(){
   const c = SUBJECT.colour;
-  document.documentElement.style.setProperty('--accent', c);
+  // Set on <body>, not <html> — body.subject-page has its own stylesheet
+  // rule for --accent, which as a same-element declaration always beats
+  // whatever <html> inherits down to it, inline or not. Setting the inline
+  // override directly on body itself is what actually wins that cascade,
+  // so "+ New topic" and the active topic-item bar pick up this subject's
+  // real colour (matching the accent-bar) instead of the fixed fallback.
+  document.body.style.setProperty('--accent', c);
   const r = parseInt(c.slice(1,3),16), g = parseInt(c.slice(3,5),16), b = parseInt(c.slice(5,7),16);
-  document.documentElement.style.setProperty('--ac-l', `rgba(${r},${g},${b},.07)`);
-  document.documentElement.style.setProperty('--ac-b', `rgba(${r},${g},${b},.22)`);
+  document.body.style.setProperty('--ac-l', `rgba(${r},${g},${b},.07)`);
+  document.body.style.setProperty('--ac-b', `rgba(${r},${g},${b},.22)`);
 
   document.getElementById('accentBar').style.background = c;
   document.getElementById('hdrEmoji').textContent = SUBJECT.emoji || '📚';
@@ -120,6 +126,109 @@ function sanitizeRich(html){
     if(!src.startsWith('data:')&&!src.startsWith('https://drive.google.com/')&&!src.startsWith('https://lh3.googleusercontent.com/'))img.remove();
   });
   return d.innerHTML;
+}
+
+// ── Table topic type ──
+// A topic's tableData is { columns: [headerText, ...], rows: [[cellHtml, ...], ...] }.
+// Columns/rows are both dynamic (add/remove either), and each cell is a small
+// rich editor (same contenteditable + image-insert pattern as Definition/
+// Notes, just a compact "mini" toolbar so a wide table stays readable).
+function newTableCellId(){ return 'tc_' + Date.now() + '_' + Math.floor(Math.random()*99999); }
+
+function tableCellHtml(html){
+  const id = newTableCellId();
+  return `<td><div class="rich-editor-wrap table-cell-editor">
+      <div class="rich-toolbar mini"><button type="button" class="rich-btn" onclick="richAddImage('${id}')" title="Insert image">🖼</button></div>
+      <div class="rich-content" id="${id}" contenteditable="true" data-placeholder="…">${html||''}</div>
+      <input type="file" id="img_${id}" accept="image/*" style="display:none">
+    </div></td>`;
+}
+
+function buildTableEditor(data){
+  const cols = (data && data.columns && data.columns.length) ? data.columns : ['Column 1','Column 2'];
+  const rows = (data && data.rows && data.rows.length) ? data.rows : [cols.map(()=>'')];
+  const headRow = document.getElementById('tableEditorHeadRow');
+  const body = document.getElementById('tableEditorBody');
+  if(!headRow || !body) return;
+  headRow.innerHTML = cols.map(h =>
+    `<th><input type="text" class="table-col-input" placeholder="Column…" value="${esc(h)}">
+      <button type="button" class="btn-th-del" title="Remove column" onclick="removeTableColumn(this)">✕</button></th>`
+  ).join('') + '<th class="table-head-spacer"></th>';
+  body.innerHTML = rows.map(r =>
+    '<tr>' + cols.map((c,i) => tableCellHtml(r[i]||'')).join('') +
+    '<td class="table-row-del-cell"><button type="button" class="btn-kp-del" title="Remove row" onclick="removeTableRow(this)">✕</button></td></tr>'
+  ).join('');
+  document.querySelectorAll('#tableEditorBody .table-cell-editor').forEach(attachRichDnD);
+}
+
+function addTableColumn(){
+  const headRow = document.getElementById('tableEditorHeadRow');
+  if(!headRow) return;
+  const spacer = headRow.querySelector('.table-head-spacer');
+  const th = document.createElement('th');
+  th.innerHTML = `<input type="text" class="table-col-input" placeholder="Column…" value="">
+    <button type="button" class="btn-th-del" title="Remove column" onclick="removeTableColumn(this)">✕</button>`;
+  headRow.insertBefore(th, spacer);
+  document.querySelectorAll('#tableEditorBody tr').forEach(tr => {
+    const delCell = tr.querySelector('.table-row-del-cell');
+    const wrapper = document.createElement('tr'); wrapper.innerHTML = tableCellHtml('');
+    const td = wrapper.firstElementChild;
+    tr.insertBefore(td, delCell);
+    attachRichDnD(td.querySelector('.table-cell-editor'));
+  });
+  th.querySelector('.table-col-input').focus();
+}
+
+function removeTableColumn(btn){
+  const th = btn.closest('th');
+  const headRow = th.parentElement;
+  const dataCols = Array.from(headRow.children).filter(c => !c.classList.contains('table-head-spacer'));
+  if(dataCols.length <= 1){ showToast('Table needs at least one column', 'info'); return; }
+  const idx = Array.from(headRow.children).indexOf(th);
+  th.remove();
+  document.querySelectorAll('#tableEditorBody tr').forEach(tr => {
+    const cell = tr.children[idx];
+    if(cell) cell.remove();
+  });
+}
+
+function addTableRow(){
+  const headRow = document.getElementById('tableEditorHeadRow');
+  const body = document.getElementById('tableEditorBody');
+  if(!headRow || !body) return;
+  const numCols = headRow.querySelectorAll('.table-col-input').length;
+  const tr = document.createElement('tr');
+  tr.innerHTML = Array.from({length:numCols}).map(()=>tableCellHtml('')).join('') +
+    '<td class="table-row-del-cell"><button type="button" class="btn-kp-del" title="Remove row" onclick="removeTableRow(this)">✕</button></td>';
+  body.appendChild(tr);
+  tr.querySelectorAll('.table-cell-editor').forEach(attachRichDnD);
+}
+
+function removeTableRow(btn){
+  const body = document.getElementById('tableEditorBody');
+  if(body.querySelectorAll('tr').length <= 1){ showToast('Table needs at least one row', 'info'); return; }
+  btn.closest('tr').remove();
+}
+
+function readTableData(){
+  const headRow = document.getElementById('tableEditorHeadRow');
+  const body = document.getElementById('tableEditorBody');
+  if(!headRow || !body) return { columns: [], rows: [] };
+  const columns = Array.from(headRow.querySelectorAll('.table-col-input')).map(i => i.value.trim());
+  const rows = Array.from(body.querySelectorAll('tr')).map(tr =>
+    Array.from(tr.querySelectorAll('.table-cell-editor .rich-content')).map(el => el.innerHTML.trim())
+  );
+  return { columns, rows };
+}
+
+function tableViewHtml(t){
+  const td = t.tableData;
+  if(!td || !td.columns || !td.columns.length) return '<p class="empty-note">No table data yet.</p>';
+  const head = '<tr>' + td.columns.map(c => `<th>${esc(c)}</th>`).join('') + '</tr>';
+  const body = (td.rows||[]).map(r =>
+    '<tr>' + td.columns.map((c,i) => `<td>${sanitizeRich(r[i]||'')}</td>`).join('') + '</tr>'
+  ).join('');
+  return `<div class="data-table-wrap"><table class="data-table"><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
 }
 
 // ── Storage helpers ──
@@ -187,8 +296,8 @@ const savePinned = p => {
 };
 
 // ── Layouts ──
-const LAYOUTS = ['basic','overview','math','text','pdf'];
-const LAYOUT_LABELS = { basic:'Basic', overview:'Overview', math:'Math', text:'Text', pdf:'PDF' };
+const LAYOUTS = ['basic','overview','math','text','pdf','table'];
+const LAYOUT_LABELS = { basic:'Basic', overview:'Overview', math:'Math', text:'Text', pdf:'PDF', table:'Table' };
 let currentLayout = 'basic';
 
 // ── PDF topic type ──
@@ -793,8 +902,6 @@ function viewTopic(id, originId){
   } else if(layout === 'math'){
     bodyHtml += sec('formula', 'Formula / Equation', '∑',
       t.formula ? `<div class="formula-box">${sanitizeRich(t.formula)}</div>` : '<p class="empty-note">No formula added yet.</p>');
-    bodyHtml += sec('flashcardQA', 'Flashcard Questions', '🃏',
-      (t.flashcardQA||[]).length ? qaRowsHtml(t) : '<p class="empty-note">No flashcard questions yet.</p>');
     bodyHtml += sec('desmos', 'Desmos Graph', '📐', '<p class="empty-note">Desmos support is coming soon.</p>');
   } else if(layout === 'text'){
     bodyHtml += sec('bodyText', 'Main Text', '📄',
@@ -806,6 +913,8 @@ function viewTopic(id, originId){
         ? `<div class="pdf-viewer-wrap"><iframe class="pdf-viewer" src="${t.pdfData}" title="${esc(t.pdfName||'PDF document')}"></iframe>
             <a class="pdf-open-link" href="${t.pdfData}" download="${esc(t.pdfName||'document.pdf')}">⬇ ${esc(t.pdfName||'document.pdf')}</a></div>`
         : '<p class="empty-note">No PDF uploaded yet.</p>');
+  } else if(layout === 'table'){
+    bodyHtml += sec('tableData', 'Table', '▦', tableViewHtml(t));
   } else { // basic
     bodyHtml += sec('definition', 'Definition', '📝',
       t.definition ? `<p class="def-text">${esc(t.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>');
@@ -815,7 +924,6 @@ function viewTopic(id, originId){
     if(t.process)                  bodyHtml += sec('process',     'Process / Method',   '⚙',  `<div class="formula-box">${sanitizeRich(t.process)}</div>`);
     if(t.safety)                   bodyHtml += sec('safety',      'Safety / Warnings',  '⚠',  `<div class="warning-box">${sanitizeRich(t.safety)}</div>`);
     if(t.examTip)                  bodyHtml += sec('examTip',     'Exam Tip',           '⚡', `<div class="exam-tip">${sanitizeRich(t.examTip)}</div>`);
-    if((t.flashcardQA||[]).length) bodyHtml += sec('flashcardQA', 'Flashcard Questions','🃏', qaRowsHtml(t));
   }
 
   // Common to every layout: subtopics, then related terms
@@ -898,6 +1006,7 @@ function openModal(id){
     topicsSrc().filter(c => c.parentId === t.id).forEach(c => addSubtopicRow(c));
     document.getElementById('fqaList').innerHTML = '';
     (t.flashcardQA||[]).forEach(qa => addFqaRow(qa.q, qa.a));
+    buildTableEditor(t.tableData);
     currentLayout = LAYOUTS.includes(t.layout) ? t.layout : 'basic';
     pendingPdfData = null; pendingPdfName = null;
   } else {
@@ -906,6 +1015,7 @@ function openModal(id){
     ['fFormula','fMaterials','fProcess','fSafety','fExamTip','fBodyText'].forEach(clearRich);
     document.getElementById('fUnit').value = '';
     document.getElementById('fqaList').innerHTML = '';
+    buildTableEditor(null);
     currentLayout = 'basic';
     pendingPdfData = null; pendingPdfName = null;
   }
@@ -1028,6 +1138,7 @@ function saveTopic(){
     bodyText:  getRichVal('fBodyText'),
     pdfData:   pendingPdfData !== null ? pendingPdfData : (ex.pdfData || ''),
     pdfName:   pendingPdfData !== null ? pendingPdfName : (ex.pdfName || ''),
+    tableData: readTableData(),
     layout:    currentLayout,
     relatedTerms,
     flashcardQA,
@@ -1054,7 +1165,7 @@ function saveTopic(){
         name: row.name,
         unit: topic.unit,
         definition: '', keyPoints: [], formula: '', materials: '', process: '', safety: '', examTip: '',
-        relatedTerms: [], flashcardQA: [],
+        relatedTerms: [], flashcardQA: [], tableData: { columns: [], rows: [] },
         parentId: topic.id,
         addedBy: window.currentUid || null,
         createdAt: new Date().toISOString(),
