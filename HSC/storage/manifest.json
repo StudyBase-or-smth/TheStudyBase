@@ -2,5 +2,7 @@
   { "file": "MathS-S1.json", "name": "Section 1" },
   { "file": "MathS-S2.json", "name": "Section 2" },
   { "file": "EngineeringS-S1.json", "name": "Engineering Section 1" },
-  { "file": "EngineeringS-S2.json", "name": "Engineering Section 2" }
+  { "file": "EngineeringS-S2.json", "name": "Engineering Section 2" },
+  { "file": "MathSTD-Practice.json", "name": "MathSTD-Practice" },
+  { "file": "Electro1Practice.json", "name": "Electro1Practice" }
 ]

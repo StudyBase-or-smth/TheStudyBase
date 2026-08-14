@@ -54,13 +54,6 @@ body.dark .success-msg{background:#142a1a!important;border-color:#245c34!importa
 .btn-ghost:hover{background:var(--card2);color:var(--text);border-color:var(--border2)}
 body.dark .btn-ghost{border-color:var(--border);color:var(--muted)}
 body.dark .btn-ghost:hover{background:var(--card2);color:var(--text)}
-/* Pending / rejected screens */
-.pending-screen{display:none;text-align:center}
-.pending-screen.show{display:block}
-.pending-icon{font-size:34px;margin-bottom:10px}
-.pending-title{font-family:'Lora',serif;font-size:19px;font-weight:700;margin-bottom:8px}
-.pending-text{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:22px}
-.pending-role{display:inline-block;background:var(--card2);border:1px solid var(--border);border-radius:5px;padding:2px 9px;font-size:11px;font-weight:600;color:var(--text);text-transform:capitalize}
 /* Dark mode */
 body.dark{--bg:#141210;--card:#1e1c19;--card2:#252220;--border:#302d29;--border2:#3d3935;--text:#e8e3dc;--muted:#9e9890;--muted2:#6b6560}
 body.dark .wordmark-icon{background:#e8e3dc}
@@ -137,8 +130,7 @@ body.dark .login-title,body.dark .login-sub{color:var(--text)!important}
             <option value="teacher">Teacher</option>
           </select>
           <div class="form-hint">
-            School (<strong>@pcs.nsw.edu.au</strong>) emails requesting <strong>Student</strong> are activated instantly.
-            <strong>Teacher</strong> requests are reviewed before access is granted — you can still browse as a guest in the meantime.
+            Every new account is reviewed by a dev before access is granted — you can still browse as a guest in the meantime.
           </div>
         </div>
         <button class="btn-primary" id="suBtn" onclick="handleSignUp()">Create account</button>
@@ -146,28 +138,6 @@ body.dark .login-title,body.dark .login-sub{color:var(--text)!important}
 
       <div class="or-divider">or</div>
       <button class="btn-ghost" onclick="enterGuest()">Continue as Guest</button>
-    </div>
-
-    <!-- Pending approval screen (shown after sign-up OR when a pending user signs back in) -->
-    <div class="pending-screen" id="pendingScreen">
-      <div class="pending-icon">⏳</div>
-      <div class="pending-title">Awaiting approval</div>
-      <div class="pending-text">
-        Your <span class="pending-role" id="pendingRoleLabel">teacher</span> access request
-        has been sent for review. You can browse StudyBase as a guest until a dev approves your account.
-      </div>
-      <button class="btn-primary" onclick="continueAsPending()">Continue as Guest</button>
-    </div>
-
-    <!-- Rejected screen (shown when a previously-denied user signs back in) -->
-    <div class="pending-screen" id="rejectedScreen">
-      <div class="pending-icon">🚫</div>
-      <div class="pending-title">Request denied</div>
-      <div class="pending-text">
-        Your <span class="pending-role" id="rejectedRoleLabel">teacher</span> access request
-        was not approved. You can still browse StudyBase as a guest, or contact a dev if you think this was a mistake.
-      </div>
-      <button class="btn-primary" onclick="continueAsPending()">Continue as Guest</button>
     </div>
 
   </div>
@@ -199,24 +169,14 @@ body.dark .login-title,body.dark .login-sub{color:var(--text)!important}
 
     // Force-refresh so we always have the latest claims (e.g. after admin approval)
     const token = await user.getIdTokenResult(true);
-    const role   = token.claims.role   || '';
     const status = token.claims.status || '';
 
-    // Pending users stay on this page and see the pending screen
-    if (status === 'pending') {
+    // Pending or rejected accounts go to the waiting page instead of
+    // signing them straight in — it shows the same status screen and lets
+    // them re-check or continue as a guest.
+    if (status === 'pending' || status === 'rejected') {
       suppressAutoRedirect = true;
-      document.getElementById('pendingRoleLabel').textContent = role || 'teacher';
-      document.getElementById('authForms').style.display = 'none';
-      document.getElementById('pendingScreen').classList.add('show');
-      return;
-    }
-
-    // Rejected users stay on this page and see the rejected screen
-    if (status === 'rejected') {
-      suppressAutoRedirect = true;
-      document.getElementById('rejectedRoleLabel').textContent = role || 'teacher';
-      document.getElementById('authForms').style.display = 'none';
-      document.getElementById('rejectedScreen').classList.add('show');
+      window.location.href = 'waiting.html';
       return;
     }
 
@@ -306,16 +266,29 @@ body.dark .login-title,body.dark .login-sub{color:var(--text)!important}
     const btn = document.getElementById('suBtn');
     btn.disabled = true; btn.textContent = 'Creating account…';
 
+    // Set this BEFORE creating the account. Firebase's auth-state listener
+    // can fire the moment the account exists internally — which can happen
+    // before createUserWithEmailAndPassword's own promise even resolves back
+    // to this function — and a brand-new user has no custom claims yet, so
+    // the listener would otherwise treat them as a normal active user and
+    // send them straight to index.html. Setting the flag first closes that
+    // race entirely; handleSignUp (below) owns the post-signup redirect.
+    suppressAutoRedirect = true;
+
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
       await updateProfile(cred.user, { displayName: name });
 
-      // Ask the server to set the role claim (active or pending)
+      // Ask the server to set the role claim. Needs the new user's own ID
+      // token so registerRole.js can verify the caller and match uid —
+      // without this the call 401s and silently falls back to 'pending'
+      // below anyway, but the claims never actually get set server-side.
       let result = { status: 'pending', requestedRole };
       try {
+        const idToken = await cred.user.getIdToken();
         const res = await fetch('/api/registerRole', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
           body: JSON.stringify({ uid: cred.user.uid, email, requestedRole }),
         });
         if (res.ok) result = await res.json();
@@ -330,29 +303,26 @@ body.dark .login-title,body.dark .login-sub{color:var(--text)!important}
       await cred.user.getIdToken(true);
 
       if (result.status === 'active') {
-        // School student — go straight in
+        // Defensive fallback — every sign-up is pending by default now,
+        // but go straight in if a claim ever comes back active.
         window.location.href = 'index.html';
         return;
       }
 
-      // Pending (teacher or non-school) — show the approval screen
-      // and drop into guest mode so they can browse read-only
-      suppressAutoRedirect = true;
-      sessionStorage.setItem('studybase_guest', '1');
-      document.getElementById('pendingRoleLabel').textContent = result.requestedRole || requestedRole;
-      document.getElementById('authForms').style.display = 'none';
-      document.getElementById('pendingScreen').classList.add('show');
+      // Every new account starts pending — send them to the waiting page
+      // until a dev approves (or denies) the request.
+      window.location.href = 'waiting.html';
 
     } catch (e) {
+      // Account creation (or the flow after it) failed — no auth-state change
+      // actually happened for a failed createUserWithEmailAndPassword, so
+      // re-enable the listener; otherwise a failed sign-up would silently
+      // disable auto-redirect for the rest of this page load (e.g. if the
+      // user then switches to Sign In).
+      suppressAutoRedirect = false;
       showError(friendlyError(e.code));
       btn.disabled = false; btn.textContent = 'Create account';
     }
-  };
-
-  // Pending/rejected user clicks "Continue as Guest" — drop them into guest mode
-  window.continueAsPending = function() {
-    sessionStorage.setItem('studybase_guest', '1');
-    window.location.href = 'index.html';
   };
 
   window.enterGuest = function() {

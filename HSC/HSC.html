@@ -106,6 +106,11 @@
     border: 1px solid var(--border, #e0e0e0);
     background: var(--card, #fff);
   }
+  /* This page reuses mainstyle.css's subject-page dark-mode img filter
+     (auto-inverts images so light diagrams don't glow), which is why
+     question images get inverted here too. Same escape hatch as the topic
+     PDF/Image viewer: click toggles .no-invert. */
+  body.dark .quiz-image { cursor: pointer; transition: filter .12s; }
 
   /* Multiple choice / checkbox answers */
   .quiz-answers {
@@ -805,6 +810,7 @@ function renderQuestionImage(q, container) {
   const img = document.createElement('img');
   img.className = 'quiz-image';
   img.alt = q.question || q.name || 'Question image';
+  img.title = 'Click to toggle dark-mode inversion';
   img.src = `${STORAGE_FOLDER}/${q.image}`;
   img.onerror = () => {
     const err = document.createElement('div');
@@ -812,6 +818,10 @@ function renderQuestionImage(q, container) {
     err.textContent = `Could not load image: ${q.image}`;
     img.replaceWith(err);
   };
+  // Inverted by default in dark mode (mainstyle.css's global img filter);
+  // click flips it back to normal colours and back again — same behaviour
+  // as the topic PDF/Image viewer's toggleImgInvert().
+  img.onclick = () => img.classList.toggle('no-invert');
   wrap.appendChild(img);
 }
 

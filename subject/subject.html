@@ -32,7 +32,12 @@
       sessionStorage.removeItem('studybase_guest');
       window.currentUid = user.uid;
       localStorage.setItem('studybase_uid', user.uid);
-      user.getIdTokenResult().then(result => {
+      // Force-refresh: a claim change (e.g. status flipping to pending right
+      // after sign-up, or a dev approving/rejecting someone) doesn't show up
+      // in a cached ID token until it's explicitly refreshed — without
+      // `true` here a pending account can read back as active and get full
+      // edit access on this page.
+      user.getIdTokenResult(true).then(result => {
         const role   = result.claims.role   || '';
         const status = result.claims.status || '';
         window.userRole = role;
@@ -204,6 +209,8 @@
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
           <span class="rich-toolbar-label">text &amp; images</span>
+          <button type="button" class="rich-btn" onclick="expandEnlarge('fBodyText')" title="Enlarge">⤢ Enlarge</button>
+          <button type="button" class="rich-btn" onclick="expandFullscreen('fBodyText')" title="Fullscreen">⛶ Fullscreen</button>
           <button type="button" class="rich-btn" onclick="richAddImage('fBodyText')">🖼 Insert image</button>
           <input type="file" id="img_fBodyText" accept="image/*" style="display:none">
         </div>
@@ -220,15 +227,33 @@
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
           <span class="rich-toolbar-label">text &amp; images</span>
+          <div class="symbol-picker-wrap">
+            <button type="button" class="rich-btn" onmousedown="event.preventDefault()" onclick="toggleSymbolPicker(this)">Ω Symbols</button>
+            <div class="symbol-picker-panel" id="symPicker_fFormula" data-target="fFormula"></div>
+          </div>
           <button type="button" class="rich-btn" onclick="richAddImage('fFormula')">🖼 Insert image</button>
           <input type="file" id="img_fFormula" accept="image/*" style="display:none">
         </div>
         <div class="rich-content mono" id="fFormula" contenteditable="true" data-placeholder="e.g. σ = F/A" style="min-height:88px"></div>
       </div>
     </div>
+    <div class="form-g" data-layout-group="math">
+      <div class="form-l-row">
+        <label class="form-l">Desmos Graph <span>— build the graph below; it saves with the topic</span></label>
+        <span class="sh-expand-btns">
+          <button type="button" class="sh-expand-btn" onclick="expandEnlarge('desmosEditorCalc')" title="Enlarge">⤢</button>
+          <button type="button" class="sh-expand-btn" onclick="expandFullscreen('desmosEditorCalc')" title="Fullscreen">⛶</button>
+        </span>
+      </div>
+      <div class="desmos-editor-wrap">
+        <div class="desmos-calculator" id="desmosEditorCalc"></div>
+        <div class="desmos-loading" id="desmosEditorLoading" style="height:360px"><span class="desmos-spinner"></span>Loading graphing calculator…</div>
+        <p class="desmos-unavailable" id="desmosEditorUnavailable" style="display:none">Desmos graphing isn't configured yet — add a <code>DESMOS_API_KEY</code> environment variable (see <code>netlify/functions/desmosKey.js</code>) to enable it.</p>
+      </div>
+    </div>
     <div class="form-g" data-layout-group="pdf">
-      <label class="form-l">PDF Document</label>
-      <input type="file" id="fPdfFile" accept="application/pdf" style="display:none" onchange="onPdfFileSelected(this)">
+      <label class="form-l">PDF / Image Document</label>
+      <input type="file" id="fPdfFile" accept="application/pdf,image/*" style="display:none" onchange="onPdfFileSelected(this)">
       <div id="pdfPreviewArea"></div>
     </div>
     <div class="form-g" data-layout-group="table">
@@ -321,6 +346,18 @@
       <button class="btn-cancel" onclick="closeConfirm()">Cancel</button>
       <button class="btn-del-conf" onclick="doDelete()">Delete</button>
     </div>
+  </div>
+</div>
+
+<!-- Shared "enlarge" overlay (~80% of viewport) used by expand buttons on
+     the Desmos Graph / Main Text / PDF/Image Document sections. The actual
+     content node is moved into #enlargeSlot on open and moved back to its
+     original spot on close — see expandEnlarge()/closeEnlarge() in
+     subjectapp.js. -->
+<div class="enlarge-overlay" id="enlargeOverlay" onclick="if(event.target===this) closeEnlarge()">
+  <div class="enlarge-box">
+    <button type="button" class="modal-x enlarge-close" onclick="closeEnlarge()" title="Close">✕</button>
+    <div class="enlarge-slot" id="enlargeSlot"></div>
   </div>
 </div>
 

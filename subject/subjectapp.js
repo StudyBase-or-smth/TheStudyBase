@@ -89,6 +89,10 @@ function toggleDark(){
   const on = document.body.classList.toggle('dark');
   localStorage.setItem('studybase_dark', on ? '1' : '0');
   document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
+  // Desmos doesn't inherit page CSS, so any already-mounted calculators need
+  // their colors pushed explicitly instead of just picking up the new class.
+  if(typeof desmosEditorCalc !== 'undefined' && desmosEditorCalc) desmosEditorCalc.updateSettings(desmosThemeOpts());
+  if(typeof desmosViewCalc !== 'undefined' && desmosViewCalc) desmosViewCalc.updateSettings(desmosThemeOpts());
 }
 
 // ── Sidebar collapse (desktop) ──
@@ -231,6 +235,145 @@ function tableViewHtml(t){
   return `<div class="data-table-wrap"><table class="data-table"><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
 }
 
+function pdfDocViewHtml(t){
+  if(!t.pdfData) return '<p class="empty-note">No PDF or image uploaded yet.</p>';
+  const isImg = isImageDataUrl(t.pdfData);
+  const name = esc(t.pdfName || (isImg ? 'image' : 'document.pdf'));
+  // Images get auto-inverted in dark mode (see the global img filter rule in
+  // mainstyle.css) so light-background diagrams don't glow — but that's not
+  // always the right call (photos, already-dark images, etc.), so clicking
+  // the image toggles it back to its normal colours and back again.
+  const viewer = isImg
+    ? `<img class="pdf-viewer-img" id="pdfViewerFrame" src="${t.pdfData}" alt="${name}" title="Click to toggle dark-mode inversion" onclick="toggleImgInvert(this)">`
+    : `<iframe class="pdf-viewer" id="pdfViewerFrame" src="${t.pdfData}" title="${name}"></iframe>`;
+  return `<div class="pdf-viewer-wrap">${viewer}
+      <a class="pdf-open-link" href="${t.pdfData}" download="${name}">⬇ ${name}</a></div>`;
+}
+
+// Toggles an uploaded image between the dark-mode auto-inverted look and its
+// normal colours. `.no-invert` is the escape hatch the global dark-mode img
+// filter (mainstyle.css) already respects, so this just flips that class —
+// inverted is the default whenever dark mode is on, same as before.
+function toggleImgInvert(el){
+  el.classList.toggle('no-invert');
+}
+
+// ── Desmos graphing (math layout only) ──
+// The API key lives server-side (Netlify env var DESMOS_API_KEY, see
+// netlify/functions/desmosKey.js) and is fetched at runtime rather than
+// committed to this file — see that function's header comment for why.
+// Two independent live Desmos.GraphingCalculator instances can exist at
+// once: desmosEditorCalc (the New/Edit topic modal, fully interactive) and
+// desmosViewCalc (the read-only-ish one in the detail panel). Both must be
+// explicitly .destroy()ed before their container is removed/replaced —
+// Desmos calculators hold a WebGL context that isn't freed by just
+// discarding the DOM node.
+const DESMOS_API_VERSION = 'v1.12';
+let _desmosLoadPromise = null;
+let desmosEditorCalc = null;
+let desmosViewCalc = null;
+
+// Desmos doesn't auto-detect page theme, so we hand it explicit colors that
+// track StudyBase's dark-mode class and the active subject's accent color
+// (these are still "Beta" options per Desmos's docs, but well-supported).
+function desmosThemeOpts(){
+  const dark = document.body.classList.contains('dark');
+  const accent = (getComputedStyle(document.body).getPropertyValue('--accent') || '').trim();
+  return dark
+    ? { backgroundColor: '#252220', textColor: '#e8e3dc', accentColor: accent || '#7fb0e0' }
+    : { backgroundColor: '#faf8f5', textColor: '#1c1917', accentColor: accent || '#2f72dc' };
+}
+
+function loadDesmosScript(){
+  if(_desmosLoadPromise) return _desmosLoadPromise;
+  _desmosLoadPromise = fetch('/api/desmosKey')
+    .then(res => res.ok ? res.json() : { apiKey: '' })
+    .catch(() => ({ apiKey: '' }))
+    .then(data => new Promise(resolve => {
+      const apiKey = (data && data.apiKey) || '';
+      if(!apiKey){ resolve(false); return; }
+      if(window.Desmos){ resolve(true); return; }
+      const s = document.createElement('script');
+      s.src = `https://www.desmos.com/api/${DESMOS_API_VERSION}/calculator.js?apiKey=${encodeURIComponent(apiKey)}`;
+      s.onload = () => resolve(!!window.Desmos);
+      s.onerror = () => resolve(false);
+      document.head.appendChild(s);
+    }));
+  return _desmosLoadPromise;
+}
+
+async function mountDesmosEditor(state){
+  const container = document.getElementById('desmosEditorCalc');
+  const unavailable = document.getElementById('desmosEditorUnavailable');
+  const loading = document.getElementById('desmosEditorLoading');
+  if(!container) return;
+  if(desmosEditorCalc){ desmosEditorCalc.destroy(); desmosEditorCalc = null; }
+  // Skip the spinner once the Desmos script is already loaded (window.Desmos
+  // set) — only the first mount per page actually has to wait on the network.
+  const alreadyLoaded = !!window.Desmos;
+  container.style.display = 'none';
+  if(unavailable) unavailable.style.display = 'none';
+  if(loading) loading.style.display = alreadyLoaded ? 'none' : '';
+  const ok = await loadDesmosScript();
+  if(document.getElementById('desmosEditorCalc') !== container) return; // modal closed/reopened while loading
+  if(loading) loading.style.display = 'none';
+  if(!ok){
+    container.style.display = 'none';
+    if(unavailable) unavailable.style.display = '';
+    return;
+  }
+  container.style.display = '';
+  if(unavailable) unavailable.style.display = 'none';
+  desmosEditorCalc = Desmos.GraphingCalculator(container, desmosThemeOpts());
+  if(state){ try{ desmosEditorCalc.setState(state); }catch(e){ desmosEditorCalc.setBlank(); } }
+}
+
+function readDesmosState(){
+  return desmosEditorCalc ? desmosEditorCalc.getState() : null;
+}
+
+function destroyDesmosEditor(){
+  if(desmosEditorCalc){ desmosEditorCalc.destroy(); desmosEditorCalc = null; }
+}
+
+async function mountDesmosView(t){
+  const container = document.getElementById('desmosViewCalc');
+  const empty = document.getElementById('desmosViewEmpty');
+  const unavailable = document.getElementById('desmosViewUnavailable');
+  const loading = document.getElementById('desmosViewLoading');
+  if(!container) return; // not on a math-layout topic
+  if(!t.desmosState){
+    container.style.display = 'none';
+    if(loading) loading.style.display = 'none';
+    if(unavailable) unavailable.style.display = 'none';
+    if(empty) empty.style.display = '';
+    return;
+  }
+  if(empty) empty.style.display = 'none';
+  if(unavailable) unavailable.style.display = 'none';
+  container.style.display = 'none';
+  // Skip the spinner once the Desmos script is already loaded (window.Desmos
+  // set) — only the first mount per page actually has to wait on the network.
+  const alreadyLoaded = !!window.Desmos;
+  if(loading) loading.style.display = alreadyLoaded ? 'none' : '';
+  const ok = await loadDesmosScript();
+  if(document.getElementById('desmosViewCalc') !== container) return; // navigated away while loading
+  if(loading) loading.style.display = 'none';
+  if(!ok){
+    container.style.display = 'none';
+    if(unavailable) unavailable.style.display = '';
+    return;
+  }
+  container.style.display = '';
+  desmosViewCalc = Desmos.GraphingCalculator(container, Object.assign(
+    { expressions: false, settingsMenu: false, keypad: false }, desmosThemeOpts()));
+  desmosViewCalc.setState(t.desmosState);
+}
+
+function destroyDesmosView(){
+  if(desmosViewCalc){ desmosViewCalc.destroy(); desmosViewCalc = null; }
+}
+
 // ── Storage helpers ──
 const CELL_LIMIT = 45000;
 const getTopics  = () => { try{ return JSON.parse(localStorage.getItem(ST)||'[]'); }catch(e){ return []; } };
@@ -297,27 +440,33 @@ const savePinned = p => {
 
 // ── Layouts ──
 const LAYOUTS = ['basic','overview','math','text','pdf','table'];
-const LAYOUT_LABELS = { basic:'Basic', overview:'Overview', math:'Math', text:'Text', pdf:'PDF', table:'Table' };
+const LAYOUT_LABELS = { basic:'Basic', overview:'Overview', math:'Math', text:'Text', pdf:'PDF/Image', table:'Table' };
 let currentLayout = 'basic';
 
-// ── PDF topic type ──
-// PDFs are embedded as base64 data URLs directly on the topic (like the
-// rich-text image uploads, but simpler — no server round trip). This bloats
-// sync payloads for large files, so we cap it rather than let it silently
-// break syncPush/localStorage.
+// ── PDF/Image topic type ──
+// PDFs and images are embedded as base64 data URLs directly on the topic
+// (like the rich-text image uploads, but simpler — no server round trip).
+// This bloats sync payloads for large files, so we cap it rather than let
+// it silently break syncPush/localStorage.
 const PDF_MAX_BYTES = 6 * 1024 * 1024; // ~6MB (base64 already ~33% bigger than the raw file)
 let pendingPdfData = null;   // null = no change; '' = explicitly removed; string = new data URL
 let pendingPdfName = null;
+
+function isImageDataUrl(url){
+  return !!url && /^data:image\//i.test(url);
+}
 
 function onPdfFileSelected(input){
   const file = input.files && input.files[0];
   input.value = '';
   if(!file) return;
-  if(file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')){
-    showToast('Please choose a PDF file', 'info'); return;
+  const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+  const isImage = file.type.startsWith('image/') || /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(file.name);
+  if(!isPdf && !isImage){
+    showToast('Please choose a PDF or image file', 'info'); return;
   }
   if(file.size > PDF_MAX_BYTES){
-    showToast(`PDF is too large (${(file.size/1024/1024).toFixed(1)}MB) — max ${(PDF_MAX_BYTES/1024/1024).toFixed(0)}MB`, 'error');
+    showToast(`File is too large (${(file.size/1024/1024).toFixed(1)}MB) — max ${(PDF_MAX_BYTES/1024/1024).toFixed(0)}MB`, 'error');
     return;
   }
   const reader = new FileReader();
@@ -339,13 +488,15 @@ function renderPdfPreview(){
   const area = document.getElementById('pdfPreviewArea');
   if(!area) return;
   const ex = editId ? ((editOrigin ? topicsForOrigin(editOrigin) : getTopics()).find(t => t.id===editId)||{}) : {};
+  const data = pendingPdfData !== null ? pendingPdfData : (ex.pdfData || '');
   const name = pendingPdfData !== null ? pendingPdfName : (ex.pdfName || '');
-  const hasFile = pendingPdfData !== null ? !!pendingPdfData : !!ex.pdfData;
+  const hasFile = !!data;
+  const icon = isImageDataUrl(data) ? '🖼' : '📄';
   area.innerHTML = hasFile
-    ? `<div class="pdf-picked-row"><span class="pdf-picked-name">📄 ${esc(name || 'document.pdf')}</span>
+    ? `<div class="pdf-picked-row"><span class="pdf-picked-name">${icon} ${esc(name || (icon==='🖼' ? 'image' : 'document.pdf'))}</span>
         <button type="button" class="btn-small" onclick="document.getElementById('fPdfFile').click()">Replace</button>
         <button type="button" class="btn-small" onclick="removePdfFile()">Remove</button></div>`
-    : `<button type="button" class="btn-small" onclick="document.getElementById('fPdfFile').click()">+ Choose PDF</button>`;
+    : `<button type="button" class="btn-small" onclick="document.getElementById('fPdfFile').click()">+ Choose PDF or Image</button>`;
 }
 
 function cycleLayout(dir){
@@ -421,13 +572,67 @@ function deleteBlockNote(topicId, block, noteId){
 }
 
 // ── Section rendering ──
-function sectionHtml(topicId, icon, label, block, bodyHtml){
+function sectionHtml(topicId, icon, label, block, bodyHtml, headerExtra){
   return `<div class="section" data-block="${block}">
     <div class="section-header">
       <span class="sh-label-wrap"><span class="sh-icon">${icon}</span>${label}</span>
+      ${headerExtra || ''}
     </div>
     <div class="section-body">${bodyHtml}</div>
   </div>`;
+}
+
+// ── Expand controls (fullscreen / ~80%-enlarge) for select detail sections ──
+// Used by Desmos Graph, Main Text (text layout), and PDF/Image Document. The
+// "enlarge" mode MOVES the actual content node into a shared overlay
+// (rather than cloning it) so stateful content — the live Desmos
+// calculator, the PDF iframe — isn't duplicated or reloaded; it's moved
+// back to its original spot on close. Fullscreen uses the native
+// Fullscreen API directly on the content node, which works regardless of
+// where that node currently sits in the DOM.
+function expandBtnsHtml(targetId, opts){
+  opts = opts || {};
+  let html = '<span class="sh-expand-btns">';
+  if(opts.enlarge)    html += `<button type="button" class="sh-expand-btn" onclick="expandEnlarge('${targetId}')" title="Enlarge">⤢</button>`;
+  if(opts.fullscreen) html += `<button type="button" class="sh-expand-btn" onclick="expandFullscreen('${targetId}')" title="Fullscreen">⛶</button>`;
+  html += '</span>';
+  return html;
+}
+
+function expandFullscreen(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const req = el.requestFullscreen || el.webkitRequestFullscreen;
+  if(req) req.call(el);
+}
+
+let _enlargeOrigin = null; // { el, parent, next }
+function expandEnlarge(id){
+  const el = document.getElementById(id);
+  const overlay = document.getElementById('enlargeOverlay');
+  const slot = document.getElementById('enlargeSlot');
+  if(!el || !overlay || !slot) return;
+  closeEnlarge(); // in case something was already enlarged
+  _enlargeOrigin = { el, parent: el.parentNode, next: el.nextSibling };
+  slot.appendChild(el);
+  el.classList.add('enlarged-active');
+  overlay.classList.add('open');
+  document.addEventListener('keydown', _enlargeEscHandler);
+}
+function _enlargeEscHandler(e){ if(e.key === 'Escape') closeEnlarge(); }
+function closeEnlarge(){
+  const overlay = document.getElementById('enlargeOverlay');
+  if(overlay) overlay.classList.remove('open');
+  document.removeEventListener('keydown', _enlargeEscHandler);
+  if(_enlargeOrigin){
+    const { el, parent, next } = _enlargeOrigin;
+    el.classList.remove('enlarged-active');
+    if(parent){
+      if(next && next.parentNode === parent) parent.insertBefore(el, next);
+      else parent.appendChild(el);
+    }
+    _enlargeOrigin = null;
+  }
 }
 
 // ── Right-hand comments sidebar ──
@@ -886,9 +1091,9 @@ function viewTopic(id, originId){
 
   // visibleBlocks tracks each section for sidebar alignment
   const visibleBlocks = [];
-  const sec = (block, label, icon, bodyHtml) => {
+  const sec = (block, label, icon, bodyHtml, headerExtra) => {
     visibleBlocks.push({ block, label, icon });
-    return sectionHtml(t.id, icon, label, block, bodyHtml);
+    return sectionHtml(t.id, icon, label, block, bodyHtml, headerExtra);
   };
 
   let bodyHtml = '';
@@ -902,17 +1107,21 @@ function viewTopic(id, originId){
   } else if(layout === 'math'){
     bodyHtml += sec('formula', 'Formula / Equation', '∑',
       t.formula ? `<div class="formula-box">${sanitizeRich(t.formula)}</div>` : '<p class="empty-note">No formula added yet.</p>');
-    bodyHtml += sec('desmos', 'Desmos Graph', '📐', '<p class="empty-note">Desmos support is coming soon.</p>');
+    bodyHtml += sec('desmos', 'Desmos Graph', '📐', `<div class="desmos-view-wrap">
+      <div class="desmos-view-calc" id="desmosViewCalc" style="display:none"></div>
+      <div class="desmos-loading" id="desmosViewLoading" style="display:none;height:420px"><span class="desmos-spinner"></span>Loading graph…</div>
+      <p class="empty-note" id="desmosViewEmpty" style="display:none">No graph created yet.</p>
+      <p class="desmos-unavailable" id="desmosViewUnavailable" style="display:none">Desmos graphing isn't configured yet — an admin needs to add a Desmos API key.</p>
+    </div>`, t.desmosState ? expandBtnsHtml('desmosViewCalc', {enlarge:true, fullscreen:true}) : '');
   } else if(layout === 'text'){
     bodyHtml += sec('bodyText', 'Main Text', '📄',
-      t.bodyText ? `<div class="plain-text">${sanitizeRich(t.bodyText)}</div>` : '<p class="empty-note">No text added yet.</p>');
+      t.bodyText ? `<div class="plain-text" id="mainTextView">${sanitizeRich(t.bodyText)}</div>` : '<p class="empty-note">No text added yet.</p>',
+      t.bodyText ? expandBtnsHtml('mainTextView', {enlarge:true, fullscreen:true}) : '');
     bodyHtml += sec('keyPoints', 'Points of Interest', '✦', kpHtml);
   } else if(layout === 'pdf'){
-    bodyHtml += sec('pdfDoc', 'PDF Document', '📄',
-      t.pdfData
-        ? `<div class="pdf-viewer-wrap"><iframe class="pdf-viewer" src="${t.pdfData}" title="${esc(t.pdfName||'PDF document')}"></iframe>
-            <a class="pdf-open-link" href="${t.pdfData}" download="${esc(t.pdfName||'document.pdf')}">⬇ ${esc(t.pdfName||'document.pdf')}</a></div>`
-        : '<p class="empty-note">No PDF uploaded yet.</p>');
+    bodyHtml += sec('pdfDoc', 'PDF / Image Document', '📄',
+      pdfDocViewHtml(t),
+      t.pdfData ? expandBtnsHtml('pdfViewerFrame', {fullscreen:true}) : '');
   } else if(layout === 'table'){
     bodyHtml += sec('tableData', 'Table', '▦', tableViewHtml(t));
   } else { // basic
@@ -938,6 +1147,8 @@ function viewTopic(id, originId){
     ? `<span class="dh-unit" style="background:${origin.colour}22;color:${origin.colour};border-color:${origin.colour}55">${esc(origin.emoji||'🏫')} From ${esc(origin.name)}${origin.class?' · '+esc(origin.class):''}</span>`
     : '';
 
+  destroyDesmosView(); // the old container (if any) is about to be replaced below
+  closeEnlarge(); // any enlarged content belongs to the topic being replaced
   el.innerHTML = `
       <div class="dh">
         <div>
@@ -963,6 +1174,7 @@ function viewTopic(id, originId){
   }
   _lastRenderedTopicKey = renderKey;
   buildTeacherPanel(t.id, visibleBlocks);
+  mountDesmosView(t);
 
   // Breadcrumb: Index / Subject / Topic
   const bcTopic = document.getElementById('hdrTopicName');
@@ -1007,6 +1219,7 @@ function openModal(id){
     document.getElementById('fqaList').innerHTML = '';
     (t.flashcardQA||[]).forEach(qa => addFqaRow(qa.q, qa.a));
     buildTableEditor(t.tableData);
+    mountDesmosEditor(t.desmosState || null);
     currentLayout = LAYOUTS.includes(t.layout) ? t.layout : 'basic';
     pendingPdfData = null; pendingPdfName = null;
   } else {
@@ -1016,6 +1229,7 @@ function openModal(id){
     document.getElementById('fUnit').value = '';
     document.getElementById('fqaList').innerHTML = '';
     buildTableEditor(null);
+    mountDesmosEditor(null);
     currentLayout = 'basic';
     pendingPdfData = null; pendingPdfName = null;
   }
@@ -1024,7 +1238,7 @@ function openModal(id){
   document.getElementById('modalOverlay').classList.add('open');
   setTimeout(() => document.getElementById('fName').focus(), 80);
 }
-function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); editId = null; editOrigin = null; }
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); editId = null; editOrigin = null; destroyDesmosEditor(); }
 
 function populateSel(){
   const units = editOrigin ? unitsForOrigin(editOrigin) : getUnits();
@@ -1124,6 +1338,7 @@ function saveTopic(){
   }).filter(Boolean);
   const topicsSrc = () => editOrigin ? topicsForOrigin(editOrigin) : getTopics();
   const ex = editId ? (topicsSrc().find(t => t.id===editId)||{}) : {};
+  const newDesmosState = readDesmosState();
   const topic = {
     id: editId || Date.now(),
     name,
@@ -1139,6 +1354,10 @@ function saveTopic(){
     pdfData:   pendingPdfData !== null ? pendingPdfData : (ex.pdfData || ''),
     pdfName:   pendingPdfData !== null ? pendingPdfName : (ex.pdfName || ''),
     tableData: readTableData(),
+    // desmosEditorCalc may not have finished loading yet (async key fetch +
+    // script load) if the user saves very quickly — in that case fall back
+    // to whatever was already saved rather than wiping it out.
+    desmosState: newDesmosState !== null ? newDesmosState : (ex.desmosState || null),
     layout:    currentLayout,
     relatedTerms,
     flashcardQA,
@@ -1165,7 +1384,7 @@ function saveTopic(){
         name: row.name,
         unit: topic.unit,
         definition: '', keyPoints: [], formula: '', materials: '', process: '', safety: '', examTip: '',
-        relatedTerms: [], flashcardQA: [], tableData: { columns: [], rows: [] },
+        relatedTerms: [], flashcardQA: [], tableData: { columns: [], rows: [] }, desmosState: null,
         parentId: topic.id,
         addedBy: window.currentUid || null,
         createdAt: new Date().toISOString(),
@@ -1214,6 +1433,8 @@ function closeTopicView(){
   activeId = null;
   activeOrigin = null;
   _lastRenderedTopicKey = null;
+  destroyDesmosView();
+  closeEnlarge();
   document.getElementById('welcomeState').style.display = '';
   const outer = document.getElementById('detailOuter');
   const el = document.getElementById('detailContent');
@@ -1445,6 +1666,65 @@ function richAddImage(id){
   inp.click();
 }
 
+// ── Symbol picker (Formula/Equation field) ──
+// The formula field is plain contenteditable text, not LaTeX-aware like the
+// Desmos box, so this just inserts the literal Unicode character at the
+// cursor. Every symbol button uses onmousedown="event.preventDefault()" so
+// the browser never shifts focus/selection away from the formula field —
+// the click still fires and inserts at wherever the cursor already was.
+const SYMBOL_GROUPS = [
+  { label: 'Greek',             syms: ['π','θ','α','β','γ','Δ','Σ','μ','λ','φ'] },
+  { label: 'Operators',         syms: ['±','×','÷','≤','≥','≠','≈','·','°','∝'] },
+  { label: 'Powers & Roots',    syms: ['√','∛','²','³','ⁿ','½','⅓','¼'] },
+  { label: 'Calculus & Sets',   syms: ['∞','∫','∂','∇','∈','∉','⊂','∅','∀','∃'] },
+  { label: 'Arrows',            syms: ['→','←','↔','⇒','⇔'] },
+];
+
+function symbolPickerPanelHtml(targetId){
+  return SYMBOL_GROUPS.map(g => `<div class="sym-group"><span class="sym-group-label">${esc(g.label)}</span><div class="sym-row">${
+    g.syms.map(s => `<button type="button" class="sym-btn" onmousedown="event.preventDefault()" onclick="insertSymbol('${targetId}','${s}')">${s}</button>`).join('')
+  }</div></div>`).join('');
+}
+
+function initSymbolPickers(){
+  document.querySelectorAll('.symbol-picker-panel').forEach(panel => {
+    if(panel.dataset.target) panel.innerHTML = symbolPickerPanelHtml(panel.dataset.target);
+  });
+}
+
+function toggleSymbolPicker(btn){
+  const panel = btn.parentNode.querySelector('.symbol-picker-panel');
+  if(!panel) return;
+  const isOpen = panel.classList.contains('open');
+  closeSymbolPickers();
+  if(!isOpen) panel.classList.add('open');
+}
+
+function closeSymbolPickers(){
+  document.querySelectorAll('.symbol-picker-panel.open').forEach(p => p.classList.remove('open'));
+}
+
+document.addEventListener('mousedown', e => {
+  if(!e.target.closest('.symbol-picker-wrap')) closeSymbolPickers();
+});
+
+function insertSymbol(id, sym){
+  const editor = document.getElementById(id);
+  if(!editor) return;
+  editor.focus();
+  const sel = window.getSelection();
+  if(sel && sel.rangeCount && editor.contains(sel.getRangeAt(0).commonAncestorContainer)){
+    const rng = sel.getRangeAt(0);
+    rng.deleteContents();
+    const node = document.createTextNode(sym);
+    rng.insertNode(node);
+    rng.setStartAfter(node); rng.collapse(true);
+    sel.removeAllRanges(); sel.addRange(rng);
+  } else {
+    editor.appendChild(document.createTextNode(sym));
+  }
+}
+
 function attachRichDnD(wrap){
   const editor=wrap.querySelector('.rich-content');
   wrap.addEventListener('dragover',e=>{e.preventDefault();wrap.classList.add('drag-over');});
@@ -1469,12 +1749,42 @@ function startCountdown(){
   },1000);
 }
 
+// ── Deep-link from index.html's "Units Overview" list: ?unit=<name> opens
+// the Units filter panel with that unit already selected (checked), so the
+// topic list is filtered to it immediately.
+function applyUnitLinkFromUrl(){
+  const unit = new URLSearchParams(window.location.search).get('unit');
+  if(!unit) return;
+  const panel = document.getElementById('unitsPanel');
+  const btn = document.getElementById('unitsToggleBtn');
+  const input = document.getElementById('unitsSearchInput');
+  if(panel) panel.classList.add('open');
+  if(btn) btn.setAttribute('aria-expanded', 'true');
+  if(input) input.value = unit;
+  activeUnits.add(unit);
+  renderList();
+  if(input) input.focus();
+}
+
+// ── Deep-link from index.html's "Recently Added" list: ?topic=<id> opens
+// that topic directly instead of leaving the subject's welcome screen showing.
+function applyTopicLinkFromUrl(){
+  const topicId = new URLSearchParams(window.location.search).get('topic');
+  if(!topicId) return;
+  const t = getTopics().find(x => x.id == topicId);
+  if(!t) return;
+  viewTopic(t.id);
+}
+
 // ── Boot ──
 if(resolveSubject()){
   applySubjectTheme();
   initSidebarTabs();
   setupRichDnD();
+  initSymbolPickers();
   renderList();
+  applyUnitLinkFromUrl();
+  applyTopicLinkFromUrl();
   syncPull();
   setInterval(syncPull, 60000);
   startCountdown();

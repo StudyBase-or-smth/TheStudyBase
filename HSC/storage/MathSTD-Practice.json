@@ -1,0 +1,516 @@
+{
+  "questions": [
+    {
+      "id": "s1q1",
+      "name": "Section I, Q1. Solve for x: 2x − 5 = 11",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "3", "correct": false },
+        { "text": "6", "correct": false },
+        { "text": "8", "correct": true },
+        { "text": "13", "correct": false }
+      ]
+    },
+    {
+      "id": "s1q2",
+      "name": "Section I, Q2. Simplify: 3(x + 4) − 2x",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "x + 12", "correct": true },
+        { "text": "5x + 12", "correct": false },
+        { "text": "x + 4", "correct": false },
+        { "text": "3x + 12", "correct": false }
+      ]
+    },
+    {
+      "id": "s1q3",
+      "name": "Section I, Q3. A straight line has equation y = mx + c and passes through (0, 5). What is the value of c?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "0", "correct": false },
+        { "text": "5", "correct": true },
+        { "text": "−5", "correct": false },
+        { "text": "1", "correct": false }
+      ]
+    },
+    {
+      "id": "s1q4",
+      "name": "Section I, Q4. Convert 2.5 m to cm.",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "25 cm", "correct": false },
+        { "text": "250 cm", "correct": true },
+        { "text": "2500 cm", "correct": false },
+        { "text": "0.25 cm", "correct": false }
+      ]
+    },
+    {
+      "id": "s1q5",
+      "name": "Section I, Q5. What is the area of a circle with radius 4 cm, to the nearest cm²?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "25 cm²", "correct": false },
+        { "text": "50 cm²", "correct": true },
+        { "text": "63 cm²", "correct": false },
+        { "text": "201 cm²", "correct": false }
+      ]
+    },
+    {
+      "id": "s1q6",
+      "name": "Section I, Q6. A length is recorded as 12.0 cm, correct to 1 decimal place. What is the maximum possible measurement error (the limit of reading error)?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "0.1 cm", "correct": false },
+        { "text": "0.05 cm", "correct": true },
+        { "text": "0.5 cm", "correct": false },
+        { "text": "1 cm", "correct": false }
+      ]
+    },
+    {
+      "id": "s1q7",
+      "name": "Section I, Q7. Find the simple interest on $3000 at 5% p.a. for 4 years.",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "$150", "correct": false },
+        { "text": "$600", "correct": true },
+        { "text": "$750", "correct": false },
+        { "text": "$3600", "correct": false }
+      ]
+    },
+    {
+      "id": "s1q8",
+      "name": "Section I, Q8. A $1500 loan is repaid in 12 equal monthly instalments with no interest charged. What is each instalment?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "$100", "correct": false },
+        { "text": "$125", "correct": true },
+        { "text": "$150", "correct": false },
+        { "text": "$180", "correct": false }
+      ]
+    },
+    {
+      "id": "s1q9",
+      "name": "Section I, Q9. For the same principal, interest rate (p.a.) and time period, which of the following produces the highest future value?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Simple interest", "correct": false },
+        { "text": "Compound interest, compounded annually", "correct": false },
+        { "text": "Compound interest, compounded monthly", "correct": true },
+        { "text": "They are all equal", "correct": false }
+      ]
+    },
+    {
+      "id": "s1q10",
+      "name": "Section I, Q10. Which correlation coefficient value indicates the strongest linear relationship between two variables?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "0.2", "correct": false },
+        { "text": "−0.9", "correct": true },
+        { "text": "0.5", "correct": false },
+        { "text": "−0.3", "correct": false }
+      ]
+    },
+    {
+      "id": "s1q11",
+      "name": "Section I, Q11. In a box of 10 items, 3 are defective. What is the relative frequency of defective items, as a decimal?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "3", "correct": false },
+        { "text": "0.3", "correct": true },
+        { "text": "0.03", "correct": false },
+        { "text": "30", "correct": false }
+      ]
+    },
+    {
+      "id": "s1q12",
+      "name": "Section I, Q12. Find the median of the data set: 4, 7, 7, 9, 12",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "4", "correct": false },
+        { "text": "7", "correct": true },
+        { "text": "9", "correct": false },
+        { "text": "12", "correct": false }
+      ]
+    },
+    {
+      "id": "s1q13",
+      "name": "Section I, Q13. In a connected network with 8 vertices, how many edges does a spanning tree contain?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "6", "correct": false },
+        { "text": "7", "correct": true },
+        { "text": "8", "correct": false },
+        { "text": "9", "correct": false }
+      ]
+    },
+    {
+      "id": "s1q14",
+      "name": "Section I, Q14. Which algorithm is used to find the shortest path between two vertices in a weighted network?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Prim's algorithm", "correct": false },
+        { "text": "Dijkstra's algorithm", "correct": true },
+        { "text": "Kruskal's algorithm", "correct": false },
+        { "text": "Euler's algorithm", "correct": false }
+      ]
+    },
+    {
+      "id": "s1q15",
+      "name": "Section I, Q15. A connected network has 5 vertices. What is the number of edges in a minimum spanning tree connecting all vertices?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "3", "correct": false },
+        { "text": "4", "correct": true },
+        { "text": "5", "correct": false },
+        { "text": "6", "correct": false }
+      ]
+    },
+    {
+      "id": "s2q1",
+      "name": "Section II, Question 1 — Financial Mathematics (12 marks). (a) Aiden invests $5000 at 4% p.a. compounded annually for 3 years. (i) Find the future value after 2 years, to the nearest dollar. (ii) Find the future value after 3 years, to the nearest dollar. (iii) Hence find the interest earned in the 3rd year alone, using your rounded values from (i) and (ii). (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "5408", "correct": true },
+        { "type": "answer", "text": "5624", "correct": true },
+        { "type": "answer", "text": "216", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q1b",
+      "name": "Section II, Q1(b). A machine bought for $8000 depreciates by $750 per year (straight-line). Find its value after 4 years. Separately, a car worth $20 000 depreciates at 15% p.a. (declining balance). Find (ii) its value after 3 years, to the nearest dollar, and (iii) the total depreciation of the car after 3 years. (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "5000", "correct": true },
+        { "type": "answer", "text": "12282", "correct": true },
+        { "type": "answer", "text": "7718", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q1c",
+      "name": "Section II, Q1(c). $250 is deposited at the end of each month into an account earning 6% p.a. compounded monthly. After 2 years (24 months), find (i) the future value of the annuity, to the nearest dollar, (ii) the total of the contributions made, and (iii) hence the interest earned, using your rounded future value from (i). (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "6358", "correct": true },
+        { "type": "answer", "text": "6000", "correct": true },
+        { "type": "answer", "text": "358", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q1d",
+      "name": "Section II, Q1(d). $2400 is invested for 2 years at 3% p.a. (i) Find the future value under simple interest, and (ii) the future value under compound interest (compounded annually), to the nearest dollar. (iii) Hence find how much extra interest the compound investment earns compared to the simple interest investment, using your rounded values. (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "2544", "correct": true },
+        { "type": "answer", "text": "2546", "correct": true },
+        { "type": "answer", "text": "2", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q2a",
+      "name": "Section II, Question 2 — Measurement (13 marks). (a) A ladder 6.5 m long leans against a wall, reaching a point 6 m up the wall. Find (i) the angle the ladder makes with the ground, to the nearest degree, (ii) the horizontal distance from the wall to the base of the ladder, and (iii) the area of the triangle formed by the ladder, the wall, and the ground. (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "67", "correct": true },
+        { "type": "answer", "text": "2.5", "correct": true },
+        { "type": "answer", "text": "7.5", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q2b",
+      "name": "Section II, Q2(b). A cylindrical water tank has a radius of 1.4 m and a height of 2.5 m. Find, each to 2 decimal places: (i) the volume of the tank in m³, (ii) the curved surface area in m², (iii) the total surface area (including top and bottom) in m². (iv) If water is poured in at 500 L/min, using your rounded volume from (i), find how many minutes (to the nearest minute) it takes to fill the tank. (4 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "15.39", "correct": true },
+        { "type": "answer", "text": "21.99", "correct": true },
+        { "type": "answer", "text": "34.31", "correct": true },
+        { "type": "answer", "text": "31", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q2c",
+      "name": "Section II, Q2(c). A length is measured as 24.6 cm, correct to 1 decimal place. Find (i) the lower limit and (ii) the upper limit of accuracy for this measurement, and (iii) the percentage error of the measurement, to 2 decimal places (percentage error = limit of reading error ÷ measured value × 100). (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "24.55", "correct": true },
+        { "type": "answer", "text": "24.65", "correct": true },
+        { "type": "answer", "text": "0.20", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q2d",
+      "name": "Section II, Q2(d). A window is a rectangle 1.2 m wide and 1.5 m high, topped with a semicircle matching the width. Find (i) the radius of the semicircle, (ii) the area of the semicircle, to 2 decimal places, and (iii) the total area of the window, to 2 decimal places. (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "0.6", "correct": true },
+        { "type": "answer", "text": "0.57", "correct": true },
+        { "type": "answer", "text": "2.37", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q3a",
+      "name": "Section II, Question 3 — Algebra (12 marks). (a) Solve for x: (i) 3x + 7 = 25 (ii) (x − 4) / 3 = 5 (iii) 2(x + 3) = 5x − 6. (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "6", "correct": true },
+        { "type": "answer", "text": "19", "correct": true },
+        { "type": "answer", "text": "4", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q3b",
+      "name": "Section II, Q3(b). The formula for converting Celsius to Fahrenheit is F = 9C/5 + 32. Find (i) F when C = 35, (ii) C when F = 98.6, (iii) F when C = −10. (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "95", "correct": true },
+        { "type": "answer", "text": "37", "correct": true },
+        { "type": "answer", "text": "14", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q3c",
+      "name": "Section II, Q3(c). A business has fixed costs of $400 and a variable cost of $12 per item. Each item sells for $28. Find (i) the total cost of producing 50 items, (ii) the revenue from selling 50 items, and (iii) the break-even quantity (number of items where cost = revenue). (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "1000", "correct": true },
+        { "type": "answer", "text": "1400", "correct": true },
+        { "type": "answer", "text": "25", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q3d",
+      "name": "Section II, Q3(d). The height of a ball, in metres, t seconds after being thrown is given by h = 20t − 5t². Find (i) the height at t = 1, (ii) the height at t = 3, (iii) the time (in seconds, other than t = 0) when the ball returns to the ground. (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "15", "correct": true },
+        { "type": "answer", "text": "15", "correct": true },
+        { "type": "answer", "text": "4", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q4a",
+      "name": "Section II, Question 4 — Statistical Analysis (12 marks). (a) A set of bivariate data has x-values 2, 4, 6, 8, 10 and matching y-values 3, 5, 6, 9, 11. Find (i) the mean of x, (ii) the mean of y, (iii) Pearson's correlation coefficient r, to 2 decimal places, and (iv) classify the strength of the correlation as a number: 1 = weak (|r| < 0.5), 2 = moderate (0.5 ≤ |r| ≤ 0.8), 3 = strong (|r| > 0.8). (4 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "6", "correct": true },
+        { "type": "answer", "text": "6.8", "correct": true },
+        { "type": "answer", "text": "0.99", "correct": true },
+        { "type": "answer", "text": "3", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q4b",
+      "name": "Section II, Q4(b). Using the same data (x: 2, 4, 6, 8, 10 and y: 3, 5, 6, 9, 11), the least-squares line of best fit is y = a + bx. Find (i) the gradient b, to 2 decimal places, (ii) the intercept a, to 2 decimal places, (iii) the predicted y-value when x = 12, to 2 decimal places, and (iv) the residual at x = 10 (residual = actual − predicted), given the actual y-value there is 11, to 2 decimal places. (4 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "1", "correct": true },
+        { "type": "answer", "text": "0.8", "correct": true },
+        { "type": "answer", "text": "12.8", "correct": true },
+        { "type": "answer", "text": "0.2", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q4c",
+      "name": "Section II, Q4(c). A survey of 200 students recorded: Sport & Music = 40, Sport only = 60, Music only = 50, Neither = 50. Find (i) the total number who play sport, (ii) the total number who do music, (iii) the percentage who do neither, to 1 decimal place, and (iv) the percentage who play sport, given that they do music, to 1 decimal place. (4 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "100", "correct": true },
+        { "type": "answer", "text": "90", "correct": true },
+        { "type": "answer", "text": "25.0", "correct": true },
+        { "type": "answer", "text": "44.4", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q5a",
+      "name": "Section II, Question 5 — Networks (12 marks). The diagram shows a network of towns A–F, with road distances in km shown on each edge. (a) Using Dijkstra's algorithm (or by inspection), determine the shortest path from A to F. State (i) the path, listing each town in order (e.g. A-B-C), and (ii) the total distance of this path. (2 marks)",
+      "image": "q5-network.png",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "A-B-D-E-F", "correct": true },
+        { "type": "answer", "text": "14", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q5b",
+      "name": "Section II, Q5(b). For the same network, find (i) the total weight of all the edges, (ii) the total number of edges, and (iii) the degree of vertex D (the number of edges connected to D). (3 marks)",
+      "image": "q5-network.png",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "41", "correct": true },
+        { "type": "answer", "text": "9", "correct": true },
+        { "type": "answer", "text": "4", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q5c",
+      "name": "Section II, Q5(c). Use Prim's or Kruskal's algorithm to find a minimum spanning tree (MST) for the network. Find (i) the total weight of the MST, (ii) the number of edges in the MST, (iii) the weight of the lowest-weight edge in the MST, and (iv) the weight of the highest-weight edge in the MST. (4 marks)",
+      "image": "q5-network.png",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "15", "correct": true },
+        { "type": "answer", "text": "5", "correct": true },
+        { "type": "answer", "text": "1", "correct": true },
+        { "type": "answer", "text": "4", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q5d",
+      "name": "Section II, Q5(d). Find (i) the total weight saved by using the MST instead of including every edge in the network, (ii) the number of edges excluded from the network to form the MST, and (iii) the number of independent cycles in the original network (circuit rank = edges − vertices + 1). (3 marks)",
+      "image": "q5-network.png",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "26", "correct": true },
+        { "type": "answer", "text": "4", "correct": true },
+        { "type": "answer", "text": "4", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q6a",
+      "name": "Section II, Question 6 — Measurement (13 marks). (a) A solid consists of a cone of radius 3 cm and height 4 cm sitting on top of a cylinder of the same radius and height 6 cm. Find, each to 2 decimal places: (i) the volume of the cylinder, (ii) the volume of the cone, (iii) the total volume of the solid (using your rounded values from (i) and (ii)), and (iv) the slant height of the cone. (4 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "169.65", "correct": true },
+        { "type": "answer", "text": "37.70", "correct": true },
+        { "type": "answer", "text": "207.35", "correct": true },
+        { "type": "answer", "text": "5", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q6b",
+      "name": "Section II, Q6(b). Two similar triangles have a scale factor of 3:5 (smaller:larger). The smaller triangle has an area of 18 cm² and its longest side is 6 cm. Find (i) the area of the larger triangle, (ii) the larger triangle's corresponding side, and (iii) the volume scale factor (larger:smaller) that would apply if these were similar solids, to 2 decimal places. (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "50", "correct": true },
+        { "type": "answer", "text": "10", "correct": true },
+        { "type": "answer", "text": "4.63", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q6c",
+      "name": "Section II, Q6(c). A car travels at 90 km/h. Find (i) its speed in m/s, (ii) the distance travelled in 20 minutes, in km, and (iii) the time, in minutes, to travel 60 km at this speed. (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "25", "correct": true },
+        { "type": "answer", "text": "30", "correct": true },
+        { "type": "answer", "text": "40", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q6d",
+      "name": "Section II, Q6(d). A cube has a side length measured as 5.2 cm, correct to 1 decimal place. Find, each to 1 decimal place: (i) the surface area using this value, (ii) the maximum possible surface area using the upper limit of the measurement, and (iii) the difference between these two surface areas, to 2 decimal places (using your rounded values from (i) and (ii)). (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "162.2", "correct": true },
+        { "type": "answer", "text": "165.4", "correct": true },
+        { "type": "answer", "text": "3.20", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q7a",
+      "name": "Section II, Question 7 — Mixed Applications (11 marks). (a) Aisha's electricity bill charges a $25 service fee plus $0.28 per kWh used. Find (i) the total cost if 450 kWh is used, (ii) the number of kWh used if the total bill is $151.00, and (iii) the average cost per kWh (including the service fee) if 450 kWh is used, to the nearest cent. (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "151", "correct": true },
+        { "type": "answer", "text": "450", "correct": true },
+        { "type": "answer", "text": "0.34", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q7b",
+      "name": "Section II, Q7(b). A recipe for 4 people needs 320 g of flour. Find (i) how much flour is needed for 7 people, (ii) how many people can be served with 1200 g of flour, and (iii) the amount of flour needed for 4 people if the recipe is scaled to make 1.5 times the usual quantity. (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "560", "correct": true },
+        { "type": "answer", "text": "15", "correct": true },
+        { "type": "answer", "text": "480", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q7c",
+      "name": "Section II, Q7(c). A sample mean is calculated as 24.5, with a margin of error of ±1.2 at a given confidence level. Find (i) the lower limit of the confidence interval, (ii) the upper limit, and (iii) the width of the confidence interval. (3 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "23.3", "correct": true },
+        { "type": "answer", "text": "25.7", "correct": true },
+        { "type": "answer", "text": "2.4", "correct": true }
+      ]
+    },
+    {
+      "id": "s2q7d",
+      "name": "Section II, Q7(d). If a = 3 and b = −2, find the value of (i) a² − b², and (ii) (a + b)². (2 marks)",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "5", "correct": true },
+        { "type": "answer", "text": "1", "correct": true }
+      ]
+    }
+  ]
+}

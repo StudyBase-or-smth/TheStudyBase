@@ -221,7 +221,7 @@ function renderSidebar() {
   let allTopics = [];
   subjects.forEach(s => {
     const topics = getTopics(s);
-    topics.forEach(t => allTopics.push({ ...t, sName: s.name, sColour: s.colour, sFile: 'subject/subject.html#' + s.id }));
+    topics.forEach(t => allTopics.push({ ...t, sName: s.name, sColour: s.colour, sFile: 'subject/subject.html?topic=' + encodeURIComponent(t.id) + '#' + s.id }));
   });
 
   // Recently Added
@@ -237,19 +237,21 @@ function renderSidebar() {
         </div>
       </a>`).join('');
 
-  // Units overview
+  // Units overview — each entry links into that subject's Units search panel,
+  // pre-filled with this unit (see applyUnitLinkFromUrl() in subjectapp.js).
   let unitsHtml = '';
   subjects.forEach(s => {
     const units = getUnits(s), topics = getTopics(s);
     units.forEach(u => {
       const n = topics.filter(t => t.unit === u).length;
-      unitsHtml += `<div class="feed-item">
-        <div class="feed-dot" style="background:${s.colour}"></div>
+      const href = 'subject/subject.html?unit=' + encodeURIComponent(u) + '#' + s.id;
+      unitsHtml += `<a class="feed-item" href="${href}" style="text-decoration:none;display:flex;align-items:flex-start;gap:10px;padding:9px 6px;border-bottom:1px solid var(--border);border-radius:4px;margin:0 -6px;transition:background .12s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
+        <div class="feed-dot" style="background:${s.colour};flex-shrink:0;margin-top:5px"></div>
         <div>
           <div class="feed-name" style="font-size:12px">${u}</div>
           <div class="feed-sub" style="color:${s.colour}">${s.name} · ${n} topic${n !== 1 ? 's' : ''}</div>
         </div>
-      </div>`;
+      </a>`;
     });
   });
   document.getElementById('unitsList').innerHTML = unitsHtml || '<div class="empty-note">No units created yet.</div>';

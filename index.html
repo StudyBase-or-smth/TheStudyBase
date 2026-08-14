@@ -33,12 +33,24 @@
       const isGuest = sessionStorage.getItem('studybase_guest') === '1';
       if (user) {
         sessionStorage.removeItem('studybase_guest');
-        // Show the Dev Panel button only for role:'dev', status:'active' accounts,
-        // and the Classes section only for teacher/dev accounts.
-        user.getIdTokenResult().then((token) => {
-          const role = token.claims.role || '';
+        // Force-refresh: custom claims set server-side (e.g. right after
+        // sign-up, or when a dev approves/rejects someone) don't show up in
+        // a cached ID token until it's explicitly refreshed. Without `true`
+        // here, a pending account can still read back as a normal active
+        // user on this page and get full access.
+        user.getIdTokenResult(true).then((token) => {
+          const role   = token.claims.role   || '';
+          const status = token.claims.status || '';
           window.userRole = role;
-          if (role === 'dev' && token.claims.status === 'active') {
+
+          // Pending or rejected accounts don't get the home page at all —
+          // same as login.html, send them to the waiting/status page.
+          if (status === 'pending' || status === 'rejected') {
+            window.location.href = 'waiting.html';
+            return;
+          }
+
+          if (role === 'dev' && status === 'active') {
             const btn = document.getElementById('devPanelBtn');
             if (btn) btn.style.display = '';
           }

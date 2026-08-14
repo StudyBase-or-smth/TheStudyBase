@@ -39,6 +39,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/desmosKey"
+  to = "/.netlify/functions/desmosKey"
+  status = 200
+
+[[redirects]]
   # Note: the function file is netlify/functions/Updateusername.js, so
   # Netlify deploys it as function "Updateusername" (case-sensitive) —
   # the redirect target below must match that exact case, even though the

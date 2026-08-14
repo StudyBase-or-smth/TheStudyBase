@@ -5,16 +5,16 @@
 //   role:   'student' | 'teacher' | 'dev'   (the actual or requested role)
 //   status: 'active' | 'pending' | 'rejected'
 //
-// Only an @pcs.nsw.edu.au email requesting 'student' is auto-activated.
-// Everything else goes to status:'pending' for a dev to review in the
-// dev panel.
+// Every sign-up — regardless of role or email domain — goes to
+// status:'pending' for a dev to review and approve in the dev panel.
+// (Previously an @pcs.nsw.edu.au email requesting 'student' was
+// auto-activated; that auto-approval path was removed so all new
+// accounts require manual approval.)
 //
 // SECURITY: the caller must present a valid Firebase ID token (Authorization:
-// Bearer <idToken>) for the SAME uid they are requesting a role for, and the
-// school-domain check is done against the verified email on that token/user
-// record — never against a client-supplied email field. Without this, anyone
-// who knew (or guessed) another account's uid could overwrite that account's
-// claims by posting a forged uid/email pair.
+// Bearer <idToken>) for the SAME uid they are requesting a role for. Without
+// this, anyone who knew (or guessed) another account's uid could overwrite
+// that account's claims by posting a forged uid/email pair.
 //
 // Requires a Firebase service account — set as three Netlify environment
 // variables (Site settings -> Environment variables):
@@ -22,7 +22,6 @@
 
 const admin = require('firebase-admin');
 
-const SCHOOL_DOMAIN = '@pcs.nsw.edu.au';
 const ALLOWED_ROLES = ['student', 'teacher']; // dev accounts are created manually, never via sign-up
 
 if (!admin.apps.length) {
@@ -73,33 +72,29 @@ exports.handler = async function (event) {
     }
 
     // Use the verified email off the Firebase user record / token — never a
-    // client-supplied field — so the school-domain check can't be spoofed.
+    // client-supplied field.
     const email = decoded.email || (await admin.auth().getUser(uid)).email || '';
-    const isSchoolEmail = email.toLowerCase().endsWith(SCHOOL_DOMAIN);
-    const autoApprove = isSchoolEmail && requestedRole === 'student';
 
-    const claims = autoApprove
-      ? { role: 'student', status: 'active' }
-      : { role: requestedRole, status: 'pending', requestedAt: new Date().toISOString() };
+    // Every sign-up requires manual dev approval — always pending, no
+    // auto-activation.
+    const claims = { role: requestedRole, status: 'pending', requestedAt: new Date().toISOString() };
 
     await admin.auth().setCustomUserClaims(uid, claims);
 
-    if (!autoApprove) {
-      // Notify via the existing Apps Script web app — fire-and-forget,
-      // a failed notification shouldn't block the sign-up itself.
-      try {
-        const SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
-        await fetch(SYNC_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            key: '_pending_approval_request_',
-            data: JSON.stringify({ uid, email, requestedRole, requestedAt: claims.requestedAt }),
-          }),
-        });
-      } catch (notifyErr) {
-        console.error('Notification failed (non-blocking):', notifyErr.message);
-      }
+    // Notify via the existing Apps Script web app — fire-and-forget,
+    // a failed notification shouldn't block the sign-up itself.
+    try {
+      const SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
+      await fetch(SYNC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          key: '_pending_approval_request_',
+          data: JSON.stringify({ uid, email, requestedRole, requestedAt: claims.requestedAt }),
+        }),
+      });
+    } catch (notifyErr) {
+      console.error('Notification failed (non-blocking):', notifyErr.message);
     }
 
     return {
