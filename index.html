@@ -33,13 +33,39 @@
       const isGuest = sessionStorage.getItem('studybase_guest') === '1';
       if (user) {
         sessionStorage.removeItem('studybase_guest');
-        // Show the Dev Panel button only for role:'dev', status:'active' accounts
-        user.getIdTokenResult().then((token) => {
-          if (token.claims.role === 'dev' && token.claims.status === 'active') {
+        // Force-refresh: custom claims set server-side (e.g. right after
+        // sign-up, or when a dev approves/rejects someone) don't show up in
+        // a cached ID token until it's explicitly refreshed. Without `true`
+        // here, a pending account can still read back as a normal active
+        // user on this page and get full access.
+        user.getIdTokenResult(true).then((token) => {
+          const role   = token.claims.role   || '';
+          const status = token.claims.status || '';
+          window.userRole = role;
+
+          // Only explicitly approved accounts get the home page. Missing or
+          // empty status (e.g. registerRole never ran) is treated as pending —
+          // same as waiting.html — rather than as an implicit allow.
+          if (status !== 'active') {
+            window.location.href = 'waiting.html';
+            return;
+          }
+
+          if (role === 'dev' && status === 'active') {
             const btn = document.getElementById('devPanelBtn');
             if (btn) btn.style.display = '';
           }
-        }).catch(() => {});
+          if (role === 'teacher' || role === 'dev') {
+            window.isTeacher = true;
+            const sec = document.getElementById('classesSection');
+            if (sec) sec.style.display = '';
+            if (typeof renderClasses === 'function') renderClasses();
+          }
+        }).catch(() => {
+          // Token refresh failed — fail closed rather than leaving an
+          // unchecked signed-in user on the hub with full access.
+          window.location.href = 'waiting.html';
+        });
       } else if (isGuest) {
         window.isGuest = true;
         document.body.classList.add('guest-mode');
@@ -76,15 +102,15 @@
           </div>
         </div>
         <div id="branch-badge" style="font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;">Loading…</div>
-        <button id="devPanelBtn" class="hdr-ghost" onclick="window.location.href='Devpanel.html'" data-tip="Dev Panel" style="display:none;width:auto;padding:4px 12px;font-size:11px;font-weight:600;border-radius:20px;">🛠️ Dev Panel</button>
+        <button id="devPanelBtn" class="hdr-ghost" onclick="window.location.href='Devpanel.html'" data-tip="Dev Panel" aria-label="Dev Panel" style="display:none;width:auto;padding:4px 12px;font-size:11px;font-weight:600;border-radius:20px;">🛠️ Dev Panel</button>
         <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
           <span class="hdr-date-pill">Today — <strong id="todayDate"></strong></span>
           <span id="syncCountdown" style="font-size:11px;color:var(--muted2);font-variant-numeric:tabular-nums"></span>
-          <button class="hdr-ghost" onclick="manualSync()" data-tip="Sync now">⟳</button>
-          <button class="hdr-ghost" onclick="openSuggestions()" data-tip="Suggestions">📝</button>
-          <button class="hdr-ghost" onclick="window.location.href='profile.html'" data-tip="Profile">👤</button>
-          <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out">⎋</button>
-          <button class="hdr-ghost" id="darkToggle" data-tip="Dark mode">🌙</button>
+          <button class="hdr-ghost" onclick="manualSync()" data-tip="Sync now" aria-label="Sync now">⟳</button>
+          <button class="hdr-ghost" onclick="openSuggestions()" data-tip="Suggestions" aria-label="Suggestions">📝</button>
+          <button class="hdr-ghost" onclick="window.location.href='profile.html'" data-tip="Profile" aria-label="Profile">👤</button>
+          <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out" aria-label="Sign out">⎋</button>
+          <button class="hdr-ghost" id="darkToggle" data-tip="Dark mode" aria-label="Toggle dark mode">🌙</button>
         </div>
       </div>
     </div>
@@ -98,11 +124,13 @@
 
       <!-- Left column -->
       <div>
-        <div class="sec-title">Subjects</div>
+        <div class="sec-title">Subjects <span class="count" id="subjCount"></span></div>
         <div class="subjects-grid" id="subjectsGrid"></div>
 
-        <div class="sec-title sec-title-classes">Classes</div>
-        <div class="classes-grid" id="classesGrid"></div>
+        <div id="classesSection" style="display:none">
+          <div class="sec-title sec-title-classes">Classes</div>
+          <div class="classes-grid" id="classesGrid"></div>
+        </div>
 
         <div class="cal-section">
           <div class="cal-card">
@@ -110,9 +138,9 @@
               <div class="cal-title" id="calMonthLabel"></div>
               <div style="display:flex;align-items:center;gap:8px">
                 <div class="cal-nav">
-                  <button class="cal-nav-btn" onclick="calNav(-1)">‹</button>
+                  <button class="cal-nav-btn" onclick="calNav(-1)" aria-label="Previous month">‹</button>
                   <button class="cal-nav-btn" onclick="calGoToday()">Today</button>
-                  <button class="cal-nav-btn" onclick="calNav(1)">›</button>
+                  <button class="cal-nav-btn" onclick="calNav(1)" aria-label="Next month">›</button>
                 </div>
                 <button class="cal-add-btn" onclick="openEventModal(null,null)">+ Add</button>
               </div>
@@ -145,10 +173,8 @@
 
           <div class="collapsible-body" id="toolsBody" style="margin-top:0">
             <div style="height:12px"></div>
-          <div class="sidebar-section">
-            <h3 style="margin:16px 0 8px 0;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;opacity:0.7;">Tools</h3>
             <div id="markerSection"></div>
-          </div>          </div>
+          </div>
         </div>
         <div class="side-card">
           <div class="sec-title-collapsible" id="unitsToggle" onclick="toggleSection('units')" title="Click to collapse">
@@ -197,6 +223,10 @@
         <select class="ev-sel" id="evSubject">
           <option value="">— General —</option>
         </select>
+      </div>
+      <div class="ev-row">
+        <div class="ev-label">Tooltip <span style="font-weight:400;text-transform:none;letter-spacing:0">— shown on hover over this entry</span></div>
+        <textarea class="ev-input" id="evTooltip" rows="2" placeholder="e.g. Bring calculator, covers chapters 4–6…" style="resize:vertical"></textarea>
       </div>
       <div class="ev-actions">
         <button class="ev-btn danger" id="evDeleteBtn" onclick="deleteEvent()" style="display:none">Delete</button>
@@ -249,8 +279,10 @@
   </div>
 
   <!-- ── Scripts ── -->
-  <!-- subjects.js must load before mainapp.js -->
+  <!-- subjects.js, sync-config.js and BranchVersion.js must load before mainapp.js -->
   <script src="subjects.js"></script>
+  <script src="sync-config.js"></script>
+  <script src="BranchVersion.js"></script>
   <script src="mainapp.js"></script>
   
 

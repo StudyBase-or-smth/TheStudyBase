@@ -23,6 +23,20 @@
 
     body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;font-size:13px}
 
+    /* Visible keyboard focus on every interactive element — matches the
+       fix applied across index/subject/class; this page had none before. */
+    a,button,select,[tabindex]{outline:none}
+    a:focus-visible,button:focus-visible,select:focus-visible,[tabindex]:focus-visible{
+      outline:2px solid var(--amber);outline-offset:2px;border-radius:4px;
+    }
+    /* Thin, visible scrollbar on the two internally-scrolling panels below —
+       the global rule above hides scrollbars everywhere, which previously
+       left long lists with no visible affordance that there's more to see. */
+    .right-panel,.raw-panel-body{scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+    .right-panel::-webkit-scrollbar,.raw-panel-body::-webkit-scrollbar{display:block;width:6px}
+    .right-panel::-webkit-scrollbar-thumb,.raw-panel-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+    .right-panel::-webkit-scrollbar-track,.raw-panel-body::-webkit-scrollbar-track{background:transparent}
+
     /* HEADER */
     .hdr{background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;height:46px;padding:0 0 0 0;gap:0;position:sticky;top:0;z-index:100;overflow:visible}
 
@@ -309,6 +323,8 @@
     body.light .strip-item::before{background:#e2ddd7}
     body.light .improve-badge{background:rgba(21,128,61,.1);color:#15803d;border-color:rgba(21,128,61,.2)}
     body.light .improve-badge.negative{background:rgba(220,38,38,.08);color:#dc2626;border-color:rgba(220,38,38,.15)}
+    body.light .access-banner{background:#fef3c7;border-color:#fde68a;color:#92400e}
+    body.light .access-banner a{color:#78350f}
     .trend-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;padding:6px 0}
 .trend-pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--card2);border:1px solid var(--border2)}
 .trend-pill.up{background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.3);color:#4ade80}
@@ -339,7 +355,7 @@
         <input class="api-input" id="customApiKey" type="password" placeholder="Gemini API key (optional)" autocomplete="off" spellcheck="false">
         <div class="api-tip" id="apiTip">Gemini API key requires an 18+ Gemini account.</div>
       </div>
-      <button class="hdr-btn" id="darkToggle" data-tip="Toggle theme">🌙</button>
+      <button class="hdr-btn" id="darkToggle" data-tip="Toggle theme" aria-label="Toggle theme">🌙</button>
     </div>
   </div>
 </div>
@@ -485,7 +501,7 @@ loadBranchVersion();
     checking: 'Checking your account…',
     signedout: 'Sign in to upload assignments and use the marker. <a href="login.html">Sign in</a>',
     pending: 'Your account is still pending approval — uploading is disabled until a teacher/admin approves it.',
-    norole: 'Your account doesn\'t have Analyser access yet, ask for approvel if this issue continues. <a href="login.html">Sign in</a> with a student, teacher, or dev account to enable uploading.'
+    norole: 'Your account doesn\'t have Analyser access. Ask a teacher or dev to check your account\'s role, or <a href="login.html">sign out and sign in</a> with a student, teacher, or dev account.'
   };
 
   const LOCK_TARGET_IDS = ['studentText','asgFile','criteriaText','criteriaFile'];
@@ -548,6 +564,7 @@ loadBranchVersion();
         messagingSenderId:'434992387793',
         appId:'1:434992387793:web:e5bcae8cad63b4eb6f17f0'
       }));
+      window.__sbAuth = auth; // so callAI() can fetch a fresh ID token for /api/grade
       onAuthStateChanged(auth, async user => {
         if(!user){ setAnalyserLocked(true, 'signedout'); return; }
 
@@ -569,16 +586,15 @@ loadBranchVersion();
         }
 
         if(!allowed){
-          setAnalyserLocked(true, role && status !== 'active' ? 'pending' : 'norole');
+          setAnalyserLocked(true, (status === 'pending' || !status) ? 'pending' : 'norole');
         } else {
           setAnalyserLocked(false);
         }
       });
     } catch(e){
-      console.warn('Auth gate skipped (local/dev mode):', e.message);
-      // Fail open locally so the page stays usable if Firebase isn't reachable
-      // (e.g. testing the file straight off disk).
-      setAnalyserLocked(false);
+      console.warn('Auth gate failed:', e.message);
+      // Fail closed: if Firebase cannot be reached, do not unlock AI marking.
+      setAnalyserLocked(true, 'signedout');
     }
   })();
 
@@ -605,7 +621,7 @@ loadBranchVersion();
       const icons={success:'✓',error:'✕',info:'ℹ',warning:'⚠'};
       const t=document.createElement('div');
       t.className='toast '+type;
-      t.innerHTML=`<span class="toast-icon">${icons[type]||'ℹ'}</span><span class="toast-msg">${msg}</span><button class="toast-close" onclick="this.parentElement.remove()">×</button>`;
+      t.innerHTML=`<span class="toast-icon">${icons[type]||'ℹ'}</span><span class="toast-msg">${msg}</span><button class="toast-close" aria-label="Dismiss" onclick="this.parentElement.remove()">×</button>`;
       c.appendChild(t);
       setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),350);},dur);
     };
@@ -877,9 +893,17 @@ loadBranchVersion();
   async function callAI(provider, prompt, userKey){
     // Try the Netlify proxy first (used in production deployment).
     try{
+      // /api/grade now requires a signed-in user so the server-side API
+      // keys can't be spent by anonymous callers — attach the current
+      // Firebase ID token.
+      const headers = {'Content-Type':'application/json'};
+      const currentUser = window.__sbAuth && window.__sbAuth.currentUser;
+      if(currentUser){
+        headers['Authorization'] = 'Bearer ' + await currentUser.getIdToken();
+      }
       const res=await fetch('/api/grade',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers,
         body:JSON.stringify({provider,prompt,userKey})
       });
       // If the proxy doesn't exist (GitHub Pages etc), this returns an HTML

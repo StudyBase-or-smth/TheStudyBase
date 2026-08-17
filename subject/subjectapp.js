@@ -5,6 +5,12 @@ let SU = '';        // localStorage key for units
 let SP = '';        // localStorage key for pinned topics
 let DEF_UNITS = []; // default units if none saved
 
+// Classes whose subjectId points at this subject. Their own topics/units are
+// always recorded separately (under each class's own storageKey/unitsKey) —
+// the subject page only reads them in to display alongside its own content.
+// See topicsForOrigin()/renderClassSections() below.
+let LINKED_CLASSES = [];
+
 function resolveSubject(){
   const id = window.location.hash.slice(1);
   if(!id || typeof subjectsData === 'undefined'){
@@ -19,15 +25,43 @@ function resolveSubject(){
   ST = SUBJECT.storageKey || (id + '_topics');
   SU = SUBJECT.unitsKey   || (id + '_units');
   SP = SUBJECT.pinnedKey  || (id + '_pinned_topics');
+  LINKED_CLASSES = (typeof classesData !== 'undefined' && classesData.subjects || [])
+    .filter(c => c.subjectId === SUBJECT.id);
   return true;
+}
+
+// ── Subject / Classes sidebar tab switcher ──
+let sidebarTab = 'subject';
+function setSidebarTab(tab){
+  sidebarTab = tab;
+  document.querySelectorAll('.sidebar-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  const show = (el, on) => { if(el) el.style.display = on ? '' : 'none'; };
+  show(document.getElementById('unitWrap'), tab === 'subject');
+  show(document.getElementById('topicList'), tab === 'subject');
+  show(document.getElementById('classSelectWrap'), tab === 'classes');
+  show(document.getElementById('classSections'), tab === 'classes');
+  if(tab === 'classes') renderClassSections();
+}
+function initSidebarTabs(){
+  const tabs = document.getElementById('sidebarTabs');
+  if(!tabs) return;
+  tabs.style.display = LINKED_CLASSES.length ? '' : 'none';
+  populateClassSelect();
+  setSidebarTab('subject');
 }
 
 function applySubjectTheme(){
   const c = SUBJECT.colour;
-  document.documentElement.style.setProperty('--accent', c);
+  // Set on <body>, not <html> — body.subject-page has its own stylesheet
+  // rule for --accent, which as a same-element declaration always beats
+  // whatever <html> inherits down to it, inline or not. Setting the inline
+  // override directly on body itself is what actually wins that cascade,
+  // so "+ New topic" and the active topic-item bar pick up this subject's
+  // real colour (matching the accent-bar) instead of the fixed fallback.
+  document.body.style.setProperty('--accent', c);
   const r = parseInt(c.slice(1,3),16), g = parseInt(c.slice(3,5),16), b = parseInt(c.slice(5,7),16);
-  document.documentElement.style.setProperty('--ac-l', `rgba(${r},${g},${b},.07)`);
-  document.documentElement.style.setProperty('--ac-b', `rgba(${r},${g},${b},.22)`);
+  document.body.style.setProperty('--ac-l', `rgba(${r},${g},${b},.07)`);
+  document.body.style.setProperty('--ac-b', `rgba(${r},${g},${b},.22)`);
 
   document.getElementById('accentBar').style.background = c;
   document.getElementById('hdrEmoji').textContent = SUBJECT.emoji || '📚';
@@ -55,21 +89,309 @@ function toggleDark(){
   const on = document.body.classList.toggle('dark');
   localStorage.setItem('studybase_dark', on ? '1' : '0');
   document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
+  // Desmos doesn't inherit page CSS, so any already-mounted calculators need
+  // their colors pushed explicitly instead of just picking up the new class.
+  if(typeof desmosEditorCalc !== 'undefined' && desmosEditorCalc) desmosEditorCalc.updateSettings(desmosThemeOpts());
+  if(typeof desmosViewCalc !== 'undefined' && desmosViewCalc) desmosViewCalc.updateSettings(desmosThemeOpts());
 }
+
+// ── Sidebar collapse (desktop) ──
+// Shared with class.html via the same localStorage key, so collapsing it on
+// one page keeps it collapsed on the other.
+const SIDEBAR_COLLAPSE_KEY = 'studybase_sidebar_collapsed';
+function applySidebarCollapsed(){
+  const collapsed = localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === '1';
+  const sidebar = document.querySelector('.sidebar');
+  const btn = document.getElementById('sidebarCollapseBtn');
+  if(sidebar) sidebar.classList.toggle('collapsed', collapsed);
+  if(btn){
+    btn.classList.toggle('collapsed', collapsed);
+    btn.textContent = collapsed ? '›' : '‹';
+    btn.setAttribute('data-tip', collapsed ? 'Show sidebar' : 'Hide sidebar');
+  }
+}
+function toggleSidebarCollapsed(){
+  const collapsed = localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === '1';
+  localStorage.setItem(SIDEBAR_COLLAPSE_KEY, collapsed ? '0' : '1');
+  applySidebarCollapsed();
+}
+applySidebarCollapsed();
 
 // ── Rich editor helpers ──
 function getRichVal(id){ const el=document.getElementById(id); if(!el)return''; return el.contentEditable==='true'?el.innerHTML.trim():el.value.trim(); }
 function setRichVal(id,html){ const el=document.getElementById(id); if(!el)return; if(el.contentEditable==='true'){el.innerHTML=html||'';}else{el.value=html||'';} }
 function clearRich(id){ setRichVal(id,''); }
+function isDangerousUrl(val){
+  const s = String(val || '').replace(/[\s\0]/g, '').toLowerCase();
+  return s.startsWith('javascript:') || s.startsWith('vbscript:') || s.startsWith('data:text/html');
+}
 function sanitizeRich(html){
   if(!html)return'';
   const d=document.createElement('div'); d.innerHTML=html;
-  d.querySelectorAll('script,style,iframe,object,embed,link').forEach(e=>e.remove());
+  d.querySelectorAll('script,style,iframe,object,embed,link,form,meta,base').forEach(e=>e.remove());
+  d.querySelectorAll('*').forEach(el=>{
+    [...el.attributes].forEach(attr=>{
+      const name = attr.name.toLowerCase();
+      if(name.startsWith('on') || name === 'srcdoc'){
+        el.removeAttribute(attr.name);
+        return;
+      }
+      if(name === 'href' || name === 'src' || name === 'xlink:href' || name === 'action' || name === 'formaction' || name === 'poster'){
+        if(isDangerousUrl(attr.value)) el.removeAttribute(attr.name);
+      }
+    });
+  });
   d.querySelectorAll('img').forEach(img=>{
-    const src=img.src||img.getAttribute('src')||'';
+    const src=img.getAttribute('src')||img.src||'';
     if(!src.startsWith('data:')&&!src.startsWith('https://drive.google.com/')&&!src.startsWith('https://lh3.googleusercontent.com/'))img.remove();
   });
   return d.innerHTML;
+}
+
+// ── Table topic type ──
+// A topic's tableData is { columns: [headerText, ...], rows: [[cellHtml, ...], ...] }.
+// Columns/rows are both dynamic (add/remove either), and each cell is a small
+// rich editor (same contenteditable + image-insert pattern as Definition/
+// Notes, just a compact "mini" toolbar so a wide table stays readable).
+function newTableCellId(){ return 'tc_' + Date.now() + '_' + Math.floor(Math.random()*99999); }
+
+function tableCellHtml(html){
+  const id = newTableCellId();
+  return `<td><div class="rich-editor-wrap table-cell-editor">
+      <div class="rich-toolbar mini"><button type="button" class="rich-btn" onclick="richAddImage('${id}')" title="Insert image">🖼</button></div>
+      <div class="rich-content" id="${id}" contenteditable="true" data-placeholder="…">${html||''}</div>
+      <input type="file" id="img_${id}" accept="image/*" style="display:none">
+    </div></td>`;
+}
+
+function buildTableEditor(data){
+  const cols = (data && data.columns && data.columns.length) ? data.columns : ['Column 1','Column 2'];
+  const rows = (data && data.rows && data.rows.length) ? data.rows : [cols.map(()=>'')];
+  const headRow = document.getElementById('tableEditorHeadRow');
+  const body = document.getElementById('tableEditorBody');
+  if(!headRow || !body) return;
+  headRow.innerHTML = cols.map(h =>
+    `<th><input type="text" class="table-col-input" placeholder="Column…" value="${esc(h)}">
+      <button type="button" class="btn-th-del" title="Remove column" onclick="removeTableColumn(this)">✕</button></th>`
+  ).join('') + '<th class="table-head-spacer"></th>';
+  body.innerHTML = rows.map(r =>
+    '<tr>' + cols.map((c,i) => tableCellHtml(r[i]||'')).join('') +
+    '<td class="table-row-del-cell"><button type="button" class="btn-kp-del" title="Remove row" onclick="removeTableRow(this)">✕</button></td></tr>'
+  ).join('');
+  document.querySelectorAll('#tableEditorBody .table-cell-editor').forEach(attachRichDnD);
+}
+
+function addTableColumn(){
+  const headRow = document.getElementById('tableEditorHeadRow');
+  if(!headRow) return;
+  const spacer = headRow.querySelector('.table-head-spacer');
+  const th = document.createElement('th');
+  th.innerHTML = `<input type="text" class="table-col-input" placeholder="Column…" value="">
+    <button type="button" class="btn-th-del" title="Remove column" onclick="removeTableColumn(this)">✕</button>`;
+  headRow.insertBefore(th, spacer);
+  document.querySelectorAll('#tableEditorBody tr').forEach(tr => {
+    const delCell = tr.querySelector('.table-row-del-cell');
+    const wrapper = document.createElement('tr'); wrapper.innerHTML = tableCellHtml('');
+    const td = wrapper.firstElementChild;
+    tr.insertBefore(td, delCell);
+    attachRichDnD(td.querySelector('.table-cell-editor'));
+  });
+  th.querySelector('.table-col-input').focus();
+}
+
+function removeTableColumn(btn){
+  const th = btn.closest('th');
+  const headRow = th.parentElement;
+  const dataCols = Array.from(headRow.children).filter(c => !c.classList.contains('table-head-spacer'));
+  if(dataCols.length <= 1){ showToast('Table needs at least one column', 'info'); return; }
+  const idx = Array.from(headRow.children).indexOf(th);
+  th.remove();
+  document.querySelectorAll('#tableEditorBody tr').forEach(tr => {
+    const cell = tr.children[idx];
+    if(cell) cell.remove();
+  });
+}
+
+function addTableRow(){
+  const headRow = document.getElementById('tableEditorHeadRow');
+  const body = document.getElementById('tableEditorBody');
+  if(!headRow || !body) return;
+  const numCols = headRow.querySelectorAll('.table-col-input').length;
+  const tr = document.createElement('tr');
+  tr.innerHTML = Array.from({length:numCols}).map(()=>tableCellHtml('')).join('') +
+    '<td class="table-row-del-cell"><button type="button" class="btn-kp-del" title="Remove row" onclick="removeTableRow(this)">✕</button></td>';
+  body.appendChild(tr);
+  tr.querySelectorAll('.table-cell-editor').forEach(attachRichDnD);
+}
+
+function removeTableRow(btn){
+  const body = document.getElementById('tableEditorBody');
+  if(body.querySelectorAll('tr').length <= 1){ showToast('Table needs at least one row', 'info'); return; }
+  btn.closest('tr').remove();
+}
+
+function readTableData(){
+  const headRow = document.getElementById('tableEditorHeadRow');
+  const body = document.getElementById('tableEditorBody');
+  if(!headRow || !body) return { columns: [], rows: [] };
+  const columns = Array.from(headRow.querySelectorAll('.table-col-input')).map(i => i.value.trim());
+  const rows = Array.from(body.querySelectorAll('tr')).map(tr =>
+    Array.from(tr.querySelectorAll('.table-cell-editor .rich-content')).map(el => el.innerHTML.trim())
+  );
+  return { columns, rows };
+}
+
+function tableViewHtml(t){
+  const td = t.tableData;
+  if(!td || !td.columns || !td.columns.length) return '<p class="empty-note">No table data yet.</p>';
+  const head = '<tr>' + td.columns.map(c => `<th>${esc(c)}</th>`).join('') + '</tr>';
+  const body = (td.rows||[]).map(r =>
+    '<tr>' + td.columns.map((c,i) => `<td>${sanitizeRich(r[i]||'')}</td>`).join('') + '</tr>'
+  ).join('');
+  return `<div class="data-table-wrap"><table class="data-table"><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
+}
+
+function pdfDocViewHtml(t){
+  if(!t.pdfData) return '<p class="empty-note">No PDF or image uploaded yet.</p>';
+  const isImg = isImageDataUrl(t.pdfData);
+  const name = esc(t.pdfName || (isImg ? 'image' : 'document.pdf'));
+  // Images get auto-inverted in dark mode (see the global img filter rule in
+  // mainstyle.css) so light-background diagrams don't glow — but that's not
+  // always the right call (photos, already-dark images, etc.), so clicking
+  // the image toggles it back to its normal colours and back again.
+  const viewer = isImg
+    ? `<img class="pdf-viewer-img" id="pdfViewerFrame" src="${t.pdfData}" alt="${name}" title="Click to toggle dark-mode inversion" onclick="toggleImgInvert(this)">`
+    : `<iframe class="pdf-viewer" id="pdfViewerFrame" src="${t.pdfData}" title="${name}"></iframe>`;
+  return `<div class="pdf-viewer-wrap">${viewer}
+      <a class="pdf-open-link" href="${t.pdfData}" download="${name}">⬇ ${name}</a></div>`;
+}
+
+// Toggles an uploaded image between the dark-mode auto-inverted look and its
+// normal colours. `.no-invert` is the escape hatch the global dark-mode img
+// filter (mainstyle.css) already respects, so this just flips that class —
+// inverted is the default whenever dark mode is on, same as before.
+function toggleImgInvert(el){
+  el.classList.toggle('no-invert');
+}
+
+// ── Desmos graphing (math layout only) ──
+// The API key lives in ../sync-config.js (DESMOS_API_KEY), loaded before
+// this file. If that constant is empty, loadDesmosScript() falls back to
+// /api/desmosKey (Netlify env). Two independent live
+// Desmos.GraphingCalculator instances can exist at once: desmosEditorCalc
+// (the New/Edit topic modal) and desmosViewCalc (the detail panel). Both
+// must be .destroy()ed before their container is removed — Desmos holds a
+// WebGL context that isn't freed by discarding the DOM node.
+const DESMOS_API_VERSION = 'v1.12';
+let _desmosLoadPromise = null;
+let desmosEditorCalc = null;
+let desmosViewCalc = null;
+
+// Desmos doesn't auto-detect page theme, so we hand it explicit colors that
+// track StudyBase's dark-mode class and the active subject's accent color
+// (these are still "Beta" options per Desmos's docs, but well-supported).
+function desmosThemeOpts(){
+  const dark = document.body.classList.contains('dark');
+  const accent = (getComputedStyle(document.body).getPropertyValue('--accent') || '').trim();
+  return dark
+    ? { backgroundColor: '#252220', textColor: '#e8e3dc', accentColor: accent || '#7fb0e0' }
+    : { backgroundColor: '#faf8f5', textColor: '#1c1917', accentColor: accent || '#2f72dc' };
+}
+
+function injectDesmosScript(apiKey){
+  return new Promise(resolve => {
+    if(!apiKey){ resolve(false); return; }
+    if(window.Desmos){ resolve(true); return; }
+    const s = document.createElement('script');
+    s.src = `https://www.desmos.com/api/${DESMOS_API_VERSION}/calculator.js?apiKey=${encodeURIComponent(apiKey)}`;
+    s.onload = () => resolve(!!window.Desmos);
+    s.onerror = () => resolve(false);
+    document.head.appendChild(s);
+  });
+}
+
+function loadDesmosScript(){
+  if(_desmosLoadPromise) return _desmosLoadPromise;
+  const fromConfig = (typeof DESMOS_API_KEY === 'string' && DESMOS_API_KEY.trim()) ? DESMOS_API_KEY.trim() : '';
+  _desmosLoadPromise = fromConfig
+    ? injectDesmosScript(fromConfig)
+    : fetch('/api/desmosKey')
+        .then(res => res.ok ? res.json() : { apiKey: '' })
+        .catch(() => ({ apiKey: '' }))
+        .then(data => injectDesmosScript((data && data.apiKey) || ''));
+  return _desmosLoadPromise;
+}
+
+async function mountDesmosEditor(state){
+  const container = document.getElementById('desmosEditorCalc');
+  const unavailable = document.getElementById('desmosEditorUnavailable');
+  const loading = document.getElementById('desmosEditorLoading');
+  if(!container) return;
+  if(desmosEditorCalc){ desmosEditorCalc.destroy(); desmosEditorCalc = null; }
+  // Skip the spinner once the Desmos script is already loaded (window.Desmos
+  // set) — only the first mount per page actually has to wait on the network.
+  const alreadyLoaded = !!window.Desmos;
+  container.style.display = 'none';
+  if(unavailable) unavailable.style.display = 'none';
+  if(loading) loading.style.display = alreadyLoaded ? 'none' : '';
+  const ok = await loadDesmosScript();
+  if(document.getElementById('desmosEditorCalc') !== container) return; // modal closed/reopened while loading
+  if(loading) loading.style.display = 'none';
+  if(!ok){
+    container.style.display = 'none';
+    if(unavailable) unavailable.style.display = '';
+    return;
+  }
+  container.style.display = '';
+  if(unavailable) unavailable.style.display = 'none';
+  desmosEditorCalc = Desmos.GraphingCalculator(container, desmosThemeOpts());
+  if(state){ try{ desmosEditorCalc.setState(state); }catch(e){ desmosEditorCalc.setBlank(); } }
+}
+
+function readDesmosState(){
+  return desmosEditorCalc ? desmosEditorCalc.getState() : null;
+}
+
+function destroyDesmosEditor(){
+  if(desmosEditorCalc){ desmosEditorCalc.destroy(); desmosEditorCalc = null; }
+}
+
+async function mountDesmosView(t){
+  const container = document.getElementById('desmosViewCalc');
+  const empty = document.getElementById('desmosViewEmpty');
+  const unavailable = document.getElementById('desmosViewUnavailable');
+  const loading = document.getElementById('desmosViewLoading');
+  if(!container) return; // not on a math-layout topic
+  if(!t.desmosState){
+    container.style.display = 'none';
+    if(loading) loading.style.display = 'none';
+    if(unavailable) unavailable.style.display = 'none';
+    if(empty) empty.style.display = '';
+    return;
+  }
+  if(empty) empty.style.display = 'none';
+  if(unavailable) unavailable.style.display = 'none';
+  container.style.display = 'none';
+  // Skip the spinner once the Desmos script is already loaded (window.Desmos
+  // set) — only the first mount per page actually has to wait on the network.
+  const alreadyLoaded = !!window.Desmos;
+  if(loading) loading.style.display = alreadyLoaded ? 'none' : '';
+  const ok = await loadDesmosScript();
+  if(document.getElementById('desmosViewCalc') !== container) return; // navigated away while loading
+  if(loading) loading.style.display = 'none';
+  if(!ok){
+    container.style.display = 'none';
+    if(unavailable) unavailable.style.display = '';
+    return;
+  }
+  container.style.display = '';
+  desmosViewCalc = Desmos.GraphingCalculator(container, Object.assign(
+    { expressions: false, settingsMenu: false, keypad: false }, desmosThemeOpts()));
+  desmosViewCalc.setState(t.desmosState);
+}
+
+function destroyDesmosView(){
+  if(desmosViewCalc){ desmosViewCalc.destroy(); desmosViewCalc = null; }
 }
 
 // ── Storage helpers ──
@@ -77,6 +399,49 @@ const CELL_LIMIT = 45000;
 const getTopics  = () => { try{ return JSON.parse(localStorage.getItem(ST)||'[]'); }catch(e){ return []; } };
 const getUnits   = () => { try{ return JSON.parse(localStorage.getItem(SU)||JSON.stringify(DEF_UNITS)); }catch(e){ return []; } };
 const getPinned  = () => { try{ return JSON.parse(localStorage.getItem(SP)||'[]'); }catch(e){ return []; } };
+
+// `activeOrigin` is null while viewing/editing the subject's own content, or
+// one of LINKED_CLASSES while viewing a class's aggregated (read-only) topic.
+let activeOrigin = null;
+let _lastRenderedTopicKey = null;
+let openCommentBlocks = new Set();
+
+// Read-only accessors into a linked class's own storage — used only by the
+// aggregated "From your classes" sidebar sections and the read-only detail
+// view. Never written to from here; classes only ever save through their own
+// class.html/classapp.js, keeping each class's content genuinely separate.
+function topicsForOrigin(origin){
+  if(!origin) return getTopics();
+  try{ return JSON.parse(localStorage.getItem(origin.storageKey || (origin.id + '_topics')) || '[]'); }catch(e){ return []; }
+}
+function unitsForOrigin(origin){
+  if(!origin) return getUnits();
+  try{ return JSON.parse(localStorage.getItem(origin.unitsKey || (origin.id + '_units')) || '[]'); }catch(e){ return []; }
+}
+// Write counterparts — only ever reached when window.userRole === 'dev' and
+// the user explicitly edits/deletes a class topic from the subject page's
+// aggregated Classes tab (see openModal/saveTopic/confirmDeleteTopic/
+// doDelete). Devs get full access everywhere; everyone else stays read-only
+// here and edits a class's content from that class's own page instead.
+function saveTopicsForOrigin(origin, topics){
+  if(!origin){ saveTopics(topics); return; }
+  const key = origin.storageKey || (origin.id + '_topics');
+  localStorage.setItem(key, JSON.stringify(topics));
+  const sd = sanitizeForSync(topics);
+  if(JSON.stringify(sd).length > CELL_LIMIT){ setSyncStatus('warn'); }
+  else{ syncPush(key, sd); setSyncStatus('ok'); }
+}
+function saveUnitsForOrigin(origin, units){
+  if(!origin){ saveUnits(units); return; }
+  const key = origin.unitsKey || (origin.id + '_units');
+  localStorage.setItem(key, JSON.stringify(units));
+  if(JSON.stringify(units).length > CELL_LIMIT){ setSyncStatus('warn'); }
+  else{ syncPush(key, units); setSyncStatus('ok'); }
+}
+// Tracks which class (if any) the currently-open modal is editing into —
+// set by openModal, read by saveTopic. Null means "the subject's own
+// topics", same as before this feature existed.
+let editOrigin = null;
 
 const saveTopics = t => {
   localStorage.setItem(ST, JSON.stringify(t));
@@ -94,9 +459,65 @@ const savePinned = p => {
 };
 
 // ── Layouts ──
-const LAYOUTS = ['basic','overview','math','text'];
-const LAYOUT_LABELS = { basic:'Basic', overview:'Overview', math:'Math', text:'Text' };
+const LAYOUTS = ['basic','overview','math','text','pdf','table'];
+const LAYOUT_LABELS = { basic:'Basic', overview:'Overview', math:'Math', text:'Text', pdf:'PDF/Image', table:'Table' };
 let currentLayout = 'basic';
+
+// ── PDF/Image topic type ──
+// PDFs and images are embedded as base64 data URLs directly on the topic
+// (like the rich-text image uploads, but simpler — no server round trip).
+// This bloats sync payloads for large files, so we cap it rather than let
+// it silently break syncPush/localStorage.
+const PDF_MAX_BYTES = 6 * 1024 * 1024; // ~6MB (base64 already ~33% bigger than the raw file)
+let pendingPdfData = null;   // null = no change; '' = explicitly removed; string = new data URL
+let pendingPdfName = null;
+
+function isImageDataUrl(url){
+  return !!url && /^data:image\//i.test(url);
+}
+
+function onPdfFileSelected(input){
+  const file = input.files && input.files[0];
+  input.value = '';
+  if(!file) return;
+  const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+  const isImage = file.type.startsWith('image/') || /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(file.name);
+  if(!isPdf && !isImage){
+    showToast('Please choose a PDF or image file', 'info'); return;
+  }
+  if(file.size > PDF_MAX_BYTES){
+    showToast(`File is too large (${(file.size/1024/1024).toFixed(1)}MB) — max ${(PDF_MAX_BYTES/1024/1024).toFixed(0)}MB`, 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingPdfData = e.target.result;
+    pendingPdfName = file.name;
+    renderPdfPreview();
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePdfFile(){
+  pendingPdfData = '';
+  pendingPdfName = '';
+  renderPdfPreview();
+}
+
+function renderPdfPreview(){
+  const area = document.getElementById('pdfPreviewArea');
+  if(!area) return;
+  const ex = editId ? ((editOrigin ? topicsForOrigin(editOrigin) : getTopics()).find(t => t.id===editId)||{}) : {};
+  const data = pendingPdfData !== null ? pendingPdfData : (ex.pdfData || '');
+  const name = pendingPdfData !== null ? pendingPdfName : (ex.pdfName || '');
+  const hasFile = !!data;
+  const icon = isImageDataUrl(data) ? '🖼' : '📄';
+  area.innerHTML = hasFile
+    ? `<div class="pdf-picked-row"><span class="pdf-picked-name">${icon} ${esc(name || (icon==='🖼' ? 'image' : 'document.pdf'))}</span>
+        <button type="button" class="btn-small" onclick="document.getElementById('fPdfFile').click()">Replace</button>
+        <button type="button" class="btn-small" onclick="removePdfFile()">Remove</button></div>`
+    : `<button type="button" class="btn-small" onclick="document.getElementById('fPdfFile').click()">+ Choose PDF or Image</button>`;
+}
 
 function cycleLayout(dir){
   let idx = LAYOUTS.indexOf(currentLayout);
@@ -123,7 +544,11 @@ function applyLayoutUI(){
 }
 
 // ── Teacher notes (per block) ──
-const TN_KEY = () => 'tnotes_' + (SUBJECT ? SUBJECT.id : 'default');
+// When viewing an aggregated class topic (activeOrigin set), notes are kept
+// in that class's own tnotes bucket — not the subject's — so a comment
+// posted here is the same comment you'd see on the class page, not a
+// separate copy.
+const TN_KEY = () => 'tnotes_' + (activeOrigin ? activeOrigin.id : (SUBJECT ? SUBJECT.id : 'default'));
 const getTeacherNotes = () => { try{ return JSON.parse(localStorage.getItem(TN_KEY())||'{}'); }catch(e){ return {}; } };
 const saveTeacherNotes = obj => {
   localStorage.setItem(TN_KEY(), JSON.stringify(obj));
@@ -167,13 +592,67 @@ function deleteBlockNote(topicId, block, noteId){
 }
 
 // ── Section rendering ──
-function sectionHtml(topicId, icon, label, block, bodyHtml){
+function sectionHtml(topicId, icon, label, block, bodyHtml, headerExtra){
   return `<div class="section" data-block="${block}">
     <div class="section-header">
       <span class="sh-label-wrap"><span class="sh-icon">${icon}</span>${label}</span>
+      ${headerExtra || ''}
     </div>
     <div class="section-body">${bodyHtml}</div>
   </div>`;
+}
+
+// ── Expand controls (fullscreen / ~80%-enlarge) for select detail sections ──
+// Used by Desmos Graph, Main Text (text layout), and PDF/Image Document. The
+// "enlarge" mode MOVES the actual content node into a shared overlay
+// (rather than cloning it) so stateful content — the live Desmos
+// calculator, the PDF iframe — isn't duplicated or reloaded; it's moved
+// back to its original spot on close. Fullscreen uses the native
+// Fullscreen API directly on the content node, which works regardless of
+// where that node currently sits in the DOM.
+function expandBtnsHtml(targetId, opts){
+  opts = opts || {};
+  let html = '<span class="sh-expand-btns">';
+  if(opts.enlarge)    html += `<button type="button" class="sh-expand-btn" onclick="expandEnlarge('${targetId}')" title="Enlarge">⤢</button>`;
+  if(opts.fullscreen) html += `<button type="button" class="sh-expand-btn" onclick="expandFullscreen('${targetId}')" title="Fullscreen">⛶</button>`;
+  html += '</span>';
+  return html;
+}
+
+function expandFullscreen(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const req = el.requestFullscreen || el.webkitRequestFullscreen;
+  if(req) req.call(el);
+}
+
+let _enlargeOrigin = null; // { el, parent, next }
+function expandEnlarge(id){
+  const el = document.getElementById(id);
+  const overlay = document.getElementById('enlargeOverlay');
+  const slot = document.getElementById('enlargeSlot');
+  if(!el || !overlay || !slot) return;
+  closeEnlarge(); // in case something was already enlarged
+  _enlargeOrigin = { el, parent: el.parentNode, next: el.nextSibling };
+  slot.appendChild(el);
+  el.classList.add('enlarged-active');
+  overlay.classList.add('open');
+  document.addEventListener('keydown', _enlargeEscHandler);
+}
+function _enlargeEscHandler(e){ if(e.key === 'Escape') closeEnlarge(); }
+function closeEnlarge(){
+  const overlay = document.getElementById('enlargeOverlay');
+  if(overlay) overlay.classList.remove('open');
+  document.removeEventListener('keydown', _enlargeEscHandler);
+  if(_enlargeOrigin){
+    const { el, parent, next } = _enlargeOrigin;
+    el.classList.remove('enlarged-active');
+    if(parent){
+      if(next && next.parentNode === parent) parent.insertBefore(el, next);
+      else parent.appendChild(el);
+    }
+    _enlargeOrigin = null;
+  }
 }
 
 // ── Right-hand comments sidebar ──
@@ -203,11 +682,13 @@ function blockCommentHtml(topicId, block, label, icon){
       ${hasNotes ? `<span class="blk-comment-count">${notes.length}</span>` : ''}
     </button>`;
 
+  const isOpen = openCommentBlocks.has(block);
+
   const collapseArrow = hasNotes ? `
-    <button class="blk-collapse-btn" id="blkArrow_${block}" onclick="toggleBlockCard('${block}')" title="Toggle">‹</button>` : '';
+    <button class="blk-collapse-btn" id="blkArrow_${block}" onclick="toggleBlockCard('${block}')" title="Toggle">${isOpen ? '‹' : '›'}</button>` : '';
 
   const cardBody = hasNotes ? `
-    <div class="blk-card-body" id="blkCard_${block}" style="display:block">
+    <div class="blk-card-body" id="blkCard_${block}" style="display:${isOpen ? 'block' : 'none'}">
       <div class="blk-notes-list">${notesHtml}</div>
     </div>` : '';
 
@@ -225,6 +706,7 @@ function toggleBlockCard(block){
   const arrow = document.getElementById(`blkArrow_${block}`);
   if(!card) return;
   const isOpen = card.style.display !== 'none';
+  if(isOpen) openCommentBlocks.delete(block); else openCommentBlocks.add(block);
   card.style.display = isOpen ? 'none' : 'block';
   if(arrow) arrow.textContent = isOpen ? '›' : '‹';
   if(_lastVisibleBlocks.length) requestAnimationFrame(() => alignCommentsSidebar(_lastVisibleBlocks));
@@ -257,8 +739,10 @@ function openCommentPopover(topicId, block, label, anchorEl){
   ta.value = '';
   const rect = anchorEl.getBoundingClientRect();
   const popWidth = Math.min(320, window.innerWidth - 32);
-  let left = rect.left - popWidth - 8;
-  if(left < 12) left = Math.max(12, rect.right + 8);
+  // Prefer opening to the right of the comment icon; only fall back to the
+  // left if there isn't enough room on the right of the viewport.
+  let left = rect.right + 8;
+  if(left + popWidth > window.innerWidth - 12) left = Math.max(12, rect.left - popWidth - 8);
   let top = Math.min(rect.top, window.innerHeight - 200);
   pop.style.width = popWidth + 'px';
   pop.style.left = left + 'px';
@@ -294,11 +778,9 @@ function postPopoverComment(){
   const block = pop.dataset.block;
   saveBlockNote(topicId, block, text);
   closeCommentPopover();
+  openCommentBlocks.add(block);
   viewTopic(topicId);
   setTimeout(() => {
-    const card = document.getElementById(`blkCard_${block}`);
-    const arrow = document.getElementById(`blkArrow_${block}`);
-    if(card) card.style.display='block'; if(arrow) arrow.textContent='‹';
     if(_lastVisibleBlocks.length) alignCommentsSidebar(_lastVisibleBlocks);
   }, 60);
   showToast('Comment posted','success');
@@ -362,13 +844,22 @@ function togglePinTopic(id){
 
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+// Builds a single-quoted JS string literal (or the bare word null) safe to
+// splice into an onclick="..." attribute. JSON.stringify() must NOT be used
+// here — it wraps the value in double quotes, which prematurely closes the
+// surrounding onclick="..." attribute and silently breaks the click handler.
+function jsArg(v){
+  if(v == null) return 'null';
+  return "'" + String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'") + "'";
+}
+
 function getDescendantIds(id, topics){
   const direct = topics.filter(t => t.parentId === id).map(t => t.id);
   return direct.concat(direct.flatMap(cid => getDescendantIds(cid, topics)));
 }
 
 // ── State ──
-let activeId = null, editId = null, activeUnit = 'all', tempTags = [], pendingAction = null;
+let activeId = null, editId = null, activeUnits = new Set(), tempTags = [], pendingAction = null;
 let expandedTopics = new Set();
 
 // ── Sidebar list ──
@@ -397,7 +888,7 @@ function renderList(){
   const topics = getTopics();
   const pinned = getPinned();
   const matches = t => {
-    const mu = activeUnit === 'all' || t.unit === activeUnit;
+    const mu = activeUnits.size === 0 || (t.unit && activeUnits.has(t.unit));
     const mq = !q || t.name.toLowerCase().includes(q) ||
       (t.definition||'').toLowerCase().includes(q) ||
       (t.unit||'').toLowerCase().includes(q) ||
@@ -423,7 +914,7 @@ function renderList(){
           : '';
         return `
         <div class="topic-item-wrap">
-          <div class="topic-item${(t.id==activeId)?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${t.id})">
+          <div class="topic-item${(t.id==activeId && !activeOrigin)?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${t.id})">
             <div class="ti-top">
               <div class="ti-name">
                 ${hasSubs ? `<button class="ti-expand-btn" onclick="event.stopPropagation();toggleTopicExpand(${t.id})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>` : ''}
@@ -441,21 +932,111 @@ function renderList(){
   document.getElementById('stT').textContent = topics.length;
   document.getElementById('stU').textContent = getUnits().length;
   renderPills();
+  renderClassSections();
+}
+
+// ── Aggregated read-only class content ──
+// Each linked class keeps recording its own content separately (own
+// storageKey/unitsKey, only ever written by class.html/classapp.js) — this
+// just reads it back in and displays it on the Classes tab, using the exact
+// same topic-list/topic-item markup and behaviour as the Subject tab (just
+// scoped to whichever class is picked in the dropdown, and read-only).
+let activeClassId = null;
+
+function populateClassSelect(){
+  const sel = document.getElementById('classSelect');
+  if(!sel) return;
+  if(!activeClassId || !LINKED_CLASSES.find(c => c.id === activeClassId)){
+    activeClassId = LINKED_CLASSES.length ? LINKED_CLASSES[0].id : null;
+  }
+  sel.innerHTML = LINKED_CLASSES.map(c =>
+    `<option value="${esc(c.id)}"${c.id===activeClassId?' selected':''}>${esc(c.emoji||'🏫')} ${esc(c.name)}${c.class?' · '+esc(c.class):''}</option>`
+  ).join('');
+}
+
+function setActiveClass(id){
+  activeClassId = id;
+  renderClassSections();
+}
+
+function renderClassNode(t, topics, cls){
+  const children = topics.filter(k => k.parentId === t.id);
+  const hasKids = children.length > 0;
+  const isExpanded = hasKids && expandedTopics.has(t.id);
+  const originArg = jsArg(cls.id);
+  const childrenHtml = isExpanded
+    ? `<div class="subtopic-sidebar-list">` + children.map(c => renderClassNode(c, topics, cls)).join('') + `</div>`
+    : '';
+  const isActive = t.id == activeId && activeOrigin && activeOrigin.id === cls.id;
+  return `
+    <div class="topic-item-wrap">
+      <div class="topic-item${isActive ? ' active' : ''}" onclick="viewTopic(${t.id}, ${originArg})">
+        <div class="ti-top">
+          <div class="ti-name">
+            ${hasKids ? `<button class="ti-expand-btn" onclick="event.stopPropagation();toggleTopicExpand(${t.id})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>` : ''}
+            ${esc(t.name)}
+          </div>
+        </div>
+        ${t.unit ? `<div class="ti-unit">${esc(t.unit)}</div>` : ''}
+        ${t.definition ? `<div class="ti-prev">${esc(t.definition.substring(0,55))}…</div>` : ''}
+      </div>
+      ${childrenHtml}
+    </div>`;
+}
+
+function renderClassSections(){
+  const container = document.getElementById('classSections');
+  if(!container) return;
+  if(!LINKED_CLASSES.length){ container.innerHTML = ''; return; }
+  populateClassSelect();
+  const cls = LINKED_CLASSES.find(c => c.id === activeClassId);
+  if(!cls){ container.innerHTML = ''; return; }
+
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const matches = t => !q || t.name.toLowerCase().includes(q) ||
+    (t.definition||'').toLowerCase().includes(q) || (t.unit||'').toLowerCase().includes(q);
+
+  const topics = topicsForOrigin(cls);
+  const topLevel = topics.filter(t => !t.parentId && matches(t)).sort((a,b) => a.name.localeCompare(b.name));
+
+  container.innerHTML = topLevel.length === 0
+    ? `<div class="sidebar-empty">${q ? 'No results for "'+esc(q)+'"' : 'No topics in this class yet.'}</div>`
+    : topLevel.map(t => renderClassNode(t, topics, cls)).join('');
 }
 
 function renderPills(){
   const units = getUnits(), topics = getTopics(), counts = {};
   topics.forEach(t => { if(t.unit) counts[t.unit] = (counts[t.unit]||0)+1; });
-  document.getElementById('unitPills').innerHTML =
-    `<button class="unit-pill${activeUnit==='all'?' active':''}" onclick="setUnit('all')">All (${topics.length})</button>` +
-    units.map(u => `
-      <button class="unit-pill${activeUnit===u?' active':''}" data-unit="${esc(u)}" onclick="setUnit(this.dataset.unit)">
-        ${esc(u)} <span style="color:var(--muted2);font-weight:400">(${counts[u]||0})</span>
-        <span class="unit-del" onclick="event.stopPropagation();confirmDeleteUnit(this.closest('[data-unit]').dataset.unit)" title="Remove">×</span>
-      </button>`).join('');
+
+  const body = document.getElementById('unitsListBody');
+  if(body){
+    const q = (document.getElementById('unitsSearchInput')?.value || '').toLowerCase();
+    const shown = units.filter(u => !q || u.toLowerCase().includes(q));
+    body.innerHTML = shown.length === 0
+      ? `<div class="units-empty">No units match "${esc(q)}"</div>`
+      : shown.map(u => `
+        <label class="units-row" data-unit="${esc(u)}">
+          <input type="checkbox" ${activeUnits.has(u)?'checked':''} onclick="event.stopPropagation();toggleUnit(this.closest('[data-unit]').dataset.unit)">
+          <span>${esc(u)}</span>
+          <span class="units-count">${counts[u]||0}</span>
+          <button type="button" class="units-del" title="Remove this unit" onclick="event.stopPropagation();confirmDeleteUnit(this.closest('[data-unit]').dataset.unit)">🗑</button>
+        </label>`).join('');
+  }
+
+  const toggleBtn = document.getElementById('unitsToggleBtn');
+  const badge = document.getElementById('unitsBadge');
+  if(badge){
+    badge.textContent = activeUnits.size;
+    badge.style.display = activeUnits.size ? '' : 'none';
+  }
+  if(toggleBtn) toggleBtn.classList.toggle('on', activeUnits.size > 0);
 }
 
-function setUnit(u){ activeUnit = u; renderList(); }
+function toggleUnit(u){
+  if(activeUnits.has(u)) activeUnits.delete(u);
+  else activeUnits.add(u);
+  renderList();
+}
 
 function toggleTopicExpand(id){
   id = Number(id);
@@ -476,12 +1057,19 @@ function qaRowsHtml(t){
     </div>`).join('');
 }
 
-function viewTopic(id){
+function viewTopic(id, originId){
+  originId = originId || null;
+  const origin = originId ? LINKED_CLASSES.find(c => c.id === originId) : null;
   activeId = id;
-  const t = getTopics().find(x => x.id == id);
+  activeOrigin = origin;
+  const allTopics = topicsForOrigin(origin);
+  const t = allTopics.find(x => x.id == id);
   if(!t) return;
+  const oid = jsArg(origin ? origin.id : null);
+  const renderKey = id + '::' + (origin ? origin.id : '');
+  const isTopicSwitch = renderKey !== _lastRenderedTopicKey;
+  if(isTopicSwitch) openCommentBlocks = new Set();
   // Collapse everything except the path down to the newly selected topic
-  const allTopics = getTopics();
   expandedTopics = new Set();
   let cur = t;
   while(cur.parentId){
@@ -491,13 +1079,13 @@ function viewTopic(id){
     cur = parent;
   }
   if(allTopics.some(c => c.parentId === t.id)) expandedTopics.add(Number(id));
-  if(location.protocol !== 'file:') history.replaceState(null,'', '#' + SUBJECT.id);
+  if(!origin && location.protocol !== 'file:') history.replaceState(null,'', '#' + SUBJECT.id);
   renderList();
 
   document.getElementById('welcomeState').style.display = 'none';
   const outer = document.getElementById('detailOuter');
   const el    = document.getElementById('detailContent');
-  el.classList.remove('on');
+  if(isTopicSwitch) el.classList.remove('on');
 
   const layout = t.layout || 'basic';
   const children = allTopics.filter(c => c.parentId === t.id);
@@ -508,13 +1096,13 @@ function viewTopic(id){
 
   const relHtml = (t.relatedTerms||[]).length
     ? `<div class="related-tags">${t.relatedTerms.map(r => {
-        const m = getTopics().find(x => x.name.toLowerCase()===r.toLowerCase());
-        return `<span class="rtag"${m?` onclick="viewTopic(${m.id})"`:''}>${esc(r)}</span>`;
+        const m = allTopics.find(x => x.name.toLowerCase()===r.toLowerCase());
+        return `<span class="rtag"${m?` onclick="viewTopic(${m.id}, ${oid})"`:''}>${esc(r)}</span>`;
       }).join('')}</div>`
     : '<p class="empty-note">None listed.</p>';
 
   const subtopicsHtml = children.length
-    ? `<div class="related-tags">${children.map(c => `<span class="rtag" onclick="viewTopic(${c.id})">${esc(c.name)}</span>`).join('')}</div>`
+    ? `<div class="related-tags">${children.map(c => `<span class="rtag" onclick="viewTopic(${c.id}, ${oid})">${esc(c.name)}</span>`).join('')}</div>`
     : '<p class="empty-note">No subtopics yet.</p>';
 
   const created = new Date(t.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
@@ -523,9 +1111,9 @@ function viewTopic(id){
 
   // visibleBlocks tracks each section for sidebar alignment
   const visibleBlocks = [];
-  const sec = (block, label, icon, bodyHtml) => {
+  const sec = (block, label, icon, bodyHtml, headerExtra) => {
     visibleBlocks.push({ block, label, icon });
-    return sectionHtml(t.id, icon, label, block, bodyHtml);
+    return sectionHtml(t.id, icon, label, block, bodyHtml, headerExtra);
   };
 
   let bodyHtml = '';
@@ -534,18 +1122,28 @@ function viewTopic(id){
       t.bodyText ? `<div class="plain-text">${sanitizeRich(t.bodyText)}</div>` : '<p class="empty-note">No overview written yet.</p>');
     const ovwItems = [];
     (t.keyPoints||[]).forEach(k => ovwItems.push(`<li class="ovw-list-item ovw-kp-item"><div class="kp-dot"></div><span>${esc(k)}</span></li>`));
-    children.forEach(c => ovwItems.push(`<li class="ovw-list-item ovw-subtopic-item"><div class="kp-dot kp-dot-link"></div><a class="subtopic-link" href="javascript:void(0)" onclick="viewTopic(${c.id})">${esc(c.name)}</a><span class="ovw-subtopic-badge">subtopic →</span></li>`));
+    children.forEach(c => ovwItems.push(`<li class="ovw-list-item ovw-subtopic-item"><div class="kp-dot kp-dot-link"></div><a class="subtopic-link" href="javascript:void(0)" onclick="viewTopic(${c.id}, ${oid})">${esc(c.name)}</a><span class="ovw-subtopic-badge">subtopic →</span></li>`));
     if(ovwItems.length) bodyHtml += sec('overviewPoints', 'Points & Subtopics', '📋', `<ul class="ovw-list">${ovwItems.join('')}</ul>`);
   } else if(layout === 'math'){
     bodyHtml += sec('formula', 'Formula / Equation', '∑',
       t.formula ? `<div class="formula-box">${sanitizeRich(t.formula)}</div>` : '<p class="empty-note">No formula added yet.</p>');
-    bodyHtml += sec('flashcardQA', 'Flashcard Questions', '🃏',
-      (t.flashcardQA||[]).length ? qaRowsHtml(t) : '<p class="empty-note">No flashcard questions yet.</p>');
-    bodyHtml += sec('desmos', 'Desmos Graph', '📐', '<p class="empty-note">Desmos support is coming soon.</p>');
+    bodyHtml += sec('desmos', 'Desmos Graph', '📐', `<div class="desmos-view-wrap">
+      <div class="desmos-view-calc" id="desmosViewCalc" style="display:none"></div>
+      <div class="desmos-loading" id="desmosViewLoading" style="display:none;height:420px"><span class="desmos-spinner"></span>Loading graph…</div>
+      <p class="empty-note" id="desmosViewEmpty" style="display:none">No graph created yet.</p>
+      <p class="desmos-unavailable" id="desmosViewUnavailable" style="display:none">Desmos graphing isn't configured yet — set DESMOS_API_KEY in sync-config.js.</p>
+    </div>`, t.desmosState ? expandBtnsHtml('desmosViewCalc', {enlarge:true, fullscreen:true}) : '');
   } else if(layout === 'text'){
     bodyHtml += sec('bodyText', 'Main Text', '📄',
-      t.bodyText ? `<div class="plain-text">${sanitizeRich(t.bodyText)}</div>` : '<p class="empty-note">No text added yet.</p>');
+      t.bodyText ? `<div class="plain-text" id="mainTextView">${sanitizeRich(t.bodyText)}</div>` : '<p class="empty-note">No text added yet.</p>',
+      t.bodyText ? expandBtnsHtml('mainTextView', {enlarge:true, fullscreen:true}) : '');
     bodyHtml += sec('keyPoints', 'Points of Interest', '✦', kpHtml);
+  } else if(layout === 'pdf'){
+    bodyHtml += sec('pdfDoc', 'PDF / Image Document', '📄',
+      pdfDocViewHtml(t),
+      t.pdfData ? expandBtnsHtml('pdfViewerFrame', {fullscreen:true}) : '');
+  } else if(layout === 'table'){
+    bodyHtml += sec('tableData', 'Table', '▦', tableViewHtml(t));
   } else { // basic
     bodyHtml += sec('definition', 'Definition', '📝',
       t.definition ? `<p class="def-text">${esc(t.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>');
@@ -555,7 +1153,6 @@ function viewTopic(id){
     if(t.process)                  bodyHtml += sec('process',     'Process / Method',   '⚙',  `<div class="formula-box">${sanitizeRich(t.process)}</div>`);
     if(t.safety)                   bodyHtml += sec('safety',      'Safety / Warnings',  '⚠',  `<div class="warning-box">${sanitizeRich(t.safety)}</div>`);
     if(t.examTip)                  bodyHtml += sec('examTip',     'Exam Tip',           '⚡', `<div class="exam-tip">${sanitizeRich(t.examTip)}</div>`);
-    if((t.flashcardQA||[]).length) bodyHtml += sec('flashcardQA', 'Flashcard Questions','🃏', qaRowsHtml(t));
   }
 
   // Common to every layout: subtopics, then related terms
@@ -566,17 +1163,24 @@ function viewTopic(id){
   { let c2 = t;
     while(c2.parentId){ const p = allTopics.find(x => x.id === c2.parentId); if(!p) break; ancestorChain.unshift(p); c2 = p; } }
 
+  const originBadge = origin
+    ? `<span class="dh-unit" style="background:${origin.colour}22;color:${origin.colour};border-color:${origin.colour}55">${esc(origin.emoji||'🏫')} From ${esc(origin.name)}${origin.class?' · '+esc(origin.class):''}</span>`
+    : '';
+
+  destroyDesmosView(); // the old container (if any) is about to be replaced below
+  closeEnlarge(); // any enlarged content belongs to the topic being replaced
   el.innerHTML = `
       <div class="dh">
         <div>
           <div class="dh-name">${ancestorChain.length ? `${ancestorChain.map(a=>esc(a.name)).join(' <span class="dh-crumb-sep">›</span> ')} <span class="dh-sub-badge">${esc(t.name)}</span>` : esc(t.name)}</div>
           <div class="dh-meta">
+            ${originBadge}
             ${t.unit ? `<span class="dh-unit">${esc(t.unit)}</span>` : ''}
             <span class="dh-date">Added ${created}</span>${editedStr}
           </div>
         </div>
         <div class="dh-actions">
-          ${window.isGuest ? '' : `<button class="btn-act" onclick="openModal(${t.id})">Edit</button>
+          ${(window.isGuest || (origin && window.userRole !== 'dev')) ? '' : `<button class="btn-act" onclick="openModal(${t.id})">Edit</button>
           <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>`}
         </div>
       </div>
@@ -584,12 +1188,32 @@ function viewTopic(id){
 
   outer.style.display = 'flex';
   el.style.display = 'block';
-  void el.offsetWidth;
-  el.classList.add('on');
+  if(isTopicSwitch){
+    void el.offsetWidth;
+    el.classList.add('on');
+  }
+  _lastRenderedTopicKey = renderKey;
   buildTeacherPanel(t.id, visibleBlocks);
+  mountDesmosView(t);
+
+  // Breadcrumb: Index / Subject / Topic
+  const bcTopic = document.getElementById('hdrTopicName');
+  const bcSep = document.getElementById('hdrTopicSep');
+  if(bcTopic && bcSep){
+    bcTopic.textContent = t.name;
+    bcTopic.style.display = '';
+    bcSep.style.display = '';
+  }
 }
 function openModal(id){
   if(window.isGuest){ showToast('Sign in to add or edit topics','info'); return; }
+  // Dev accounts get full edit/delete access everywhere, including a class's
+  // aggregated topics viewed read-only from the subject page's Classes tab.
+  // Everyone else is still routed to that class's own page to edit it.
+  const canEditClassTopic = activeOrigin && window.userRole === 'dev';
+  if(id && activeOrigin && !canEditClassTopic){ showToast("This topic belongs to a class — edit it from that class's page", 'info'); return; }
+  editOrigin = (id && canEditClassTopic) ? activeOrigin : null;
+  const topicsSrc = () => editOrigin ? topicsForOrigin(editOrigin) : getTopics();
   // Teachers and devs can add/edit topics just like students
   editId = id || null;
   tempTags = [];
@@ -598,8 +1222,8 @@ function openModal(id){
   document.getElementById('tagsWrap').querySelectorAll('.tag-chip').forEach(e => e.remove());
   populateSel();
   if(id){
-    const t = getTopics().find(x => x.id == id);
-    document.getElementById('modalTitle').textContent = 'Edit topic';
+    const t = topicsSrc().find(x => x.id == id);
+    document.getElementById('modalTitle').textContent = editOrigin ? `Edit topic (${editOrigin.name})` : 'Edit topic';
     document.getElementById('fName').value = t.name || '';
     document.getElementById('fUnit').value = t.unit || '';
     document.getElementById('fDefinition').value = t.definition || '';
@@ -611,26 +1235,34 @@ function openModal(id){
     setRichVal('fBodyText', t.bodyText || '');
     (t.keyPoints||[]).forEach(k => addKpRow(k));
     (t.relatedTerms||[]).forEach(addTag);
-    getTopics().filter(c => c.parentId === t.id).forEach(c => addSubtopicRow(c));
+    topicsSrc().filter(c => c.parentId === t.id).forEach(c => addSubtopicRow(c));
     document.getElementById('fqaList').innerHTML = '';
     (t.flashcardQA||[]).forEach(qa => addFqaRow(qa.q, qa.a));
+    buildTableEditor(t.tableData);
+    mountDesmosEditor(t.desmosState || null);
     currentLayout = LAYOUTS.includes(t.layout) ? t.layout : 'basic';
+    pendingPdfData = null; pendingPdfName = null;
   } else {
     document.getElementById('modalTitle').textContent = 'New topic';
     ['fName','fDefinition'].forEach(i => document.getElementById(i).value = '');
     ['fFormula','fMaterials','fProcess','fSafety','fExamTip','fBodyText'].forEach(clearRich);
     document.getElementById('fUnit').value = '';
     document.getElementById('fqaList').innerHTML = '';
+    buildTableEditor(null);
+    mountDesmosEditor(null);
     currentLayout = 'basic';
+    pendingPdfData = null; pendingPdfName = null;
   }
+  renderPdfPreview();
   applyLayoutUI();
   document.getElementById('modalOverlay').classList.add('open');
   setTimeout(() => document.getElementById('fName').focus(), 80);
 }
-function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); editId = null; }
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); editId = null; editOrigin = null; destroyDesmosEditor(); }
 
 function populateSel(){
-  const units = getUnits(), sel = document.getElementById('fUnit'), cur = sel.value;
+  const units = editOrigin ? unitsForOrigin(editOrigin) : getUnits();
+  const sel = document.getElementById('fUnit'), cur = sel.value;
   sel.innerHTML = '<option value="">— No unit —</option>' +
     units.map(u => `<option value="${esc(u)}"${u===cur?' selected':''}>${esc(u)}</option>`).join('');
 }
@@ -724,7 +1356,9 @@ function saveTopic(){
     const childId = row.dataset.childId ? Number(row.dataset.childId) : null;
     return name ? { id: childId, name } : null;
   }).filter(Boolean);
-  const ex = editId ? (getTopics().find(t => t.id===editId)||{}) : {};
+  const topicsSrc = () => editOrigin ? topicsForOrigin(editOrigin) : getTopics();
+  const ex = editId ? (topicsSrc().find(t => t.id===editId)||{}) : {};
+  const newDesmosState = readDesmosState();
   const topic = {
     id: editId || Date.now(),
     name,
@@ -737,6 +1371,13 @@ function saveTopic(){
     safety:    getRichVal('fSafety'),
     examTip:   getRichVal('fExamTip'),
     bodyText:  getRichVal('fBodyText'),
+    pdfData:   pendingPdfData !== null ? pendingPdfData : (ex.pdfData || ''),
+    pdfName:   pendingPdfData !== null ? pendingPdfName : (ex.pdfName || ''),
+    tableData: readTableData(),
+    // desmosEditorCalc may not have finished loading yet (async key fetch +
+    // script load) if the user saves very quickly — in that case fall back
+    // to whatever was already saved rather than wiping it out.
+    desmosState: newDesmosState !== null ? newDesmosState : (ex.desmosState || null),
     layout:    currentLayout,
     relatedTerms,
     flashcardQA,
@@ -745,7 +1386,7 @@ function saveTopic(){
     createdAt: ex.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
-  let topics = getTopics();
+  let topics = topicsSrc();
   topics = editId ? topics.map(t => t.id===editId ? topic : t) : [...topics, topic];
 
   // Sync linked subtopics (child topics) against the rows in the editor
@@ -763,7 +1404,7 @@ function saveTopic(){
         name: row.name,
         unit: topic.unit,
         definition: '', keyPoints: [], formula: '', materials: '', process: '', safety: '', examTip: '',
-        relatedTerms: [], flashcardQA: [],
+        relatedTerms: [], flashcardQA: [], tableData: { columns: [], rows: [] }, desmosState: null,
         parentId: topic.id,
         addedBy: window.currentUid || null,
         createdAt: new Date().toISOString(),
@@ -777,15 +1418,21 @@ function saveTopic(){
   const toRemove = new Set(removedChildIds.flatMap(cid => [cid, ...getDescendantIds(cid, topics)]));
   topics = topics.filter(t => !toRemove.has(t.id));
 
-  saveTopics(topics); closeModal(); renderList(); viewTopic(topic.id);
+  const savedOrigin = editOrigin;
+  saveTopicsForOrigin(savedOrigin, topics);
+  closeModal(); renderList();
+  viewTopic(topic.id, savedOrigin ? savedOrigin.id : null);
 }
 
 // ── Delete confirm ──
 function confirmDeleteTopic(id){
-  const t = getTopics().find(x => x.id==id);
-  pendingAction = { type:'topic', id };
+  const canDeleteClassTopic = activeOrigin && window.userRole === 'dev';
+  if(activeOrigin && !canDeleteClassTopic){ showToast("This topic belongs to a class — remove it from that class's page", 'info'); return; }
+  const origin = canDeleteClassTopic ? activeOrigin : null;
+  const t = (origin ? topicsForOrigin(origin) : getTopics()).find(x => x.id==id);
+  pendingAction = { type:'topic', id, origin };
   document.getElementById('cTitle').textContent = 'Delete this topic?';
-  document.getElementById('cMsg').textContent = '"'+t.name+'" will be permanently removed.';
+  document.getElementById('cMsg').textContent = '"'+t.name+'"'+(origin ? ' (from '+origin.name+')' : '')+' will be permanently removed.';
   document.getElementById('confirmOverlay').classList.add('open');
 }
 function confirmDeleteUnit(name){
@@ -796,17 +1443,49 @@ function confirmDeleteUnit(name){
   document.getElementById('confirmOverlay').classList.add('open');
 }
 function closeConfirm(){ document.getElementById('confirmOverlay').classList.remove('open'); pendingAction=null; }
+// Fully resets the detail panel back to the "nothing selected" welcome
+// state. Previously, deleting the open topic only unhid #welcomeState and
+// stripped the .on animation class — #detailOuter (display:flex) and its
+// stale innerHTML were left in place, so the deleted topic's content kept
+// rendering underneath/alongside the welcome message (a "ghost" of the
+// removed topic). Clearing everything here fixes that.
+function closeTopicView(){
+  activeId = null;
+  activeOrigin = null;
+  _lastRenderedTopicKey = null;
+  destroyDesmosView();
+  closeEnlarge();
+  document.getElementById('welcomeState').style.display = '';
+  const outer = document.getElementById('detailOuter');
+  const el = document.getElementById('detailContent');
+  outer.style.display = 'none';
+  el.classList.remove('on');
+  el.innerHTML = '';
+  const panel = document.getElementById('teacherNotesPanel');
+  if(panel){ panel.innerHTML = ''; panel.style.display = 'none'; }
+
+  // Breadcrumb: drop back to Index / Subject
+  const bcTopic = document.getElementById('hdrTopicName');
+  const bcSep = document.getElementById('hdrTopicSep');
+  if(bcTopic && bcSep){
+    bcTopic.textContent = '';
+    bcTopic.style.display = 'none';
+    bcSep.style.display = 'none';
+  }
+}
+
 function doDelete(){
   if(!pendingAction) return;
   if(pendingAction.type==='topic'){
-    const topics = getTopics();
+    const origin = pendingAction.origin || null;
+    const topics = origin ? topicsForOrigin(origin) : getTopics();
     const toRemove = new Set([pendingAction.id, ...getDescendantIds(pendingAction.id, topics)]);
-    saveTopics(topics.filter(t => !toRemove.has(t.id)));
-    if(activeId==pendingAction.id){ activeId=null; document.getElementById('welcomeState').style.display=''; document.getElementById('detailContent').classList.remove('on'); }
+    saveTopicsForOrigin(origin, topics.filter(t => !toRemove.has(t.id)));
+    if(activeId==pendingAction.id) closeTopicView();
   } else {
     saveTopics(getTopics().map(t => t.unit===pendingAction.name ? {...t,unit:''} : t));
     saveUnits(getUnits().filter(u => u!==pendingAction.name));
-    if(activeUnit===pendingAction.name) activeUnit='all';
+    activeUnits.delete(pendingAction.name);
     populateSel();
   }
   closeConfirm(); renderList();
@@ -822,8 +1501,19 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
   if(e.target===document.getElementById('modalOverlay')) closeModal();
 });
 
+// ── Units filter panel open/close ──
+(function(){
+  const btn = document.getElementById('unitsToggleBtn');
+  const panel = document.getElementById('unitsPanel');
+  if(!btn || !panel) return;
+  btn.addEventListener('click', () => {
+    const open = panel.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open);
+  });
+})();
+
 // ── Sync ──
-const SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
+// SYNC_URL is now defined once in ../sync-config.js (loaded via <script> before this file).
 
 function setSyncStatus(s){
   const el = document.getElementById('syncStatus');
@@ -865,6 +1555,27 @@ function syncPush(key, data){
 
 let _nextSync = Date.now() + 60000;
 
+function mergeRemoteTopicList(remote, localKey, placeholder){
+  let local = [];
+  try { local = JSON.parse(localStorage.getItem(localKey)||'[]'); } catch(e) { local = []; }
+  if(!Array.isArray(local)) local = [];
+  if(!Array.isArray(remote)) return remote;
+  const merged = remote.map(rem => {
+    const loc = local.find(t => t.id===rem.id);
+    if(!loc) return rem;
+    const m = {...rem};
+    Object.keys(m).forEach(k => {
+      if(typeof m[k]==='string' && m[k].includes(placeholder) &&
+         loc[k] && typeof loc[k]==='string' && !loc[k].includes(placeholder)){
+        m[k] = loc[k];
+      }
+    });
+    return m;
+  });
+  local.forEach(lt => { if(!merged.find(t => t.id===lt.id)) merged.push(lt); });
+  return merged;
+}
+
 async function syncPull(){
   setSyncStatus('syncing');
   const PLACEHOLDER = '[image — only visible on device where it was saved]';
@@ -873,30 +1584,41 @@ async function syncPull(){
       const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(key));
       if(res && res.data !== null && res.data !== undefined){
         if(key===ST && Array.isArray(res.data)){
-          const local = JSON.parse(localStorage.getItem(ST)||'[]');
-          const merged = res.data.map(rem => {
-            const loc = local.find(t => t.id===rem.id);
-            if(!loc) return rem;
-            const m = {...rem};
-            Object.keys(m).forEach(k => {
-              if(typeof m[k]==='string' && m[k].includes(PLACEHOLDER) &&
-                 loc[k] && typeof loc[k]==='string' && !loc[k].includes(PLACEHOLDER)){
-                m[k] = loc[k];
-              }
-            });
-            return m;
-          });
-          localStorage.setItem(key, JSON.stringify(merged));
+          localStorage.setItem(key, JSON.stringify(mergeRemoteTopicList(res.data, ST, PLACEHOLDER)));
         } else {
           localStorage.setItem(key, JSON.stringify(res.data));
         }
       }
     }
-    // Pull shared teacher notes
+
+    // Pull each linked class's own topics/units too, so the subject page
+    // shows synced class content even if this browser never visited that
+    // class's own page directly. This only ever caches into the class's own
+    // storage key — it doesn't write anything back, so the class stays the
+    // sole owner of its content.
+    for(const cls of LINKED_CLASSES){
+      const cKeyT = cls.storageKey || (cls.id + '_topics');
+      const cKeyU = cls.unitsKey   || (cls.id + '_units');
+      for(const key of [cKeyT, cKeyU]){
+        try{
+          const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(key));
+          if(res && res.data !== null && res.data !== undefined){
+            if(key===cKeyT && Array.isArray(res.data)){
+              localStorage.setItem(key, JSON.stringify(mergeRemoteTopicList(res.data, cKeyT, PLACEHOLDER)));
+            } else {
+              localStorage.setItem(key, JSON.stringify(res.data));
+            }
+          }
+        } catch(e){ /* one class failing to sync shouldn't block the rest */ }
+      }
+    }
+
+    // Pull shared teacher notes (routed to the right bucket by TN_KEY(),
+    // which follows activeOrigin — see its definition above)
     const tnRes = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(TN_KEY()));
     if(tnRes && tnRes.data !== null && tnRes.data !== undefined){
       localStorage.setItem(TN_KEY(), JSON.stringify(tnRes.data));
-      if(activeId) viewTopic(activeId);
+      if(activeId) viewTopic(activeId, activeOrigin ? activeOrigin.id : null);
     }
     setSyncStatus('ok');
     renderList();
@@ -976,6 +1698,65 @@ function richAddImage(id){
   inp.click();
 }
 
+// ── Symbol picker (Formula/Equation field) ──
+// The formula field is plain contenteditable text, not LaTeX-aware like the
+// Desmos box, so this just inserts the literal Unicode character at the
+// cursor. Every symbol button uses onmousedown="event.preventDefault()" so
+// the browser never shifts focus/selection away from the formula field —
+// the click still fires and inserts at wherever the cursor already was.
+const SYMBOL_GROUPS = [
+  { label: 'Greek',             syms: ['π','θ','α','β','γ','Δ','Σ','μ','λ','φ'] },
+  { label: 'Operators',         syms: ['±','×','÷','≤','≥','≠','≈','·','°','∝'] },
+  { label: 'Powers & Roots',    syms: ['√','∛','²','³','ⁿ','½','⅓','¼'] },
+  { label: 'Calculus & Sets',   syms: ['∞','∫','∂','∇','∈','∉','⊂','∅','∀','∃'] },
+  { label: 'Arrows',            syms: ['→','←','↔','⇒','⇔'] },
+];
+
+function symbolPickerPanelHtml(targetId){
+  return SYMBOL_GROUPS.map(g => `<div class="sym-group"><span class="sym-group-label">${esc(g.label)}</span><div class="sym-row">${
+    g.syms.map(s => `<button type="button" class="sym-btn" onmousedown="event.preventDefault()" onclick="insertSymbol('${targetId}','${s}')">${s}</button>`).join('')
+  }</div></div>`).join('');
+}
+
+function initSymbolPickers(){
+  document.querySelectorAll('.symbol-picker-panel').forEach(panel => {
+    if(panel.dataset.target) panel.innerHTML = symbolPickerPanelHtml(panel.dataset.target);
+  });
+}
+
+function toggleSymbolPicker(btn){
+  const panel = btn.parentNode.querySelector('.symbol-picker-panel');
+  if(!panel) return;
+  const isOpen = panel.classList.contains('open');
+  closeSymbolPickers();
+  if(!isOpen) panel.classList.add('open');
+}
+
+function closeSymbolPickers(){
+  document.querySelectorAll('.symbol-picker-panel.open').forEach(p => p.classList.remove('open'));
+}
+
+document.addEventListener('mousedown', e => {
+  if(!e.target.closest('.symbol-picker-wrap')) closeSymbolPickers();
+});
+
+function insertSymbol(id, sym){
+  const editor = document.getElementById(id);
+  if(!editor) return;
+  editor.focus();
+  const sel = window.getSelection();
+  if(sel && sel.rangeCount && editor.contains(sel.getRangeAt(0).commonAncestorContainer)){
+    const rng = sel.getRangeAt(0);
+    rng.deleteContents();
+    const node = document.createTextNode(sym);
+    rng.insertNode(node);
+    rng.setStartAfter(node); rng.collapse(true);
+    sel.removeAllRanges(); sel.addRange(rng);
+  } else {
+    editor.appendChild(document.createTextNode(sym));
+  }
+}
+
 function attachRichDnD(wrap){
   const editor=wrap.querySelector('.rich-content');
   wrap.addEventListener('dragover',e=>{e.preventDefault();wrap.classList.add('drag-over');});
@@ -1000,11 +1781,42 @@ function startCountdown(){
   },1000);
 }
 
+// ── Deep-link from index.html's "Units Overview" list: ?unit=<name> opens
+// the Units filter panel with that unit already selected (checked), so the
+// topic list is filtered to it immediately.
+function applyUnitLinkFromUrl(){
+  const unit = new URLSearchParams(window.location.search).get('unit');
+  if(!unit) return;
+  const panel = document.getElementById('unitsPanel');
+  const btn = document.getElementById('unitsToggleBtn');
+  const input = document.getElementById('unitsSearchInput');
+  if(panel) panel.classList.add('open');
+  if(btn) btn.setAttribute('aria-expanded', 'true');
+  if(input) input.value = unit;
+  activeUnits.add(unit);
+  renderList();
+  if(input) input.focus();
+}
+
+// ── Deep-link from index.html's "Recently Added" list: ?topic=<id> opens
+// that topic directly instead of leaving the subject's welcome screen showing.
+function applyTopicLinkFromUrl(){
+  const topicId = new URLSearchParams(window.location.search).get('topic');
+  if(!topicId) return;
+  const t = getTopics().find(x => x.id == topicId);
+  if(!t) return;
+  viewTopic(t.id);
+}
+
 // ── Boot ──
 if(resolveSubject()){
   applySubjectTheme();
+  initSidebarTabs();
   setupRichDnD();
+  initSymbolPickers();
   renderList();
+  applyUnitLinkFromUrl();
+  applyTopicLinkFromUrl();
   syncPull();
   setInterval(syncPull, 60000);
   startCountdown();
@@ -1065,12 +1877,17 @@ if(resolveSubject()){
 
   var _orig = window.viewTopic;
   if (typeof _orig === 'function') {
-    window.viewTopic = function (id) {
-      _orig(id);
+    window.viewTopic = function (id, originId) {
+      _orig(id, originId);
       if (!isMobile()) return;
       closeSidebar();
       try {
-        var topics = JSON.parse(localStorage.getItem(ST) || '[]');
+        var key = ST;
+        if (originId && typeof classesData !== 'undefined') {
+          var cls = (classesData.subjects || []).find(function (c) { return c.id === originId; });
+          if (cls) key = cls.storageKey || (cls.id + '_topics');
+        }
+        var topics = JSON.parse(localStorage.getItem(key) || '[]');
         var t = topics.find(function (x) { return x.id == id; });
         var titleEl = document.getElementById('mobBarTitle');
         if (t && titleEl) titleEl.textContent = t.name;

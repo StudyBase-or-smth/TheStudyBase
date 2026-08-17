@@ -1,0 +1,276 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "name": "Question 1",
+      "question": "A diagram of an aircraft engine is shown. What type of engine is this?",
+      "image": "q1-engine.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Piston", "correct": false },
+        { "text": "Ramjet", "correct": false },
+        { "text": "Turbofan", "correct": true },
+        { "text": "Turboprop", "correct": false }
+      ]
+    },
+    {
+      "id": "q2",
+      "name": "Question 2",
+      "question": "An image of a steel engine part is shown. Based on the grain structure, what forming method was used to manufacture the engine part?",
+      "image": "q2-piston.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Cast", "correct": false },
+        { "text": "Forged", "correct": true },
+        { "text": "Machined", "correct": false },
+        { "text": "Rolled", "correct": false }
+      ]
+    },
+    {
+      "id": "q3",
+      "name": "Question 3",
+      "question": "The truth table represents the basic operation of a logic gate: Input A = 1, Input B = 1 → Output = 1; Input A = 1, Input B = 0 → Output = 1; Input A = 0, Input B = 1 → Output = 1; Input A = 0, Input B = 0 → Output = 0. What is the logic gate?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "AND", "correct": false },
+        { "text": "NAND", "correct": false },
+        { "text": "NOR", "correct": false },
+        { "text": "OR", "correct": true }
+      ]
+    },
+    {
+      "id": "q4",
+      "name": "Question 4",
+      "question": "The screens of black and white cathode ray tube televisions were coated with a material that produced light when struck by electrons. What was the material?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Plasma", "correct": false },
+        { "text": "Phosphor", "correct": true },
+        { "text": "Lead oxide", "correct": false },
+        { "text": "Magnesium oxide", "correct": false }
+      ]
+    },
+    {
+      "id": "q5",
+      "name": "Question 5",
+      "question": "A mass-produced automotive side-view mirror casing is shown. Which manufacturing process is most commonly used to produce this polymer component?",
+      "image": "q5-mirror-casing.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Extrusion", "correct": false },
+        { "text": "Blow moulding", "correct": false },
+        { "text": "Injection moulding", "correct": true },
+        { "text": "Compression moulding", "correct": false }
+      ]
+    },
+    {
+      "id": "q6",
+      "name": "Question 6",
+      "question": "The diagram shows a 100 kg crate which is being pulled horizontally 10 metres along level ground. The tension in the tow rope is 600 N and the rope is inclined at 60 degrees to the ground on a frictionless surface. What is the work done in joules?",
+      "image": "q6-crate.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "100 × 10", "correct": false },
+        { "text": "600 × 10", "correct": false },
+        { "text": "600 sin 60° × 10", "correct": false },
+        { "text": "600 cos 60° × 10", "correct": true }
+      ]
+    },
+    {
+      "id": "q7",
+      "name": "Question 7",
+      "question": "Which of the pictorial drawings is an example of isometric drawing? (Options A–D are the four drawings shown in the image.)",
+      "image": "q7-options.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "A", "correct": true },
+        { "text": "B", "correct": false },
+        { "text": "C", "correct": false },
+        { "text": "D", "correct": false }
+      ]
+    },
+    {
+      "id": "q8",
+      "name": "Question 8",
+      "question": "Which of the following is a key benefit of engineers adhering to AS 1100 when producing engineering drawings?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "It ensures consistency in drawings across different teams and industries.", "correct": true },
+        { "text": "It reduces the cost of materials in design and manufacture of engineering parts.", "correct": false },
+        { "text": "It simplifies the manufacturing process by eliminating the need for detailed drawings.", "correct": false },
+        { "text": "It allows for the use of advanced 3D printing technologies in all stages of production.", "correct": false }
+      ]
+    },
+    {
+      "id": "q9",
+      "name": "Question 9",
+      "question": "The diagram shows an aircraft in ascent. Which letter indicates the angle of attack of the aircraft?",
+      "image": "q9-aircraft-ascent.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "a", "correct": false },
+        { "text": "b", "correct": false },
+        { "text": "c", "correct": false },
+        { "text": "d", "correct": true }
+      ]
+    },
+    {
+      "id": "q10",
+      "name": "Question 10",
+      "question": "Which mechanical property of a thermosetting polymer increases when the number of cross-links between the polymer chains is increased?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Ductility", "correct": false },
+        { "text": "Flexibility", "correct": false },
+        { "text": "Stiffness", "correct": true },
+        { "text": "Toughness", "correct": false }
+      ]
+    },
+    {
+      "id": "q11",
+      "name": "Question 11",
+      "question": "Which of the following is true of cathodic protection?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "It uses high temperatures to preserve metals.", "correct": false },
+        { "text": "It uses a polymer coating to prevent corrosion.", "correct": false },
+        { "text": "It uses heat treatment to improve the tensile strength.", "correct": false },
+        { "text": "It uses an electric current to prevent corrosion of metals.", "correct": true }
+      ]
+    },
+    {
+      "id": "q12",
+      "name": "Question 12",
+      "question": "An image of a screw jack is shown. The tommy bar is used to operate the screw jack. The screw jack has a pitch of 8 mm, and the force on the tommy bar is applied 400 mm from the axis of the screw. What is the velocity ratio (VR) of the screw jack?",
+      "image": "q12-screw-jack.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "50", "correct": false },
+        { "text": "157", "correct": false },
+        { "text": "314", "correct": true },
+        { "text": "628", "correct": false }
+      ]
+    },
+    {
+      "id": "q13",
+      "name": "Question 13",
+      "question": "Which row of the table correctly identifies the materials represented by the microstructures shown in the top row of the table?",
+      "image": "q13-microstructures.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "White cast iron / High carbon steel / Grey cast iron / Mild steel", "correct": false },
+        { "text": "High carbon steel / Mild steel / Grey cast iron / White cast iron", "correct": false },
+        { "text": "Mild steel / High carbon steel / White cast iron / Grey cast iron", "correct": false },
+        { "text": "Mild steel / Grey cast iron / High carbon steel / White cast iron", "correct": true }
+      ]
+    },
+    {
+      "id": "q14",
+      "name": "Question 14",
+      "question": "An image of a shaft and its end view are shown. Which drawing correctly represents section A–A? (Options A–D are the four section drawings shown in the image.)",
+      "image": "q14-shaft-options.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "A", "correct": false },
+        { "text": "B", "correct": false },
+        { "text": "C", "correct": true },
+        { "text": "D", "correct": false }
+      ]
+    },
+    {
+      "id": "q15",
+      "name": "Question 15",
+      "question": "A data signal and a carrier wave are combined to form the modulated signal shown. What type of modulation is depicted?",
+      "image": "q15-modulation.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Amplitude modulation", "correct": false },
+        { "text": "Frequency modulation", "correct": false },
+        { "text": "Phase shift key modulation", "correct": false },
+        { "text": "Frequency shift key modulation", "correct": true }
+      ]
+    },
+    {
+      "id": "q16",
+      "name": "Question 16",
+      "question": "A simply supported beam with a vertical point load is shown. Which row of the table correctly describes the shear force and bending moment diagrams at point A?",
+      "image": "q16-beam.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Shear force: Minimum, Bending moment: Maximum", "correct": true },
+        { "text": "Shear force: Maximum, Bending moment: Maximum", "correct": false },
+        { "text": "Shear force: Maximum, Bending moment: Minimum", "correct": false },
+        { "text": "Shear force: Minimum, Bending moment: Minimum", "correct": false }
+      ]
+    },
+    {
+      "id": "q17",
+      "name": "Question 17",
+      "question": "An aircraft is flying at a cruising altitude where the external atmospheric pressure is 20 kPa. Inside the aircraft's fuel tank, a column of aviation fuel has a density of 800 kg/m³ with a height of 1.5 m. What is the pressure at the bottom of the fuel column?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "10 940 Pa", "correct": false },
+        { "text": "20 813 Pa", "correct": false },
+        { "text": "32 000 Pa", "correct": true },
+        { "text": "300 800 Pa", "correct": false }
+      ]
+    },
+    {
+      "id": "q18",
+      "name": "Question 18",
+      "question": "A 9 V battery is used to power a simple series circuit. The circuit has one 2.1 V LED with a maximum allowable current of 50 mA. Which resistor would be the most suitable option to ensure the LED operates at maximum brightness (without failure)?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "38 Ω", "correct": false },
+        { "text": "42 Ω", "correct": false },
+        { "text": "138 Ω", "correct": true },
+        { "text": "180 Ω", "correct": false }
+      ]
+    },
+    {
+      "id": "q19",
+      "name": "Question 19",
+      "question": "The orthographic views of a part are shown. What is the total number of true lengths that are visible in ALL three views?",
+      "image": "q19-views.png",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "9", "correct": false },
+        { "text": "10", "correct": true },
+        { "text": "12", "correct": false },
+        { "text": "15", "correct": false }
+      ]
+    },
+    {
+      "id": "q20",
+      "name": "Question 20",
+      "question": "A cable with an initial length of 15 m and a cross-sectional area of 300 × 10⁻⁶ m² is subjected to a tensile force of 75 000 N, causing an elongation of 0.01 m and a decrease in cross-sectional area to 280 × 10⁻⁶ m². Assuming the deformation occurs within the elastic region, what is the Young's Modulus of the cable?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "402 GPa", "correct": false },
+        { "text": "375 GPa", "correct": true },
+        { "text": "268 MPa", "correct": false },
+        { "text": "250 MPa", "correct": false }
+      ]
+    }
+  ]
+}

@@ -3,772 +3,1136 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StudyBase — Quiz</title>
+<title>HSC — StudyBase</title>
+<!-- Favicon -->
+<link rel="icon" href="../icon.png" type="image/png">
+<link rel="apple-touch-icon" href="../icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../mainstyle.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #0f1117;
-    --bg-surface: #181c24;
-    --bg-raised: #1e2330;
-    --bg-hover: #232838;
-    --border: rgba(255,255,255,0.08);
-    --border-strong: rgba(255,255,255,0.14);
-    --text: #e8eaf0;
-    --text-muted: #8b90a0;
-    --text-dim: #555b6e;
-    --accent: #4f8ef7;
-    --accent-bg: rgba(79,142,247,0.12);
-    --green: #34d399;
-    --green-bg: rgba(52,211,153,0.1);
-    --red: #f87171;
-    --red-bg: rgba(248,113,113,0.1);
-    --amber: #fbbf24;
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 14px;
-    --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  /* Quiz UI — uses the app's existing CSS variables, with fallbacks in case any aren't set */
+  .quiz-status {
+    padding: 24px;
+    font-family: 'Inter', sans-serif;
+    color: var(--muted, #666);
   }
+  .quiz-status.quiz-error { color: #c0392b; }
 
-  body {
-    font-family: var(--font);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 14px;
-    line-height: 1.6;
+  /* The sidebar (question picker + nav list) reuses the app's real .sidebar/.detail-panel
+     shell and .search-input/.unit-*/.topic-item component classes from mainstyle.css —
+     see the <nav class="sidebar"> markup below — rather than inventing new ones, so this
+     page matches subject.html instead of looking like a bolted-on quiz widget.
+
+     The only genuinely new pieces are the per-question mark-delta badges, styled after
+     the ▲/▼ score-change indicators on the analyser page (.strip-delta there). Colors are
+     copied from analyser.html's palette; "partial" is a same-family addition it doesn't
+     have (that page only shows full deltas, never partial-credit ones). */
+  .quiz-nav-delta { font-size: 10px; font-weight: 700; white-space: nowrap; }
+  .quiz-nav-delta.up { color: #15803d; }
+  .quiz-nav-delta.down { color: #dc2626; }
+  .quiz-nav-delta.partial { color: #b45309; }
+  body.dark .quiz-nav-delta.up { color: #4ade80; }
+  body.dark .quiz-nav-delta.down { color: #f87171; }
+  body.dark .quiz-nav-delta.partial { color: #fbbf24; }
+
+  .quiz-wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    font-family: 'Inter', sans-serif;
   }
-
-  /* ── TOP BAR ─────────────────────────────── */
-  .topbar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(15,17,23,0.92);
-    backdrop-filter: blur(12px);
-    border-bottom: 0.5px solid var(--border);
-    padding: 0 24px;
-    height: 52px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  @media (min-width: 701px) {
+    /* Above the 700px mobile breakpoint (mainstyle.css's own sidebar breakpoint), .sidebar
+       (268px + 1px border) sits in-flow to the left of .detail-panel, so centering
+       .quiz-wrap within .detail-panel's own content box lands it ~134px right of the true
+       screen center — the "centered in the white space, not the screen" issue. Shift left
+       by half the sidebar's width to compensate, clamped at 0 so it can never run into the
+       sidebar itself on narrower desktop windows. */
+    .quiz-wrap {
+      margin-left: max(0px, calc((100% - 640px) / 2 - 134.5px));
+      margin-right: 0;
+    }
   }
-  .topbar-left { display: flex; align-items: center; gap: 12px; }
-  .logo { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--text); text-decoration: none; }
-  .logo-icon { width: 28px; height: 28px; background: var(--accent); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
-  .version-badge { font-size: 10px; background: var(--bg-raised); border: 0.5px solid var(--border); border-radius: 4px; padding: 2px 7px; color: var(--text-muted); font-family: var(--font-mono); }
-  .topbar-right { display: flex; align-items: center; gap: 8px; }
-  .topbar-date { font-size: 12px; color: var(--text-muted); }
-  .icon-btn { width: 32px; height: 32px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: all 0.15s; }
-  .icon-btn:hover { background: var(--bg-raised); color: var(--text); border-color: var(--border-strong); }
-
-  /* ── BREADCRUMB ──────────────────────────── */
-  .breadcrumb {
-    padding: 12px 24px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  .quiz-progress {
     font-size: 12px;
-    color: var(--text-muted);
-    border-bottom: 0.5px solid var(--border);
-    background: var(--bg-surface);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--muted2, #999);
+    margin-bottom: 10px;
   }
-  .breadcrumb a { color: var(--text-muted); text-decoration: none; cursor: pointer; }
-  .breadcrumb a:hover { color: var(--text); }
-  .breadcrumb .sep { opacity: 0.3; }
-  .breadcrumb .current { color: var(--text); }
-
-  /* ── MAIN LAYOUT ─────────────────────────── */
-  .main { max-width: 900px; margin: 0 auto; padding: 28px 24px 80px; }
-
-  /* ── SECTION HEADING ─────────────────────── */
-  .section-header {
+  /* Exam-style heading: "Question 11" left, "(3 marks)" right, thin rule underneath —
+     mirrors the look of the printed HSC paper. */
+  .quiz-heading {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: space-between;
+    gap: 12px;
+    font-family: 'Lora', serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text, #1a1a1a);
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border, #e0e0e0);
+  }
+  .quiz-heading-marks {
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--muted2, #999);
+    white-space: nowrap;
+  }
+  /* Question stem — the actual wording, styled like exam-paper body text rather
+     than a UI label. Falls back to holding the full question text on older quiz
+     files that don't have a separate `question` field. */
+  .quiz-stem {
+    font-family: 'Lora', serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text, #1a1a1a);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .quiz-type-hint {
+    font-size: 12px;
+    color: var(--muted2, #999);
     margin-bottom: 14px;
   }
-  .section-title { font-size: 12px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-dim); }
-  .add-btn {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 12px; padding: 5px 12px;
-    border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm);
-    background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+  .quiz-image-wrap:empty { display: none; }
+  .quiz-image-wrap { margin-bottom: 16px; }
+  .quiz-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border, #e0e0e0);
+    background: var(--card, #fff);
   }
-  .add-btn:hover { background: var(--bg-raised); color: var(--text); }
+  /* This page reuses mainstyle.css's subject-page dark-mode img filter
+     (auto-inverts images so light diagrams don't glow), which is why
+     question images get inverted here too. Same escape hatch as the topic
+     PDF/Image viewer: click toggles .no-invert. */
+  body.dark .quiz-image { cursor: pointer; transition: filter .12s; }
 
-  /* ── SUBJECT GRID ────────────────────────── */
-  .subject-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    margin-bottom: 28px;
+  /* Multiple choice / checkbox answers */
+  .quiz-answers {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
   }
-  .subject-cell {
-    padding: 16px 14px;
-    cursor: pointer;
-    border-right: 0.5px solid var(--border);
-    border-bottom: 0.5px solid var(--border);
-    transition: background 0.15s;
-    position: relative;
-  }
-  .subject-cell:nth-child(4n),
-  .subject-cell.last-row-end { border-right: none; }
-  .subject-cell.no-bottom { border-bottom: none; }
-  .subject-cell:hover { background: var(--bg-hover); }
-  .subject-cell.active { background: var(--bg-raised); }
-  .subject-cell.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--accent);
-  }
-  .cell-icon { font-size: 20px; margin-bottom: 8px; line-height: 1; }
-  .cell-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
-  .cell-meta { font-size: 11px; color: var(--text-dim); }
-  .cell-count {
-    position: absolute; top: 10px; right: 10px;
-    font-size: 10px; font-weight: 600; font-family: var(--font-mono);
-    background: var(--bg-hover); border-radius: 4px; padding: 2px 6px;
-    color: var(--text-muted);
-  }
-  .cell-count.has-topics { background: var(--accent-bg); color: var(--accent); }
-
-  /* ── EXPANDED SUBJECT PANEL ──────────────── */
-  .subject-panel {
-    display: none;
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    margin-bottom: 28px;
-  }
-  .subject-panel.visible { display: block; }
-  .panel-header {
-    padding: 14px 18px;
-    background: var(--bg-surface);
-    border-bottom: 0.5px solid var(--border);
+  .quiz-answer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-  }
-  .panel-title-group { display: flex; align-items: center; gap: 10px; }
-  .panel-icon { font-size: 18px; }
-  .panel-title { font-size: 15px; font-weight: 600; }
-  .panel-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
-  .panel-actions { display: flex; gap: 8px; }
-  .panel-btn {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 12px; padding: 5px 12px;
-    border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm);
-    background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.15s;
-  }
-  .panel-btn:hover { background: var(--bg-raised); color: var(--text); }
-
-  /* ── TOPIC ROWS ──────────────────────────── */
-  .topic-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 11px 18px;
-    border-bottom: 0.5px solid var(--border);
+    gap: 10px;
+    text-align: left;
+    padding: 12px 14px;
+    border: 1px solid var(--border, #e0e0e0);
+    border-radius: 8px;
+    background: var(--card, #fff);
+    color: var(--text, #1a1a1a);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
     cursor: pointer;
-    transition: background 0.12s;
+    transition: border-color .15s, background .15s;
   }
-  .topic-row:last-child { border-bottom: none; }
-  .topic-row:hover { background: var(--bg-hover); }
-  .topic-row.active { background: var(--bg-raised); }
-  .topic-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); flex-shrink: 0; transition: background 0.15s; }
-  .topic-row.active .topic-dot { background: var(--accent); }
-  .topic-name { flex: 1; font-size: 13px; color: var(--text); }
-  .topic-qcount { font-size: 11px; color: var(--text-dim); font-family: var(--font-mono); }
-  .topic-start-btn {
-    font-size: 11px; padding: 4px 10px;
-    border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm);
-    background: transparent; color: var(--text-muted); cursor: pointer;
-    display: flex; align-items: center; gap: 4px; transition: all 0.15s;
+  .quiz-answer:hover:not(.locked) { border-color: var(--accent, #4f46e5); }
+  .quiz-answer.selected { border-color: var(--accent, #4f46e5); background: color-mix(in srgb, var(--accent, #4f46e5) 10%, transparent); }
+  .quiz-answer.locked { cursor: default; }
+  .quiz-answer.correct { border-color: #2e7d32; background: rgba(46,125,50,0.12); }
+  .quiz-answer.incorrect { border-color: #c0392b; background: rgba(192,57,43,0.10); }
+  .quiz-answer input[type="radio"],
+  .quiz-answer input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent, #4f46e5);
+    flex-shrink: 0;
+    cursor: pointer;
   }
-  .topic-start-btn:hover, .topic-row.active .topic-start-btn { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
+  .quiz-answer.locked input { cursor: default; }
 
-  /* ── QUIZ AREA ───────────────────────────── */
-  .quiz-area { display: none; }
-  .quiz-area.visible { display: block; }
+  /* Math / fill-in-the-blank answers */
+  .quiz-math-answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  /* One group per run of consecutive same-type entries (e.g. all "working" rows
+     together, the final "answer" row on its own). Styled as ruled writing lines
+     rather than boxed UI cards, closer to the blank answer space on the printed
+     exam paper. */
+  .quiz-math-group {
+    padding: 4px 0 10px;
+  }
+  .quiz-math-group-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted2, #999);
+    margin-bottom: 8px;
+  }
+  .quiz-math-input-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .quiz-math-input-row { display: flex; align-items: center; gap: 10px; }
+  .quiz-math-input {
+    flex: 1;
+    border: none;
+    border-bottom: 1px dotted var(--muted2, #999);
+    border-radius: 0;
+    padding: 6px 2px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    background: transparent;
+    color: var(--text, #1a1a1a);
+  }
+  .quiz-math-input:focus { outline: none; border-bottom-style: solid; border-bottom-color: var(--accent, #4f46e5); }
+  .quiz-math-input:disabled { opacity: .85; }
+  .quiz-math-input-row.correct .quiz-math-input { border-bottom-color: #2e7d32; border-bottom-style: solid; }
+  .quiz-math-input-row.incorrect .quiz-math-input { border-bottom-color: #c0392b; border-bottom-style: solid; }
+  /* Working rows: same grading behavior as an answer row, styled as a lighter, secondary step */
+  .quiz-math-group.quiz-math-working .quiz-math-input {
+    font-style: italic;
+  }
+  .quiz-math-mark-label {
+    font-size: 11px;
+    color: var(--muted2, #999);
+    white-space: nowrap;
+  }
+  .quiz-math-hint {
+    font-size: 12px;
+    color: #c0392b;
+    margin-top: 4px;
+  }
 
-  .quiz-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 20px;
-  }
-  .quiz-title-group {}
-  .quiz-subject-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
-  .quiz-topic-name { font-size: 20px; font-weight: 600; }
-  .quiz-controls { display: flex; gap: 8px; }
-  .quiz-ctrl-btn {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 12px; padding: 6px 13px;
-    border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm);
-    background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.15s;
-  }
-  .quiz-ctrl-btn:hover { background: var(--bg-raised); color: var(--text); }
-  .quiz-ctrl-btn.danger:hover { color: var(--red); border-color: var(--red); background: var(--red-bg); }
-
-  /* ── QUESTION CARDS ──────────────────────── */
-  .questions-list { display: flex; flex-direction: column; gap: 12px; }
-
-  .q-card {
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
-  .q-card.answered-correct { border-color: rgba(52,211,153,0.3); }
-  .q-card.answered-wrong { border-color: rgba(248,113,113,0.3); }
-
-  .q-card-header {
-    display: flex; align-items: flex-start; gap: 14px;
-    padding: 16px 18px 14px;
-    background: var(--bg-surface);
-  }
-  .q-num {
-    font-size: 11px; font-family: var(--font-mono); font-weight: 600;
-    color: var(--text-dim); padding-top: 2px; flex-shrink: 0; width: 24px;
-  }
-  .q-text { font-size: 14px; color: var(--text); line-height: 1.65; flex: 1; }
-  .q-card-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-  .q-edit-btn {
-    width: 28px; height: 28px; border-radius: var(--radius-sm);
-    border: 0.5px solid var(--border); background: transparent;
-    color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center;
-    font-size: 13px; transition: all 0.15s; opacity: 0;
-  }
-  .q-card:hover .q-edit-btn { opacity: 1; }
-  .q-edit-btn:hover { background: var(--bg-raised); color: var(--text); border-color: var(--border-strong); }
-
-  /* ── ANSWER SECTION ──────────────────────── */
-  .q-answer {
-    border-top: 0.5px solid var(--border);
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.3s ease;
-  }
-  .q-answer.revealed { max-height: 400px; }
-  .q-answer-inner {
-    padding: 14px 18px 14px 56px;
-    background: var(--bg-raised);
-    display: flex; flex-direction: column; gap: 12px;
-  }
-  .answer-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 2px; }
-  .answer-text { font-size: 14px; color: var(--text); line-height: 1.65; }
-  .answer-mark { display: flex; gap: 8px; }
-  .mark-btn {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 12px; padding: 5px 13px;
-    border-radius: var(--radius-sm); border: 0.5px solid var(--border-strong);
-    background: transparent; cursor: pointer; transition: all 0.15s; color: var(--text-muted);
-  }
-  .mark-btn.correct-btn:hover, .mark-btn.correct-btn.selected { background: var(--green-bg); color: var(--green); border-color: var(--green); }
-  .mark-btn.wrong-btn:hover, .mark-btn.wrong-btn.selected { background: var(--red-bg); color: var(--red); border-color: var(--red); }
-
-  /* ── REVEAL BUTTON ───────────────────────── */
-  .reveal-row {
-    padding: 10px 18px 10px 56px;
-    display: flex; align-items: center; gap: 10px;
-    background: var(--bg-surface);
-    border-top: 0.5px solid var(--border);
-  }
-  .reveal-btn {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 12px; padding: 5px 13px;
-    border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm);
-    background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.15s;
-  }
-  .reveal-btn:hover { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
-
-  /* ── EDIT MODAL ──────────────────────────── */
-  .modal-overlay {
-    display: none;
-    position: fixed; inset: 0; z-index: 200;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(4px);
-    align-items: center; justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--bg-surface);
-    border: 0.5px solid var(--border-strong);
-    border-radius: var(--radius-lg);
-    width: 520px; max-width: 95vw;
-    padding: 24px;
-    display: flex; flex-direction: column; gap: 16px;
-  }
-  .modal-header { display: flex; align-items: center; justify-content: space-between; }
-  .modal-title { font-size: 15px; font-weight: 600; }
-  .modal-close { width: 28px; height: 28px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-  .modal-close:hover { background: var(--bg-raised); color: var(--text); }
-  .field-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-dim); margin-bottom: 6px; }
-  .field-input, .field-textarea {
-    width: 100%; background: var(--bg-raised);
-    border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm);
-    color: var(--text); font-family: var(--font); font-size: 13px;
-    padding: 9px 12px; outline: none; transition: border-color 0.15s;
+  /* isAICheck: free-text response for questions with no single exact-match
+     answer ("describe...", "explain...", "discuss..."). Boxed like a real
+     textbox rather than the underlined math input, since a full paragraph
+     doesn't read well as a single ruled line. */
+  .quiz-ai-answer {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 140px;
+    padding: 12px 14px;
+    border: 1px solid var(--border, #e0e0e0);
+    border-radius: 8px;
+    background: var(--card, #fff);
+    color: var(--text, #1a1a1a);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
     resize: vertical;
+    margin-bottom: 16px;
   }
-  .field-input:focus, .field-textarea:focus { border-color: var(--accent); }
-  .field-textarea { min-height: 80px; }
-  .modal-footer { display: flex; justify-content: flex-end; gap: 8px; }
-  .modal-cancel { font-size: 13px; padding: 7px 16px; border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm); background: transparent; color: var(--text-muted); cursor: pointer; }
-  .modal-save { font-size: 13px; padding: 7px 16px; border-radius: var(--radius-sm); border: none; background: var(--accent); color: #fff; cursor: pointer; font-weight: 500; }
-  .modal-save:hover { opacity: 0.88; }
+  .quiz-ai-answer:focus { outline: none; border-color: var(--accent, #4f46e5); }
+  .quiz-ai-answer:disabled { opacity: .85; resize: none; }
 
-  /* ── ADD QUESTION BUTTON ─────────────────── */
-  .add-question-btn {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    width: 100%; padding: 14px;
-    border: 0.5px dashed var(--border-strong); border-radius: var(--radius-lg);
-    background: transparent; color: var(--text-muted); cursor: pointer;
-    font-size: 13px; transition: all 0.15s; margin-top: 4px;
+  .quiz-feedback { font-size: 14px; font-weight: 600; min-height: 20px; margin-bottom: 12px; }
+  .quiz-feedback.quiz-correct { color: #2e7d32; }
+  .quiz-feedback.quiz-partial { color: #b8860b; }
+  .quiz-feedback.quiz-incorrect { color: #c0392b; }
+
+  .quiz-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .quiz-btn {
+    padding: 9px 18px;
+    border-radius: 7px;
+    border: 1px solid var(--border, #e0e0e0);
+    background: var(--card, #fff);
+    color: var(--text, #1a1a1a);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
   }
-  .add-question-btn:hover { background: var(--bg-surface); color: var(--text); border-color: var(--accent); }
+  .quiz-btn-primary { background: var(--accent, #4f46e5); color: #fff; border-color: transparent; }
+  .quiz-btn:disabled { opacity: .5; cursor: default; }
 
-  /* ── PROGRESS BAR ────────────────────────── */
-  .progress-bar-wrap { margin-bottom: 20px; }
-  .progress-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
-  .progress-track { height: 3px; background: var(--bg-raised); border-radius: 2px; }
-  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; }
-
-  /* ── EMPTY STATE ─────────────────────────── */
-  .empty-state { text-align: center; padding: 40px 20px; color: var(--text-dim); }
-  .empty-state p { margin-top: 8px; font-size: 13px; }
-
-  @media (max-width: 600px) {
-    .subject-grid { grid-template-columns: repeat(2, 1fr); }
-    .topbar { padding: 0 14px; }
-    .main { padding: 18px 14px 60px; }
+  .quiz-summary { text-align: center; }
+  .quiz-score {
+    font-family: 'Lora', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text, #1a1a1a);
+    margin: 12px 0 22px;
   }
 </style>
 </head>
-<body>
+<body class="subject-page">
 
-<!-- TOP BAR -->
-<header class="topbar">
-  <div class="topbar-left">
-    <a class="logo" href="#">
-      <div class="logo-icon">📚</div>
-      StudyBase
-    </a>
-    <span class="version-badge">v3.0.0</span>
-  </div>
-  <div class="topbar-right">
-    <span class="topbar-date" id="todayDate"></span>
-    <button class="icon-btn" title="Settings">⚙</button>
-  </div>
-</header>
+<!-- Firebase auth -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  const cfg = {
+    apiKey:"AIzaSyAZeyBIaTstTJ5Pr9o86MHk8dhDPAJFFCA",
+    authDomain:"studybase-8cfa1.firebaseapp.com",
+    projectId:"studybase-8cfa1",
+    storageBucket:"studybase-8cfa1.firebasestorage.app",
+    messagingSenderId:"434992387793",
+    appId:"1:434992387793:web:e5bcae8cad63b4eb6f17f0"
+  };
+  const auth = getAuth(initializeApp(cfg));
+  window.__sbAuth = auth; // so the quiz engine's callAI() can fetch a fresh ID token for /api/grade
+  onAuthStateChanged(auth, user => {
+    const isGuest = sessionStorage.getItem('studybase_guest') === '1';
+    if (user) {
+      sessionStorage.removeItem('studybase_guest');
+      user.getIdTokenResult(true).then(result => {
+        const status = result.claims.status || '';
+        if (status === 'rejected') {
+          window.location.href = '../waiting.html';
+          return;
+        }
+        if (status !== 'active') {
+          window.isGuest = true;
+          document.body.classList.add('guest-mode');
+          document.getElementById('guest-border').style.display = 'block';
+          document.getElementById('guest-nudge').style.display = 'block';
+          return;
+        }
+      }).catch(() => {
+        window.isGuest = true;
+        document.body.classList.add('guest-mode');
+        document.getElementById('guest-border').style.display = 'block';
+        document.getElementById('guest-nudge').style.display = 'block';
+      });
+    } else if (isGuest) {
+      window.isGuest = true;
+      document.body.classList.add('guest-mode');
+      document.getElementById('guest-border').style.display = 'block';
+      document.getElementById('guest-nudge').style.display = 'block';
+    } else {
+      window.location.href = "../login.html";
+    }
+  });
+  window.sbSignOut = () => {
+    if (sessionStorage.getItem('studybase_guest') === '1') {
+      sessionStorage.removeItem('studybase_guest');
+      window.location.href = "../login.html";
+      return;
+    }
+    signOut(auth).then(() => window.location.href = "../login.html");
+  };
+</script>
 
-<!-- BREADCRUMB -->
-<nav class="breadcrumb" id="breadcrumb">
-  <a onclick="goHome()">Home</a>
-  <span class="sep">/</span>
-  <span class="current" id="breadcrumbCurrent">Subjects</span>
-</nav>
-
-<!-- MAIN -->
-<div class="main">
-
-  <!-- SUBJECT GRID -->
-  <div id="homeView">
-    <div class="section-header">
-      <span class="section-title">Subjects</span>
-      <button class="add-btn" onclick="openAddSubject()">＋ Add subject</button>
-    </div>
-
-    <div class="subject-grid" id="subjectGrid"></div>
-
-    <!-- SUBJECT PANEL (topics) -->
-    <div class="subject-panel" id="subjectPanel">
-      <div class="panel-header">
-        <div class="panel-title-group">
-          <span class="panel-icon" id="panelIcon"></span>
-          <div>
-            <div class="panel-title" id="panelTitle"></div>
-            <div class="panel-subtitle" id="panelSubtitle"></div>
-          </div>
+<!-- Header (same structure as subject.html, minus the Flashcards button) -->
+<div class="hdr-outer">
+  <a class="accent-bar" href="../index.html" title="Back to Index" style="background:var(--accent)"></a>
+  <div class="hdr-main">
+    <div class="hdr-top">
+      <div class="logo-block">
+        <div class="logo-icon2">🎓</div>
+        <div>
+          <div class="logo-text2">StudyBase</div>
+          <span class="logo-sub-txt">SCHOOL REFERENCE</span>
         </div>
-        <div class="panel-actions">
-          <button class="panel-btn" onclick="openEditSubject()">✏ Edit subject</button>
-          <button class="panel-btn" onclick="openAddTopic()">＋ Add topic</button>
-        </div>
       </div>
-      <div id="topicList"></div>
-    </div>
-  </div>
-
-  <!-- QUIZ VIEW -->
-  <div class="quiz-area" id="quizView">
-    <div class="quiz-header">
-      <div class="quiz-title-group">
-        <div class="quiz-subject-label" id="quizSubjectLabel"></div>
-        <div class="quiz-topic-name" id="quizTopicName"></div>
+      <div class="hdr-breadcrumb">
+        <a class="bc-link" href="../index.html">Hub</a>
+        <span class="bc-sep">›</span>
+        <span class="bc-current" id="hdrCurrent">HSC</span>
       </div>
-      <div class="quiz-controls">
-        <button class="quiz-ctrl-btn" onclick="shuffleQuestions()">⇄ Shuffle</button>
-        <button class="quiz-ctrl-btn" onclick="revealAll()">👁 Reveal all</button>
-        <button class="quiz-ctrl-btn" onclick="openAddQuestion()">＋ Question</button>
-        <button class="quiz-ctrl-btn danger" onclick="goHome()">← Back</button>
+      <div class="hdr-right-row">
+        <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out">⎋</button>
+        <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()" data-tip="Dark mode">🌙</button>
       </div>
-    </div>
-
-    <div class="progress-bar-wrap">
-      <div class="progress-meta">
-        <span id="progressLabel">0 answered</span>
-        <span id="progressPercent">0%</span>
-      </div>
-      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    </div>
-
-    <div class="questions-list" id="questionsList"></div>
-
-    <button class="add-question-btn" onclick="openAddQuestion()">＋ Add question to this topic</button>
-  </div>
-
-</div>
-
-<!-- EDIT / ADD MODAL -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title" id="modalTitle">Edit question</span>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div id="modalBody"></div>
-    <div class="modal-footer">
-      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
-      <button class="modal-save" id="modalSaveBtn">Save</button>
     </div>
   </div>
 </div>
 
-<script src="HSC_Subjects.js"></script>
+<!-- Quiz canvas: the app's real .sidebar (question picker + nav list) next to its real
+     .detail-panel (current question) — same shell as subject.html, not a one-off layout. -->
+<div class="app-body">
+  <nav class="sidebar" id="quizSidebar"></nav>
+  <div class="detail-panel" id="hscCanvas"></div>
+</div>
+
+<!-- Guest overlays -->
+<div id="guest-border"></div>
+<div id="guest-nudge">
+  <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Viewing as guest</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Sign in to add and edit HSC content.</div>
+  <button onclick="window.location.href='../login.html'" style="background:var(--text);color:var(--card);border:none;border-radius:6px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;transition:opacity .15s">Sign In</button>
+  <button onclick="document.getElementById('guest-nudge').style.display='none'" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;margin-top:6px;width:100%;font-family:'Inter',sans-serif">Dismiss</button>
+</div>
+
 <script>
-// ── DATA loaded from HSC_Subjects.js ─────────────────────────
+// ── Dark mode (shared key with the rest of the app) ──
+(function(){
+  const on = localStorage.getItem('studybase_dark') === '1';
+  if(on) document.body.classList.add('dark');
+  const btn = document.getElementById('darkToggle');
+  if(btn) btn.textContent = on ? '☀️' : '🌙';
+})();
+function toggleDark(){
+  const on = document.body.classList.toggle('dark');
+  localStorage.setItem('studybase_dark', on ? '1' : '0');
+  document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
+}
+</script>
 
-// ── STATE ─────────────────────────────────────────────────────
-let state = {
-  activeSubjectId: null,
-  activeTopicId: null,
-  modalMode: null,
-  editingQIdx: null,
-};
+<!-- ── Quiz engine ──
+     Picks a random quiz JSON from ./storage (via storage/manifest.json, since a static
+     folder can't be listed directly by the browser), then walks its questions in order.
 
-// ── INIT ──────────────────────────────────────────────────────
-function init() {
-  const d = new Date();
-  document.getElementById('todayDate').textContent =
-    d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'long' });
-  renderSubjectGrid();
+     Question types:
+       - Multiple choice, single answer: isMultipleChoice: true, isCheckbox: false (or omitted) → radio group
+       - Multiple choice, multi-select:   isMultipleChoice: true, isCheckbox: true              → checkboxes
+       - Math / fill-in-the-blank:        math: true → one textbox per entry in "answers",
+         each worth 1 mark, graded independently (numeric-aware) against answers[i].text.
+
+     manifest.json is a list of { file, name } entries — "file" is the quiz filename in this
+     folder, "name" is the display name shown in the progress line (e.g. "Section 1"). -->
+<script>
+const STORAGE_FOLDER = 'storage';
+let quizState = null;
+let quizManifest = []; // [{file, name}, ...] — loaded once, reused by the sidebar dropdown
+
+async function loadRandomQuiz() {
+  const canvas = document.getElementById('hscCanvas');
+  canvas.innerHTML = '<div class="quiz-status">Loading quiz…</div>';
+  try {
+    const manifestRes = await fetch(`${STORAGE_FOLDER}/manifest.json`);
+    if (!manifestRes.ok) throw new Error('Could not load storage/manifest.json');
+    const manifest = await manifestRes.json();
+    if (!Array.isArray(manifest) || manifest.length === 0) {
+      throw new Error('manifest.json has no quiz files listed');
+    }
+
+    // Each entry is normally { file, name }; a bare string filename is also accepted
+    // (name falls back to the filename) so older manifest.json files keep working.
+    quizManifest = manifest.map(entry =>
+      typeof entry === 'string' ? { file: entry, name: entry } : { file: entry.file, name: entry.name || entry.file }
+    );
+
+    const chosen = quizManifest[Math.floor(Math.random() * quizManifest.length)];
+    await loadQuizByFile(chosen.file, chosen.name);
+  } catch (err) {
+    canvas.innerHTML = `<div class="quiz-status quiz-error">Error loading quiz: ${escapeHtml(err.message)}</div>`;
+  }
 }
 
-// ── SUBJECT GRID ──────────────────────────────────────────────
-function renderSubjectGrid() {
-  const grid = document.getElementById('subjectGrid');
-  const cols = 4;
-  const total = HSC_Subjects.length;
-  grid.innerHTML = HSC_Subjects.map((s, i) => {
-    const isActive = s.id === state.activeSubjectId;
-    const isLastRow = i >= total - (total % cols || cols);
-    const isEndCol = (i + 1) % cols === 0 || i === total - 1;
-    const topicCount = s.topics.length;
-    return `
-      <div class="subject-cell ${isActive ? 'active' : ''} ${isLastRow ? 'no-bottom' : ''}"
-           onclick="selectSubject('${s.id}')" style="border-right-color: ${isEndCol ? 'transparent' : ''}">
-        <div class="cell-count ${topicCount > 0 ? 'has-topics' : ''}">${topicCount}</div>
-        <div class="cell-icon">${s.icon}</div>
-        <div class="cell-name">${s.name}</div>
-        <div class="cell-meta">${topicCount > 0 ? topicCount + ' topic' + (topicCount !== 1 ? 's' : '') : 'No topics yet'}</div>
-      </div>
-    `;
-  }).join('');
+// Loads one specific quiz file by name (used for the initial random pick and for the
+// sidebar dropdown). Resets all per-question progress, since switching quizzes starts fresh.
+async function loadQuizByFile(file, name) {
+  const canvas = document.getElementById('hscCanvas');
+  canvas.innerHTML = '<div class="quiz-status">Loading quiz…</div>';
+  try {
+    const quizRes = await fetch(`${STORAGE_FOLDER}/${file}`);
+    if (!quizRes.ok) throw new Error(`Could not load ${file}`);
+    const quizData = await quizRes.json();
+
+    if (!Array.isArray(quizData.questions) || quizData.questions.length === 0) {
+      throw new Error(`${file} has no questions`);
+    }
+
+    const totalMarks = quizData.questions.reduce((sum, q) => sum + marksForQuestion(q), 0);
+
+    quizState = {
+      questions: quizData.questions,
+      filename: file,
+      quizName: name || file,
+      index: 0,
+      // One slot per question: null until answered, then { earned, total, selected | values }
+      // — used both for scoring (no more running accumulator to double-count) and to redraw
+      // a question exactly as the student left it when they jump back to it via the sidebar.
+      perQuestion: new Array(quizData.questions.length).fill(null),
+      totalMarks
+    };
+    renderQuestion();
+  } catch (err) {
+    canvas.innerHTML = `<div class="quiz-status quiz-error">Error loading quiz: ${escapeHtml(err.message)}</div>`;
+  }
 }
 
-function selectSubject(id) {
-  if (state.activeSubjectId === id) {
-    state.activeSubjectId = null;
-    renderSubjectGrid();
-    document.getElementById('subjectPanel').classList.remove('visible');
+// Sidebar dropdown "onchange" handler.
+function onQuizSelect(selectEl) {
+  const file = selectEl.value;
+  const entry = quizManifest.find(m => m.file === file);
+  loadQuizByFile(file, entry ? entry.name : file);
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function getEarnedMarks() {
+  return quizState.perQuestion.reduce((sum, p) => sum + (p ? p.earned : 0), 0);
+}
+
+function renderQuestion() {
+  renderSidebar();
+
+  const { questions, index } = quizState;
+  if (index >= questions.length) {
+    renderSummary();
     return;
   }
-  state.activeSubjectId = id;
-  renderSubjectGrid();
-  renderSubjectPanel();
-}
 
-function renderSubjectPanel() {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  if (!s) return;
-  document.getElementById('panelIcon').textContent = s.icon;
-  document.getElementById('panelTitle').textContent = s.name;
-  document.getElementById('panelSubtitle').textContent =
-    s.topics.length + ' topic' + (s.topics.length !== 1 ? 's' : '');
+  const q = questions[index];
+  const prior = quizState.perQuestion[index]; // null if not yet answered
 
-  const list = document.getElementById('topicList');
-  if (s.topics.length === 0) {
-    list.innerHTML = `<div class="empty-state">📭<p>No topics yet — add one to get started.</p></div>`;
+  if (q.math) {
+    renderMathQuestion(q, index, questions.length, prior);
+  } else if (q.isAICheck) {
+    renderAICheckQuestion(q, index, questions.length, prior);
   } else {
-    list.innerHTML = s.topics.map(t => `
-      <div class="topic-row ${t.id === state.activeTopicId ? 'active' : ''}" onclick="openQuiz('${s.id}','${t.id}')">
-        <div class="topic-dot"></div>
-        <span class="topic-name">${t.name}</span>
-        <span class="topic-qcount">${t.questions.length}q</span>
-        <button class="topic-start-btn">▶ Start</button>
-      </div>
-    `).join('');
+    renderChoiceQuestion(q, index, questions.length, prior);
   }
-  document.getElementById('subjectPanel').classList.add('visible');
 }
 
-// ── QUIZ VIEW ─────────────────────────────────────────────────
-function openQuiz(subjectId, topicId) {
-  const s = HSC_Subjects.find(x => x.id === subjectId);
-  const t = s.topics.find(x => x.id === topicId);
-  state.activeSubjectId = subjectId;
-  state.activeTopicId = topicId;
-
-  document.getElementById('quizSubjectLabel').textContent = s.name;
-  document.getElementById('quizTopicName').textContent = t.name;
-  document.getElementById('breadcrumbCurrent').textContent = s.name + ' › ' + t.name;
-
-  renderQuestions();
-  updateProgress();
-
-  document.getElementById('homeView').style.display = 'none';
-  document.getElementById('quizView').classList.add('visible');
+// Marks for one question, regardless of type — kept as a single function so
+// the sidebar list and the totalMarks sum can never disagree with each other.
+function marksForQuestion(q) {
+  if (q.math) return q.answers.length;
+  if (q.isAICheck) return q.marks;
+  return 1;
 }
 
-function goHome() {
-  state.activeTopicId = null;
-  document.getElementById('homeView').style.display = '';
-  document.getElementById('quizView').classList.remove('visible');
-  document.getElementById('breadcrumbCurrent').textContent = 'Subjects';
-  renderSubjectGrid();
-  if (state.activeSubjectId) renderSubjectPanel();
-}
+/* ── Sidebar: quiz-file picker + searchable per-question nav list ──
+   Reuses the app's real subject-page components (mainstyle.css, scoped to
+   body.subject-page, which this page already is): .search-input for the filter box,
+   .unit-label/.unit-select for the quiz-file dropdown (relabeled "Quiz" here instead
+   of "Units"), and .topic-item/.ti-top/.ti-name/.ti-unit for each question row — same
+   look as the topic list on subject.html, just pointed at questions instead of topics. */
 
-function renderQuestions() {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const t = s.topics.find(x => x.id === state.activeTopicId);
-  const list = document.getElementById('questionsList');
+function renderSidebar() {
+  const sidebar = document.getElementById('quizSidebar');
+  if (!sidebar || !quizState) return;
 
-  if (t.questions.length === 0) {
-    list.innerHTML = `<div class="empty-state">📝<p>No questions yet — add the first one below.</p></div>`;
-    return;
-  }
+  const fileOptions = quizManifest.map(m =>
+    `<option value="${escapeHtml(m.file)}"${m.file === quizState.filename ? ' selected' : ''}></option>`
+  ).join('');
 
-  list.innerHTML = t.questions.map((q, i) => `
-    <div class="q-card" id="qcard-${i}" data-idx="${i}">
-      <div class="q-card-header">
-        <span class="q-num">${String(i + 1).padStart(2, '0')}</span>
-        <span class="q-text">${escHtml(q.q)}</span>
-        <div class="q-card-actions">
-          <button class="q-edit-btn" onclick="openEditQuestion(${i})" title="Edit question">✏</button>
-        </div>
-      </div>
-      <div class="reveal-row">
-        <button class="reveal-btn" id="reveal-btn-${i}" onclick="revealAnswer(${i})">👁 Show answer</button>
-      </div>
-      <div class="q-answer" id="answer-${i}">
-        <div class="q-answer-inner">
-          <div>
-            <div class="answer-label">Answer</div>
-            <div class="answer-text">${escHtml(q.a)}</div>
+  const rows = quizState.questions.map((q, i) => {
+    const prior = quizState.perQuestion[i];
+    const marks = marksForQuestion(q);
+    const activeClass = i === quizState.index ? ' active' : '';
+
+    let badge = '';
+    if (prior) {
+      if (prior.earned === prior.total) badge = `<span class="quiz-nav-delta up">▲${prior.total}</span>`;
+      else if (prior.earned === 0) badge = `<span class="quiz-nav-delta down">▼${prior.total}</span>`;
+      else badge = `<span class="quiz-nav-delta partial">${prior.earned}/${prior.total}</span>`;
+    }
+
+    return `
+      <div class="topic-item-wrap" data-idx="${i}">
+        <div class="topic-item${activeClass}">
+          <div class="ti-top">
+            <div class="ti-name"><span class="ti-name-text"></span></div>
+            ${badge}
           </div>
-          <div class="answer-mark">
-            <button class="mark-btn correct-btn" id="mark-correct-${i}" onclick="markAnswer(${i}, true)">✓ Got it</button>
-            <button class="mark-btn wrong-btn" id="mark-wrong-${i}" onclick="markAnswer(${i}, false)">✗ Missed it</button>
-          </div>
+          <div class="ti-unit">${marks} ${marks === 1 ? 'mark' : 'marks'}</div>
         </div>
+      </div>`;
+  }).join('');
+
+  sidebar.innerHTML = `
+    <div class="sidebar-top">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input class="search-input" type="text" id="quizSearchInput" placeholder="Search questions…">
       </div>
     </div>
-  `).join('');
+    <div class="unit-wrap">
+      <label class="unit-label" for="quizFileSelect">Quiz</label>
+      <div class="unit-select-row">
+        <select class="unit-select" id="quizFileSelect">${fileOptions}</select>
+      </div>
+    </div>
+    <div style="display:flex;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+      <div style="padding:4px 16px;border-right:1px solid var(--border);font-size:11px;color:var(--muted2)">
+        <strong style="color:var(--accent)">${quizState.questions.length}</strong> questions
+      </div>
+      <div style="padding:4px 16px;font-size:11px;color:var(--muted2)">
+        <strong style="color:var(--accent)">${quizState.totalMarks}</strong> marks
+      </div>
+    </div>
+    <div class="topic-list" id="quizNavList">${rows}</div>
+  `;
+
+  // Labels/text set via textContent (not innerHTML) so manifest/question content can
+  // never inject markup.
+  sidebar.querySelectorAll('#quizFileSelect option').forEach((opt, i) => {
+    opt.textContent = quizManifest[i].name;
+  });
+  sidebar.querySelector('#quizFileSelect').addEventListener('change', (e) => onQuizSelect(e.target));
+
+  sidebar.querySelectorAll('#quizNavList .topic-item-wrap').forEach((wrap, i) => {
+    wrap.querySelector('.ti-name-text').textContent = quizState.questions[i].name;
+    wrap.addEventListener('click', () => jumpToQuestion(i));
+  });
+
+  sidebar.querySelector('#quizSearchInput').addEventListener('input', (e) => filterQuestionNav(e.target.value));
 }
 
-function revealAnswer(idx) {
-  const ansEl = document.getElementById(`answer-${idx}`);
-  const btnEl = document.getElementById(`reveal-btn-${idx}`);
-  ansEl.classList.toggle('revealed');
-  btnEl.textContent = ansEl.classList.contains('revealed') ? '🙈 Hide answer' : '👁 Show answer';
-}
-
-function revealAll() {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const t = s.topics.find(x => x.id === state.activeTopicId);
-  t.questions.forEach((_, i) => {
-    document.getElementById(`answer-${i}`).classList.add('revealed');
-    document.getElementById(`reveal-btn-${i}`).textContent = '🙈 Hide answer';
+// Live-filters the question nav list by number, heading, or question text.
+function filterQuestionNav(query) {
+  const needle = query.trim().toLowerCase();
+  document.querySelectorAll('#quizNavList .topic-item-wrap').forEach(wrap => {
+    const i = parseInt(wrap.getAttribute('data-idx'), 10);
+    const q = quizState.questions[i];
+    const haystack = `${q.id} ${q.name} ${q.question || ''}`.toLowerCase();
+    wrap.style.display = (needle === '' || haystack.includes(needle)) ? '' : 'none';
   });
 }
 
-function markAnswer(idx, correct) {
-  const card = document.getElementById(`qcard-${idx}`);
-  card.classList.remove('answered-correct', 'answered-wrong');
-  card.classList.add(correct ? 'answered-correct' : 'answered-wrong');
-  document.getElementById(`mark-correct-${idx}`).classList.toggle('selected', correct);
-  document.getElementById(`mark-wrong-${idx}`).classList.toggle('selected', !correct);
-  card.dataset.marked = correct ? 'correct' : 'wrong';
-  updateProgress();
+function jumpToQuestion(i) {
+  quizState.index = i;
+  renderQuestion();
 }
 
-function updateProgress() {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const t = s ? s.topics.find(x => x.id === state.activeTopicId) : null;
-  if (!t) return;
-  const cards = document.querySelectorAll('.q-card[data-marked]');
-  const answered = cards.length;
-  const total = t.questions.length;
-  const pct = total > 0 ? Math.round(answered / total * 100) : 0;
-  document.getElementById('progressLabel').textContent = answered + ' of ' + total + ' answered';
-  document.getElementById('progressPercent').textContent = pct + '%';
-  document.getElementById('progressFill').style.width = pct + '%';
-}
+/* ── Multiple choice / checkbox ── */
 
-function shuffleQuestions() {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const t = s.topics.find(x => x.id === state.activeTopicId);
-  for (let i = t.questions.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [t.questions[i], t.questions[j]] = [t.questions[j], t.questions[i]];
+function renderChoiceQuestion(q, index, total, prior) {
+  const canvas = document.getElementById('hscCanvas');
+  // Radios for single-answer questions (native, mutually exclusive via shared `name`),
+  // checkboxes for multi-answer questions (native, independent toggles).
+  const inputType = q.isCheckbox ? 'checkbox' : 'radio';
+  const answerButtons = q.answers.map((a, i) =>
+    `<label class="quiz-answer" data-idx="${i}">
+       <input type="${inputType}" name="quizAnswer" value="${i}" onchange="selectAnswer()">
+       <span class="quiz-answer-text"></span>
+     </label>`
+  ).join('');
+
+  canvas.innerHTML = `
+    <div class="quiz-wrap">
+      <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
+      <div class="quiz-heading">
+        <span class="quiz-heading-name"></span>
+        <span class="quiz-heading-marks">(1 mark)</span>
+      </div>
+      <div class="quiz-stem"></div>
+      <div class="quiz-image-wrap" id="quizImageWrap"></div>
+      <div class="quiz-type-hint">${q.isCheckbox ? '☑ Select all that apply' : '◉ Choose one answer'}</div>
+      <div class="quiz-answers">${answerButtons}</div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <div class="quiz-actions">
+        <button class="quiz-btn quiz-btn-primary" id="quizSubmitBtn" onclick="submitAnswer()">Submit</button>
+        <button class="quiz-btn" id="quizNextBtn" style="display:none" onclick="nextQuestion()">Next →</button>
+      </div>
+    </div>
+  `;
+
+  // Set text content via textContent (not innerHTML) so quiz content can never inject markup.
+  // `question` is the exam wording; `name` is the short heading ("Question 11"). Older quiz
+  // files without a `question` field fall back to showing `name` as the stem, no heading.
+  renderHeadingAndStem(canvas, q);
+  renderQuestionImage(q, canvas);
+  canvas.querySelectorAll('.quiz-answer').forEach((label, i) => {
+    label.querySelector('.quiz-answer-text').textContent = q.answers[i].text;
+  });
+
+  // Already answered on a previous visit (jumped back here via the sidebar) — redraw the
+  // locked, graded state instead of a fresh editable form, so nothing can be re-submitted.
+  if (prior) {
+    applyChoiceGrading(canvas, q, new Set(prior.selected));
+    showFeedback(canvas, prior.earned, prior.total);
+    document.getElementById('quizSubmitBtn').style.display = 'none';
+    if (index + 1 < total) document.getElementById('quizNextBtn').style.display = 'inline-block';
   }
-  renderQuestions();
-  updateProgress();
 }
 
-// ── MODAL ─────────────────────────────────────────────────────
-function openModal(title) {
-  document.getElementById('modalTitle').textContent = title;
-  document.getElementById('modalOverlay').classList.add('open');
-}
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
-  state.modalMode = null;
-  state.editingQIdx = null;
+function selectAnswer() {
+  // Resync the 'selected' style class from whatever is currently checked —
+  // works the same for radios (browser auto-unchecks the rest of the group)
+  // and checkboxes (each toggles independently).
+  document.querySelectorAll('.quiz-answer').forEach(label => {
+    const input = label.querySelector('input');
+    label.classList.toggle('selected', input.checked);
+  });
 }
 
-function openEditQuestion(idx) {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const t = s.topics.find(x => x.id === state.activeTopicId);
-  const q = t.questions[idx];
-  state.modalMode = 'editQuestion';
-  state.editingQIdx = idx;
-  openModal('Edit question');
-  document.getElementById('modalBody').innerHTML = `
-    <div><div class="field-label">Question</div><textarea class="field-textarea" id="mQ" rows="3">${escHtml(q.q)}</textarea></div>
-    <div><div class="field-label">Answer</div><textarea class="field-textarea" id="mA" rows="3">${escHtml(q.a)}</textarea></div>
-    <button class="quiz-ctrl-btn danger" style="width:100%;justify-content:center;margin-top:4px;" onclick="deleteQuestion(${idx})">🗑 Delete question</button>
+// Locks the answer list, colors it, and returns marks earned (0 or 1). Shared between a
+// live submit and redrawing a previously-answered question from stored state.
+function applyChoiceGrading(canvas, q, selectedIdxs) {
+  const correctIdxs = new Set(
+    q.answers.map((a, i) => a.correct ? i : null).filter(v => v !== null)
+  );
+  const isCorrect = correctIdxs.size === selectedIdxs.size &&
+    [...correctIdxs].every(i => selectedIdxs.has(i));
+
+  canvas.querySelectorAll('.quiz-answer').forEach((label, i) => {
+    label.classList.add('locked');
+    const input = label.querySelector('input');
+    input.checked = selectedIdxs.has(i);
+    input.disabled = true;
+    if (correctIdxs.has(i)) label.classList.add('correct');
+    else if (selectedIdxs.has(i)) label.classList.add('incorrect');
+  });
+
+  return isCorrect ? 1 : 0;
+}
+
+// `note` is optional extra text appended after the mark line — used by the
+// AI-check flow to show Gemini's actual feedback sentence, not just the score.
+function showFeedback(canvas, earned, total, note) {
+  const feedback = canvas.querySelector('#quizFeedback');
+  if (!feedback) return;
+  const markWord = total === 1 ? 'mark' : 'marks';
+  let text = total === 1
+    ? (earned === 1 ? 'Correct! (1/1 mark)' : 'Not quite (0/1 mark) — correct answer(s) highlighted above.')
+    : `${earned} / ${total} ${markWord} for this question`;
+  if (note) text += ` — ${note}`;
+  feedback.textContent = text;
+  feedback.className = 'quiz-feedback ' + (earned === total ? 'quiz-correct' : (earned > 0 ? 'quiz-partial' : 'quiz-incorrect'));
+}
+
+function submitAnswer() {
+  if (quizState.perQuestion[quizState.index]) return; // already answered — ignore stray resubmits
+
+  const checkedInputs = document.querySelectorAll('input[name="quizAnswer"]:checked');
+  if (checkedInputs.length === 0) return;
+
+  const selectedIdxs = new Set([...checkedInputs].map(inp => parseInt(inp.value, 10)));
+  const q = quizState.questions[quizState.index];
+  const canvas = document.getElementById('hscCanvas');
+
+  const earned = applyChoiceGrading(canvas, q, selectedIdxs);
+  quizState.perQuestion[quizState.index] = { earned, total: 1, selected: [...selectedIdxs] };
+
+  showFeedback(canvas, earned, 1);
+  document.getElementById('quizSubmitBtn').style.display = 'none';
+  document.getElementById('quizNextBtn').style.display = 'inline-block';
+  renderSidebar(); // reflect the new correct/partial/incorrect color on this question's nav button
+}
+
+/* ── Math / fill-in-the-blank ── */
+
+// Groups consecutive same-type entries in a math question's `answers` array
+// (e.g. two "working" entries in a row → one group; used by both rendering
+// and grading, so the two always agree on what counts as one card/group).
+function groupMathAnswers(answers) {
+  const groups = [];
+  answers.forEach((a, i) => {
+    const type = a.type === 'working' ? 'working' : 'answer';
+    const last = groups[groups.length - 1];
+    if (last && last.type === type) {
+      last.items.push(i);
+    } else {
+      groups.push({ type, items: [i] });
+    }
+  });
+  return groups;
+}
+
+function renderMathQuestion(q, index, total, prior) {
+  const canvas = document.getElementById('hscCanvas');
+  // Each entry defaults to type "answer" if not set (keeps older question files working
+  // unchanged). "working" entries behave identically for grading — same textbox, same
+  // numeric-aware matching, same 1 mark — just grouped/labeled as working steps.
+  //
+  // Consecutive entries of the same type are grouped into one card (e.g. two "working"
+  // entries in a row become a single "Working" card with two stacked textboxes), rather
+  // than one card per entry. Boxes within a group are interchangeable at grading time —
+  // see submitMathAnswer — so a student can fill working steps in any order.
+  const groups = groupMathAnswers(q.answers);
+
+  const rows = groups.map((g, gi) => {
+    const isWorking = g.type === 'working';
+    const label = isWorking ? 'Working' : (g.items.length > 1 ? 'Answers' : 'Answer');
+    const placeholder = isWorking ? 'Show your working' : 'Your answer';
+    // data-item is the index into q.answers this row corresponds to — lets us read/restore
+    // a flat, ordered "given values" array regardless of how rows are grouped into cards.
+    const inputRows = g.items.map(itemIdx =>
+      `<div class="quiz-math-input-row" data-group="${gi}" data-item="${itemIdx}">
+         <input type="text" class="quiz-math-input" placeholder="${placeholder}" autocomplete="off">
+         <span class="quiz-math-mark-label">1 mark</span>
+       </div>`
+    ).join('');
+    return `<div class="quiz-math-group${isWorking ? ' quiz-math-working' : ''}" data-group="${gi}">
+       <div class="quiz-math-group-label">${label}</div>
+       <div class="quiz-math-input-rows">${inputRows}</div>
+     </div>`;
+  }).join('');
+
+  const markWord = q.answers.length === 1 ? 'mark' : 'marks';
+
+  canvas.innerHTML = `
+    <div class="quiz-wrap">
+      <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
+      <div class="quiz-heading">
+        <span class="quiz-heading-name"></span>
+        <span class="quiz-heading-marks">(${q.answers.length} ${markWord})</span>
+      </div>
+      <div class="quiz-stem"></div>
+      <div class="quiz-image-wrap" id="quizImageWrap"></div>
+      <div class="quiz-math-answers">${rows}</div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <div class="quiz-actions">
+        <button class="quiz-btn quiz-btn-primary" id="quizSubmitBtn" onclick="submitMathAnswer()">Submit</button>
+        <button class="quiz-btn" id="quizNextBtn" style="display:none" onclick="nextQuestion()">Next →</button>
+      </div>
+    </div>
   `;
-  document.getElementById('modalSaveBtn').onclick = saveQuestion;
+
+  renderHeadingAndStem(canvas, q);
+  renderQuestionImage(q, canvas);
+
+  if (prior) {
+    applyMathGrading(canvas, q, prior.values);
+    showFeedback(canvas, prior.earned, q.answers.length);
+    document.getElementById('quizSubmitBtn').style.display = 'none';
+    if (index + 1 < total) document.getElementById('quizNextBtn').style.display = 'inline-block';
+  }
 }
 
-function openAddQuestion() {
-  state.modalMode = 'addQuestion';
-  state.editingQIdx = null;
-  openModal('Add question');
-  document.getElementById('modalBody').innerHTML = `
-    <div><div class="field-label">Question</div><textarea class="field-textarea" id="mQ" rows="3" placeholder="Enter your question…"></textarea></div>
-    <div><div class="field-label">Answer</div><textarea class="field-textarea" id="mA" rows="3" placeholder="Enter the answer…"></textarea></div>
-  `;
-  document.getElementById('modalSaveBtn').onclick = saveQuestion;
-}
+/* ── Shared: heading + stem ──
+   q.name is the short exam-style heading ("Question 11"); q.question is the full
+   wording. Older quiz files (no `question` field) fall back to showing `name` as
+   the stem with no separate heading, so they still render sensibly. Set via
+   textContent (not innerHTML) so quiz content can never inject markup. */
+function renderHeadingAndStem(container, q) {
+  const headingEl = container.querySelector('.quiz-heading');
+  const nameEl = container.querySelector('.quiz-heading-name');
+  const stemEl = container.querySelector('.quiz-stem');
 
-function saveQuestion() {
-  const qText = document.getElementById('mQ').value.trim();
-  const aText = document.getElementById('mA').value.trim();
-  if (!qText || !aText) return;
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const t = s.topics.find(x => x.id === state.activeTopicId);
-  if (state.modalMode === 'editQuestion') {
-    t.questions[state.editingQIdx] = { q: qText, a: aText };
+  if (q.question) {
+    if (nameEl) nameEl.textContent = q.name;
+    if (stemEl) stemEl.textContent = q.question;
   } else {
-    t.questions.push({ q: qText, a: aText });
+    if (headingEl) headingEl.style.display = 'none';
+    if (stemEl) stemEl.textContent = q.name;
   }
-  closeModal();
-  renderQuestions();
-  updateProgress();
 }
 
-function deleteQuestion(idx) {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const t = s.topics.find(x => x.id === state.activeTopicId);
-  t.questions.splice(idx, 1);
-  closeModal();
-  renderQuestions();
-  updateProgress();
-}
+/* ── Shared: optional question image ──
+   q.image is a filename/path relative to STORAGE_FOLDER (e.g. "diagram.png" or
+   "images/q3.png"). Set via property assignment (not string-interpolated into HTML)
+   so a filename can never inject markup. Falls back to a visible error if it 404s. */
+function renderQuestionImage(q, container) {
+  const wrap = container.querySelector('#quizImageWrap');
+  if (!wrap || !q.image) return;
 
-function openAddTopic() {
-  state.modalMode = 'addTopic';
-  openModal('Add topic');
-  document.getElementById('modalBody').innerHTML = `
-    <div><div class="field-label">Topic name</div><input class="field-input" id="mTopicName" placeholder="e.g. Quadratic Equations"></div>
-  `;
-  document.getElementById('modalSaveBtn').onclick = saveTopic;
-}
-
-function saveTopic() {
-  const name = document.getElementById('mTopicName').value.trim();
-  if (!name) return;
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
-  s.topics.push({ id, name, questions: [] });
-  closeModal();
-  renderSubjectPanel();
-}
-
-function openEditSubject() {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  state.modalMode = 'editSubject';
-  openModal('Edit subject');
-  document.getElementById('modalBody').innerHTML = `
-    <div><div class="field-label">Subject name</div><input class="field-input" id="mSubName" value="${escHtml(s.name)}"></div>
-    <div><div class="field-label">Icon (emoji)</div><input class="field-input" id="mSubIcon" value="${s.icon}" style="font-size:20px;width:80px;"></div>
-  `;
-  document.getElementById('modalSaveBtn').onclick = saveSubject;
-}
-
-function saveSubject() {
-  const s = HSC_Subjects.find(x => x.id === state.activeSubjectId);
-  s.name = document.getElementById('mSubName').value.trim() || s.name;
-  s.icon = document.getElementById('mSubIcon').value.trim() || s.icon;
-  closeModal();
-  renderSubjectGrid();
-  renderSubjectPanel();
-}
-
-function openAddSubject() {
-  state.modalMode = 'addSubject';
-  openModal('Add subject');
-  document.getElementById('modalBody').innerHTML = `
-    <div><div class="field-label">Subject name</div><input class="field-input" id="mSubName" placeholder="e.g. Biology"></div>
-    <div><div class="field-label">Icon (emoji)</div><input class="field-input" id="mSubIcon" value="📚" style="font-size:20px;width:80px;"></div>
-  `;
-  document.getElementById('modalSaveBtn').onclick = () => {
-    const name = document.getElementById('mSubName').value.trim();
-    if (!name) return;
-    const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
-    HSC_Subjects.push({ id, name, icon: document.getElementById('mSubIcon').value.trim() || '📚', color: '#94a3b8', topics: [] });
-    closeModal();
-    renderSubjectGrid();
+  const img = document.createElement('img');
+  img.className = 'quiz-image';
+  img.alt = q.question || q.name || 'Question image';
+  img.title = 'Click to toggle dark-mode inversion';
+  img.src = `${STORAGE_FOLDER}/${q.image}`;
+  img.onerror = () => {
+    const err = document.createElement('div');
+    err.className = 'quiz-status quiz-error';
+    err.textContent = `Could not load image: ${q.image}`;
+    img.replaceWith(err);
   };
+  // Inverted by default in dark mode (mainstyle.css's global img filter);
+  // click flips it back to normal colours and back again — same behaviour
+  // as the topic PDF/Image viewer's toggleImgInvert().
+  img.onclick = () => img.classList.toggle('no-invert');
+  wrap.appendChild(img);
 }
 
-// ── UTILS ─────────────────────────────────────────────────────
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function valuesMatch(given, expected) {
+  const g = String(given).trim();
+  const e = String(expected).trim();
+  if (g === '') return false;
+  const gn = Number(g), en = Number(e);
+  if (g !== '' && e !== '' && !isNaN(gn) && !isNaN(en)) return gn === en;
+  return g.toLowerCase() === e.toLowerCase();
 }
 
-document.getElementById('modalOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
+// Finds the best pairing between the boxes a student filled in and the group's
+// expected values — each box can match any not-yet-used expected value, not just
+// the one at the same position. Returns, per given[i], the index into expected[]
+// it was matched to (or -1 if unmatched). Standard augmenting-path bipartite
+// matching; group sizes here are tiny (a handful of boxes) so this is instant.
+function bestMatch(given, expected) {
+  const expectedOwner = new Array(expected.length).fill(-1); // expected idx -> given idx currently matched
+  function tryAugment(gi, visited) {
+    for (let ei = 0; ei < expected.length; ei++) {
+      if (visited[ei] || !valuesMatch(given[gi], expected[ei])) continue;
+      visited[ei] = true;
+      if (expectedOwner[ei] === -1 || tryAugment(expectedOwner[ei], visited)) {
+        expectedOwner[ei] = gi;
+        return true;
+      }
+    }
+    return false;
+  }
+  for (let gi = 0; gi < given.length; gi++) {
+    tryAugment(gi, new Array(expected.length).fill(false));
+  }
+  const givenMatch = new Array(given.length).fill(-1);
+  expectedOwner.forEach((gi, ei) => { if (gi !== -1) givenMatch[gi] = ei; });
+  return givenMatch;
+}
 
-init();
+// Fills/locks/colors the input rows from a flat "given values" array (one entry per
+// q.answers index) and returns marks earned. Shared between a live submit (values read
+// from the inputs) and redrawing a previously-answered question (values read from
+// stored per-question state) — both go through the exact same grading logic.
+function applyMathGrading(canvas, q, valuesFlat) {
+  const groups = groupMathAnswers(q.answers);
+  let earned = 0;
+
+  groups.forEach((g, gi) => {
+    const rows = [...canvas.querySelectorAll(`.quiz-math-input-row[data-group="${gi}"]`)];
+    const inputs = rows.map(row => row.querySelector('.quiz-math-input'));
+    const given = g.items.map(idx => valuesFlat[idx] ?? '');
+    const expected = g.items.map(idx => q.answers[idx].text);
+
+    // Any box may match any not-yet-used expected value in this group, so filling
+    // working steps in a different order than the JSON lists them still counts.
+    const matchIdx = bestMatch(given, expected);
+
+    rows.forEach((row, i) => {
+      inputs[i].value = given[i];
+      inputs[i].disabled = true;
+      const isRight = matchIdx[i] !== -1;
+      row.classList.add(isRight ? 'correct' : 'incorrect');
+      if (isRight) earned++;
+    });
+
+    const usedExpected = new Set(matchIdx.filter(v => v !== -1));
+    const missed = expected.filter((_, ei) => !usedExpected.has(ei));
+    if (missed.length > 0) {
+      const hint = document.createElement('div');
+      hint.className = 'quiz-math-hint';
+      hint.textContent = missed.length === 1
+        ? `Missing: ${missed[0]}`
+        : `Missing: ${missed.join(', ')}`;
+      const groupEl = canvas.querySelector(`.quiz-math-group[data-group="${gi}"]`);
+      if (groupEl) groupEl.appendChild(hint);
+    }
+  });
+
+  return earned;
+}
+
+function submitMathAnswer() {
+  if (quizState.perQuestion[quizState.index]) return; // already answered — ignore stray resubmits
+
+  const q = quizState.questions[quizState.index];
+  const canvas = document.getElementById('hscCanvas');
+
+  const valuesFlat = new Array(q.answers.length).fill('');
+  canvas.querySelectorAll('.quiz-math-input-row').forEach(row => {
+    const itemIdx = parseInt(row.getAttribute('data-item'), 10);
+    valuesFlat[itemIdx] = row.querySelector('.quiz-math-input').value;
+  });
+
+  const earned = applyMathGrading(canvas, q, valuesFlat);
+  quizState.perQuestion[quizState.index] = { earned, total: q.answers.length, values: valuesFlat };
+
+  showFeedback(canvas, earned, q.answers.length);
+  document.getElementById('quizSubmitBtn').style.display = 'none';
+  document.getElementById('quizNextBtn').style.display = 'inline-block';
+  renderSidebar(); // reflect the new correct/partial/incorrect color on this question's nav button
+}
+
+/* ── isAICheck: free-text response, marked by Gemini ──
+   For questions where there's no single exact-match string worth checking
+   against — "describe...", "explain...", "discuss..." — because the wording
+   of a correct answer genuinely varies. q.answer holds the marking guidance
+   (what a full-marks response should cover, not a literal string to match),
+   q.marks is the total for the sub-part. Reuses the app's existing /api/grade
+   Netlify function (same one analyser.html's marker already calls) so no
+   API key ever reaches the browser — see netlify/functions/grade.js. */
+
+// Same proxy-first-then-direct-fallback pattern as analyser.html's callAI(),
+// trimmed to the one provider this page needs. The direct-call fallback only
+// works if a userKey is supplied (there's no customApiKey box on this page),
+// so in practice it just produces a clear "no proxy" error when /api/grade
+// isn't reachable (e.g. testing without `netlify dev`) rather than a silent
+// hang or a confusing generic network error.
+async function callGeminiDirect(prompt, userKey) {
+  if (!userKey) throw new Error('AI marking needs the live site (no local proxy available here).');
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${userKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error((data.error && data.error.message) || 'Gemini request failed');
+  return { text: data.candidates?.[0]?.content?.parts?.[0]?.text || '' };
+}
+
+async function callAI(provider, prompt, userKey) {
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    // /api/grade requires a signed-in Firebase account so its server-side
+    // keys can't be spent by anonymous callers — attach the current ID token.
+    const currentUser = window.__sbAuth && window.__sbAuth.currentUser;
+    if (currentUser) {
+      headers['Authorization'] = 'Bearer ' + await currentUser.getIdToken();
+    }
+    const res = await fetch('/api/grade', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ provider, prompt, userKey })
+    });
+    // A missing proxy (e.g. a plain static file server, not `netlify dev`)
+    // returns an HTML 404 page, not JSON — detect that and fall back.
+    const contentType = res.headers.get('content-type') || '';
+    if (res.status === 404 || res.status === 405 || !contentType.includes('application/json')) {
+      throw new Error('PROXY_UNAVAILABLE');
+    }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Request failed');
+    return { text: data.text || '' };
+  } catch (err) {
+    if (err.message !== 'PROXY_UNAVAILABLE' && err.name !== 'TypeError') throw err;
+    return callGeminiDirect(prompt, userKey);
+  }
+}
+
+function buildAICheckPrompt(q, studentAnswer) {
+  const markWord = q.marks === 1 ? 'mark' : 'marks';
+  return `You are marking a NSW HSC-style short-answer question worth ${q.marks} ${markWord}.
+
+QUESTION:
+${q.question || q.name}
+
+MARKING GUIDANCE (what a full-marks response should cover — this is guidance for the marker, not a literal string the student needs to reproduce):
+${q.answer}
+
+STUDENT'S RESPONSE:
+${studentAnswer}
+
+Award a whole number of marks from 0 to ${q.marks} based on how well the student's response covers the marking guidance. Be a fair but genuine HSC-style marker: full marks for a response that covers the key points even in different words, partial credit for a partially correct or incomplete response, 0 for a response that doesn't address the question.
+
+Respond in exactly this format and nothing else outside these markers:
+(359-<marks awarded, a single integer>-359)
+(369-<one or two sentence feedback explaining what was missing or well covered, max 40 words>-369)`;
+}
+
+function parseAICheckResult(text, maxMarks) {
+  let earned = 0;
+  const markMatch = (text || '').match(/\(359-([\s\S]*?)-359\)/i);
+  if (markMatch) {
+    const num = parseInt(markMatch[1].trim(), 10);
+    if (!isNaN(num)) earned = Math.max(0, Math.min(maxMarks, num));
+  }
+  const feedbackMatch = (text || '').match(/\(369-([\s\S]*?)-369\)/i);
+  const feedback = feedbackMatch ? feedbackMatch[1].trim() : (text || '').trim().slice(0, 200);
+  return { earned, feedback };
+}
+
+function setAICheckBusy(canvas, busy) {
+  const btn = canvas.querySelector('#quizSubmitBtn');
+  const textarea = canvas.querySelector('#quizAIAnswerInput');
+  if (btn) { btn.disabled = busy; btn.textContent = busy ? 'Marking with AI…' : 'Submit'; }
+  if (textarea) textarea.disabled = busy;
+}
+
+function renderAICheckQuestion(q, index, total, prior) {
+  const canvas = document.getElementById('hscCanvas');
+  const markWord = q.marks === 1 ? 'mark' : 'marks';
+
+  canvas.innerHTML = `
+    <div class="quiz-wrap">
+      <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
+      <div class="quiz-heading">
+        <span class="quiz-heading-name"></span>
+        <span class="quiz-heading-marks">(${q.marks} ${markWord})</span>
+      </div>
+      <div class="quiz-stem"></div>
+      <div class="quiz-image-wrap" id="quizImageWrap"></div>
+      <div class="quiz-type-hint">✎ Written response — marked by AI</div>
+      <textarea class="quiz-ai-answer" id="quizAIAnswerInput" placeholder="Type your answer…" rows="6"></textarea>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <div class="quiz-actions">
+        <button class="quiz-btn quiz-btn-primary" id="quizSubmitBtn" onclick="submitAICheck()">Submit</button>
+        <button class="quiz-btn" id="quizNextBtn" style="display:none" onclick="nextQuestion()">Next →</button>
+      </div>
+    </div>
+  `;
+
+  renderHeadingAndStem(canvas, q);
+  renderQuestionImage(q, canvas);
+
+  if (prior) {
+    const textarea = canvas.querySelector('#quizAIAnswerInput');
+    textarea.value = prior.studentAnswer;
+    textarea.disabled = true;
+    showFeedback(canvas, prior.earned, q.marks, prior.feedback);
+    document.getElementById('quizSubmitBtn').style.display = 'none';
+    if (index + 1 < total) document.getElementById('quizNextBtn').style.display = 'inline-block';
+  }
+}
+
+async function submitAICheck() {
+  if (quizState.perQuestion[quizState.index]) return; // already answered — ignore stray resubmits
+
+  const q = quizState.questions[quizState.index];
+  const canvas = document.getElementById('hscCanvas');
+  const textarea = canvas.querySelector('#quizAIAnswerInput');
+  const studentAnswer = (textarea.value || '').trim();
+  if (!studentAnswer) return;
+
+  const feedbackEl = canvas.querySelector('#quizFeedback');
+
+  // True guests (no real Firebase sign-in at all) have no ID token, so
+  // /api/grade would just 401. Pending / unapproved accounts now get 403
+  // from the server as well (status must be 'active'). Short-circuit here
+  // with the same message analyser.html shows instead of a network error.
+  const currentUser = window.__sbAuth && window.__sbAuth.currentUser;
+  if (!currentUser || window.isGuest) {
+    feedbackEl.textContent = 'Sign in with an approved account to use AI marking.';
+    feedbackEl.className = 'quiz-feedback quiz-incorrect';
+    return;
+  }
+
+  setAICheckBusy(canvas, true);
+  feedbackEl.textContent = 'Marking with AI…';
+  feedbackEl.className = 'quiz-feedback';
+
+  try {
+    const prompt = buildAICheckPrompt(q, studentAnswer);
+    const result = await callAI('gemini', prompt);
+    const { earned, feedback } = parseAICheckResult(result.text, q.marks);
+
+    quizState.perQuestion[quizState.index] = { earned, total: q.marks, studentAnswer, feedback };
+
+    // Reset the submit button's busy label directly rather than via
+    // setAICheckBusy(canvas, false) — that helper also flips textarea.disabled
+    // back to false, which would silently re-enable editing on an already-
+    // graded answer.
+    const submitBtn = canvas.querySelector('#quizSubmitBtn');
+    if (submitBtn) submitBtn.textContent = 'Submit';
+    textarea.disabled = true;
+    showFeedback(canvas, earned, q.marks, feedback);
+    document.getElementById('quizSubmitBtn').style.display = 'none';
+    if (quizState.index + 1 < quizState.questions.length) {
+      document.getElementById('quizNextBtn').style.display = 'inline-block';
+    }
+    renderSidebar();
+  } catch (err) {
+    setAICheckBusy(canvas, false);
+    feedbackEl.textContent = `AI marking failed: ${err.message}`;
+    feedbackEl.className = 'quiz-feedback quiz-incorrect';
+  }
+}
+
+/* ── Shared ── */
+
+function nextQuestion() {
+  quizState.index++;
+  renderQuestion();
+}
+
+function renderSummary() {
+  const canvas = document.getElementById('hscCanvas');
+  const earnedMarks = getEarnedMarks();
+  const { totalMarks } = quizState;
+  canvas.innerHTML = `
+    <div class="quiz-wrap quiz-summary">
+      <div class="quiz-progress">Quiz complete</div>
+      <div class="quiz-score">${earnedMarks} / ${totalMarks} marks</div>
+      <button class="quiz-btn quiz-btn-primary" onclick="loadRandomQuiz()">Try another quiz</button>
+    </div>
+  `;
+}
+
+document.addEventListener('DOMContentLoaded', loadRandomQuiz);
 </script>
+
 </body>
 </html>

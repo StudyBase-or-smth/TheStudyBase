@@ -193,6 +193,7 @@
   </div>
 </div>
 
+<script src="sync-config.js"></script>
 <script>
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
@@ -226,7 +227,7 @@
   if (!INTENSITY_LEVELS.hasOwnProperty(lineIntensity)) lineIntensity = 3;
 
   // ── Apps Script sync (shared Top 5 leaderboard) ──
-  const SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
+  // SYNC_URL is now defined once in sync-config.js (loaded via <script> above).
   const LEADERBOARD_KEY = 'tetris_leaderboard';
 
   function jsonpGet(url) {

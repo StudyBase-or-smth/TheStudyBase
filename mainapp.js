@@ -34,10 +34,7 @@ document.getElementById('darkToggle').onclick = function () {
 async function loadBranchVersion() {
   const badge = document.getElementById('branch-badge');
   if (!badge) return;
-  try {
-    const res = await fetch('BranchVersion.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error('not found');
-    const data = await res.json();
+  const apply = data => {
     const branch  = data.branch  || 'unknown';
     const version = data.version || '0.0.0';
     const date    = data.date    || 'unknown';
@@ -45,6 +42,17 @@ async function loadBranchVersion() {
     const color = colorMap[data.colour || data.color || 'other'] || '#1e40af';
     badge.innerHTML = `<strong>${branch}</strong> · v${version} · ( ${date} )`;
     badge.style.cssText = `font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;color:${color}`;
+  };
+  // window.BRANCH_VERSION comes from BranchVersion.js (a plain <script> tag,
+  // loaded before this file) — it works when index.html is opened directly
+  // via file://, where fetch()/XHR of local files is blocked by Chrome and
+  // the branch below would otherwise always throw. Fall back to fetch() for
+  // any deploy that only ships the JSON.
+  if (window.BRANCH_VERSION) { apply(window.BRANCH_VERSION); return; }
+  try {
+    const res = await fetch('BranchVersion.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('not found');
+    apply(await res.json());
   } catch (e) {
     badge.innerHTML = '<strong>dev</strong> · Local';
     badge.style.cssText = 'font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;color:#e0c200';
@@ -107,6 +115,7 @@ function init() {
   renderSidebar();
   renderCalendar();
   calSync();
+  syncAllSubjectsAndUnits();
   startSyncCountdown();
 
   document.getElementById('todayDate').textContent =
@@ -140,9 +149,21 @@ function renderSubjects() {
   }).join('');
 }
 // ── class cards ──
+// Classes are teacher/dev-only content (per-class rosters, aggregated into
+// students' subject pages already) — students and guests shouldn't see the
+// section at all on the hub. index.html's auth callback sets
+// window.isTeacher once the signed-in user's role claim resolves and
+// re-invokes this function; until then (and for anyone who never qualifies)
+// #classesSection stays hidden via its default inline style.
 function renderClasses() {
+  const section = document.getElementById('classesSection');
   const el = document.getElementById('classesGrid');
   if (!el) return;
+  if (!window.isTeacher) {
+    if (section) section.style.display = 'none';
+    return;
+  }
+  if (section) section.style.display = '';
   if (typeof classesData === 'undefined' || !classesData.subjects || !classesData.subjects.length) {
     el.innerHTML = '<p class="empty-note" style="grid-column:1/-1;padding:8px 0">No classes defined yet.</p>';
     return;
@@ -173,6 +194,8 @@ function renderClasses() {
 // ── Stats ──
 function renderStats() {
   const subjects = subjectsData.subjects || [];
+  const countEl = document.getElementById('subjCount');
+  if (countEl) countEl.textContent = subjects.length;
   let totalTopics = 0, totalUnits = 0, lastDate = null;
   subjects.forEach(s => {
     const topics = getTopics(s), units = getUnits(s);
@@ -185,10 +208,10 @@ function renderStats() {
   const lastStr = lastDate
     ? new Date(lastDate).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' }) : '—';
   document.getElementById('statsRow').innerHTML = `
-    <div class="stat-card"><div class="stat-num" style="color:var(--text)">${totalTopics}</div><div class="stat-label">Total Topics</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:#22c55e">${totalUnits}</div><div class="stat-label">Total Units</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:#3b82f6">${subjects.length}</div><div class="stat-label">Subjects</div></div>
-    <div class="stat-card"><div class="stat-num" style="font-size:20px;color:#f43f5e">${lastStr}</div><div class="stat-label">Last Updated</div></div>`;
+    <div class="stat-card"><div class="stat-num">${totalTopics}</div><div class="stat-label">Total Topics</div></div>
+    <div class="stat-card"><div class="stat-num">${totalUnits}</div><div class="stat-label">Total Units</div></div>
+    <div class="stat-card"><div class="stat-num">${subjects.length}</div><div class="stat-label">Subjects</div></div>
+    <div class="stat-card"><div class="stat-num" style="font-size:20px">${lastStr}</div><div class="stat-label">Last Updated</div></div>`;
 }
 
 // ── Sidebar: Recently Added + Units + Marker ──
@@ -198,7 +221,7 @@ function renderSidebar() {
   let allTopics = [];
   subjects.forEach(s => {
     const topics = getTopics(s);
-    topics.forEach(t => allTopics.push({ ...t, sName: s.name, sColour: s.colour, sFile: 'subject/subject.html#' + s.id }));
+    topics.forEach(t => allTopics.push({ ...t, sName: s.name, sColour: s.colour, sFile: 'subject/subject.html?topic=' + encodeURIComponent(t.id) + '#' + s.id }));
   });
 
   // Recently Added
@@ -214,19 +237,21 @@ function renderSidebar() {
         </div>
       </a>`).join('');
 
-  // Units overview
+  // Units overview — each entry links into that subject's Units search panel,
+  // pre-filled with this unit (see applyUnitLinkFromUrl() in subjectapp.js).
   let unitsHtml = '';
   subjects.forEach(s => {
     const units = getUnits(s), topics = getTopics(s);
     units.forEach(u => {
       const n = topics.filter(t => t.unit === u).length;
-      unitsHtml += `<div class="feed-item">
-        <div class="feed-dot" style="background:${s.colour}"></div>
+      const href = 'subject/subject.html?unit=' + encodeURIComponent(u) + '#' + s.id;
+      unitsHtml += `<a class="feed-item" href="${href}" style="text-decoration:none;display:flex;align-items:flex-start;gap:10px;padding:9px 6px;border-bottom:1px solid var(--border);border-radius:4px;margin:0 -6px;transition:background .12s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
+        <div class="feed-dot" style="background:${s.colour};flex-shrink:0;margin-top:5px"></div>
         <div>
           <div class="feed-name" style="font-size:12px">${u}</div>
           <div class="feed-sub" style="color:${s.colour}">${s.name} · ${n} topic${n !== 1 ? 's' : ''}</div>
         </div>
-      </div>`;
+      </a>`;
     });
   });
   document.getElementById('unitsList').innerHTML = unitsHtml || '<div class="empty-note">No units created yet.</div>';
@@ -234,13 +259,10 @@ function renderSidebar() {
   // Marker tool link
   if (document.getElementById('markerSection')) {
     document.getElementById('markerSection').innerHTML = `
-      <a href="analyser.html" class="feed-item" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:12px 8px;border:2px solid var(--accent,#4a9eff);border-radius:8px;background:var(--card2);margin:8px 0;">
-        <div style="font-size:22px;flex-shrink:0;">📍</div>
-        <div>
-          <div class="feed-name" style="font-weight:600;">Marker Tool</div>
-          <div class="feed-sub" style="color:var(--accent,#4a9eff);font-size:13px;">Open analyser.html</div>
-        </div>
-      </a>`;
+      <div class="tools-list">
+        <a href="analyser.html" class="tool-btn">📍 Marker Tool</a>
+        <a href="HSC/HSC.html" class="tool-btn">🎓 HSC</a>
+      </div>`;
   }
 }
 
@@ -250,7 +272,14 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 const EVENTS_KEY = 'studybase_events';
 let editingEventId = null;
 
-function getEvents() { return JSON.parse(localStorage.getItem(EVENTS_KEY) || '[]'); }
+function getEvents() {
+  try {
+    const v = JSON.parse(localStorage.getItem(EVENTS_KEY) || '[]');
+    return Array.isArray(v) ? v : [];
+  } catch (e) {
+    return [];
+  }
+}
 function saveEvents(ev) { localStorage.setItem(EVENTS_KEY, JSON.stringify(ev)); syncPushEvents(ev); }
 
 function renderCalendar() {
@@ -279,7 +308,13 @@ function renderCalendar() {
     let html = `<div class="cal-day${isToday(d) ? ' today' : ''}" onclick="openEventModal(null,'${dateStr}')">`;
     html += `<div class="cal-day-num">${d.day}</div>`;
     dayEvents.slice(0, 2).forEach(ev => {
-      html += `<div class="cal-event type-${ev.type}" onclick="event.stopPropagation();openEventModal('${ev.id}',null)" title="${ev.title}">${ev.title}${ev.time ? ' ' + ev.time : ''}</div>`;
+      // Tooltip field lets a note ride along with the entry (e.g. "Bring
+      // calculator, covers ch. 4-6") without cluttering the compact calendar
+      // cell — falls back to the title so every entry still shows something
+      // on hover. escapeHtml keeps quotes/HTML in either field from breaking
+      // out of the title="..." attribute.
+      const tip = ev.tooltip ? ev.tooltip : ev.title;
+      html += `<div class="cal-event type-${ev.type}" onclick="event.stopPropagation();openEventModal('${ev.id}',null)" title="${escapeHtml(tip)}">${escapeHtml(ev.title)}${ev.time ? ' ' + escapeHtml(ev.time) : ''}</div>`;
     });
     if (dayEvents.length > 2) html += `<div class="cal-more">+${dayEvents.length - 2} more</div>`;
     return html + '</div>';
@@ -303,12 +338,13 @@ function renderUpcoming(events) {
       const d = new Date(ev.date + 'T00:00:00');
       const diff = Math.round((d - today) / 864e5);
       const diffLabel = diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : `In ${diff}d`;
-      return `<div class="upcoming-item" onclick="openEventModal('${ev.id}',null)">
+      const tip = ev.tooltip ? ev.tooltip : ev.title;
+      return `<div class="upcoming-item" onclick="openEventModal('${ev.id}',null)" title="${escapeHtml(tip)}">
         <div class="upcoming-date">${abbr[d.getMonth()]}<span>${d.getDate()}</span></div>
         <div class="upcoming-dot" style="background:${typeColors[ev.type] || '#78716c'}"></div>
         <div class="upcoming-info">
-          <div class="upcoming-title">${ev.title}</div>
-          <div class="upcoming-meta">${diffLabel}${ev.time ? ' · ' + ev.time : ''}${ev.subject ? ' · ' + ev.subject : ''} · ${typeLabels[ev.type] || ev.type}</div>
+          <div class="upcoming-title">${escapeHtml(ev.title)}</div>
+          <div class="upcoming-meta">${diffLabel}${ev.time ? ' · ' + escapeHtml(ev.time) : ''}${ev.subject ? ' · ' + escapeHtml(ev.subject) : ''} · ${typeLabels[ev.type] || ev.type}</div>
         </div>
       </div>`;
     }).join('');
@@ -335,6 +371,7 @@ window.openEventModal = function (id, dateStr) {
     document.getElementById('evTime').value = ev.time || '';
     document.getElementById('evType').value = ev.type;
     document.getElementById('evSubject').value = ev.subject || '';
+    document.getElementById('evTooltip').value = ev.tooltip || '';
     deleteBtn.style.display = 'block';
   } else {
     document.getElementById('evModalTitle').textContent = 'Add Event';
@@ -344,6 +381,7 @@ window.openEventModal = function (id, dateStr) {
     document.getElementById('evTime').value = '';
     document.getElementById('evType').value = 'assessment';
     document.getElementById('evSubject').value = '';
+    document.getElementById('evTooltip').value = '';
     deleteBtn.style.display = 'none';
   }
   document.getElementById('evOverlay').classList.add('open');
@@ -362,6 +400,7 @@ window.saveEvent = function () {
     time: document.getElementById('evTime').value || '',
     type: document.getElementById('evType').value,
     subject: document.getElementById('evSubject').value,
+    tooltip: document.getElementById('evTooltip').value.trim(),
   };
   const events = getEvents();
   if (editingEventId) { const i = events.findIndex(e => e.id === editingEventId); if (i > -1) events[i] = ev; else events.push(ev); }
@@ -387,7 +426,7 @@ document.addEventListener('keydown', e => {
 });
 
 // ── Sync ──
-const SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
+// SYNC_URL is now defined once in sync-config.js (loaded via <script> before this file).
 let _nextSync = Date.now() + 60000;
 
 function jsonpGet(url) {
@@ -433,6 +472,73 @@ async function calSync() {
 }
 setInterval(calSync, 60000);
 
+// The hub only ever showed a subject's topics/units as they existed in this
+// browser's own localStorage — populated whenever *this device* previously
+// visited that subject's page. Add/edit a unit on your phone, then open the
+// hub on your laptop without ever opening that subject page there, and the
+// laptop's "Units Overview" / subject card counts were permanently stale.
+// Pull every subject's (and, for teacher/dev, every class's) topics + units
+// keys straight from the sync backend so the hub reflects the latest data
+// regardless of which device last edited it.
+const SYNC_IMG_PLACEHOLDER = '[image — only visible on device where it was saved]';
+
+function parseLocalJsonArray(key) {
+  try {
+    const v = JSON.parse(localStorage.getItem(key) || '[]');
+    return Array.isArray(v) ? v : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function mergeRemoteTopics(remote, localKey) {
+  const local = parseLocalJsonArray(localKey);
+  if (!Array.isArray(remote)) return remote;
+  const merged = remote.map(rem => {
+    const loc = local.find(t => t.id === rem.id);
+    if (!loc) return rem;
+    const m = { ...rem };
+    Object.keys(m).forEach(k => {
+      if (typeof m[k] === 'string' && m[k].includes(SYNC_IMG_PLACEHOLDER) &&
+          loc[k] && typeof loc[k] === 'string' && !loc[k].includes(SYNC_IMG_PLACEHOLDER)) {
+        m[k] = loc[k];
+      }
+    });
+    return m;
+  });
+  local.forEach(lt => { if (!merged.find(t => t.id === lt.id)) merged.push(lt); });
+  return merged;
+}
+
+async function syncAllSubjectsAndUnits() {
+  if (typeof subjectsData === 'undefined') return;
+  try {
+    const subjects = subjectsData.subjects || [];
+    const classes = (typeof classesData !== 'undefined' && classesData.subjects) ? classesData.subjects : [];
+    for (const s of [...subjects, ...classes]) {
+      const tKey = s.storageKey || (s.id + '_topics');
+      const uKey = s.unitsKey || (s.id + '_units');
+      for (const key of [tKey, uKey]) {
+        try {
+          const res = await jsonpGet(SYNC_URL + '?key=' + encodeURIComponent(key));
+          if (res && res.data !== null && res.data !== undefined) {
+            if (key === tKey && Array.isArray(res.data)) {
+              localStorage.setItem(key, JSON.stringify(mergeRemoteTopics(res.data, tKey)));
+            } else {
+              localStorage.setItem(key, JSON.stringify(res.data));
+            }
+          }
+        } catch (e) { /* keep whatever's already cached locally on failure */ }
+      }
+    }
+    renderSubjects();
+    renderClasses();
+    renderStats();
+    renderSidebar();
+  } catch (e) { console.warn('Subject/unit sync failed', e); }
+}
+setInterval(syncAllSubjectsAndUnits, 60000);
+
 function startSyncCountdown() {
   const el = document.getElementById('syncCountdown');
   if (!el) return;
@@ -447,6 +553,30 @@ window.manualSync = function () { calSync(); renderSidebar(); showToast('Syncing
 // ── Suggestions ──
 const SUG_KEY='studybase_suggestions';
 let _sugCache=[];
+
+// Suggestions are pulled from a shared, publicly-writable store (Google Apps
+// Script), so every field on a suggestion object — including id/tag, not
+// just its text — must be treated as untrusted and HTML-escaped before it
+// ever touches innerHTML. Never re-introduce raw template interpolation of
+// suggestion fields into HTML/attribute strings without going through this.
+function escapeHtml(str){
+  return String(str==null?'':str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+// Single delegated click handler for the suggestions list — avoids ever
+// building inline onclick="...('${untrustedValue}')" strings, which is what
+// let attacker-controlled id/tag values break out of an HTML attribute.
+document.addEventListener('click', function (e) {
+  const delBtn = e.target.closest('[data-sug-delete]');
+  if (delBtn) { deleteSuggestion(delBtn.getAttribute('data-sug-delete')); return; }
+  const toggleBtn = e.target.closest('[data-sug-toggle]');
+  if (toggleBtn) { toggleSuggestion(toggleBtn.getAttribute('data-sug-toggle')); return; }
+});
 
 
 function openSuggestions(){
@@ -491,7 +621,18 @@ function toggleSuggestion(id){
   pushSuggestions();
 }
 
+// Rapid clicking (e.g. toggling a few suggestions quickly) used to fire an
+// overlapping push per click, each carrying its own snapshot of _sugCache —
+// whichever request's response the browser processed last would silently win
+// and could stomp a more recent change. Debounce so only one push goes out
+// per short burst, always carrying the latest _sugCache at send time.
+let _pushSuggestionsTimer = null;
 function pushSuggestions(){
+  if(_pushSuggestionsTimer) clearTimeout(_pushSuggestionsTimer);
+  _pushSuggestionsTimer = setTimeout(_doPushSuggestions, 300);
+}
+function _doPushSuggestions(){
+  _pushSuggestionsTimer = null;
   const iframe=document.createElement('iframe');
   const fid='spush'+Date.now(); iframe.name=fid; iframe.style.cssText='display:none;width:0;height:0;border:0';
   const form=document.createElement('form');
@@ -520,13 +661,15 @@ function renderSugList(){
   }
   list.innerHTML=[...filtered].reverse().map(s=>{
     const isClosed=s.status==='closed';
-    const tagHtml=s.tag?`<span class="sug-tag ${s.tag}">${s.tag}</span> `:'';
+    const safeId=escapeHtml(s.id);
+    const safeTag=escapeHtml(s.tag||'');
+    const tagHtml=s.tag?`<span class="sug-tag ${safeTag}">${safeTag}</span> `:'';
     const statusHtml=`<span class="sug-status ${isClosed?'closed':'open'}">${isClosed?'🟣 Closed':'🟢 Open'}</span>`;
     return `<div class="sug-item${isClosed?' closed':''}">
-      <button onclick="deleteSuggestion('${s.id}')" title="Delete" style="position:absolute;top:6px;right:6px;background:none;border:none;cursor:pointer;font-size:14px;line-height:1;color:var(--muted2);padding:2px 4px;border-radius:4px" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--muted2)'">×</button>
-      ${statusHtml} ${tagHtml}<div class="sug-text">${s.text.replace(/</g,'&lt;')}</div>
-      <div class="sug-meta">${s.date}${s.time?' · '+s.time:''}</div>
-      <button class="sug-toggle-btn" onclick="toggleSuggestion('${s.id}')">${isClosed?'↩ Reopen':'✓ Close'}</button>
+      <button data-sug-delete="${safeId}" title="Delete" style="position:absolute;top:6px;right:6px;background:none;border:none;cursor:pointer;font-size:14px;line-height:1;color:var(--muted2);padding:2px 4px;border-radius:4px" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--muted2)'">×</button>
+      ${statusHtml} ${tagHtml}<div class="sug-text">${escapeHtml(s.text)}</div>
+      <div class="sug-meta">${escapeHtml(s.date)}${s.time?' · '+escapeHtml(s.time):''}</div>
+      <button class="sug-toggle-btn" data-sug-toggle="${safeId}">${isClosed?'↩ Reopen':'✓ Close'}</button>
     </div>`;
   }).join('');
 }

@@ -1,0 +1,322 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "name": "Section I, Q1. What power do work health and safety inspectors have?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Permission to grant exemptions to safety regulations for certain businesses", "correct": false },
+        { "text": "Authorisation to make arrests for safety violations", "correct": false },
+        { "text": "Terminate employees from the company", "correct": false },
+        { "text": "Power to issue a notice or prohibit unsafe activities", "correct": true }
+      ]
+    },
+    {
+      "id": "q2",
+      "name": "Section I, Q2. Which unit is used to measure electric current in the International System of Units (SI)?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Volts (V)", "correct": false },
+        { "text": "Amperes (A)", "correct": true },
+        { "text": "Ohms (Ω)", "correct": false },
+        { "text": "Watts (W)", "correct": false }
+      ]
+    },
+    {
+      "id": "q3",
+      "name": "Section I, Q3. Which of the following is a sustainable energy solution suitable for residential premises?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Solar capture and battery system", "correct": true },
+        { "text": "Tidal power generation", "correct": false },
+        { "text": "Nuclear fusion reactors", "correct": false },
+        { "text": "Coal-fired power plants", "correct": false }
+      ]
+    },
+    {
+      "id": "q4",
+      "name": "Section I, Q4. Which of the following fasteners is specifically designed to create its own pilot hole while being driven into a material?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Self-drilling", "correct": true },
+        { "text": "Self-tapper", "correct": false },
+        { "text": "Screw-anchor", "correct": false },
+        { "text": "Bolt-and-nut", "correct": false }
+      ]
+    },
+    {
+      "id": "q5",
+      "name": "Section I, Q5. What is the primary role of the Clean Energy Regulator in Australia's environmental protection framework?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Implementing regulations for waste management and recycling programs", "correct": false },
+        { "text": "Regulating and administering schemes related to carbon pricing and clean energy initiatives", "correct": true },
+        { "text": "Regulating air and water quality standards", "correct": false },
+        { "text": "Managing national parks and protected areas", "correct": false }
+      ]
+    },
+    {
+      "id": "q6",
+      "name": "Section I, Q6. Which tool is commonly used for tightening or loosening nuts and bolts in mechanical applications?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Spanner", "correct": true },
+        { "text": "Screwdriver", "correct": false },
+        { "text": "Pliers", "correct": false },
+        { "text": "Hammer", "correct": false }
+      ]
+    },
+    {
+      "id": "q7",
+      "name": "Section I, Q7. What is a residual current device (RCD) primarily designed to do?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Regulate the flow of electrical current to prevent overload.", "correct": false },
+        { "text": "Protect electronic devices from power surges.", "correct": false },
+        { "text": "Monitor energy usage and provide consumption data.", "correct": false },
+        { "text": "Quickly disconnect power in case of a fault.", "correct": true }
+      ]
+    },
+    {
+      "id": "q8",
+      "name": "Section I, Q8. Given R = ρl/A, which of the following is the correct formula to calculate the length (l) of a conductor given its resistance?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "l = RA/ρ", "correct": true },
+        { "text": "l = ρ/RA", "correct": false },
+        { "text": "l = A/Rρ", "correct": false },
+        { "text": "l = RρA", "correct": false }
+      ]
+    },
+    {
+      "id": "q9",
+      "name": "Section I, Q9. Where can employees typically find standardised instructions for carrying out specific tasks within a workplace?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "In the company's annual financial report", "correct": false },
+        { "text": "Within the employee handbook outlining company policies and procedures", "correct": false },
+        { "text": "In the weekly newsletter distributed to all staff members", "correct": false },
+        { "text": "Standard Operating Procedures", "correct": true }
+      ]
+    },
+    {
+      "id": "q10",
+      "name": "Section I, Q10. Where should fire extinguishers typically be located in the workplace?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Near the entrance of the building for easy access in case of emergency", "correct": false },
+        { "text": "In designated fire escape routes to ensure visibility and accessibility", "correct": false },
+        { "text": "Strategically placed throughout the workplace, accessible and visible", "correct": true },
+        { "text": "Stored in a centralised location, away from work areas to prevent tampering", "correct": false }
+      ]
+    },
+    {
+      "id": "q11",
+      "name": "Section I, Q11. How can workers ensure they understand tasks and meet client needs effectively?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "By completing tasks without asking questions", "correct": false },
+        { "text": "By asking for clarification on instructions and client requirements", "correct": true },
+        { "text": "By ignoring client specifications to save time", "correct": false },
+        { "text": "By following instructions without thinking about their relevance", "correct": false }
+      ]
+    },
+    {
+      "id": "q12",
+      "name": "Section I, Q12. How does the power rating of a resistor or electronic device typically affect its operation?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Higher power ratings result in lower energy consumption.", "correct": false },
+        { "text": "Lower power ratings allow for more efficient operation.", "correct": false },
+        { "text": "Devices with higher power ratings can handle greater electrical loads.", "correct": true },
+        { "text": "Power ratings have no impact on the performance of resistors or devices.", "correct": false }
+      ]
+    },
+    {
+      "id": "q13",
+      "name": "Section I, Q13. Which factor is most important when selecting adhesives or tapes for fixing accessories in a construction project?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "The colour of the adhesive or tape to match the accessory", "correct": false },
+        { "text": "The availability of the adhesive or tape in the local hardware store", "correct": false },
+        { "text": "The compatibility of the adhesive or tape with the materials being joined", "correct": true },
+        { "text": "The cost of the adhesive or tape per unit", "correct": false }
+      ]
+    },
+    {
+      "id": "q14",
+      "name": "Section I, Q14. What is the primary role of Standards Australia?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Conducting market research to identify consumer preferences and how best to meet them", "correct": false },
+        { "text": "Developing and publishing national standards for products, services and systems", "correct": true },
+        { "text": "Providing financial assistance to small businesses for innovation projects", "correct": false },
+        { "text": "Offering certification programs for industry professionals", "correct": false }
+      ]
+    },
+    {
+      "id": "q15",
+      "name": "Section I, Q15. Which strategy aims to eliminate bias and harassment in the electrotechnology workplace?",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "Ignoring instances of bias and harassment to avoid conflict", "correct": false },
+        { "text": "Implementing regular diversity and inclusion training sessions for all employees", "correct": true },
+        { "text": "Promoting a culture where only certain groups of employees are given preferential treatment", "correct": false },
+        { "text": "Encouraging competition among employees based on gender or ethnicity", "correct": false }
+      ]
+    },
+    {
+      "id": "q16",
+      "name": "Section II, Question 16 (2 marks). Identify the effects of drug and alcohol use in the workplace and suggest ways to reduce this risk.",
+      "isAICheck": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "marks": 2,
+      "answer": "Effects: impaired judgement and concentration, slower reaction times, increased risk of workplace accidents/injuries, absenteeism, reduced productivity, damaged working relationships. Ways to reduce risk: workplace drug and alcohol policy, random/pre-employment drug and alcohol testing, employee assistance programs (EAP), education and awareness training, clear reporting procedures, supervision. Award full marks for at least one clear effect and one clear reduction strategy; award partial marks for a partial or one-sided answer."
+    },
+    {
+      "id": "q17",
+      "name": "Section II, Question 17 (5 marks). Describe the steps involved in the safe isolation of an electrical supply.",
+      "isAICheck": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "marks": 5,
+      "answer": "Standard safe isolation procedure: 1) Identify the correct circuit/equipment to be isolated. 2) Notify affected people that the supply is about to be isolated. 3) Switch off and isolate the supply at the source (e.g. switchboard/isolator). 4) Secure the isolation using a lock-out device and attach a danger/warning tag (lock out, tag out - LOTO), retaining sole control of the key. 5) Prove the tester is working on a known live source (before use). 6) Test the isolated circuit/equipment to confirm it is dead, using an approved voltage tester. 7) Re-prove the tester on the known live source again (after use) to confirm it is still working. 8) Only then begin work. Award marks proportionally for each correct step identified, in a sensible order, with test-before-work emphasised."
+    },
+    {
+      "id": "q18",
+      "name": "Section II, Question 18 (4 marks). Outline FOUR issues that could impact renewable energy usage and production.",
+      "isAICheck": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "marks": 4,
+      "answer": "Accept any four of: weather/climate dependency causing intermittent supply (e.g. solar needs sunlight, wind needs wind); high upfront infrastructure and installation costs; limited energy storage capacity/battery technology; challenges integrating renewable supply into the existing electricity grid; geographic or land-use constraints on where renewable generation can be built; changing government policy, subsidies or regulation; public acceptance or opposition to installations; ongoing maintenance requirements and equipment lifespan. Award 1 mark per distinct, correctly explained issue, up to 4 marks."
+    },
+    {
+      "id": "q19",
+      "name": "Section II, Question 19 (3 marks). Identify THREE reasons why a WHS inspector may choose to visit a workplace.",
+      "isAICheck": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "marks": 3,
+      "answer": "Accept any three of: responding to a complaint or report about unsafe conditions; investigating a workplace accident, injury or incident; conducting a routine or random compliance inspection; following up on a previously issued notice to check compliance; responding to a request from an employer, worker or union; monitoring compliance with WHS legislation and codes of practice. Award 1 mark per distinct valid reason, up to 3 marks."
+    },
+    {
+      "id": "q20a",
+      "name": "Section II, Question 20 (6 marks total — 2 marks per tool). Identify the tool shown in the first image and describe its purpose.",
+      "image": "q20-tap-die-set.png",
+      "isAICheck": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "marks": 2,
+      "answer": "Tool: a tap and die set (tap wrench holding a tap, with a set of dies). Purpose: taps are used to cut internal threads (e.g. inside a drilled hole/nut) and dies are used to cut external threads (e.g. onto a rod/bolt), for creating or repairing screw threads. Accept 'tap wrench and dies' or similar close naming."
+    },
+    {
+      "id": "q20b",
+      "name": "Section II, Question 20 (continued). Identify the tool shown in the second image and describe its purpose.",
+      "image": "q20-guillotine.png",
+      "isAICheck": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "marks": 2,
+      "answer": "Tool: a guillotine (bench-mounted sheet metal shear/guillotine, operated by a hand lever and/or foot pedal). Purpose: used to cut and shear sheet metal (or similar flat material) accurately to size in a workshop. Accept 'bench shear', 'sheet metal shear' or similar close naming for this style of bench-mounted cutting machine."
+    },
+    {
+      "id": "q20c",
+      "name": "Section II, Question 20 (continued). Identify the tool shown in the third image and describe its purpose.",
+      "image": "q20-steel-rule.png",
+      "isAICheck": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "marks": 2,
+      "answer": "Tool: a steel rule (rigid graduated ruler). Purpose: used to measure and mark out accurate lengths/dimensions on materials before cutting, drilling or forming. Accept 'ruler' or 'measuring rule'."
+    },
+    {
+      "id": "q21a",
+      "name": "Section II, Question 21(a). Refer to the circuit: R1 = 630 Ω, R3 = 3.1 kΩ, and R1, R2, R3 all connected in series across V_total = 110 V. Calculate the total resistance if R2 = 500 Ω, in ohms. (2 marks on the original paper; this quiz awards 1 mark for the single numeric answer.)",
+      "image": "q21-circuit.png",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "4230", "correct": true }
+      ]
+    },
+    {
+      "id": "q21b",
+      "name": "Section II, Question 21(b). For the same series circuit (V_total = 110 V), calculate the total current of the circuit in mA if R_total = 2750 Ω. (2 marks on the original paper; this quiz awards 1 mark for the single numeric answer.)",
+      "image": "q21-circuit.png",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "40", "correct": true }
+      ]
+    },
+    {
+      "id": "q21c",
+      "name": "Section II, Question 21(c). For the same series circuit, calculate the voltage drop across R3 (R3 = 3.1 kΩ) in volts, if the current through it is I3 = 0.03 A. (2 marks on the original paper; this quiz awards 1 mark for the single numeric answer.)",
+      "image": "q21-circuit.png",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "93", "correct": true }
+      ]
+    },
+    {
+      "id": "q21d",
+      "name": "Section II, Question 21(d). For the same series circuit, calculate the power dissipated by R1 (R1 = 630 Ω) in mW, if I_total = 6 mA. (2 marks on the original paper; this quiz awards 1 mark for the single numeric answer.)",
+      "image": "q21-circuit.png",
+      "math": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "answers": [
+        { "type": "answer", "text": "22.68", "correct": true }
+      ]
+    },
+    {
+      "id": "q21e",
+      "name": "Section II, Question 21(e) (2 marks). Explain what would happen to the total current and total resistance if R1 became open circuited.",
+      "image": "q21-circuit.png",
+      "isAICheck": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "marks": 2,
+      "answer": "Since R1, R2 and R3 are all in series, an open circuit at R1 breaks the only current path. Total resistance becomes infinite (open circuit / undefined), and total current drops to zero — no current can flow anywhere in the circuit."
+    },
+    {
+      "id": "q23a",
+      "name": "Section III, Question 23(a) (part of 15 marks for Question 23 — allocated 7 marks). You are a senior electrician working for a large electrical contracting company. Your team has been tasked with upgrading the electrical fire systems in a high-rise apartment block. As part of your role, you are responsible for overseeing the safety protocols and ensuring compliance with workplace health and safety (WHS) regulations. Explain why participation and consultation are important for workplace health and safety (WHS) in the electrotechnology trade. Provide specific examples from the industry to support your explanation.",
+      "isAICheck": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "marks": 7,
+      "answer": "Participation and consultation are important because workers doing the hands-on electrical work are best placed to identify hazards (e.g. energised fire system circuits, working at height in a high-rise, confined switch rooms), which improves the accuracy and practicality of risk controls; it builds worker buy-in and compliance with safety procedures; it satisfies WHS legislative duties to consult with workers on matters that affect their health and safety; and it improves communication between electricians, supervisors and other trades on a shared high-rise site, reducing the chance of incidents. Good answers give specific electrotechnology examples, such as toolbox talks before isolating fire system circuits, consulting electricians on isolation/lock-out procedures for a live upgrade, or involving the team in a job safety analysis (JSA) / safe work method statement (SWMS) before starting work on the apartment block. Award marks for depth of explanation (why it matters) and for the quality/specificity of industry examples."
+    },
+    {
+      "id": "q23b",
+      "name": "Section III, Question 23(b) (part of 15 marks for Question 23 — allocated 8 marks). Describe how workplace injuries could impact human, social, economic and organisational costs within the business. Use industry examples to support your answer.",
+      "isAICheck": true,
+      "isMultipleChoice": false,
+      "isCheckbox": false,
+      "marks": 8,
+      "answer": "Human costs: physical pain, injury or permanent disability to the injured electrician, psychological impacts (stress, anxiety, loss of confidence), reduced quality of life. Social costs: strain on family relationships, loss of income affecting the worker's household, reduced ability to participate in social/community life, burden on the public health system. Economic costs: medical and rehabilitation expenses, workers' compensation payments, lost wages for the injured worker, potential fines/legal costs for the business if found negligent. Organisational costs: lost productivity while the injured worker is off site and while others are retrained/reassigned, cost of hiring/training replacement staff, damage to the company's reputation and ability to win future contracts (e.g. on high-rise fire system upgrades), increased insurance premiums, delays to project completion. Award marks across all four cost categories (human, social, economic, organisational), with credit for specific electrotechnology/high-rise industry examples in each."
+    }
+  ]
+}

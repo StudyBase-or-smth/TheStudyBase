@@ -8,9 +8,9 @@
 <link rel="icon" href="../icon.png" type="image/png">
 <link rel="apple-touch-icon" href="icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="sharedstyle.css">
+<link rel="stylesheet" href="../mainstyle.css">
 </head>
-<body>
+<body class="subject-page">
 
 <!-- Firebase auth -->
 <script type="module">
@@ -32,23 +32,29 @@
       sessionStorage.removeItem('studybase_guest');
       window.currentUid = user.uid;
       localStorage.setItem('studybase_uid', user.uid);
-      user.getIdTokenResult().then(result => {
+      // Force-refresh: a claim change (e.g. status flipping to pending right
+      // after sign-up, or a dev approving/rejecting someone) doesn't show up
+      // in a cached ID token until it's explicitly refreshed — without
+      // `true` here a pending account can read back as active and get full
+      // edit access on this page.
+      user.getIdTokenResult(true).then(result => {
         const role   = result.claims.role   || '';
         const status = result.claims.status || '';
         window.userRole = role;
 
-        if (status === 'pending') {
-          // Pending approval — restrict to guest-mode until a dev approves
+        if (status === 'rejected') {
+          window.location.href = '../waiting.html';
+          return;
+        }
+
+        if (status !== 'active') {
+          // Pending, missing claims, or unknown — restrict to guest-mode
+          // until a dev approves. Empty status used to fall through as
+          // full edit access.
           window.isGuest = true;
           document.body.classList.add('guest-mode');
           document.getElementById('guest-border').style.display = 'block';
           document.getElementById('guest-nudge').style.display = 'block';
-          return;
-        }
-
-        if (status === 'rejected') {
-          // Request was denied — send them back to login to see the rejection message
-          window.location.href = '../login.html';
           return;
         }
 
@@ -57,7 +63,11 @@
           window.teacherName = user.displayName || user.email.split('@')[0];
           document.body.classList.add('teacher-mode');
         }
-        // role === 'student', status === 'active' — full normal access, nothing extra needed
+      }).catch(() => {
+        window.isGuest = true;
+        document.body.classList.add('guest-mode');
+        document.getElementById('guest-border').style.display = 'block';
+        document.getElementById('guest-nudge').style.display = 'block';
       });
     } else if (isGuest) {
       window.isGuest = true;
@@ -80,7 +90,7 @@
 
 <!-- Header (populated by JS once subject is known) -->
 <div class="hdr-outer">
-  <a class="accent-bar" id="accentBar" href="../index.html" title="Back to Index">
+  <a class="accent-bar" id="accentBar" href="../index.html" title="Back to Index" aria-label="Back to Index">
   </a>
   <div class="hdr-main">
     <div class="hdr-top">
@@ -93,17 +103,19 @@
         </div>
       </div>
       <div class="hdr-breadcrumb">
-        <a class="bc-link" href="../index.html">Hub</a>
+        <a class="bc-link" href="../index.html">Index</a>
         <span class="bc-sep">›</span>
-        <span class="bc-current" id="hdrSubjectName"></span>
+        <a class="bc-link" href="javascript:void(0)" onclick="closeTopicView();renderList()" id="hdrSubjectName" title="Back to subject overview"></a>
+        <span class="bc-sep" id="hdrTopicSep" style="display:none">›</span>
+        <span class="bc-current" id="hdrTopicName" style="display:none"></span>
       </div>
       <div class="hdr-right-row">
         <span id="syncStatus" style="font-size:11px;font-weight:600"></span>
         <span id="syncCountdown" style="font-size:11px;color:var(--muted2);font-variant-numeric:tabular-nums"></span>
-        <button class="hdr-ghost" onclick="syncPull()" data-tip="Sync now">⟳</button>
-        <button class="hdr-ghost" id="btnFlashcards" onclick="window.location.href='flashcards.html#'" data-tip="Flashcards">🃏</button>
-        <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out">⎋</button>
-        <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()" data-tip="Dark mode">🌙</button>
+        <button class="hdr-ghost" onclick="syncPull()" data-tip="Sync now" aria-label="Sync now">⟳</button>
+        <button class="hdr-ghost" id="btnFlashcards" onclick="window.location.href='flashcards.html#'" data-tip="Flashcards" aria-label="Flashcards">🃏</button>
+        <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out" aria-label="Sign out">⎋</button>
+        <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()" data-tip="Dark mode" aria-label="Toggle dark mode">🌙</button>
         <button class="hdr-action" id="btnNewTopic" onclick="openModal()">+ New topic</button>
       </div>
     </div>
@@ -125,13 +137,26 @@
         <span class="search-icon">⌕</span>
         <input class="search-input" type="text" id="searchInput" placeholder="Search…">
       </div>
+      <button class="filter-btn" id="unitsToggleBtn" aria-expanded="false" aria-label="Filter by unit">Units <span class="filter-badge" id="unitsBadge" style="display:none">0</span></button>
     </div>
-    <div class="unit-wrap">
-      <div class="unit-label">Units</div>
-      <div class="unit-pills" id="unitPills"></div>
+    <div class="sidebar-tabs" id="sidebarTabs" style="display:none">
+      <button class="sidebar-tab active" data-tab="subject" onclick="setSidebarTab('subject')">📚 Subject</button>
+      <button class="sidebar-tab" data-tab="classes" onclick="setSidebarTab('classes')">🏫 Classes</button>
     </div>
-    <div class="topic-list" id="topicList"></div>
+    <!-- Units panel sits above the Subject/Classes panes (not inside either
+         one), so it's a shared filter that applies whichever tab is active -->
+    <div class="units-panel" id="unitsPanel">
+      <div class="units-search"><span>⌕</span><input type="text" id="unitsSearchInput" placeholder="Search units…" aria-label="Search units" oninput="renderPills()"></div>
+      <div class="units-list" id="unitsListBody"></div>
+    </div>
+    <div class="unit-wrap" id="classSelectWrap" style="display:none">
+      <label class="unit-label" for="classSelect">Class</label>
+      <select class="unit-select" id="classSelect" onchange="setActiveClass(this.value)"></select>
+    </div>
+    <div class="topic-list scroll-y" id="topicList"></div>
+    <div class="class-sections scroll-y" id="classSections" style="display:none"></div>
   </div>
+  <button class="sidebar-edge-toggle" id="sidebarCollapseBtn" onclick="toggleSidebarCollapsed()" data-tip="Hide sidebar" aria-label="Hide sidebar">‹</button>
 
   <div class="detail-panel">
     <div class="welcome" id="welcomeState">
@@ -151,10 +176,14 @@
   <div class="modal">
     <div class="modal-head">
   <div class="modal-title" id="modalTitle">New topic</div>
-
+  <div class="layout-switcher">
+    <button type="button" class="layout-arrow" onclick="cycleLayout(-1)" title="Previous type">‹</button>
+    <span class="layout-name" id="layoutName">Basic</span>
+    <button type="button" class="layout-arrow" onclick="cycleLayout(1)" title="Next type">›</button>
+  </div>
 </div>
 
-    
+
     <div class="form-row">
       <div class="form-g" style="flex:2">
         <label class="form-l">Term / Concept <span>*</span></label>
@@ -176,27 +205,76 @@
         </div>
       </div>
     </div>
-    <div class="form-g">
+    <div class="form-g" data-layout-group="basic">
       <label class="form-l">Definition</label>
       <textarea class="form-ta" id="fDefinition" rows="3" placeholder="A clear, concise definition…"></textarea>
     </div>
-    <div class="form-g">
-      <label class="form-l">Key Points</label>
+    <div class="form-g" data-layout-group="overview text">
+      <label class="form-l" id="bodyTextLabel">Overview</label>
+      <div class="rich-editor-wrap">
+        <div class="rich-toolbar">
+          <span class="rich-toolbar-label">text &amp; images</span>
+          <button type="button" class="rich-btn" onclick="expandEnlarge('fBodyText')" title="Enlarge">⤢ Enlarge</button>
+          <button type="button" class="rich-btn" onclick="expandFullscreen('fBodyText')" title="Fullscreen">⛶ Fullscreen</button>
+          <button type="button" class="rich-btn" onclick="richAddImage('fBodyText')">🖼 Insert image</button>
+          <input type="file" id="img_fBodyText" accept="image/*" style="display:none">
+        </div>
+        <div class="rich-content" id="fBodyText" contenteditable="true" data-placeholder="Write the overview or main text here…" style="min-height:120px"></div>
+      </div>
+    </div>
+    <div class="form-g" data-layout-group="basic overview text">
+      <label class="form-l" id="kpFieldLabel">Key Points</label>
       <div class="kp-list" id="kpList"></div>
       <button class="btn-add-kp" onclick="addKpRow()">+ Add key point</button>
     </div>
-    <div class="form-g">
+    <div class="form-g" data-layout-group="basic math">
       <label class="form-l">Formula / Equation <span>— leave blank if none</span></label>
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
           <span class="rich-toolbar-label">text &amp; images</span>
+          <div class="symbol-picker-wrap">
+            <button type="button" class="rich-btn" onmousedown="event.preventDefault()" onclick="toggleSymbolPicker(this)">Ω Symbols</button>
+            <div class="symbol-picker-panel" id="symPicker_fFormula" data-target="fFormula"></div>
+          </div>
           <button type="button" class="rich-btn" onclick="richAddImage('fFormula')">🖼 Insert image</button>
           <input type="file" id="img_fFormula" accept="image/*" style="display:none">
         </div>
         <div class="rich-content mono" id="fFormula" contenteditable="true" data-placeholder="e.g. σ = F/A" style="min-height:88px"></div>
       </div>
     </div>
-    <div class="form-g">
+    <div class="form-g" data-layout-group="math">
+      <div class="form-l-row">
+        <label class="form-l">Desmos Graph <span>— build the graph below; it saves with the topic</span></label>
+        <span class="sh-expand-btns">
+          <button type="button" class="sh-expand-btn" onclick="expandEnlarge('desmosEditorCalc')" title="Enlarge">⤢</button>
+          <button type="button" class="sh-expand-btn" onclick="expandFullscreen('desmosEditorCalc')" title="Fullscreen">⛶</button>
+        </span>
+      </div>
+      <div class="desmos-editor-wrap">
+        <div class="desmos-calculator" id="desmosEditorCalc"></div>
+        <div class="desmos-loading" id="desmosEditorLoading" style="height:360px"><span class="desmos-spinner"></span>Loading graphing calculator…</div>
+        <p class="desmos-unavailable" id="desmosEditorUnavailable" style="display:none">Desmos graphing isn't configured yet — set <code>DESMOS_API_KEY</code> in <code>sync-config.js</code>.</p>
+      </div>
+    </div>
+    <div class="form-g" data-layout-group="pdf">
+      <label class="form-l">PDF / Image Document</label>
+      <input type="file" id="fPdfFile" accept="application/pdf,image/*" style="display:none" onchange="onPdfFileSelected(this)">
+      <div id="pdfPreviewArea"></div>
+    </div>
+    <div class="form-g" data-layout-group="table">
+      <label class="form-l">Table <span>— add/remove columns and rows, click a cell to edit</span></label>
+      <div class="table-editor-wrap">
+        <table class="table-editor" id="tableEditorGrid">
+          <thead><tr id="tableEditorHeadRow"></tr></thead>
+          <tbody id="tableEditorBody"></tbody>
+        </table>
+      </div>
+      <div class="table-editor-actions">
+        <button type="button" class="btn-small" onclick="addTableColumn()">+ Add column</button>
+        <button type="button" class="btn-small" onclick="addTableRow()">+ Add row</button>
+      </div>
+    </div>
+    <div class="form-g" data-layout-group="basic">
       <label class="form-l">Extra Notes</label>
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
@@ -207,7 +285,7 @@
         <div class="rich-content" id="fMaterials" contenteditable="true" data-placeholder="Any additional notes…" style="min-height:52px"></div>
       </div>
     </div>
-    <div class="form-g">
+    <div class="form-g" data-layout-group="basic">
       <label class="form-l">Process / Method</label>
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
@@ -218,7 +296,7 @@
         <div class="rich-content" id="fProcess" contenteditable="true" data-placeholder="How does it work? Step-by-step if applicable…" style="min-height:66px"></div>
       </div>
     </div>
-    <div class="form-g">
+    <div class="form-g" data-layout-group="basic">
       <label class="form-l">Safety / Warnings</label>
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
@@ -229,7 +307,7 @@
         <div class="rich-content" id="fSafety" contenteditable="true" data-placeholder="Hazards, warnings, failure modes…" style="min-height:52px"></div>
       </div>
     </div>
-    <div class="form-g">
+    <div class="form-g" data-layout-group="basic">
       <label class="form-l">Exam Tip</label>
       <div class="rich-editor-wrap">
         <div class="rich-toolbar">
@@ -245,7 +323,7 @@
       <div class="subtopic-editor-list" id="subtopicEditorList"></div>
       <button class="btn-add-kp" onclick="addSubtopicRow()">+ Add subtopic</button>
     </div>
-    <div class="form-g">
+    <div class="form-g" data-layout-group="basic math">
       <label class="form-l">Flashcard Questions <span>— custom Q&amp;A for this topic's cards</span></label>
       <div class="fqa-list" id="fqaList"></div>
       <button class="btn-add-kp" onclick="addFqaRow()">+ Add question</button>
@@ -276,7 +354,20 @@
   </div>
 </div>
 
+<!-- Shared "enlarge" overlay (~80% of viewport) used by expand buttons on
+     the Desmos Graph / Main Text / PDF/Image Document sections. The actual
+     content node is moved into #enlargeSlot on open and moved back to its
+     original spot on close — see expandEnlarge()/closeEnlarge() in
+     subjectapp.js. -->
+<div class="enlarge-overlay" id="enlargeOverlay" onclick="if(event.target===this) closeEnlarge()">
+  <div class="enlarge-box">
+    <button type="button" class="modal-x enlarge-close" onclick="closeEnlarge()" title="Close">✕</button>
+    <div class="enlarge-slot" id="enlargeSlot"></div>
+  </div>
+</div>
+
 <script src="../subjects.js"></script>
+<script src="../sync-config.js"></script>
 <script src="subjectapp.js"></script>
 
 <!-- Guest overlays -->
