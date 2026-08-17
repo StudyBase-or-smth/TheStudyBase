@@ -1,12 +1,12 @@
 // netlify/functions/desmosKey.js
 //
-// Hands the Desmos Graphing Calculator API key to the client at runtime, so
-// the real key only has to exist in ONE place: this site's Netlify
-// environment variables (Site settings -> Environment variables), set as
+// Fallback for the Desmos Graphing Calculator API key when
+// sync-config.js's DESMOS_API_KEY is empty. Preferred home for the key is
+// sync-config.js (same file as SYNC_URL). This function still reads
 //
 //   DESMOS_API_KEY   -> your Desmos API key (get one at desmos.com/my-api)
 //
-// -- and in a local .env for `netlify dev`. It is never committed to the repo.
+// from Netlify env / local .env so existing deploys keep working.
 //
 // Unlike CLAUDE_API_KEY / GEMINI_API_KEY (see grade.js), a Desmos API key is
 // NOT a spend-authorizing secret -- Desmos's own embed pattern puts it

@@ -243,15 +243,13 @@ function toggleImgInvert(el){
 }
 
 // ── Desmos graphing (math layout only) ──
-// The API key lives server-side (Netlify env var DESMOS_API_KEY, see
-// netlify/functions/desmosKey.js) and is fetched at runtime rather than
-// committed to this file — see that function's header comment for why.
-// Two independent live Desmos.GraphingCalculator instances can exist at
-// once: desmosEditorCalc (the New/Edit topic modal, fully interactive) and
-// desmosViewCalc (the read-only-ish one in the detail panel). Both must be
-// explicitly .destroy()ed before their container is removed/replaced —
-// Desmos calculators hold a WebGL context that isn't freed by just
-// discarding the DOM node.
+// The API key lives in ../sync-config.js (DESMOS_API_KEY), loaded before
+// this file. If that constant is empty, loadDesmosScript() falls back to
+// /api/desmosKey (Netlify env). Two independent live
+// Desmos.GraphingCalculator instances can exist at once: desmosEditorCalc
+// (the New/Edit topic modal) and desmosViewCalc (the detail panel). Both
+// must be .destroy()ed before their container is removed — Desmos holds a
+// WebGL context that isn't freed by discarding the DOM node.
 const DESMOS_API_VERSION = 'v1.12';
 let _desmosLoadPromise = null;
 let desmosEditorCalc = null;
@@ -268,21 +266,27 @@ function desmosThemeOpts(){
     : { backgroundColor: '#faf8f5', textColor: '#1c1917', accentColor: accent || '#2f72dc' };
 }
 
+function injectDesmosScript(apiKey){
+  return new Promise(resolve => {
+    if(!apiKey){ resolve(false); return; }
+    if(window.Desmos){ resolve(true); return; }
+    const s = document.createElement('script');
+    s.src = `https://www.desmos.com/api/${DESMOS_API_VERSION}/calculator.js?apiKey=${encodeURIComponent(apiKey)}`;
+    s.onload = () => resolve(!!window.Desmos);
+    s.onerror = () => resolve(false);
+    document.head.appendChild(s);
+  });
+}
+
 function loadDesmosScript(){
   if(_desmosLoadPromise) return _desmosLoadPromise;
-  _desmosLoadPromise = fetch('/api/desmosKey')
-    .then(res => res.ok ? res.json() : { apiKey: '' })
-    .catch(() => ({ apiKey: '' }))
-    .then(data => new Promise(resolve => {
-      const apiKey = (data && data.apiKey) || '';
-      if(!apiKey){ resolve(false); return; }
-      if(window.Desmos){ resolve(true); return; }
-      const s = document.createElement('script');
-      s.src = `https://www.desmos.com/api/${DESMOS_API_VERSION}/calculator.js?apiKey=${encodeURIComponent(apiKey)}`;
-      s.onload = () => resolve(!!window.Desmos);
-      s.onerror = () => resolve(false);
-      document.head.appendChild(s);
-    }));
+  const fromConfig = (typeof DESMOS_API_KEY === 'string' && DESMOS_API_KEY.trim()) ? DESMOS_API_KEY.trim() : '';
+  _desmosLoadPromise = fromConfig
+    ? injectDesmosScript(fromConfig)
+    : fetch('/api/desmosKey')
+        .then(res => res.ok ? res.json() : { apiKey: '' })
+        .catch(() => ({ apiKey: '' }))
+        .then(data => injectDesmosScript((data && data.apiKey) || ''));
   return _desmosLoadPromise;
 }
 
@@ -971,7 +975,7 @@ function viewTopic(id){
       <div class="desmos-view-calc" id="desmosViewCalc" style="display:none"></div>
       <div class="desmos-loading" id="desmosViewLoading" style="display:none;height:420px"><span class="desmos-spinner"></span>Loading graph…</div>
       <p class="empty-note" id="desmosViewEmpty" style="display:none">No graph created yet.</p>
-      <p class="desmos-unavailable" id="desmosViewUnavailable" style="display:none">Desmos graphing isn't configured yet — an admin needs to add a Desmos API key.</p>
+      <p class="desmos-unavailable" id="desmosViewUnavailable" style="display:none">Desmos graphing isn't configured yet — set DESMOS_API_KEY in sync-config.js.</p>
     </div>`, t.desmosState ? expandBtnsHtml('desmosViewCalc', {enlarge:true, fullscreen:true}) : '');
   } else if(layout === 'text'){
     bodyHtml += sec('bodyText', 'Main Text', '📄',
