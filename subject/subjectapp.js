@@ -121,12 +121,28 @@ applySidebarCollapsed();
 function getRichVal(id){ const el=document.getElementById(id); if(!el)return''; return el.contentEditable==='true'?el.innerHTML.trim():el.value.trim(); }
 function setRichVal(id,html){ const el=document.getElementById(id); if(!el)return; if(el.contentEditable==='true'){el.innerHTML=html||'';}else{el.value=html||'';} }
 function clearRich(id){ setRichVal(id,''); }
+function isDangerousUrl(val){
+  const s = String(val || '').replace(/[\s\0]/g, '').toLowerCase();
+  return s.startsWith('javascript:') || s.startsWith('vbscript:') || s.startsWith('data:text/html');
+}
 function sanitizeRich(html){
   if(!html)return'';
   const d=document.createElement('div'); d.innerHTML=html;
-  d.querySelectorAll('script,style,iframe,object,embed,link').forEach(e=>e.remove());
+  d.querySelectorAll('script,style,iframe,object,embed,link,form,meta,base').forEach(e=>e.remove());
+  d.querySelectorAll('*').forEach(el=>{
+    [...el.attributes].forEach(attr=>{
+      const name = attr.name.toLowerCase();
+      if(name.startsWith('on') || name === 'srcdoc'){
+        el.removeAttribute(attr.name);
+        return;
+      }
+      if(name === 'href' || name === 'src' || name === 'xlink:href' || name === 'action' || name === 'formaction' || name === 'poster'){
+        if(isDangerousUrl(attr.value)) el.removeAttribute(attr.name);
+      }
+    });
+  });
   d.querySelectorAll('img').forEach(img=>{
-    const src=img.src||img.getAttribute('src')||'';
+    const src=img.getAttribute('src')||img.src||'';
     if(!src.startsWith('data:')&&!src.startsWith('https://drive.google.com/')&&!src.startsWith('https://lh3.googleusercontent.com/'))img.remove();
   });
   return d.innerHTML;
@@ -1535,6 +1551,27 @@ function syncPush(key, data){
 
 let _nextSync = Date.now() + 60000;
 
+function mergeRemoteTopicList(remote, localKey, placeholder){
+  let local = [];
+  try { local = JSON.parse(localStorage.getItem(localKey)||'[]'); } catch(e) { local = []; }
+  if(!Array.isArray(local)) local = [];
+  if(!Array.isArray(remote)) return remote;
+  const merged = remote.map(rem => {
+    const loc = local.find(t => t.id===rem.id);
+    if(!loc) return rem;
+    const m = {...rem};
+    Object.keys(m).forEach(k => {
+      if(typeof m[k]==='string' && m[k].includes(placeholder) &&
+         loc[k] && typeof loc[k]==='string' && !loc[k].includes(placeholder)){
+        m[k] = loc[k];
+      }
+    });
+    return m;
+  });
+  local.forEach(lt => { if(!merged.find(t => t.id===lt.id)) merged.push(lt); });
+  return merged;
+}
+
 async function syncPull(){
   setSyncStatus('syncing');
   const PLACEHOLDER = '[image — only visible on device where it was saved]';
@@ -1543,20 +1580,7 @@ async function syncPull(){
       const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(key));
       if(res && res.data !== null && res.data !== undefined){
         if(key===ST && Array.isArray(res.data)){
-          const local = JSON.parse(localStorage.getItem(ST)||'[]');
-          const merged = res.data.map(rem => {
-            const loc = local.find(t => t.id===rem.id);
-            if(!loc) return rem;
-            const m = {...rem};
-            Object.keys(m).forEach(k => {
-              if(typeof m[k]==='string' && m[k].includes(PLACEHOLDER) &&
-                 loc[k] && typeof loc[k]==='string' && !loc[k].includes(PLACEHOLDER)){
-                m[k] = loc[k];
-              }
-            });
-            return m;
-          });
-          localStorage.setItem(key, JSON.stringify(merged));
+          localStorage.setItem(key, JSON.stringify(mergeRemoteTopicList(res.data, ST, PLACEHOLDER)));
         } else {
           localStorage.setItem(key, JSON.stringify(res.data));
         }
@@ -1575,7 +1599,11 @@ async function syncPull(){
         try{
           const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(key));
           if(res && res.data !== null && res.data !== undefined){
-            localStorage.setItem(key, JSON.stringify(res.data));
+            if(key===cKeyT && Array.isArray(res.data)){
+              localStorage.setItem(key, JSON.stringify(mergeRemoteTopicList(res.data, cKeyT, PLACEHOLDER)));
+            } else {
+              localStorage.setItem(key, JSON.stringify(res.data));
+            }
           }
         } catch(e){ /* one class failing to sync shouldn't block the rest */ }
       }

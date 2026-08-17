@@ -114,10 +114,22 @@ body.dark .hdr-outer{background:var(--card)}
       const displayName = user.displayName ||
         email.split('@')[0].split('.').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
-      // Force-refresh token to get the latest role / status claims
-      const token  = await user.getIdTokenResult(true);
-      const role   = token.claims.role   || 'student';
-      const status = token.claims.status || 'active';
+      // Force-refresh token to get the latest role / status claims.
+      // Missing status must not default to 'active' — that is how a
+      // signup whose registerRole call failed looked fully approved here.
+      let role = '', status = '';
+      try {
+        const token  = await user.getIdTokenResult(true);
+        role   = token.claims.role   || '';
+        status = token.claims.status || '';
+      } catch (e) {
+        status = '';
+      }
+
+      if (status === 'rejected') {
+        window.location.href = 'waiting.html';
+        return;
+      }
 
       localStorage.setItem('studybase_display_name', displayName);
       localStorage.setItem('studybase_email', email);
@@ -125,7 +137,8 @@ body.dark .hdr-outer{background:var(--card)}
       if (!localStorage.getItem('studybase_member_since'))
         localStorage.setItem('studybase_member_since', new Date().toISOString());
 
-      buildProfile(displayName, email, uid, false, role, status);
+      const effectiveStatus = status === 'active' ? 'active' : (status || 'pending');
+      buildProfile(displayName, email, uid, false, role, effectiveStatus);
     } else if (isGuest) {
       window.isGuest = true;
       document.body.classList.add('guest-mode');
@@ -263,7 +276,7 @@ function buildProfile(displayName, email, uid, isGuest, role, status) {
     ? subjects.map(s => {
         const all  = getTopics(s);
         const mine = uid === 'guest' ? all : all.filter(t => !t.addedBy || t.addedBy === uid);
-        return `<a class="subj-link-item" href="subject.html#${s.id}">
+        return `<a class="subj-link-item" href="subject/subject.html#${s.id}">
           <div class="subj-link-dot" style="background:${s.colour}"></div>
           <span class="subj-link-name">${s.emoji || ''} ${s.name}</span>
           <span class="subj-link-count">${mine.length} mine · ${all.length} total</span>

@@ -280,20 +280,24 @@
     const isGuest = sessionStorage.getItem('studybase_guest') === '1';
     if (user) {
       sessionStorage.removeItem('studybase_guest');
-      user.getIdTokenResult().then(result => {
+      user.getIdTokenResult(true).then(result => {
         const status = result.claims.status || '';
-        if (status === 'pending') {
+        if (status === 'rejected') {
+          window.location.href = '../waiting.html';
+          return;
+        }
+        if (status !== 'active') {
           window.isGuest = true;
           document.body.classList.add('guest-mode');
           document.getElementById('guest-border').style.display = 'block';
           document.getElementById('guest-nudge').style.display = 'block';
           return;
         }
-        if (status === 'rejected') {
-          window.location.href = '../login.html';
-          return;
-        }
-        // teacher / dev / student, active — full access, nothing extra needed
+      }).catch(() => {
+        window.isGuest = true;
+        document.body.classList.add('guest-mode');
+        document.getElementById('guest-border').style.display = 'block';
+        document.getElementById('guest-nudge').style.display = 'block';
       });
     } else if (isGuest) {
       window.isGuest = true;
@@ -1066,15 +1070,12 @@ async function submitAICheck() {
   const feedbackEl = canvas.querySelector('#quizFeedback');
 
   // True guests (no real Firebase sign-in at all) have no ID token, so
-  // /api/grade would just 401 — short-circuit with the same message
-  // analyser.html shows for a signed-out/unapproved account instead of
-  // letting a confusing network error surface. A real signed-in user who's
-  // merely "pending" approval still has a valid token — /api/grade only
-  // requires a signed-in account, not an approved role — so they aren't
-  // blocked here.
+  // /api/grade would just 401. Pending / unapproved accounts now get 403
+  // from the server as well (status must be 'active'). Short-circuit here
+  // with the same message analyser.html shows instead of a network error.
   const currentUser = window.__sbAuth && window.__sbAuth.currentUser;
-  if (!currentUser) {
-    feedbackEl.textContent = 'Sign in with an approved role to use AI marking.';
+  if (!currentUser || window.isGuest) {
+    feedbackEl.textContent = 'Sign in with an approved account to use AI marking.';
     feedbackEl.className = 'quiz-feedback quiz-incorrect';
     return;
   }

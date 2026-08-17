@@ -167,14 +167,18 @@ body.dark .login-title,body.dark .login-sub{color:var(--text)!important}
   onAuthStateChanged(auth, async (user) => {
     if (!user || suppressAutoRedirect) return;
 
-    // Force-refresh so we always have the latest claims (e.g. after admin approval)
-    const token = await user.getIdTokenResult(true);
-    const status = token.claims.status || '';
+    // Force-refresh so we always have the latest claims (e.g. after admin approval).
+    // Missing/empty status is treated as pending — a signup whose registerRole
+    // call failed must not land on the hub with full access.
+    let status = '';
+    try {
+      const token = await user.getIdTokenResult(true);
+      status = token.claims.status || '';
+    } catch (e) {
+      status = '';
+    }
 
-    // Pending or rejected accounts go to the waiting page instead of
-    // signing them straight in — it shows the same status screen and lets
-    // them re-check or continue as a guest.
-    if (status === 'pending' || status === 'rejected') {
+    if (status !== 'active') {
       suppressAutoRedirect = true;
       window.location.href = 'waiting.html';
       return;

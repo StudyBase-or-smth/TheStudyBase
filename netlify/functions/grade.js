@@ -11,10 +11,10 @@
 // body and used instead -- it is NOT stored anywhere server-side either.
 //
 // SECURITY: this endpoint falls back to the server's own CLAUDE_API_KEY /
-// GEMINI_API_KEY whenever the caller doesn't supply their own. With no
-// auth check at all, anyone who found the URL could spend that quota for
-// free. It now requires a valid, signed-in Firebase account (any role) via
-// Authorization: Bearer <idToken> before it will use the server-side keys.
+// GEMINI_API_KEY whenever the caller doesn't supply their own. It requires a
+// valid Firebase ID token (Authorization: Bearer <idToken>) whose custom
+// claims include status:'active'. Pending, rejected, or claim-less accounts
+// cannot spend the server keys.
 
 const admin = require('firebase-admin');
 
@@ -56,7 +56,14 @@ exports.handler = async function (event) {
   }
 
   try {
-    await requireSignedInUser(event);
+    const decoded = await requireSignedInUser(event);
+    if (decoded.status !== 'active') {
+      return {
+        statusCode: 403,
+        headers: JSON_HEADERS,
+        body: JSON.stringify({ error: 'Account must be approved before using AI marking.' }),
+      };
+    }
 
     if (provider === 'claude') {
       const apiKey = (userKey && userKey.trim()) || process.env.CLAUDE_API_KEY;

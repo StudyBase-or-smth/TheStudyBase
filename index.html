@@ -43,9 +43,10 @@
           const status = token.claims.status || '';
           window.userRole = role;
 
-          // Pending or rejected accounts don't get the home page at all —
-          // same as login.html, send them to the waiting/status page.
-          if (status === 'pending' || status === 'rejected') {
+          // Only explicitly approved accounts get the home page. Missing or
+          // empty status (e.g. registerRole never ran) is treated as pending —
+          // same as waiting.html — rather than as an implicit allow.
+          if (status !== 'active') {
             window.location.href = 'waiting.html';
             return;
           }
@@ -60,7 +61,11 @@
             if (sec) sec.style.display = '';
             if (typeof renderClasses === 'function') renderClasses();
           }
-        }).catch(() => {});
+        }).catch(() => {
+          // Token refresh failed — fail closed rather than leaving an
+          // unchecked signed-in user on the hub with full access.
+          window.location.href = 'waiting.html';
+        });
       } else if (isGuest) {
         window.isGuest = true;
         document.body.classList.add('guest-mode');

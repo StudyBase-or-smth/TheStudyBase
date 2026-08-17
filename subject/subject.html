@@ -42,18 +42,19 @@
         const status = result.claims.status || '';
         window.userRole = role;
 
-        if (status === 'pending') {
-          // Pending approval — restrict to guest-mode until a dev approves
+        if (status === 'rejected') {
+          window.location.href = '../waiting.html';
+          return;
+        }
+
+        if (status !== 'active') {
+          // Pending, missing claims, or unknown — restrict to guest-mode
+          // until a dev approves. Empty status used to fall through as
+          // full edit access.
           window.isGuest = true;
           document.body.classList.add('guest-mode');
           document.getElementById('guest-border').style.display = 'block';
           document.getElementById('guest-nudge').style.display = 'block';
-          return;
-        }
-
-        if (status === 'rejected') {
-          // Request was denied — send them back to login to see the rejection message
-          window.location.href = '../login.html';
           return;
         }
 
@@ -62,7 +63,11 @@
           window.teacherName = user.displayName || user.email.split('@')[0];
           document.body.classList.add('teacher-mode');
         }
-        // role === 'student', status === 'active' — full normal access, nothing extra needed
+      }).catch(() => {
+        window.isGuest = true;
+        document.body.classList.add('guest-mode');
+        document.getElementById('guest-border').style.display = 'block';
+        document.getElementById('guest-nudge').style.display = 'block';
       });
     } else if (isGuest) {
       window.isGuest = true;

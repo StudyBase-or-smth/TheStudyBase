@@ -272,7 +272,14 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 const EVENTS_KEY = 'studybase_events';
 let editingEventId = null;
 
-function getEvents() { return JSON.parse(localStorage.getItem(EVENTS_KEY) || '[]'); }
+function getEvents() {
+  try {
+    const v = JSON.parse(localStorage.getItem(EVENTS_KEY) || '[]');
+    return Array.isArray(v) ? v : [];
+  } catch (e) {
+    return [];
+  }
+}
 function saveEvents(ev) { localStorage.setItem(EVENTS_KEY, JSON.stringify(ev)); syncPushEvents(ev); }
 
 function renderCalendar() {
@@ -473,6 +480,36 @@ setInterval(calSync, 60000);
 // Pull every subject's (and, for teacher/dev, every class's) topics + units
 // keys straight from the sync backend so the hub reflects the latest data
 // regardless of which device last edited it.
+const SYNC_IMG_PLACEHOLDER = '[image — only visible on device where it was saved]';
+
+function parseLocalJsonArray(key) {
+  try {
+    const v = JSON.parse(localStorage.getItem(key) || '[]');
+    return Array.isArray(v) ? v : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function mergeRemoteTopics(remote, localKey) {
+  const local = parseLocalJsonArray(localKey);
+  if (!Array.isArray(remote)) return remote;
+  const merged = remote.map(rem => {
+    const loc = local.find(t => t.id === rem.id);
+    if (!loc) return rem;
+    const m = { ...rem };
+    Object.keys(m).forEach(k => {
+      if (typeof m[k] === 'string' && m[k].includes(SYNC_IMG_PLACEHOLDER) &&
+          loc[k] && typeof loc[k] === 'string' && !loc[k].includes(SYNC_IMG_PLACEHOLDER)) {
+        m[k] = loc[k];
+      }
+    });
+    return m;
+  });
+  local.forEach(lt => { if (!merged.find(t => t.id === lt.id)) merged.push(lt); });
+  return merged;
+}
+
 async function syncAllSubjectsAndUnits() {
   if (typeof subjectsData === 'undefined') return;
   try {
@@ -485,7 +522,11 @@ async function syncAllSubjectsAndUnits() {
         try {
           const res = await jsonpGet(SYNC_URL + '?key=' + encodeURIComponent(key));
           if (res && res.data !== null && res.data !== undefined) {
-            localStorage.setItem(key, JSON.stringify(res.data));
+            if (key === tKey && Array.isArray(res.data)) {
+              localStorage.setItem(key, JSON.stringify(mergeRemoteTopics(res.data, tKey)));
+            } else {
+              localStorage.setItem(key, JSON.stringify(res.data));
+            }
           }
         } catch (e) { /* keep whatever's already cached locally on failure */ }
       }

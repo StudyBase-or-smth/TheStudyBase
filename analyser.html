@@ -586,20 +586,15 @@ loadBranchVersion();
         }
 
         if(!allowed){
-          // A brand-new account is usually status:'pending' with no role
-          // claim yet (roles are only assigned on approval) -- check status
-          // first so these accounts get the accurate "pending" message
-          // instead of the more alarming "no access" one.
-          setAnalyserLocked(true, status === 'pending' ? 'pending' : 'norole');
+          setAnalyserLocked(true, (status === 'pending' || !status) ? 'pending' : 'norole');
         } else {
           setAnalyserLocked(false);
         }
       });
     } catch(e){
-      console.warn('Auth gate skipped (local/dev mode):', e.message);
-      // Fail open locally so the page stays usable if Firebase isn't reachable
-      // (e.g. testing the file straight off disk).
-      setAnalyserLocked(false);
+      console.warn('Auth gate failed:', e.message);
+      // Fail closed: if Firebase cannot be reached, do not unlock AI marking.
+      setAnalyserLocked(true, 'signedout');
     }
   })();
 

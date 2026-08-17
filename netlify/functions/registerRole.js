@@ -73,7 +73,17 @@ exports.handler = async function (event) {
 
     // Use the verified email off the Firebase user record / token — never a
     // client-supplied field.
-    const email = decoded.email || (await admin.auth().getUser(uid)).email || '';
+    const existingUser = await admin.auth().getUser(uid);
+    const existingStatus = (existingUser.customClaims && existingUser.customClaims.status) || '';
+    if (existingStatus === 'active') {
+      return {
+        statusCode: 403,
+        headers: JSON_HEADERS,
+        body: JSON.stringify({ error: 'Account is already active; cannot re-register' }),
+      };
+    }
+
+    const email = existingUser.email || decoded.email || '';
 
     // Every sign-up requires manual dev approval — always pending, no
     // auto-activation.
