@@ -6,9 +6,9 @@
   <title>StudyBase • Marker</title>
   <link rel="icon" href="icon.png" type="image/png">
   <link rel="apple-touch-icon" href="icon.png">
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <link rel="stylesheet" href="fonts.css">
+  <script src="vendor/pdfjs/pdf.min.js"></script>
+  <script src="vendor/mammoth/mammoth.browser.min.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     *::-webkit-scrollbar{display:none}
@@ -23,19 +23,14 @@
 
     body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;font-size:13px}
 
-    /* Visible keyboard focus on every interactive element — matches the
-       fix applied across index/subject/class; this page had none before. */
-    a,button,select,[tabindex]{outline:none}
-    a:focus-visible,button:focus-visible,select:focus-visible,[tabindex]:focus-visible{
+    a,button,select,input,[tabindex]{outline:none}
+    a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,[tabindex]:focus-visible{
       outline:2px solid var(--amber);outline-offset:2px;border-radius:4px;
     }
-    /* Thin, visible scrollbar on the two internally-scrolling panels below —
-       the global rule above hides scrollbars everywhere, which previously
-       left long lists with no visible affordance that there's more to see. */
-    .right-panel,.raw-panel-body{scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
-    .right-panel::-webkit-scrollbar,.raw-panel-body::-webkit-scrollbar{display:block;width:6px}
-    .right-panel::-webkit-scrollbar-thumb,.raw-panel-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
-    .right-panel::-webkit-scrollbar-track,.raw-panel-body::-webkit-scrollbar-track{background:transparent}
+    .right-panel,.raw-panel-body,.page-picker,.crit-wrap{scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+    .right-panel::-webkit-scrollbar,.raw-panel-body::-webkit-scrollbar,.page-picker::-webkit-scrollbar,.crit-wrap::-webkit-scrollbar{display:block;width:6px}
+    .right-panel::-webkit-scrollbar-thumb,.raw-panel-body::-webkit-scrollbar-thumb,.page-picker::-webkit-scrollbar-thumb,.crit-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+    .right-panel::-webkit-scrollbar-track,.raw-panel-body::-webkit-scrollbar-track,.page-picker::-webkit-scrollbar-track,.crit-wrap::-webkit-scrollbar-track{background:transparent}
 
     /* HEADER */
     .hdr{background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;height:46px;padding:0 0 0 0;gap:0;position:sticky;top:0;z-index:100;overflow:visible}
@@ -71,13 +66,33 @@
     .hdr-btn:hover{background:var(--card2);border-color:var(--border2)}
     .hdr-btn::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);right:0;background:var(--card);color:var(--text);font-size:10px;font-weight:600;white-space:nowrap;padding:3px 8px;border-radius:4px;border:1px solid var(--border2);pointer-events:none;opacity:0;transition:opacity .12s;z-index:200}
     .hdr-btn:hover::after{opacity:1}
+    .hdr-profile-wrap{position:relative;display:flex;align-items:center}
+    .hdr-btn.hdr-profile{width:28px;height:28px;padding:0;border-radius:50%;overflow:visible;flex-shrink:0;font-size:13px}
+    .hdr-profile::after,.hdr-profile::before{display:none!important;content:none!important;opacity:0!important}
+    .hdr-profile-face{width:100%;height:100%;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .hdr-profile-face img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
+    .hdr-profile-tip{position:absolute;top:calc(100% + 8px);right:0;width:max-content;min-width:200px;max-width:min(90vw,520px);background:var(--card);color:var(--text);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;text-align:left;pointer-events:none;opacity:0;transition:opacity .12s;z-index:300;box-shadow:0 4px 16px rgba(0,0,0,.35)}
+    .hdr-profile-tip::before{content:'';position:absolute;left:0;right:0;bottom:100%;height:10px}
+    .hdr-profile-wrap:hover .hdr-profile-tip,.hdr-profile-tip:hover{opacity:1;pointer-events:auto}
+    .hdr-profile-tip .pt-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:2px}
+    .hdr-profile-tip .pt-name{font-size:13px;font-weight:700;font-family:'Lora',serif;line-height:1.25;white-space:nowrap}
+    .hdr-profile-tip .pt-role{font-size:11px;font-weight:600;color:var(--muted);text-transform:capitalize;margin-bottom:4px}
+    .hdr-profile-tip .pt-email{font-size:11px;color:var(--muted2);word-break:break-all}
+    .hdr-profile-tip .pt-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+    .hdr-profile-tip .pt-dark,.hdr-profile-tip .pt-signout{flex-shrink:0;margin:0;padding:3px 8px;border:1px solid var(--border);border-radius:5px;background:none;color:var(--text);font-family:inherit;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;line-height:1.2}
+    .hdr-profile-tip .pt-dark:hover{background:var(--card2);border-color:var(--border2)}
+    .hdr-profile-tip .pt-signout:hover{border-color:#ef4444;color:#ef4444}
 
-    .api-wrap{position:relative}
+    .api-wrap{position:relative;display:flex;align-items:center;gap:6px}
     .api-input{height:26px;padding:0 9px;border:1px solid var(--border);border-radius:5px;font-size:10px;font-family:'Inter',sans-serif;color:var(--text);background:var(--card2);outline:none;width:170px;transition:border-color .15s}
     .api-input:focus{border-color:var(--amber)}
     .api-input::placeholder{color:var(--muted2)}
     .api-tip{position:absolute;top:calc(100% + 6px);right:0;background:var(--card);color:var(--text);font-size:10px;font-weight:600;padding:4px 9px;border-radius:4px;border:1px solid var(--border2);pointer-events:none;opacity:0;transition:opacity .12s;z-index:200;white-space:nowrap}
-    .api-wrap:hover .api-tip{opacity:1}
+    .api-wrap.expanded:hover .api-tip{opacity:1}
+    .api-key-panel{display:none;align-items:center}
+    .api-wrap.expanded .api-key-panel{display:flex}
+    .api-toggle{font-size:10px;font-weight:600;white-space:nowrap}
+    .api-toggle::after{display:none!important}
 
     /* PROVIDER TOGGLE */
     .provider-toggle{
@@ -93,30 +108,81 @@
     .provider-btn:not(.active):hover{color:var(--text)}
 
     /* MAIN SPLIT LAYOUT */
-    .layout{display:grid;grid-template-columns:var(--col-left) 1fr;height:calc(100vh - 46px);overflow:hidden}
+    .layout{display:grid;grid-template-columns:var(--col-left) 1fr;height:calc(100vh - 46px);overflow:hidden;min-width:0}
 
     /* LEFT PANEL */
-    .left-panel{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;padding:20px 18px;gap:16px}
+    .left-panel{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;padding:20px 18px;gap:16px;min-width:0;scrollbar-width:none}
     .panel-label{font-size:10px;font-weight:600;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
     .section-block{display:flex;flex-direction:column}
 
-    .tabs{display:flex;gap:6px;margin-bottom:8px}
+    .tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center}
+    .criteria-tabs{flex-wrap:nowrap}
     .tab{padding:5px 12px;border:1px solid var(--border);background:var(--card2);border-radius:5px;cursor:pointer;font-weight:500;font-size:11px;font-family:'Inter',sans-serif;color:var(--muted);transition:all .12s}
     .tab:hover{border-color:var(--border2);color:var(--text)}
     .tab.active{background:var(--amber);color:#1a1208;border-color:var(--amber);font-weight:700}
 
+    .task-select{
+      appearance:none;-webkit-appearance:none;
+      width:100%;height:100%;min-height:44px;padding:0 28px 0 11px;
+      border:1px solid var(--border);border-radius:7px;background-color:var(--card2);color:var(--text);
+      font-family:inherit;font-size:12.5px;outline:none;cursor:pointer;min-width:0;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239e9890' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 10px center;
+    }
+    .task-select:focus{border-color:var(--border2)}
+    body.light .task-select{
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6560' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    }
+
     textarea{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:7px;font-size:12.5px;resize:none;background:var(--card2);color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;line-height:1.55}
     textarea:focus{border-color:var(--border2)}
     textarea::placeholder{color:var(--muted2)}
-    #studentText{height:160px}
-    #criteriaText{height:130px}
+    #studentText{height:140px}
+    #criteriaText{height:110px}
 
+    .file-drop-wrap{position:relative}
     .file-upload{border:2px dashed var(--border2);border-radius:7px;padding:18px;text-align:center;cursor:pointer;transition:all .2s;color:var(--muted)}
     .file-upload:hover{border-color:var(--amber);color:var(--text)}
     .file-upload.drag-over{border-color:var(--amber);background:rgba(245,158,11,.05)}
     .file-upload p{font-size:12px}
     .file-upload p+p{font-size:11px;color:var(--muted2);margin-top:3px}
-    .file-preview{margin-top:7px;font-size:11px;color:var(--muted)}
+    .file-preview{margin-top:7px;font-size:11px;color:var(--muted);position:relative;z-index:1;pointer-events:none}
+    .file-drop-wrap.has-file .file-upload{
+      position:absolute;inset:0;border-color:transparent;background:transparent;padding:0;margin:0;z-index:2;
+    }
+    .file-drop-wrap.has-file .file-upload p{opacity:0;height:0;overflow:hidden;margin:0}
+    .file-drop-wrap.has-file .file-upload:hover{border-color:transparent;color:transparent}
+    .file-drop-wrap.has-file .file-upload.drag-over{
+      border:2px dashed var(--amber);background:rgba(245,158,11,.08);border-radius:7px;
+    }
+    .file-drop-wrap.has-file .file-preview{margin-top:0;padding:8px 2px}
+
+    .pdf-method-wrap{display:none;margin-left:auto;align-items:center;flex-shrink:0}
+    .pdf-method-wrap.show{display:flex}
+    .pdf-method-select{
+      appearance:none;-webkit-appearance:none;
+      height:28px;padding:0 26px 0 10px;border:1px solid var(--border);border-radius:5px;
+      background-color:var(--card2);color:var(--text);font-family:inherit;font-size:11px;font-weight:600;
+      cursor:pointer;outline:none;line-height:26px;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239e9890' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 8px center;
+    }
+    .pdf-method-select:hover{border-color:var(--border2)}
+    .pdf-method-select:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+    body.light .pdf-method-select{
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6560' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    }
+    .scan-warn{display:none;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);color:var(--amber);border-radius:7px;padding:8px 10px;font-size:11.5px;line-height:1.5;margin-top:8px}
+    .scan-warn.show{display:block}
+    .page-picker{display:none;max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:7px;margin-top:8px;background:var(--card)}
+    .page-picker.show{display:block}
+    .page-picker-note{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.45}
+    .page-row{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);font-size:11px}
+    .page-row:last-child{border-bottom:none}
+    .page-row input{margin-top:3px;accent-color:var(--amber);flex-shrink:0}
+    .page-num{font-weight:700;color:var(--text);min-width:52px}
+    .page-preview{color:var(--muted);line-height:1.4;word-break:break-word}
+    .page-empty{color:var(--muted2);font-style:italic}
 
     .token-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
     .token-label{font-size:10px;font-weight:600;letter-spacing:.8px;color:var(--muted);text-transform:uppercase}
@@ -126,28 +192,63 @@
     .token-bar-bg{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
     .token-bar-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--amber2));border-radius:2px;transition:width .4s ease;width:0%}
 
-    .analyze-btn{width:100%;padding:12px 24px;background:var(--card2);color:var(--text);border:1px solid var(--border2);border-radius:7px;font-weight:600;cursor:pointer;transition:all .15s;font-size:14px;font-family:'Inter',sans-serif;letter-spacing:.2px;display:flex;align-items:center;justify-content:center;gap:8px}
+    .analyze-actions{display:flex;flex-direction:column;gap:8px}
+    .analyze-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch}
+    .analyze-btn{width:100%;padding:12px 16px;background:var(--card2);color:var(--text);border:1px solid var(--border2);border-radius:7px;font-weight:600;cursor:pointer;transition:all .15s;font-size:14px;font-family:'Inter',sans-serif;letter-spacing:.2px;display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px}
     .analyze-btn:hover{background:var(--amber);color:#1a1208;border-color:var(--amber);box-shadow:0 4px 18px rgba(245,158,11,.25)}
     .analyze-btn:active{transform:scale(.99)}
     .analyze-btn .star{font-style:normal;transition:transform .2s}
     .analyze-btn:hover .star{transform:rotate(30deg) scale(1.2)}
     .analyze-btn:disabled{opacity:.45;cursor:not-allowed;pointer-events:none;box-shadow:none}
     .analyze-btn:disabled:hover{background:var(--card2);color:var(--text)}
+    .cancel-btn{width:100%;padding:10px;background:transparent;border:1px solid var(--border2);border-radius:7px;color:var(--muted);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .12s}
+    .cancel-btn:hover{border-color:#f87171;color:#f87171}
+    .cancel-btn[hidden]{display:none}
 
-    /* Access-restricted banner + locked inputs */
     .access-banner{display:none;background:#3a2a0a;border:1px solid var(--amber-dim);color:#fcd34d;font-size:11.5px;line-height:1.6;border-radius:7px;padding:10px 12px;margin-bottom:2px}
     .access-banner.show{display:block}
     .access-banner a{color:#fef3c7;font-weight:700;text-decoration:underline}
     .input-locked{opacity:.4;pointer-events:none;filter:grayscale(.3)}
 
     /* RIGHT PANEL */
-    .right-panel{display:flex;flex-direction:column;overflow-y:auto;padding:20px 18px;gap:14px}
+    .right-panel{display:flex;flex-direction:column;overflow-y:auto;padding:20px 18px;gap:14px;min-width:0}
 
     .history-block{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
-    .block-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .block-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap}
     .block-title{font-size:10px;font-weight:600;letter-spacing:.8px;color:var(--muted);text-transform:uppercase}
+    .history-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .history-clear{background:none;border:none;font-size:10px;color:var(--muted2);cursor:pointer;font-family:'Inter',sans-serif;transition:color .12s;padding:0}
     .history-clear:hover{color:#dc2626}
+    .history-compare{background:none;border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif}
+    .history-compare:hover,.history-compare.active{color:var(--amber);border-color:var(--amber)}
+
+    .task-home{display:none}
+    .task-home-list{display:flex;flex-direction:column;gap:10px}
+    .task-card{
+      display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--border);
+      border-radius:8px;padding:14px 16px;cursor:pointer;font-family:inherit;color:var(--text);
+      transition:border-color .15s,transform .15s,box-shadow .15s;
+    }
+    .task-card:hover{border-color:var(--amber);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.25)}
+    .task-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px}
+    .task-card-name{font-family:'Lora',serif;font-size:16px;font-weight:700;line-height:1.25}
+    .task-card-top-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+    .task-card-score{font-family:'Lora',serif;font-size:20px;font-weight:700;color:var(--amber)}
+    .task-card-del{
+      background:none;border:1px solid var(--border);border-radius:5px;padding:4px 8px;font-size:10px;font-weight:600;
+      color:var(--muted2);cursor:pointer;font-family:inherit;line-height:1.2;
+    }
+    .task-card-del:hover{border-color:#f87171;color:#f87171;background:rgba(248,113,113,.08)}
+    .task-card-meta{font-size:11px;color:var(--muted);margin-bottom:10px}
+    .task-card-strip{display:flex;gap:5px;flex-wrap:wrap}
+    .task-mini{
+      min-width:44px;padding:6px 6px 5px;text-align:center;background:var(--card2);border:1px solid var(--border);
+      border-radius:6px;font-family:'Lora',serif;font-size:13px;font-weight:700;line-height:1.1;
+    }
+    .task-mini span{display:block;font-family:'Inter',sans-serif;font-size:8px;font-weight:600;color:var(--muted2);margin-top:3px;text-transform:uppercase;letter-spacing:.3px}
+    .task-card-new{border-style:dashed;color:var(--muted);text-align:center;font-size:13px;font-weight:600;padding:18px 16px}
+    .task-card-new:hover{color:var(--text)}
+    .task-home-empty{font-size:12px;color:var(--muted);text-align:center;padding:8px 4px 4px}
 
     .strip{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px}
     .strip-empty{font-size:11px;color:var(--muted2);font-style:italic;padding:18px 0;text-align:center;width:100%}
@@ -169,6 +270,7 @@
     .strip-item.is-latest::before{background:rgba(245,158,11,.5);height:3px}
     .strip-item.is-viewing{border-color:var(--amber);box-shadow:0 0 0 2px rgba(245,158,11,.2)}
     .strip-item.is-viewing::before{background:var(--amber);height:4px}
+    .strip-item.is-compare-a,.strip-item.is-compare-b{border-color:var(--amber);box-shadow:0 0 0 2px rgba(245,158,11,.2)}
     .strip-score{font-size:16px;font-weight:700;color:var(--text);line-height:1;margin-bottom:3px;font-family:'Lora',serif}
     .strip-item.is-best .strip-score{color:var(--amber)}
     .strip-item.is-latest .strip-score{color:var(--amber)}
@@ -179,6 +281,7 @@
     .strip-delta{font-size:10px;font-weight:700;display:inline-flex;align-items:center;gap:2px}
     .strip-delta.up{color:#4ade80}
     .strip-delta.down{color:#f87171}
+    .strip-tag{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
 
     .history-banner{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:7px 12px;font-size:11px;color:var(--amber);display:flex;align-items:center;justify-content:space-between;gap:10px}
     .history-banner button{background:none;border:1px solid rgba(245,158,11,.4);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--amber);cursor:pointer;font-family:'Inter',sans-serif;transition:background .12s}
@@ -194,12 +297,38 @@
     .feedback-text{font-size:12.5px;line-height:1.7;color:var(--text);white-space:pre-wrap}
     .improvement-list{padding-left:18px;color:var(--text)}
     .improvement-list li{font-size:12.5px;line-height:1.65;margin-bottom:6px}
+    .parse-warn{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);color:#f87171;border-radius:6px;padding:8px 10px;font-size:12px;line-height:1.5;margin-bottom:10px}
+
+    .crit-wrap{overflow-x:auto;margin-top:4px}
+    .crit-table{width:100%;border-collapse:collapse;font-size:12px;min-width:420px}
+    .crit-table th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);font-weight:600}
+    .crit-table td{padding:8px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text)}
+    .crit-table .score-cell{white-space:nowrap;font-weight:700;font-family:'Lora',serif;color:var(--amber)}
+    .quote-chip{font-size:11px;color:var(--muted);font-style:italic;border-left:2px solid var(--amber);padding-left:8px;margin-top:5px;line-height:1.4}
+    .improve-item{margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+    .improve-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+    .improve-point{font-size:12.5px;line-height:1.55}
+    .improve-action{color:var(--amber);font-size:12px;margin-top:4px;line-height:1.5}
+    .next-draft{padding-left:18px;color:var(--text)}
+    .next-draft li{font-size:12.5px;line-height:1.65;margin-bottom:6px}
+    .muted-note{font-size:12px;color:var(--muted2);font-style:italic}
+
+    .export-bar{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+    .export-btn{background:var(--card2);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit}
+    .export-btn:hover{border-color:var(--amber);color:var(--amber)}
+
+    .compare-grid{display:flex;flex-direction:column;gap:10px;min-width:0}
+    .compare-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch}
+    .compare-pair-label{font-size:10px;font-weight:600;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;margin-top:4px}
+    .compare-cell{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px;min-width:0;display:flex;flex-direction:column}
+    .compare-cell h3{font-size:12px;font-family:'Lora',serif;margin:0}
+    .compare-cell .block-title{margin-bottom:6px}
+    .compare-cell .muted-note{margin:0}
 
     .loading-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:32px;text-align:center;color:var(--muted)}
     .loading-star{font-size:20px;animation:spin-slow 3s linear infinite;display:inline-block}
     @keyframes spin-slow{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
-    /* TOASTS */
     #toast-container{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none}
     .toast{display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--border2);border-radius:7px;padding:9px 13px;font-size:12px;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.4);pointer-events:all;min-width:200px;max-width:300px;animation:toast-in .2s ease;transition:opacity .3s,transform .3s}
     .toast.out{opacity:0;transform:translateX(16px)}
@@ -212,7 +341,6 @@
     .toast.warning{border-color:var(--amber)}
     @keyframes toast-in{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
 
-    /* HISTORY ANIMATIONS */
     @keyframes strip-pop-in{
       0%{opacity:0;transform:translateY(-10px) scale(.88)}
       65%{transform:translateY(2px) scale(1.04)}
@@ -222,7 +350,6 @@
     @keyframes bump{0%{transform:translateY(0)}30%{transform:translateY(-4px)}65%{transform:translateY(1px)}100%{transform:translateY(0)}}
     .history-block.bump{animation:bump .45s ease}
 
-    /* RESULT FLASH ANIMATIONS — green for improved, red for worse */
     @keyframes flash-green{
       0%  {box-shadow:0 0 0 0 rgba(74,222,128,0),inset 0 0 0 0 rgba(74,222,128,0)}
       15% {box-shadow:0 0 32px 10px rgba(74,222,128,.55),inset 0 0 24px 6px rgba(74,222,128,.18)}
@@ -235,7 +362,6 @@
       55% {box-shadow:0 0 16px 4px rgba(248,113,113,.22),inset 0 0 10px 2px rgba(248,113,113,.07)}
       100%{box-shadow:0 0 0 0 rgba(248,113,113,0),inset 0 0 0 0 rgba(248,113,113,0)}
     }
-    /* first result — neutral amber glow */
     @keyframes glow-pulse{
       0%  {box-shadow:0 0 0 0 rgba(245,158,11,0)}
       40% {box-shadow:0 0 20px 4px rgba(245,158,11,.35)}
@@ -252,7 +378,6 @@
     @keyframes result-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
     .result-fade{animation:result-in .25s ease}
 
-    /* COMPACT PROGRESS CHART */
     .progress-chart{margin-top:8px;padding:0 2px}
     .chart-svg{width:100%;height:28px;display:block}
     .chart-area{opacity:.2}
@@ -264,7 +389,6 @@
     .chart-dot{transition:r .2s}
     .chart-dot:hover{r:5}
 
-    /* RAW OUTPUT BUTTON */
     .raw-fab{
       position:fixed;bottom:62px;right:18px;z-index:8000;
       display:flex;align-items:center;gap:7px;
@@ -278,7 +402,6 @@
     .raw-fab:hover{background:var(--card);color:var(--text);border-color:var(--amber)}
     .raw-fab-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0}
 
-    /* RAW OUTPUT PANEL */
     .raw-overlay{
       position:fixed;inset:0;z-index:8500;
       background:rgba(0,0,0,.55);backdrop-filter:blur(3px);
@@ -308,7 +431,6 @@
     .raw-panel-body{flex:1;overflow-y:auto;padding:14px 16px}
     .raw-text{font-family:'Inter',monospace;font-size:11.5px;line-height:1.7;color:var(--text);white-space:pre-wrap;word-break:break-word}
 
-    /* light mode */
     body.light{
       --bg:#f5f2ed;--card:#ffffff;--card2:#faf8f5;--border:#e2ddd7;--border2:#d4cec7;
       --text:#1c1917;--muted:#78716c;--muted2:#a8a29e;
@@ -325,15 +447,45 @@
     body.light .improve-badge.negative{background:rgba(220,38,38,.08);color:#dc2626;border-color:rgba(220,38,38,.15)}
     body.light .access-banner{background:#fef3c7;border-color:#fde68a;color:#92400e}
     body.light .access-banner a{color:#78350f}
+    body.light .scan-warn{background:#fffbeb;border-color:#fde68a;color:#92400e}
+    body.light .improve-action{color:#b45309}
+    body.light .crit-table .score-cell{color:#b45309}
+    body.light .parse-warn{background:#fef2f2;color:#b91c1c}
+
     .trend-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;padding:6px 0}
-.trend-pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--card2);border:1px solid var(--border2)}
-.trend-pill.up{background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.3);color:#4ade80}
-.trend-pill.down{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.3);color:#f87171}
-.trend-pill.same{color:var(--muted)}
-#trendLabel{font-size:11px;color:var(--muted)}
-.improve-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid;background:rgba(74,222,128,.1);color:#4ade80;border-color:rgba(74,222,128,.25);margin-left:auto}
-.improve-badge.negative{background:rgba(248,113,113,.1);color:#f87171;border-color:rgba(248,113,113,.25)}
-.improve-badge.neutral{background:var(--card2);color:var(--muted);border-color:var(--border)}
+    .trend-pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--card2);border:1px solid var(--border2)}
+    .trend-pill.up{background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.3);color:#4ade80}
+    .trend-pill.down{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.3);color:#f87171}
+    .trend-pill.same{color:var(--muted)}
+    #trendLabel{font-size:11px;color:var(--muted)}
+    .improve-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid;background:rgba(74,222,128,.1);color:#4ade80;border-color:rgba(74,222,128,.25);margin-left:auto}
+    .improve-badge.negative{background:rgba(248,113,113,.1);color:#f87171;border-color:rgba(248,113,113,.25)}
+    .improve-badge.neutral{background:var(--card2);color:var(--muted);border-color:var(--border)}
+
+    @media (max-width:800px){
+      body{overflow-x:hidden}
+      .hdr{height:auto}
+      .hdr-inner{flex-wrap:wrap;height:auto;padding:8px 12px;row-gap:8px}
+      .hdr-right{flex-wrap:wrap;margin-left:0;width:100%}
+      .api-input{width:min(170px,100%)}
+      .layout{display:flex;flex-direction:column;height:auto;overflow:visible}
+      .left-panel{border-right:none;border-bottom:1px solid var(--border);overflow:visible;height:auto}
+      .right-panel{overflow:visible;height:auto}
+      .compare-pair{grid-template-columns:1fr}
+      .mark-row{flex-direction:column}
+      .mark-box{width:100%}
+      .page-picker{max-height:260px}
+      .raw-fab{bottom:18px;right:12px}
+    }
+
+    @media print{
+      .hdr,.left-panel,.access-banner,.history-block,.raw-fab,.raw-overlay,#toast-container,.export-bar,.history-banner,.analyze-actions{display:none!important}
+      .layout{display:block;height:auto;overflow:visible}
+      .right-panel{overflow:visible;padding:0}
+      body{background:#fff;color:#111}
+      .content-block,.compare-cell{break-inside:avoid;border:1px solid #ccc;background:#fff}
+      .mark-box{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    }
   </style>
 </head>
 <body>
@@ -351,11 +503,19 @@
         <button class="provider-btn active" id="btnGemini" data-provider="gemini">Gemini</button>
         <button class="provider-btn" id="btnClaude" data-provider="claude">Claude</button>
       </div>
-      <div class="api-wrap">
-        <input class="api-input" id="customApiKey" type="password" placeholder="Gemini API key (optional)" autocomplete="off" spellcheck="false">
+      <div class="api-wrap" id="apiKeyWrap">
+        <button type="button" class="hdr-btn api-toggle" id="apiKeyToggle">Use my own API key</button>
+        <div class="api-key-panel" id="apiKeyPanel">
+          <input class="api-input" id="customApiKey" type="password" placeholder="Gemini API key (optional)" autocomplete="off" spellcheck="false">
+        </div>
         <div class="api-tip" id="apiTip">Gemini API key requires an 18+ Gemini account.</div>
       </div>
-      <button class="hdr-btn" id="darkToggle" data-tip="Toggle theme" aria-label="Toggle theme">🌙</button>
+      <div class="hdr-profile-wrap">
+        <button class="hdr-btn hdr-profile" id="hdrProfileBtn" onclick="window.location.href='profile.html'" aria-label="Profile">
+          <span class="hdr-profile-face">👤</span>
+        </button>
+        <div class="hdr-profile-tip" id="hdrProfileTip"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -394,44 +554,83 @@ loadBranchVersion();
       <div class="tabs">
         <div class="tab active" id="asgTabText">Paste</div>
         <div class="tab" id="asgTabDocx">Word doc</div>
+        <div class="tab" id="asgTabPdf">PDF</div>
       </div>
       <div id="asgTextMode">
         <textarea id="studentText" placeholder="Paste your full assignment here…"></textarea>
       </div>
       <div id="asgDocxMode" style="display:none">
-        <div class="file-upload" id="asgUpload">
-          <p style="font-weight:600">Upload Assignment (.docx)</p>
-          <p>Drag &amp; drop or click to browse</p>
-          <input type="file" id="asgFile" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none">
+        <div class="file-drop-wrap">
+          <div class="file-upload" id="asgUpload">
+            <p style="font-weight:600">Upload Assignment (.docx)</p>
+            <p>Drag &amp; drop or click to browse</p>
+            <input type="file" id="asgFile" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none">
+          </div>
+          <div class="file-preview" id="asgPreview"></div>
         </div>
-        <div class="file-preview" id="asgPreview"></div>
+      </div>
+      <div id="asgPdfMode" style="display:none">
+        <div class="file-drop-wrap">
+          <div class="file-upload" id="asgPdfUpload">
+            <p style="font-weight:600">Upload Assignment PDF</p>
+            <p>Drag &amp; drop or click to browse</p>
+            <input type="file" id="asgPdfFile" accept="application/pdf" style="display:none">
+          </div>
+          <div class="file-preview" id="asgPdfPreview"></div>
+        </div>
+        <div class="scan-warn" id="asgScanWarn">This PDF looks scanned or image-based. Handwritten and scanned PDFs can’t be read — paste the assignment as text or upload a text-based PDF/Word doc.</div>
       </div>
     </div>
 
     <!-- Marking Criteria -->
     <div class="section-block">
       <div class="panel-label">2. Marking Criteria</div>
-      <div class="tabs">
+      <div class="tabs criteria-tabs">
         <div class="tab active" id="tabText">Paste</div>
         <div class="tab" id="tabPDF">PDF</div>
+        <div class="tab" id="tabDocx">Word doc</div>
+        <div class="pdf-method-wrap" id="pdfMethodWrap">
+          <select id="pdfMethodSelect" class="pdf-method-select" aria-label="PDF extraction mode">
+            <option value="select">Select pages</option>
+            <option value="guess">Guess mode</option>
+          </select>
+        </div>
       </div>
       <div id="textMode">
         <textarea id="criteriaText" placeholder="Paste the marking criteria / rubric here…"></textarea>
       </div>
       <div id="pdfMode" style="display:none">
-        <div class="file-upload" id="criteriaUpload">
-          <p style="font-weight:600">Upload Marking Criteria PDF</p>
-          <p>Drag &amp; drop or click to browse</p>
-          <input type="file" id="criteriaFile" accept="application/pdf" style="display:none">
+        <div class="file-drop-wrap">
+          <div class="file-upload" id="criteriaUpload">
+            <p style="font-weight:600">Upload Marking Criteria PDF</p>
+            <p>Drag &amp; drop or click to browse</p>
+            <input type="file" id="criteriaFile" accept="application/pdf" style="display:none">
+          </div>
+          <div class="file-preview" id="criteriaPreview"></div>
         </div>
-        <div class="file-preview" id="criteriaPreview"></div>
+        <div class="scan-warn" id="criteriaScanWarn">This PDF looks scanned or image-based. Handwritten and scanned PDFs can’t be read — paste the criteria as text or upload a text-based PDF/Word doc.</div>
+        <div class="page-picker" id="pagePicker"></div>
+        <div class="page-picker-note" id="pdfGuessNote" style="display:none"></div>
+      </div>
+      <div id="criteriaDocxMode" style="display:none">
+        <div class="file-drop-wrap">
+          <div class="file-upload" id="criteriaDocxUpload">
+            <p style="font-weight:600">Upload Marking Criteria (.docx)</p>
+            <p>Drag &amp; drop or click to browse</p>
+            <input type="file" id="criteriaDocxFile" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none">
+          </div>
+          <div class="file-preview" id="criteriaDocxPreview"></div>
+        </div>
       </div>
     </div>
 
     <div style="flex:1"></div>
 
-    <!-- Token counter -->
     <div>
+      <div class="token-row">
+        <span class="token-label">Assignment</span>
+        <span class="token-count" id="wordCount">0 words</span>
+      </div>
       <div class="token-row">
         <span class="token-label">Tokens Used</span>
         <span class="token-count estimated" id="tokenCount">~0 / 8,192 est.</span>
@@ -439,21 +638,38 @@ loadBranchVersion();
       <div class="token-bar-bg"><div class="token-bar-fill" id="tokenBar"></div></div>
     </div>
 
-    <!-- Analyze button -->
-    <button class="analyze-btn" onclick="analyze()">
-      <i class="star">✦</i> Analyze &amp; Grade
-    </button>
+    <div class="analyze-actions">
+      <div class="analyze-row">
+        <select class="task-select" id="taskSelect" aria-label="Task"></select>
+        <button class="analyze-btn" id="analyzeBtn" type="button">
+          <i class="star">✦</i> Analyze
+        </button>
+      </div>
+      <button class="cancel-btn" id="cancelBtn" type="button" hidden>Cancel</button>
+    </div>
 
   </div>
 
   <!-- RIGHT PANEL -->
   <div class="right-panel" id="rightPanel">
 
-    <!-- Mark History -->
-    <div class="history-block" id="historyCard">
+    <div class="task-home" id="taskHome">
+      <div class="history-block">
+        <div class="block-header">
+          <span class="block-title">Your tasks</span>
+        </div>
+        <div class="task-home-list" id="taskHomeList"></div>
+      </div>
+    </div>
+
+    <div class="history-block" id="historyCard" style="display:none">
       <div class="block-header">
         <span class="block-title">Mark History</span>
-        <button class="history-clear" onclick="clearHistory()">Clear</button>
+        <div class="history-actions">
+          <button type="button" class="history-compare" id="compareBtn" hidden>Compare</button>
+          <button type="button" class="history-clear" id="clearHistoryBtn">Clear marks</button>
+          <button type="button" class="history-clear" id="deleteTaskBtn">Delete task</button>
+        </div>
       </div>
       <div id="historyStrip"><div class="strip-empty">Grade your first attempt to start tracking progress.</div></div>
       <div class="trend-row" id="trendRow" style="display:none">
@@ -462,20 +678,17 @@ loadBranchVersion();
       </div>
     </div>
 
-    <!-- Results area -->
-    <div id="resultArea"></div>
+    <div id="resultArea" style="display:none"></div>
 
   </div>
 </div>
 
 <div id="toast-container"></div>
 
-<!-- RAW OUTPUT FAB -->
 <button class="raw-fab" id="rawFab" onclick="openRawOutput()">
   <span class="raw-fab-dot"></span> Raw Output
 </button>
 
-<!-- RAW OUTPUT PANEL -->
 <div class="raw-overlay" id="rawOverlay" onclick="closeRawIfOutside(event)">
   <div class="raw-panel" id="rawPanel">
     <div class="raw-panel-hdr">
@@ -492,11 +705,8 @@ loadBranchVersion();
 </div>
 
 <script>
-  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  pdfjsLib.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.js';
 
-  // ── Auth gate: page stays viewable for everyone; only student/teacher/dev
-  //    (active) accounts get uploading + analyze enabled. Everyone else can
-  //    still look around, but the inputs and Analyze button are disabled. ──
   const LOCK_MESSAGES = {
     checking: 'Checking your account…',
     signedout: 'Sign in to upload assignments and use the marker. <a href="login.html">Sign in</a>',
@@ -504,16 +714,28 @@ loadBranchVersion();
     norole: 'Your account doesn\'t have Analyser access. Ask a teacher or dev to check your account\'s role, or <a href="login.html">sign out and sign in</a> with a student, teacher, or dev account.'
   };
 
-  const LOCK_TARGET_IDS = ['studentText','asgFile','criteriaText','criteriaFile'];
-  const LOCK_ZONE_IDS   = ['studentText','asgUpload','criteriaText','criteriaUpload'];
+  const LOCK_TARGET_IDS = ['studentText','asgFile','asgPdfFile','criteriaText','criteriaFile','criteriaDocxFile','taskSelect','pdfMethodSelect'];
+  const LOCK_ZONE_IDS   = ['studentText','asgUpload','asgPdfUpload','criteriaText','criteriaUpload','criteriaDocxUpload','taskSelect','pdfMethodWrap','pagePicker'];
   const CHECKING_DELAY_MS = 1500;
   let checkingTimer = null;
+  let analyserLocked = true;
+  let analysing = false;
+
+  function syncAnalyzeButtons(){
+    const btn = document.getElementById('analyzeBtn');
+    const cancel = document.getElementById('cancelBtn');
+    if(btn) btn.disabled = analyserLocked || analysing;
+    if(cancel){
+      if(analysing) cancel.removeAttribute('hidden');
+      else cancel.setAttribute('hidden','');
+    }
+  }
 
   function setAnalyserLocked(locked, reason){
+    analyserLocked = locked;
     window.__analyserAllowed = !locked;
     const banner = document.getElementById('accessBanner');
 
-    // Any real outcome (or unlocking) cancels a pending "checking…" banner.
     if(reason !== 'checking' && checkingTimer){
       clearTimeout(checkingTimer);
       checkingTimer = null;
@@ -521,8 +743,6 @@ loadBranchVersion();
 
     if(locked){
       if(reason === 'checking'){
-        // Don't show this one immediately -- most auth checks resolve fast,
-        // so only surface it if we're still waiting after a short delay.
         checkingTimer = setTimeout(() => {
           banner.innerHTML = LOCK_MESSAGES.checking;
           banner.classList.add('show');
@@ -544,18 +764,18 @@ loadBranchVersion();
       const el = document.getElementById(id);
       if(el) el.disabled = locked;
     });
-    const btn = document.querySelector('.analyze-btn');
-    if(btn) btn.disabled = locked;
+    document.querySelectorAll('#pagePicker input[type="checkbox"]').forEach(el=>{
+      el.disabled = locked;
+    });
+    syncAnalyzeButtons();
   }
 
-  // Lock immediately so there's no flash of an enabled UI before the auth
-  // check resolves.
   setAnalyserLocked(true, 'checking');
 
   (async function(){
     try{
       const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
-      const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+      const { getAuth, onAuthStateChanged, signOut } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
       const auth = getAuth(initializeApp({
         apiKey:'AIzaSyAZeyBIaTstTJ5Pr9o86MHk8dhDPAJFFCA',
         authDomain:'studybase-8cfa1.firebaseapp.com',
@@ -564,9 +784,21 @@ loadBranchVersion();
         messagingSenderId:'434992387793',
         appId:'1:434992387793:web:e5bcae8cad63b4eb6f17f0'
       }));
-      window.__sbAuth = auth; // so callAI() can fetch a fresh ID token for /api/grade
+      window.__sbAuth = auth;
+      window.sbSignOut = function(){
+        if(sessionStorage.getItem('studybase_guest') === '1'){
+          sessionStorage.removeItem('studybase_guest');
+          window.location.href = 'login.html';
+          return;
+        }
+        signOut(auth).then(() => window.location.href = 'login.html');
+      };
       onAuthStateChanged(auth, async user => {
-        if(!user){ setAnalyserLocked(true, 'signedout'); return; }
+        if(!user){
+          setAnalyserLocked(true, 'signedout');
+          if(typeof bootHdrProfile === 'function') bootHdrProfile(null, 'guest');
+          return;
+        }
 
         const readClaims = (token) => ({
           role: token.claims.role || '',
@@ -577,8 +809,6 @@ loadBranchVersion();
         let allowed = ['student','teacher','dev'].includes(role) && status === 'active';
 
         if(!allowed){
-          // Cached token might just be stale (e.g. claims were set after it
-          // was issued) -- force one refresh before actually locking them out.
           try{
             ({ role, status } = readClaims(await user.getIdTokenResult(true)));
             allowed = ['student','teacher','dev'].includes(role) && status === 'active';
@@ -587,47 +817,52 @@ loadBranchVersion();
 
         if(!allowed){
           setAnalyserLocked(true, (status === 'pending' || !status) ? 'pending' : 'norole');
+          if(typeof bootHdrProfile === 'function') bootHdrProfile(user, role || 'guest');
         } else {
           setAnalyserLocked(false);
+          if(typeof bootHdrProfile === 'function') bootHdrProfile(user, role);
         }
       });
     } catch(e){
       console.warn('Auth gate failed:', e.message);
-      // Fail closed: if Firebase cannot be reached, do not unlock AI marking.
       setAnalyserLocked(true, 'signedout');
     }
   })();
 
-  // Theme
   (function(){
     const dark=localStorage.getItem('studybase_dark')!=='0';
     if(!dark) document.body.classList.add('light');
-    document.getElementById('darkToggle').textContent=dark?'🌙':'☀️';
   })();
-  document.getElementById('darkToggle').onclick=function(){
+  window.getHdrDarkIcon = function(){
+    return document.body.classList.contains('light') ? '🌙' : '☀️';
+  };
+  window.toggleDark = function(){
     const isLight=document.body.classList.toggle('light');
     localStorage.setItem('studybase_dark',isLight?'0':'1');
-    this.textContent=isLight?'☀️':'🌙';
+    document.querySelectorAll('.pt-dark').forEach(b => { b.textContent = isLight ? '🌙' : '☀️'; });
   };
 
-  // Date
   document.getElementById('todayDate').textContent=
     new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
 
-  // Toast
+  function esc(s){
+    return String(s ?? '').replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
   (function(){
     const c=document.getElementById('toast-container');
     window.showToast=function(msg,type='info',dur=3000){
       const icons={success:'✓',error:'✕',info:'ℹ',warning:'⚠'};
       const t=document.createElement('div');
       t.className='toast '+type;
-      t.innerHTML=`<span class="toast-icon">${icons[type]||'ℹ'}</span><span class="toast-msg">${msg}</span><button class="toast-close" aria-label="Dismiss" onclick="this.parentElement.remove()">×</button>`;
+      t.innerHTML=`<span class="toast-icon">${icons[type]||'ℹ'}</span><span class="toast-msg">${esc(msg)}</span><button class="toast-close" aria-label="Dismiss" onclick="this.parentElement.remove()">×</button>`;
       c.appendChild(t);
       setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),350);},dur);
     };
   })();
 
-  // Provider toggle (Gemini / Claude)
   let aiProvider = localStorage.getItem('studybase_provider') || 'gemini';
   function applyProviderUI(){
     const isClaude = aiProvider === 'claude';
@@ -639,7 +874,6 @@ loadBranchVersion();
     tip.textContent = isClaude
       ? 'Optional: paste your own Anthropic API key. Leave blank to use the server default.'
       : 'Optional: paste your own Gemini API key. Leave blank to use the server default.';
-    // Each provider's key is kept separately so switching doesn't clobber the other
     input.value = localStorage.getItem('studybase_key_' + aiProvider) || '';
   }
   document.getElementById('btnGemini').addEventListener('click', () => setProvider('gemini'));
@@ -656,16 +890,46 @@ loadBranchVersion();
   });
   applyProviderUI();
 
-  // State
+  const API_KEY_OPEN_KEY = 'studybase_analyser_api_key_open';
+  function applyApiKeyPanel(){
+    const open = localStorage.getItem(API_KEY_OPEN_KEY) === '1';
+    const wrap = document.getElementById('apiKeyWrap');
+    const btn = document.getElementById('apiKeyToggle');
+    wrap.classList.toggle('expanded', open);
+    btn.textContent = open ? 'Hide API key' : 'Use my own API key';
+  }
+  document.getElementById('apiKeyToggle').addEventListener('click', () => {
+    const next = localStorage.getItem(API_KEY_OPEN_KEY) === '1' ? '0' : '1';
+    localStorage.setItem(API_KEY_OPEN_KEY, next);
+    applyApiKeyPanel();
+  });
+  applyApiKeyPanel();
+
   let criteriaContent='';
   let criteriaMode='text';
   let assignmentMode='text';
   let extractedAssignment='';
   let extractedCriteria='';
+  let asgFileName='';
+  let asgPdfFileName='';
+  let criteriaPdfFileName='';
+  let criteriaDocxFileName='';
+  let pdfPages=[];
+  let pdfMethod = localStorage.getItem('studybase_analyser_pdf_method') || 'select';
+  if(pdfMethod!=='guess') pdfMethod='select';
   let viewingHistoryIndex=null;
   let lastRawResponse='';
+  let viewedEntry=null;
+  let compareMode=false;
+  let compareIndexes=[];
+  let abortController=null;
+  let previousResultHTML='';
+  let previousRaw='';
+  let previousViewedEntry=null;
+  let draftTimer=null;
+  let restoringDraft=false;
+  let activeTaskId='_scratch';
 
-  // Raw output panel
   window.openRawOutput=function(){
     document.getElementById('rawText').textContent=lastRawResponse||'No output yet.';
     document.getElementById('rawOverlay').classList.add('open');
@@ -686,9 +950,13 @@ loadBranchVersion();
   };
   document.addEventListener('keydown',e=>{if(e.key==='Escape') closeRawOutput();});
 
-  // Token counter
   const MAX_TOKENS=8192;
   function countTokens(s){return Math.ceil((s||'').length/4);}
+  function countWords(s){
+    const t=(s||'').trim();
+    if(!t) return 0;
+    return t.split(/\s+/).length;
+  }
 
   function getActiveAssignmentText(){
     if(assignmentMode==='text') return document.getElementById('studentText').value;
@@ -700,7 +968,11 @@ loadBranchVersion();
   }
 
   function updateTokens(){
-    const total=countTokens(getActiveAssignmentText())+countTokens(getActiveCriteriaText());
+    const asg=getActiveAssignmentText();
+    const words=countWords(asg);
+    const wordEl=document.getElementById('wordCount');
+    wordEl.textContent = words.toLocaleString() + ' word' + (words===1?'':'s');
+    const total=countTokens(asg)+countTokens(getActiveCriteriaText());
     const pct=Math.min(100,(total/MAX_TOKENS)*100);
     const el=document.getElementById('tokenCount');
     el.textContent=`~${total.toLocaleString()} / ${MAX_TOKENS.toLocaleString()} est.`;
@@ -710,37 +982,83 @@ loadBranchVersion();
     fill.style.background=pct>85?'#ef4444':pct>60?'#f59e0b':'linear-gradient(90deg,#f59e0b,#ea580c)';
   }
 
-  document.getElementById('studentText').addEventListener('input',updateTokens);
-  document.getElementById('criteriaText').addEventListener('input',updateTokens);
+  document.getElementById('studentText').addEventListener('input',()=>{updateTokens();scheduleDraftSave();});
+  document.getElementById('criteriaText').addEventListener('input',()=>{updateTokens();scheduleDraftSave();});
 
-  // Assignment tabs
-  document.getElementById('asgTabText').addEventListener('click',()=>switchAsgMode('text'));
-  document.getElementById('asgTabDocx').addEventListener('click',()=>switchAsgMode('docx'));
   function switchAsgMode(mode){
     assignmentMode=mode;
     document.getElementById('asgTabText').classList.toggle('active',mode==='text');
     document.getElementById('asgTabDocx').classList.toggle('active',mode==='docx');
+    document.getElementById('asgTabPdf').classList.toggle('active',mode==='pdf');
     document.getElementById('asgTextMode').style.display=mode==='text'?'block':'none';
     document.getElementById('asgDocxMode').style.display=mode==='docx'?'block':'none';
-    if(mode==='text'){document.getElementById('asgPreview').textContent='';extractedAssignment='';}
+    document.getElementById('asgPdfMode').style.display=mode==='pdf'?'block':'none';
     updateTokens();
+    if(!restoringDraft) scheduleDraftSave();
   }
+  document.getElementById('asgTabText').addEventListener('click',()=>switchAsgMode('text'));
+  document.getElementById('asgTabDocx').addEventListener('click',()=>switchAsgMode('docx'));
+  document.getElementById('asgTabPdf').addEventListener('click',()=>switchAsgMode('pdf'));
 
-  // Criteria tabs
-  document.getElementById('tabText').addEventListener('click',()=>switchCriteriaMode('text'));
-  document.getElementById('tabPDF').addEventListener('click',()=>switchCriteriaMode('pdf'));
   function switchCriteriaMode(mode){
     criteriaMode=mode;
     document.getElementById('tabText').classList.toggle('active',mode==='text');
     document.getElementById('tabPDF').classList.toggle('active',mode==='pdf');
+    document.getElementById('tabDocx').classList.toggle('active',mode==='docx');
     document.getElementById('textMode').style.display=mode==='text'?'block':'none';
     document.getElementById('pdfMode').style.display=mode==='pdf'?'block':'none';
-    if(mode==='text'){document.getElementById('criteriaPreview').textContent='';extractedCriteria='';criteriaContent='';}
-    else{document.getElementById('criteriaText').value='';criteriaContent='';}
+    document.getElementById('criteriaDocxMode').style.display=mode==='docx'?'block':'none';
+    document.getElementById('pdfMethodWrap').classList.toggle('show', mode==='pdf');
+    if(mode==='pdf') applyPdfMethodUI();
     updateTokens();
+    if(!restoringDraft) scheduleDraftSave();
+  }
+  document.getElementById('tabText').addEventListener('click',()=>switchCriteriaMode('text'));
+  document.getElementById('tabPDF').addEventListener('click',()=>switchCriteriaMode('pdf'));
+  document.getElementById('tabDocx').addEventListener('click',()=>switchCriteriaMode('docx'));
+
+  function applyPdfMethodUI(){
+    const sel=document.getElementById('pdfMethodSelect');
+    if(sel) sel.value = pdfMethod;
+    const picker=document.getElementById('pagePicker');
+    const note=document.getElementById('pdfGuessNote');
+    if(pdfMethod==='select'){
+      picker.classList.toggle('show', pdfPages.length>0);
+      if(pdfPages.length){
+        const kept=pdfPages.filter(p=>p.selected).length;
+        const guessed=pdfPages.filter(p=>pageMatchesGuess(p.text)).length;
+        note.style.display='block';
+        note.textContent=guessed
+          ? 'Pages that look like marking criteria were pre-selected. Tick or untick to adjust.'
+          : 'No criteria keywords found — pages with text are selected. Tick or untick to adjust.';
+      } else {
+        note.style.display='none';
+      }
+    } else {
+      picker.classList.remove('show');
+      if(pdfPages.length){
+        const kept=pdfPages.filter(p=>p.selected).length;
+        note.style.display='block';
+        note.textContent=`Guess mode kept ${kept} of ${pdfPages.length} page${pdfPages.length===1?'':'s'} (pages mentioning marking criteria or grade bands). Switch to Select pages to choose manually.`;
+      } else {
+        note.style.display='none';
+      }
+    }
   }
 
-  // Drag & drop
+  function setPdfMethod(method, reapply){
+    pdfMethod = method==='guess' ? 'guess' : 'select';
+    localStorage.setItem('studybase_analyser_pdf_method', pdfMethod);
+    if(reapply && pdfPages.length){
+      applyDefaultPageSelection();
+      rebuildCriteriaFromPages();
+      renderPagePicker();
+    }
+    applyPdfMethodUI();
+    if(!restoringDraft) scheduleDraftSave();
+  }
+  document.getElementById('pdfMethodSelect').addEventListener('change',e=>setPdfMethod(e.target.value, true));
+
   function makeDraggable(zoneId,onFile){
     const zone=document.getElementById(zoneId);
     zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
@@ -748,129 +1066,740 @@ loadBranchVersion();
     zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)onFile(f);});
   }
 
-  // Word doc
-  document.getElementById('asgUpload').addEventListener('click',()=>document.getElementById('asgFile').click());
-  document.getElementById('asgFile').addEventListener('change',e=>{if(e.target.files[0])processDocx(e.target.files[0]);});
-  makeDraggable('asgUpload',f=>{if(!f.name.endsWith('.docx')){showToast('Please upload a .docx file','error');return;}processDocx(f);});
-  async function processDocx(file){
-    const p=document.getElementById('asgPreview');
+  function isPdfFile(f){ return f && (f.type==='application/pdf' || /\.pdf$/i.test(f.name)); }
+  function isDocxFile(f){ return f && (/\.docx$/i.test(f.name) || f.type==='application/vnd.openxmlformats-officedocument.wordprocessingml.document'); }
+
+  function setPreview(id, html){ document.getElementById(id).innerHTML=html; }
+
+  function setZoneFilled(uploadId, filled){
+    const el=document.getElementById(uploadId);
+    if(!el) return;
+    const wrap=el.closest('.file-drop-wrap') || el;
+    wrap.classList.toggle('has-file', !!filled);
+  }
+
+  async function processDocxFile(file, kind){
+    const uploadId = kind==='criteria' ? 'criteriaDocxUpload' : 'asgUpload';
+    const previewId = kind==='criteria' ? 'criteriaDocxPreview' : 'asgPreview';
+    const p=document.getElementById(previewId);
     p.textContent=`Processing: ${file.name}…`;
+    setZoneFilled(uploadId, true);
     try{
       const buf=await file.arrayBuffer();
       const result=await mammoth.extractRawText({arrayBuffer:buf});
-      extractedAssignment=result.value.trim();
-      if(!extractedAssignment)throw new Error('No text found');
-      p.innerHTML=`✅ <strong>${file.name}</strong> — ${extractedAssignment.split(/\s+/).length.toLocaleString()} words`;
+      const text=result.value.trim();
+      if(!text) throw new Error('No text found');
+      if(kind==='criteria'){
+        extractedCriteria=text;
+        criteriaContent=text;
+        criteriaDocxFileName=file.name;
+      } else {
+        extractedAssignment=text;
+        asgFileName=file.name;
+      }
+      p.innerHTML=`✅ <strong>${esc(file.name)}</strong> — ${countWords(text).toLocaleString()} words`;
       showToast('Word doc loaded','success');
       updateTokens();
+      scheduleDraftSave();
     }catch(err){
-      p.innerHTML=`<span style="color:#f87171">Error: ${err.message}</span>`;
+      p.innerHTML=`<span style="color:#f87171">Error: ${esc(err.message)}</span>`;
       showToast('Failed to read Word doc','error');
-      extractedAssignment='';
+      setZoneFilled(uploadId, false);
+      if(kind==='criteria'){ extractedCriteria=''; criteriaContent=''; criteriaDocxFileName=''; }
+      else { extractedAssignment=''; asgFileName=''; }
       updateTokens();
+      scheduleDraftSave();
     }
   }
 
-  // PDF
-  document.getElementById('criteriaUpload').addEventListener('click',()=>document.getElementById('criteriaFile').click());
-  document.getElementById('criteriaFile').addEventListener('change',e=>{if(e.target.files[0])processPDF(e.target.files[0]);});
-  makeDraggable('criteriaUpload',f=>{if(f.type!=='application/pdf'&&!f.name.endsWith('.pdf')){showToast('Please upload a PDF','error');return;}processPDF(f);});
-  async function processPDF(file){
+  document.getElementById('asgUpload').addEventListener('click',()=>document.getElementById('asgFile').click());
+  document.getElementById('asgFile').addEventListener('change',e=>{if(e.target.files[0])processDocxFile(e.target.files[0],'assignment');});
+  makeDraggable('asgUpload',f=>{
+    if(!isDocxFile(f)){showToast('Please upload a .docx file','error');return;}
+    processDocxFile(f,'assignment');
+  });
+
+  document.getElementById('criteriaDocxUpload').addEventListener('click',()=>document.getElementById('criteriaDocxFile').click());
+  document.getElementById('criteriaDocxFile').addEventListener('change',e=>{if(e.target.files[0])processDocxFile(e.target.files[0],'criteria');});
+  makeDraggable('criteriaDocxUpload',f=>{
+    if(!isDocxFile(f)){showToast('Please upload a .docx file','error');return;}
+    processDocxFile(f,'criteria');
+  });
+
+  function pageHasText(text){ return (text||'').trim().length >= 20; }
+
+  function isLikelyScanned(pages){
+    if(!pages.length) return false;
+    const total = pages.reduce((n,p)=>n+(p.text||'').trim().length, 0);
+    if(total < 80) return true;
+    if(pages.length >= 2 && total / pages.length < 40) return true;
+    return false;
+  }
+
+  function showScanWarn(id, show){
+    document.getElementById(id).classList.toggle('show', !!show);
+  }
+
+  async function extractPdfPages(file){
+    const buf=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    const pages=[];
+    for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i);
+      const tc=await page.getTextContent();
+      const text=tc.items.map(x=>x.str).join(' ').replace(/\s+/g,' ').trim();
+      pages.push({ num:i, text, hasText: pageHasText(text), selected:false });
+    }
+    return pages;
+  }
+
+  function pageMatchesGuess(text){
+    const t=(text||'').toLowerCase();
+    return t.includes('marking criteria')||t.includes('a grade')||t.includes('b grade')||t.includes('grade 90');
+  }
+
+  function applyDefaultPageSelection(){
+    const guessed=pdfPages.filter(p=>pageMatchesGuess(p.text));
+    if(guessed.length){
+      pdfPages.forEach(p=>{ p.selected = pageMatchesGuess(p.text); });
+    } else {
+      pdfPages.forEach(p=>{ p.selected = pdfMethod==='guess' ? false : p.hasText; });
+    }
+  }
+
+  function rebuildCriteriaFromPages(){
+    const chosen=pdfPages.filter(p=>p.selected);
+    extractedCriteria = chosen.map(p=>`\n--- Page ${p.num} ---\n${p.text}\n`).join('').trim();
+    if(!extractedCriteria && pdfPages.length) extractedCriteria='';
+    criteriaContent=extractedCriteria;
+    updateTokens();
+  }
+
+  function renderPagePicker(){
+    const box=document.getElementById('pagePicker');
+    if(!pdfPages.length){
+      box.innerHTML='';
+      box.classList.remove('show');
+      return;
+    }
+    box.innerHTML=pdfPages.map(p=>{
+      const preview = p.hasText
+        ? esc((p.text||'').slice(0,80)) + ((p.text||'').length>80?'…':'')
+        : 'No text on this page (may be a scan)';
+      return `<label class="page-row">
+        <input type="checkbox" data-page="${p.num}" ${p.selected?'checked':''} ${analyserLocked?'disabled':''}>
+        <span class="page-num">Page ${p.num}</span>
+        <span class="page-preview ${p.hasText?'':'page-empty'}">${preview}</span>
+      </label>`;
+    }).join('');
+    box.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+      cb.addEventListener('change',()=>{
+        const num=parseInt(cb.dataset.page,10);
+        const page=pdfPages.find(p=>p.num===num);
+        if(page) page.selected=cb.checked;
+        rebuildCriteriaFromPages();
+        scheduleDraftSave();
+      });
+    });
+    applyPdfMethodUI();
+  }
+
+  async function processCriteriaPDF(file){
     const p=document.getElementById('criteriaPreview');
     p.textContent=`Processing: ${file.name}…`;
+    setZoneFilled('criteriaUpload', true);
+    showScanWarn('criteriaScanWarn', false);
     try{
-      const buf=await file.arrayBuffer();
-      const pdf=await pdfjsLib.getDocument({data:buf}).promise;
-      let txt='';
-      for(let i=1;i<=pdf.numPages;i++){
-        const page=await pdf.getPage(i);
-        const tc=await page.getTextContent();
-        const pt=tc.items.map(x=>x.str).join(' ');
-        if(pt.toLowerCase().includes('marking criteria')||pt.toLowerCase().includes('a grade')||pt.toLowerCase().includes('b grade')||pt.toLowerCase().includes('grade 90')){
-          txt+=`\n--- Page ${i} ---\n${pt}\n`;
-        }
+      pdfPages=await extractPdfPages(file);
+      criteriaPdfFileName=file.name;
+      applyDefaultPageSelection();
+      rebuildCriteriaFromPages();
+      renderPagePicker();
+      const scanned=isLikelyScanned(pdfPages);
+      showScanWarn('criteriaScanWarn', scanned);
+      if(scanned){
+        p.innerHTML=`⚠ <strong>${esc(file.name)}</strong> — little text extracted`;
+        showToast('This PDF looks scanned and may not be readable','warning',4000);
+      } else {
+        const kept=pdfPages.filter(x=>x.selected).length;
+        p.innerHTML=`✅ Extracted from <strong>${esc(file.name)}</strong> — ${pdfPages.length} page${pdfPages.length===1?'':'s'}, ${kept} selected`;
+        showToast('PDF extracted','success');
       }
-      extractedCriteria=txt.trim()||'No criteria text could be extracted.';
-      criteriaContent=extractedCriteria;
-      p.innerHTML=`✅ Extracted from <strong>${file.name}</strong>`;
-      showToast('PDF extracted','success');
       updateTokens();
+      scheduleDraftSave();
     }catch(err){
-      p.innerHTML=`<span style="color:#f87171">Error: ${err.message}</span>`;
+      p.innerHTML=`<span style="color:#f87171">Error: ${esc(err.message)}</span>`;
       showToast('PDF extraction failed','error');
+      setZoneFilled('criteriaUpload', false);
+      pdfPages=[];
+      extractedCriteria='';
+      criteriaContent='';
+      renderPagePicker();
     }
   }
 
-  // Render result HTML from a stored entry
-  function renderResultHTML(entry, isHistorical){
-    const {scoreNum, grade, feedbackSection, improvHTML, percent} = entry;
+  async function processAssignmentPDF(file){
+    const p=document.getElementById('asgPdfPreview');
+    p.textContent=`Processing: ${file.name}…`;
+    setZoneFilled('asgPdfUpload', true);
+    showScanWarn('asgScanWarn', false);
+    try{
+      const pages=await extractPdfPages(file);
+      asgPdfFileName=file.name;
+      extractedAssignment=pages.map(pg=>`\n--- Page ${pg.num} ---\n${pg.text}\n`).join('').trim();
+      const scanned=!extractedAssignment || isLikelyScanned(pages);
+      showScanWarn('asgScanWarn', scanned);
+      if(scanned){
+        p.innerHTML=`⚠ <strong>${esc(file.name)}</strong> — little or no text extracted`;
+        showToast('This PDF looks scanned and may not be readable','warning',4000);
+      } else {
+        p.innerHTML=`✅ <strong>${esc(file.name)}</strong> — ${countWords(extractedAssignment).toLocaleString()} words`;
+        showToast('PDF extracted','success');
+      }
+      updateTokens();
+      scheduleDraftSave();
+    }catch(err){
+      p.innerHTML=`<span style="color:#f87171">Error: ${esc(err.message)}</span>`;
+      showToast('PDF extraction failed','error');
+      setZoneFilled('asgPdfUpload', false);
+      extractedAssignment='';
+      asgPdfFileName='';
+      updateTokens();
+    }
+  }
 
+  document.getElementById('criteriaUpload').addEventListener('click',()=>document.getElementById('criteriaFile').click());
+  document.getElementById('criteriaFile').addEventListener('change',e=>{if(e.target.files[0])processCriteriaPDF(e.target.files[0]);});
+  makeDraggable('criteriaUpload',f=>{
+    if(!isPdfFile(f)){showToast('Please upload a PDF','error');return;}
+    processCriteriaPDF(f);
+  });
+
+  document.getElementById('asgPdfUpload').addEventListener('click',()=>document.getElementById('asgPdfFile').click());
+  document.getElementById('asgPdfFile').addEventListener('change',e=>{if(e.target.files[0])processAssignmentPDF(e.target.files[0]);});
+  makeDraggable('asgPdfUpload',f=>{
+    if(!isPdfFile(f)){showToast('Please upload a PDF','error');return;}
+    processAssignmentPDF(f);
+  });
+
+  function fingerprint(text){
+    const s=String(text||'').replace(/\s+/g,' ').trim().toLowerCase();
+    let h=2166136261;
+    for(let i=0;i<s.length;i++){
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return (h>>>0).toString(36);
+  }
+  function normalizeTaskName(name){ return String(name||'').trim().replace(/\s+/g,' ').slice(0,80); }
+  function taskIdFromName(name){ return 'name:' + normalizeTaskName(name).toLowerCase(); }
+
+  function getTaskName(){
+    if(activeTaskId && activeTaskId.startsWith('name:')){
+      const store=loadStore();
+      if(store.tasks[activeTaskId] && store.tasks[activeTaskId].name) return store.tasks[activeTaskId].name;
+      return normalizeTaskName(activeTaskId.slice(5));
+    }
+    const store=loadStore();
+    const t=activeTaskId && store.tasks[activeTaskId];
+    if(t && t.name && t.name!=='Untitled task') return t.name;
+    return '';
+  }
+
+  function taskLabel(id){
+    if(!id || id==='_scratch') return 'No task selected';
+    const store=loadStore();
+    const t=store.tasks[id];
+    if(t && t.name) return t.name;
+    if(id.startsWith('name:')) return normalizeTaskName(id.slice(5)) || 'Untitled task';
+    if(id.startsWith('fp:')) return 'Untitled task';
+    return 'Task';
+  }
+
+  function resolveTaskId(){
+    if(activeTaskId && activeTaskId!=='_scratch' && activeTaskId!=='__new__') return activeTaskId;
+    const crit=getActiveCriteriaText();
+    if(crit) return 'fp:' + fingerprint(crit);
+    return '_scratch';
+  }
+  function isTaskSelected(){
+    return !!(activeTaskId && activeTaskId!=='_scratch' && activeTaskId!=='__new__');
+  }
+
+  const OLD_HISTORY_KEY='studybase_grader_history';
+  const HISTORY_STORE_KEY='studybase_grader_history_v2';
+  const DRAFT_KEY='studybase_analyser_draft';
+  const MAX_HISTORY=6;
+
+  function emptyStore(){ return { tasks:{}, currentTaskId:'_scratch' }; }
+
+  function loadStore(){
+    try{
+      const raw=JSON.parse(localStorage.getItem(HISTORY_STORE_KEY)||'null');
+      if(!raw || typeof raw!=='object' || !raw.tasks) return emptyStore();
+      return raw;
+    }catch(e){ return emptyStore(); }
+  }
+  function saveStore(store){
+    localStorage.setItem(HISTORY_STORE_KEY, JSON.stringify(store));
+  }
+  function migrateHistoryIfNeeded(){
+    const old=localStorage.getItem(OLD_HISTORY_KEY);
+    if(old==null) return;
+    const store=loadStore();
+    try{
+      const entries=JSON.parse(old);
+      if(Array.isArray(entries) && entries.length){
+        const id='name:previous attempts';
+        if(!store.tasks[id]){
+          store.tasks[id]={ id, name:'Previous attempts', fingerprint:'', entries: entries.slice(-MAX_HISTORY) };
+        }
+      }
+    }catch(e){}
+    localStorage.removeItem(OLD_HISTORY_KEY);
+    saveStore(store);
+  }
+
+  function getCurrentEntries(){
+    const store=loadStore();
+    const id=activeTaskId && store.tasks[activeTaskId] ? activeTaskId : resolveTaskId();
+    const task=store.tasks[id];
+    return task && Array.isArray(task.entries) ? task.entries : [];
+  }
+
+  function currentTaskDisplayName(){
+    const name=getTaskName();
+    if(name) return name;
+    return taskLabel(resolveTaskId());
+  }
+
+  function collectDraft(){
+    return {
+      taskName: getTaskName(),
+      assignmentMode, studentText: document.getElementById('studentText').value,
+      extractedAssignment, asgFileName, asgPdfFileName,
+      criteriaMode, criteriaText: document.getElementById('criteriaText').value,
+      extractedCriteria, criteriaPdfFileName, criteriaDocxFileName,
+      pdfMethod, pdfPages: pdfPages.map(p=>({num:p.num,text:p.text,hasText:p.hasText,selected:p.selected}))
+    };
+  }
+
+  function applyDraft(d){
+    if(!d) return;
+    restoringDraft=true;
+    document.getElementById('studentText').value=d.studentText||'';
+    document.getElementById('criteriaText').value=d.criteriaText||'';
+    extractedAssignment=d.extractedAssignment||'';
+    extractedCriteria=d.extractedCriteria||'';
+    criteriaContent=extractedCriteria;
+    asgFileName=d.asgFileName||'';
+    asgPdfFileName=d.asgPdfFileName||'';
+    criteriaPdfFileName=d.criteriaPdfFileName||'';
+    criteriaDocxFileName=d.criteriaDocxFileName||'';
+    pdfMethod = d.pdfMethod==='guess' ? 'guess' : 'select';
+    localStorage.setItem('studybase_analyser_pdf_method', pdfMethod);
+    pdfPages=Array.isArray(d.pdfPages)?d.pdfPages.map(p=>({
+      num:p.num, text:p.text||'', hasText:!!p.hasText, selected:!!p.selected
+    })):[];
+    switchAsgMode(d.assignmentMode||'text');
+    switchCriteriaMode(d.criteriaMode||'text');
+    if(asgFileName) setPreview('asgPreview', `✅ <strong>${esc(asgFileName)}</strong> — ${countWords(extractedAssignment).toLocaleString()} words`);
+    if(asgPdfFileName){
+      setPreview('asgPdfPreview', `✅ <strong>${esc(asgPdfFileName)}</strong> — ${countWords(extractedAssignment).toLocaleString()} words`);
+      showScanWarn('asgScanWarn', !extractedAssignment);
+    }
+    if(criteriaPdfFileName){
+      setPreview('criteriaPreview', `✅ Extracted from <strong>${esc(criteriaPdfFileName)}</strong>`);
+      renderPagePicker();
+      showScanWarn('criteriaScanWarn', isLikelyScanned(pdfPages));
+    }
+    if(criteriaDocxFileName) setPreview('criteriaDocxPreview', `✅ <strong>${esc(criteriaDocxFileName)}</strong> — ${countWords(extractedCriteria).toLocaleString()} words`);
+    setZoneFilled('asgUpload', !!asgFileName);
+    setZoneFilled('asgPdfUpload', !!asgPdfFileName);
+    setZoneFilled('criteriaUpload', !!criteriaPdfFileName);
+    setZoneFilled('criteriaDocxUpload', !!criteriaDocxFileName);
+    applyPdfMethodUI();
+    restoringDraft=false;
+    updateTokens();
+  }
+
+  function loadDraftBlob(){
+    try{ return JSON.parse(localStorage.getItem(DRAFT_KEY)||'null') || { currentTaskId:'_scratch', byTask:{} }; }
+    catch(e){ return { currentTaskId:'_scratch', byTask:{} }; }
+  }
+  function saveDraftNow(){
+    if(restoringDraft) return;
+    if(!isTaskSelected()) return;
+    const blob=loadDraftBlob();
+    const id=resolveTaskId();
+    activeTaskId=id;
+    blob.currentTaskId=id;
+    blob.byTask=blob.byTask||{};
+    blob.byTask[id]=collectDraft();
+    try{
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(blob));
+    }catch(e){
+      try{
+        const slim=JSON.parse(JSON.stringify(blob));
+        Object.values(slim.byTask||{}).forEach(d=>{
+          if(Array.isArray(d.pdfPages)) d.pdfPages=d.pdfPages.map(p=>({num:p.num,text:(p.text||'').slice(0,240),hasText:p.hasText,selected:p.selected}));
+        });
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(slim));
+      }catch(e2){}
+    }
+  }
+  function scheduleDraftSave(){
+    if(restoringDraft) return;
+    clearTimeout(draftTimer);
+    draftTimer=setTimeout(saveDraftNow, 400);
+  }
+  function restoreDraft(){
+    applyPdfMethodUI();
+  }
+
+  function htmlToText(html){
+    const d=document.createElement('div');
+    d.innerHTML=html||'';
+    return d.textContent||'';
+  }
+
+  function normalizeGradeData(obj){
+    let score=obj && obj.score;
+    if(typeof score==='string') score=parseInt(score.replace(/[^\d]/g,''),10);
+    if(typeof score!=='number' || !isFinite(score)) score=null;
+    if(score!=null) score=Math.max(0, Math.min(100, Math.round(score)));
+    const criteria=Array.isArray(obj&&obj.criteria) ? obj.criteria.map(c=>({
+      name:String(c&&c.name||'').trim(),
+      score:String((c&&c.score)!=null?c.score:'').trim(),
+      max:String((c&&c.max)!=null?c.max:'').trim(),
+      comment:String(c&&c.comment||'').trim(),
+      quote:String(c&&c.quote||'').trim()
+    })) : [];
+    const improvements=Array.isArray(obj&&obj.improvements) ? obj.improvements.map(i=>({
+      point:String(i&&i.point||'').trim(),
+      quote:String(i&&i.quote||'').trim(),
+      action:String(i&&i.action||'').trim()
+    })).filter(i=>i.point||i.action) : [];
+    const nextDraft=Array.isArray(obj&&obj.nextDraft) ? obj.nextDraft.map(x=>String(x||'').trim()).filter(Boolean) : [];
+    return {
+      score,
+      percent: score,
+      scoreNum: score!=null ? String(score) : null,
+      grade: String(obj&&obj.grade||'').trim(),
+      overallFeedback: String(obj&&obj.overallFeedback||'').trim(),
+      criteria, improvements, nextDraft,
+      markDisplay: score!=null ? (score+'/100') : '??/100'
+    };
+  }
+
+  function parseGradeJSON(raw){
+    let s=String(raw||'').trim();
+    const fence=s.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    if(fence) s=fence[1].trim();
+    else s=s.replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'');
+    const start=s.indexOf('{');
+    const end=s.lastIndexOf('}');
+    if(start!==-1 && end>start){
+      try{
+        const obj=JSON.parse(s.slice(start,end+1));
+        return { ok:true, data:normalizeGradeData(obj) };
+      }catch(e){}
+    }
+    const m=String(raw||'').match(/(\d{1,3})\s*\/\s*100/);
+    if(m){
+      const data=normalizeGradeData({ score:parseInt(m[1],10), overallFeedback:'', criteria:[], improvements:[], nextDraft:[] });
+      return { ok:false, partial:true, data, error:'Could not parse JSON from the AI response. A /100 score was found as a fallback. Open Raw Output to inspect the full reply.' };
+    }
+    return { ok:false, partial:false, data:null, error:'Could not parse JSON from the AI response. Open Raw Output to inspect it.' };
+  }
+
+  function getImprovements(entry){
+    if(Array.isArray(entry.improvements)) return entry.improvements;
+    if(entry.improvHTML){
+      return htmlToText(entry.improvHTML).split(/\n+/).map(t=>t.trim()).filter(Boolean).map(t=>({point:t,quote:'',action:''}));
+    }
+    return [];
+  }
+  function getOverallFeedback(entry){
+    return entry.overallFeedback || entry.feedbackSection || '';
+  }
+  function getNextDraft(entry){
+    return Array.isArray(entry.nextDraft) ? entry.nextDraft : [];
+  }
+  function getCriteriaRows(entry){
+    return Array.isArray(entry.criteria) ? entry.criteria : [];
+  }
+
+  function renderCriteriaTable(rows){
+    if(!rows.length) return `<p class="muted-note">No per-criterion breakdown returned.</p>`;
+    const body=rows.map(r=>`<tr>
+      <td>${esc(r.name||'Criterion')}</td>
+      <td class="score-cell">${esc(r.score||'—')}${r.max?esc('/'+r.max):''}</td>
+      <td>${esc(r.comment||'')}</td>
+    </tr>`).join('');
+    return `<div class="crit-wrap"><table class="crit-table">
+      <thead><tr><th>Criterion</th><th>Score</th><th>Comment</th></tr></thead>
+      <tbody>${body}</tbody>
+    </table></div>`;
+  }
+
+  function renderImprovementsBlock(items){
+    if(!items.length) return `<p class="muted-note">No improvements found.</p>`;
+    return items.map(i=>`<div class="improve-item">
+      <div class="improve-point">${esc(i.point||'')}</div>
+      ${i.quote?`<div class="quote-chip">“${esc(i.quote)}”</div>`:''}
+      ${i.action?`<div class="improve-action">Next: ${esc(i.action)}</div>`:''}
+    </div>`).join('');
+  }
+
+  function renderNextDraftBlock(items){
+    if(!items.length) return `<p class="muted-note">No specific next-draft actions returned.</p>`;
+    return `<ol class="next-draft">${items.map(t=>`<li>${esc(t)}</li>`).join('')}</ol>`;
+  }
+
+  function renderExportBar(){
+    return `<div class="export-bar">
+      <button type="button" class="export-btn" onclick="copyResult()">Copy</button>
+      <button type="button" class="export-btn" onclick="printResult()">Print</button>
+      <button type="button" class="export-btn" onclick="downloadResult()">Download .txt</button>
+    </div>`;
+  }
+
+  function renderResultHTML(entry, isHistorical){
+    const score = entry.percent ?? entry.score;
+    const grade = entry.grade || '';
+    const feedback = getOverallFeedback(entry) || 'No feedback received.';
     let bannerHTML='';
     if(isHistorical){
       const d=new Date(entry.ts).toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
       bannerHTML=`<div class="history-banner">
-        <span>📅 Viewing result from ${d}</span>
-        <button onclick="showLatestResult()">Show latest</button>
+        <span>📅 Viewing result from ${esc(d)}</span>
+        <button type="button" onclick="showLatestResult()">Show latest</button>
       </div>`;
     }
-
-    return `${bannerHTML}
+    const warn = entry.parseWarning ? `<div class="parse-warn">${esc(entry.parseWarning)}</div>` : '';
+    return `${bannerHTML}${warn}
       <div class="content-block result-fade">
         <span class="block-title">Full Feedback</span>
         <div class="mark-row" style="margin-bottom:12px">
           <div class="mark-box">
-            <div class="mark-number">${percent||'??'}</div>
-            <div class="mark-denom">/100${grade?' · '+grade:''}</div>
-            ${scoreNum?`<div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px;font-weight:600">${scoreNum}%</div>`:''}
+            <div class="mark-number">${esc(score!=null?score:'??')}</div>
+            <div class="mark-denom">/100${grade?' · '+esc(grade):''}</div>
+            ${score!=null?`<div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px;font-weight:600">${esc(score)}%</div>`:''}
           </div>
-          <div class="feedback-text" style="flex:1">${feedbackSection||'No feedback received.'}</div>
+          <div class="feedback-text" style="flex:1">${esc(feedback)}</div>
         </div>
+        ${renderExportBar()}
       </div>
       <div class="content-block result-fade">
         <span class="block-title">Areas for Improvement</span>
-        <ul class="improvement-list">${improvHTML||'<li>No improvements found.</li>'}</ul>
+        ${renderImprovementsBlock(getImprovements(entry))}
+      </div>
+      <div class="content-block result-fade">
+        <span class="block-title">Criteria</span>
+        ${renderCriteriaTable(getCriteriaRows(entry))}
+      </div>
+      <div class="content-block result-fade">
+        <span class="block-title">Next draft</span>
+        ${renderNextDraftBlock(getNextDraft(entry))}
       </div>`;
   }
 
-  // Show a historical entry by index
+  function showEntry(entry, isHistorical){
+    viewedEntry=entry;
+    document.getElementById('resultArea').innerHTML=renderResultHTML(entry, isHistorical);
+  }
+
   window.viewHistoryEntry=function(index){
-    const history=getHistory();
+    if(compareMode){ onCompareChip(index); return; }
+    const history=getCurrentEntries();
     const entry=history[index];
-    if(!entry||!entry.feedbackSection)return;
+    if(!entry) return;
     viewingHistoryIndex=index;
-    document.getElementById('resultArea').innerHTML=renderResultHTML(entry,true);
+    showEntry(entry, true);
     renderHistory(false);
     showToast(`Viewing result from ${entry.date}`,'info',2000);
   };
 
   window.showLatestResult=function(){
+    compareMode=false;
+    compareIndexes=[];
     viewingHistoryIndex=null;
-    const history=getHistory();
+    const history=getCurrentEntries();
     const latest=history[history.length-1];
-    if(latest&&latest.feedbackSection){
-      document.getElementById('resultArea').innerHTML=renderResultHTML(latest,false);
-    } else {
+    if(latest) showEntry(latest, false);
+    else {
+      viewedEntry=null;
       document.getElementById('resultArea').innerHTML='';
     }
     renderHistory(false);
   };
 
-  // Direct-call fallbacks — used only when the Netlify proxy (/api/grade) isn't
-  // reachable, e.g. when testing on GitHub Pages which can't run server functions.
-  // These REQUIRE the user's own key pasted into the textbox; there is no
-  // server-side default available in this path, by design.
-  async function callGeminiDirect(prompt, userKey){
+  function compareHead(entry, label){
+    const score=entry.percent??entry.score;
+    return `<h3>${esc(label)} · ${esc(entry.date||'')} · ${esc(score!=null?score:'??')}${entry.grade?' · '+esc(entry.grade):''}</h3>`;
+  }
+  function compareCriterionHTML(row){
+    if(!row) return `<p class="muted-note">No matching criterion.</p>`;
+    return `<div class="improve-item"><div class="improve-point"><strong>${esc(row.name||'Criterion')}</strong> ${esc(row.score||'—')}${row.max?esc('/'+row.max):''}</div><div class="feedback-text">${esc(row.comment||'')}</div></div>`;
+  }
+  function pairCriteriaRows(a, b){
+    const aRows=getCriteriaRows(a);
+    const bRows=getCriteriaRows(b);
+    const usedB=new Set();
+    const pairs=[];
+    aRows.forEach((ar, i)=>{
+      const key=(ar.name||'').trim().toLowerCase();
+      let bi=bRows.findIndex((br, j)=>!usedB.has(j) && (br.name||'').trim().toLowerCase()===key && key);
+      if(bi<0) bi=bRows.findIndex((br, j)=>!usedB.has(j) && j===i);
+      if(bi<0) bi=bRows.findIndex((_, j)=>!usedB.has(j));
+      if(bi>=0) usedB.add(bi);
+      pairs.push({ a: ar, b: bi>=0 ? bRows[bi] : null });
+    });
+    bRows.forEach((br, j)=>{
+      if(!usedB.has(j)) pairs.push({ a: null, b: br });
+    });
+    return pairs;
+  }
+  function renderComparePair(leftHTML, rightHTML){
+    return `<div class="compare-pair"><div class="compare-cell">${leftHTML}</div><div class="compare-cell">${rightHTML}</div></div>`;
+  }
+
+  function renderCompareView(){
+    const history=getCurrentEntries();
+    const [i,j]=compareIndexes;
+    const a=history[i], b=history[j];
+    if(!a||!b) return;
+    const aImp=getImprovements(a);
+    const bImp=getImprovements(b);
+    const aNext=getNextDraft(a);
+    const bNext=getNextDraft(b);
+    const critPairs=pairCriteriaRows(a, b);
+    const critHTML=critPairs.length
+      ? critPairs.map(p=>renderComparePair(compareCriterionHTML(p.a), compareCriterionHTML(p.b))).join('')
+      : renderComparePair(`<p class="muted-note">No criteria comments.</p>`,`<p class="muted-note">No criteria comments.</p>`);
+    document.getElementById('resultArea').innerHTML=`
+      <div class="content-block result-fade">
+        <div class="block-header">
+          <span class="block-title">Compare</span>
+          <button type="button" class="export-btn" onclick="exitCompare()">Back to result</button>
+        </div>
+        <p class="muted-note" style="margin-bottom:10px">Tap two history chips to change which attempts are compared.</p>
+        <div class="compare-grid">
+          ${renderComparePair(compareHead(a,'Attempt A'), compareHead(b,'Attempt B'))}
+          <div class="compare-pair-label">Overall</div>
+          ${renderComparePair(`<div class="feedback-text">${esc(getOverallFeedback(a)||'—')}</div>`,`<div class="feedback-text">${esc(getOverallFeedback(b)||'—')}</div>`)}
+          <div class="compare-pair-label">Areas for Improvement</div>
+          ${renderComparePair(renderImprovementsBlock(aImp), renderImprovementsBlock(bImp))}
+          <div class="compare-pair-label">Criteria</div>
+          ${critHTML}
+          <div class="compare-pair-label">Next draft</div>
+          ${renderComparePair(
+            aNext.length?`<ol class="next-draft">${aNext.map(t=>`<li>${esc(t)}</li>`).join('')}</ol>`:`<p class="muted-note">No specific next-draft actions returned.</p>`,
+            bNext.length?`<ol class="next-draft">${bNext.map(t=>`<li>${esc(t)}</li>`).join('')}</ol>`:`<p class="muted-note">No specific next-draft actions returned.</p>`
+          )}
+        </div>
+      </div>`;
+  }
+
+  function onCompareChip(index){
+    if(compareIndexes.includes(index)){
+      if(compareIndexes.length>1) compareIndexes=compareIndexes.filter(x=>x!==index);
+    } else if(compareIndexes.length<2){
+      compareIndexes.push(index);
+    } else {
+      compareIndexes=[compareIndexes[1], index];
+    }
+    renderHistory(false);
+    if(compareIndexes.length===2) renderCompareView();
+  }
+
+  window.enterCompare=function(){
+    const history=getCurrentEntries();
+    if(history.length<2){ showToast('Need at least two attempts to compare','info'); return; }
+    compareMode=true;
+    const view = viewingHistoryIndex!=null ? viewingHistoryIndex : history.length-1;
+    const prev = view>0 ? view-1 : (history.length>1 ? history.length-2 : view);
+    compareIndexes = prev===view ? [0, view] : [prev, view];
+    renderHistory(false);
+    renderCompareView();
+  };
+  window.exitCompare=function(){
+    compareMode=false;
+    compareIndexes=[];
+    const history=getCurrentEntries();
+    if(viewingHistoryIndex!=null && history[viewingHistoryIndex]) showEntry(history[viewingHistoryIndex], true);
+    else if(history.length) showEntry(history[history.length-1], false);
+    renderHistory(false);
+  };
+
+  function formatExportText(entry){
+    const score=entry.percent??entry.score;
+    const lines=[
+      'StudyBase Marker',
+      'Task: '+currentTaskDisplayName(),
+      'Date: '+(entry.date || new Date(entry.ts||Date.now()).toLocaleDateString('en-AU')),
+      'Score: '+(score!=null?score+'/100':'??/100'),
+      'Grade: '+(entry.grade||'—'),
+      '',
+      'Overall feedback',
+      getOverallFeedback(entry)||'—',
+      '',
+      'Criteria'
+    ];
+    const rows=getCriteriaRows(entry);
+    if(!rows.length) lines.push('(none)');
+    rows.forEach(r=>{
+      lines.push(`- ${r.name||'Criterion'} (${r.score||'—'}${r.max?'/'+r.max:''}): ${r.comment||''}`);
+      if(r.quote) lines.push(`  Quote: "${r.quote}"`);
+    });
+    lines.push('', 'Areas for improvement');
+    const imps=getImprovements(entry);
+    if(!imps.length) lines.push('(none)');
+    imps.forEach(i=>{
+      lines.push('- '+(i.point||''));
+      if(i.quote) lines.push(`  Quote: "${i.quote}"`);
+      if(i.action) lines.push(`  Action: ${i.action}`);
+    });
+    lines.push('', 'Next draft');
+    const next=getNextDraft(entry);
+    if(!next.length) lines.push('No specific next-draft actions returned.');
+    next.forEach((t,i)=>lines.push(`${i+1}. ${t}`));
+    return lines.join('\n');
+  }
+
+  window.copyResult=function(){
+    if(!viewedEntry){ showToast('No result to copy','warning'); return; }
+    navigator.clipboard.writeText(formatExportText(viewedEntry)).then(()=>showToast('Copied','success')).catch(()=>showToast('Copy failed','error'));
+  };
+  window.printResult=function(){
+    if(!viewedEntry){ showToast('No result to print','warning'); return; }
+    window.print();
+  };
+  window.downloadResult=function(){
+    if(!viewedEntry){ showToast('No result to download','warning'); return; }
+    const name=currentTaskDisplayName().replace(/[^\w]+/g,'-').replace(/^-|-$/g,'') || 'marker';
+    const blob=new Blob([formatExportText(viewedEntry)],{type:'text/plain'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`${name}-${viewedEntry.date||'result'}.txt`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  async function callGeminiDirect(prompt, userKey, signal){
     if(!userKey) throw new Error('No proxy available (dev/GitHub Pages mode) — paste your own Gemini API key to test directly.');
     const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${userKey}`,{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+      body:JSON.stringify({contents:[{parts:[{text:prompt}]}]}),
+      signal
     });
     const data=await res.json();
     if(!res.ok) throw new Error((data.error&&data.error.message)||'Gemini request failed');
     return { text: data.candidates?.[0]?.content?.parts?.[0]?.text || '', usage: null };
   }
 
-  async function callClaudeDirect(prompt, userKey){
+  async function callClaudeDirect(prompt, userKey, signal){
     if(!userKey) throw new Error('No proxy available (dev/GitHub Pages mode) — paste your own Claude API key to test directly.');
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
@@ -880,7 +1809,8 @@ loadBranchVersion();
         'anthropic-version':'2023-06-01',
         'anthropic-dangerous-direct-browser-access':'true'
       },
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4096,messages:[{role:'user',content:prompt}]}),
+      signal
     });
     const data=await res.json();
     if(!res.ok) throw new Error((data.error&&data.error.message)||'Claude request failed');
@@ -890,12 +1820,8 @@ loadBranchVersion();
     };
   }
 
-  async function callAI(provider, prompt, userKey){
-    // Try the Netlify proxy first (used in production deployment).
+  async function callAI(provider, prompt, userKey, signal){
     try{
-      // /api/grade now requires a signed-in user so the server-side API
-      // keys can't be spent by anonymous callers — attach the current
-      // Firebase ID token.
       const headers = {'Content-Type':'application/json'};
       const currentUser = window.__sbAuth && window.__sbAuth.currentUser;
       if(currentUser){
@@ -904,10 +1830,9 @@ loadBranchVersion();
       const res=await fetch('/api/grade',{
         method:'POST',
         headers,
-        body:JSON.stringify({provider,prompt,userKey})
+        body:JSON.stringify({provider,prompt,userKey}),
+        signal
       });
-      // If the proxy doesn't exist (GitHub Pages etc), this returns an HTML
-      // 404/405 page, not JSON — detect that and fall back instead of crashing.
       const contentType=res.headers.get('content-type')||'';
       if(res.status===404||res.status===405||!contentType.includes('application/json')){
         throw new Error('PROXY_UNAVAILABLE');
@@ -916,14 +1841,56 @@ loadBranchVersion();
       if(!res.ok) throw new Error(data.error || 'Request failed');
       return { text: data.text || '', usage: data.usage || null };
     }catch(err){
+      if(err.name==='AbortError') throw err;
       if(err.message!=='PROXY_UNAVAILABLE'){
-        // Proxy exists but returned a real error — surface it instead of falling back.
         if(err.name!=='TypeError') throw err;
       }
-      // Network-level failure or confirmed missing proxy -> fall back to direct call.
       showToast('Proxy unavailable — calling API directly from browser (dev mode)','warning',2500);
-      return provider==='claude' ? callClaudeDirect(prompt,userKey) : callGeminiDirect(prompt,userKey);
+      return provider==='claude' ? callClaudeDirect(prompt,userKey,signal) : callGeminiDirect(prompt,userKey,signal);
     }
+  }
+
+  function buildGradePrompt(studentText, criteria){
+    return `You are marking a student assignment strictly against the provided marking criteria.
+
+Respond with JSON only. No markdown fences, no commentary outside JSON.
+
+Use this shape:
+{
+  "score": 72,
+  "grade": "B",
+  "overallFeedback": "one concise paragraph",
+  "criteria": [
+    { "name": "Criterion name from the rubric", "score": "12", "max": "20", "comment": "short verdict" }
+  ],
+  "improvements": [
+    { "point": "what is weak", "quote": "optional short extract", "action": "what to change in the next draft" }
+  ],
+  "nextDraft": ["concrete change 1", "concrete change 2"]
+}
+
+Rules:
+- Mark only against the provided criteria. Do not invent extra outcomes.
+- Fill "criteria" from the rubric (one row per criterion or outcome).
+- Each criteria "comment" must be at most 12 words. State only whether it was met and why in brief. No quotes, no examples, no restating the criterion name.
+- Put longer explanation in "improvements" and "nextDraft", not in criteria.
+- "improvements" and "nextDraft" must be actionable (what to change), not generic praise.
+- Quotes (improvements only) must be short real extracts from the student text, or "".
+- "score" is an integer 0–100.
+- "grade" is A–E (with optional +/−) if the rubric uses bands; otherwise "".
+
+STUDENT ASSIGNMENT:
+${studentText}
+
+MARKING CRITERIA:
+${criteria}
+`;
+  }
+
+  function finishAnalysing(){
+    analysing=false;
+    abortController=null;
+    syncAnalyzeButtons();
   }
 
   window.analyze=async function(){
@@ -931,45 +1898,44 @@ loadBranchVersion();
       showToast('Sign in with an approved role to use the marker','error');
       return;
     }
+    if(analysing) return;
     const studentText=getActiveAssignmentText().trim();
     if(criteriaMode==='text') criteriaContent=document.getElementById('criteriaText').value.trim();
+    else if(criteriaMode==='pdf') rebuildCriteriaFromPages();
+    else criteriaContent=(extractedCriteria||'').trim();
 
     if(!studentText){showToast('Please provide your assignment first','warning');return;}
     if(!criteriaContent){showToast('Please provide marking criteria','warning');return;}
 
     viewingHistoryIndex=null;
+    compareMode=false;
+    compareIndexes=[];
     const area=document.getElementById('resultArea');
+    previousResultHTML=area.innerHTML;
+    previousRaw=lastRawResponse;
+    previousViewedEntry=viewedEntry;
+    analysing=true;
+    abortController=new AbortController();
+    syncAnalyzeButtons();
     area.innerHTML=`<div class="loading-card"><div class="loading-star">✦</div><div style="font-family:'Lora',serif;font-size:14px;font-weight:600;margin-top:10px">Analyzing with AI…</div><div style="font-size:11px;margin-top:5px;color:var(--muted)">This may take a few seconds</div></div>`;
     showToast('Sending to AI…','info',2000);
 
-    const prompt=`You are to mark this assessment based on the marking criteria and give a response in this format: (359- XX (X Grade) -359) (369- One clear, concise feedback paragraph evaluating the report's strengths and weaknesses with a maximum of 80 words. -369) (379- 6-10 short points of improvements -379)
-
-STUDENT ASSIGNMENT:
-${studentText}
-
-MARKING CRITERIA
-${criteriaContent}
-
-
-`;
-
+    const prompt=buildGradePrompt(studentText, criteriaContent);
     const userKey=document.getElementById('customApiKey').value.trim();
 
     try{
       let responseText = '';
       let responseUsage = null;
-      const aiResult = await callAI(aiProvider, prompt, userKey);
+      const aiResult = await callAI(aiProvider, prompt, userKey, abortController.signal);
       if(typeof aiResult === 'object' && aiResult !== null && 'text' in aiResult){
         responseText = aiResult.text;
         responseUsage = aiResult.usage;
       } else {
-        // fallback if something returned a plain string
         responseText = String(aiResult || '');
       }
       lastRawResponse = responseText;
       document.getElementById('rawFab').classList.add('visible');
 
-      // Update token display with actual usage if available
       if(responseUsage && responseUsage.input_tokens != null){
         const el = document.getElementById('tokenCount');
         el.textContent = `${responseUsage.input_tokens.toLocaleString()} in + ${(responseUsage.output_tokens||0).toLocaleString()} out (actual)`;
@@ -982,96 +1948,342 @@ ${criteriaContent}
 
       if(!responseText) throw new Error('No response from AI');
 
-      // Parse mark
-      let scoreNum = null;
-      let grade = '';
-      let markDisplay = '??/100';
-
-      const percentRaw = responseText.match(/\(359-([\s\S]*?)-359\)/i);
-      if(percentRaw){
-        const inner = percentRaw[1].trim();
-        const numMatch = inner.match(/(\d{1,3})/);
-        if(numMatch){ scoreNum = numMatch[1]; markDisplay = numMatch[1] + '/100'; }
-        const gradeMatch = inner.match(/([A-E][+-]?\s*(?:Grade)?|Grade\s*[A-E][+-]?)/i);
-        if(gradeMatch) grade = gradeMatch[1].trim();
+      const parsed = parseGradeJSON(responseText);
+      if(!parsed.ok && !parsed.partial){
+        area.innerHTML = `<div class="content-block"><div class="parse-warn">${esc(parsed.error)}</div><p class="muted-note">Use Raw Output to inspect the model reply.</p></div>`;
+        showToast('Could not parse the AI JSON','error',4000);
+        finishAnalysing();
+        return;
       }
 
-      if(!scoreNum){
-        const fallbackMatch = responseText.match(/(\d{1,3})\s*\/\s*100/i);
-        if(fallbackMatch){ scoreNum = fallbackMatch[1]; markDisplay = fallbackMatch[0]; }
-      }
+      const entryData = parsed.data;
+      if(parsed.partial) entryData.parseWarning = parsed.error;
 
-      function extractSection(text, startMarker, endMarkers) {
-        const startIndex = text.toLowerCase().indexOf(startMarker.toLowerCase());
-        if (startIndex === -1) return '';
-        let content = text.substring(startIndex + startMarker.length).trim();
-        let endIndex = content.length;
-        for (const end of endMarkers) {
-          const idx = content.toLowerCase().indexOf(end.toLowerCase());
-          if (idx !== -1 && idx < endIndex) endIndex = idx;
-        }
-        return content.substring(0, endIndex).trim();
-      }
-
-      let feedbackSection = extractSection(responseText, '(369-', ['-369)']);
-      let improvementSection = extractSection(responseText, '(379-', ['-379)']);
-
-      if (feedbackSection) feedbackSection = feedbackSection.replace(/^Full Feedback:\s*/i, '').trim();
-      if (improvementSection) improvementSection = improvementSection.replace(/^Points of Improvement:\s*/i, '').trim();
-
-      if (!feedbackSection) feedbackSection = extractSection(responseText, 'Full Feedback', ['Points of Improvement', '(379-']);
-      if (!improvementSection) improvementSection = extractSection(responseText, 'Points of Improvement', ['']);
-
-      let improvHTML = '<li>No improvements found.</li>';
-      if (improvementSection) {
-        let lines = improvementSection.split('\n').map(l=>l.trim()).filter(l=>l.length>3);
-        let bullets = lines.filter(l=>l.startsWith('-')||l.startsWith('•')||/^\d+[.)]/.test(l)).map(l=>l.replace(/^[-•\d.)]+\s*/,'').trim());
-        if (bullets.length === 0) bullets = lines.filter(l=>l.length>15).slice(0,8);
-        if (bullets.length > 0) improvHTML = bullets.map(b=>`<li>${b}</li>`).join('');
-      }
-
-      const entryData = {scoreNum, percent:scoreNum, grade, feedbackSection:feedbackSection||'No feedback received.', improvHTML, markDisplay};
-
-      saveToHistory(markDisplay, entryData);
-      area.innerHTML = renderResultHTML({...entryData, ts: Date.now()}, false);
-      showToast('Grading complete','success');
+      saveToHistory(entryData);
+      showEntry({...entryData, ts: Date.now(), date: new Date().toLocaleDateString('en-AU',{day:'numeric',month:'short'})}, false);
+      showToast(parsed.partial ? 'Graded with limited parse' : 'Grading complete', parsed.partial ? 'warning' : 'success');
+      finishAnalysing();
 
     }catch(e){
+      if(e && e.name==='AbortError'){
+        lastRawResponse=previousRaw;
+        viewedEntry=previousViewedEntry;
+        area.innerHTML=previousResultHTML;
+        document.getElementById('rawFab').classList.toggle('visible', !!lastRawResponse);
+        showToast('Cancelled','info');
+        finishAnalysing();
+        return;
+      }
       console.error(e);
-      area.innerHTML=`<div class="loading-card" style="color:#f87171">Error: ${e.message}</div>`;
+      area.innerHTML=`<div class="loading-card" style="color:#f87171">Error: ${esc(e.message)}</div>`;
       showToast('Something went wrong with the AI response','error');
+      finishAnalysing();
     }
   };
 
-  // History
-  const HISTORY_KEY='studybase_grader_history';
-  const MAX_HISTORY=6;
-  function getHistory(){try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');}catch(e){return[];}}
+  window.cancelAnalyze=function(){
+    if(abortController) abortController.abort();
+  };
 
-  function saveToHistory(markDisplay, entryData){
-    const nm=markDisplay.match(/(\d{1,3})\s*\/\s*100/);
-    const score=nm?parseInt(nm[1],10):null;
+  document.getElementById('analyzeBtn').addEventListener('click', () => analyze());
+  document.getElementById('cancelBtn').addEventListener('click', () => cancelAnalyze());
+
+  function saveToHistory(entryData){
     const now=new Date();
-    const entry={markDisplay,score,date:now.toLocaleDateString('en-AU',{day:'numeric',month:'short'}),ts:now.getTime(),...entryData};
-    const h=getHistory();
-    h.push(entry);
-    if(h.length>MAX_HISTORY)h.shift();
-    localStorage.setItem(HISTORY_KEY,JSON.stringify(h));
+    const entry={
+      ...entryData,
+      date: now.toLocaleDateString('en-AU',{day:'numeric',month:'short'}),
+      ts: now.getTime()
+    };
+    const store=loadStore();
+    const name=getTaskName();
+    const id=resolveTaskId();
+    activeTaskId=id;
+    if(!store.tasks[id]){
+      store.tasks[id]={ id, name: name || 'Untitled task', fingerprint: name?'':fingerprint(getActiveCriteriaText()), entries:[] };
+    }
+    if(name) store.tasks[id].name=name;
+    store.tasks[id].entries.push(entry);
+    if(store.tasks[id].entries.length>MAX_HISTORY) store.tasks[id].entries.shift();
+    store.currentTaskId=id;
+    saveStore(store);
+    const blob=loadDraftBlob();
+    blob.currentTaskId=id;
+    blob.byTask=blob.byTask||{};
+    blob.byTask[id]=collectDraft();
+    try{ localStorage.setItem(DRAFT_KEY, JSON.stringify(blob)); }catch(e){}
     renderHistory(true);
   }
 
   window.clearHistory=function(){
-    localStorage.removeItem(HISTORY_KEY);
+    const name=currentTaskDisplayName();
+    if(!confirm(`Clear mark history for "${name}"?\n\nThe task itself will be kept. This cannot be undone.`)) return;
+    const store=loadStore();
+    const id=(activeTaskId && store.tasks[activeTaskId]) ? activeTaskId : resolveTaskId();
+    if(store.tasks[id]){
+      store.tasks[id].entries=[];
+      saveStore(store);
+    }
     viewingHistoryIndex=null;
+    compareMode=false;
+    compareIndexes=[];
+    viewedEntry=null;
+    document.getElementById('resultArea').innerHTML='';
     renderHistory(false);
     showToast('History cleared','warning');
   };
 
+  window.removeTask=function(id){
+    if(!id || id==='_scratch' || id==='__new__') id = isTaskSelected() ? activeTaskId : '';
+    if(!id || id==='_scratch' || id==='__new__') return;
+    const store=loadStore();
+    const name=taskLabel(id);
+    const n=(store.tasks[id] && store.tasks[id].entries && store.tasks[id].entries.length) || 0;
+    const extra=n ? `its ${n} mark${n===1?'':'s'}, and any saved draft` : 'any saved draft';
+    if(!confirm(`Delete "${name}"?\n\nThis will permanently remove the task, ${extra}. This cannot be undone.`)) return;
+    if(store.tasks[id]){
+      delete store.tasks[id];
+      saveStore(store);
+    }
+    const blob=loadDraftBlob();
+    if(blob.byTask) delete blob.byTask[id];
+    if(blob.currentTaskId===id) blob.currentTaskId='_scratch';
+    try{ localStorage.setItem(DRAFT_KEY, JSON.stringify(blob)); }catch(e){}
+    if(activeTaskId===id){
+      activeTaskId='_scratch';
+      compareMode=false;
+      compareIndexes=[];
+      viewingHistoryIndex=null;
+      resetWorkspace();
+    }
+    renderHistory(false);
+    showToast('Task deleted','warning');
+  };
+  document.getElementById('clearHistoryBtn').addEventListener('click', () => clearHistory());
+  document.getElementById('deleteTaskBtn').addEventListener('click', () => removeTask());
+  document.getElementById('compareBtn').addEventListener('click', () => {
+    if(compareMode) exitCompare();
+    else enterCompare();
+  });
+
+  function listAllTaskIds(){
+    const store=loadStore();
+    const blob=loadDraftBlob();
+    const ids=new Set();
+    Object.keys(store.tasks||{}).forEach(id=>ids.add(id));
+    Object.keys((blob.byTask)||{}).forEach(id=>ids.add(id));
+    if(activeTaskId) ids.add(activeTaskId);
+    ids.delete('_scratch');
+    ids.delete('__new__');
+    ids.delete('');
+    return [...ids];
+  }
+
+  function ensureTask(id, name){
+    const store=loadStore();
+    if(!store.tasks[id]){
+      store.tasks[id]={ id, name: name || taskLabel(id), fingerprint:'', entries:[] };
+      saveStore(store);
+    } else if(name && (!store.tasks[id].name || store.tasks[id].name==='Untitled task')){
+      store.tasks[id].name=name;
+      saveStore(store);
+    }
+  }
+
+  function resetWorkspace(){
+    restoringDraft=true;
+    document.getElementById('studentText').value='';
+    document.getElementById('criteriaText').value='';
+    extractedAssignment=''; extractedCriteria=''; criteriaContent='';
+    asgFileName=''; asgPdfFileName=''; criteriaPdfFileName=''; criteriaDocxFileName='';
+    pdfPages=[];
+    setPreview('asgPreview','');
+    setPreview('asgPdfPreview','');
+    setPreview('criteriaPreview','');
+    setPreview('criteriaDocxPreview','');
+    setZoneFilled('asgUpload', false);
+    setZoneFilled('asgPdfUpload', false);
+    setZoneFilled('criteriaUpload', false);
+    setZoneFilled('criteriaDocxUpload', false);
+    showScanWarn('asgScanWarn', false);
+    showScanWarn('criteriaScanWarn', false);
+    switchAsgMode('text');
+    switchCriteriaMode('text');
+    applyPdfMethodUI();
+    viewedEntry=null;
+    lastRawResponse='';
+    document.getElementById('resultArea').innerHTML='';
+    document.getElementById('rawFab').classList.remove('visible');
+    restoringDraft=false;
+    updateTokens();
+  }
+
+  function switchToTask(id){
+    saveDraftNow();
+    activeTaskId=id;
+    viewingHistoryIndex=null;
+    compareMode=false;
+    compareIndexes=[];
+    const blob=loadDraftBlob();
+    blob.currentTaskId=id;
+    const draft=(blob.byTask&&blob.byTask[id]) || null;
+    const store=loadStore();
+    const task=store.tasks[id];
+    if(draft) applyDraft(draft);
+    else resetWorkspace();
+    const latest=task && task.entries && task.entries[task.entries.length-1];
+    if(latest) showEntry(latest, false);
+    else {
+      viewedEntry=null;
+      document.getElementById('resultArea').innerHTML='';
+    }
+    try{ localStorage.setItem(DRAFT_KEY, JSON.stringify(blob)); }catch(e){}
+    renderHistory(false);
+  }
+
+  function promptAddTask(){
+    const raw=window.prompt('New task name');
+    const name=normalizeTaskName(raw||'');
+    if(!name){
+      fillTaskSelect();
+      return;
+    }
+    const id=taskIdFromName(name);
+    const namingCurrent=!activeTaskId || activeTaskId==='_scratch';
+    ensureTask(id, name);
+    if(namingCurrent){
+      activeTaskId=id;
+      saveDraftNow();
+      const created=loadStore().tasks[id];
+      const latest=created && created.entries && created.entries[created.entries.length-1];
+      if(latest) showEntry(latest, false);
+      renderHistory(false);
+      showToast('Task created','success');
+      return;
+    }
+    switchToTask(id);
+    showToast('Task created','success');
+  }
+
+  function fillTaskSelect(){
+    const sel=document.getElementById('taskSelect');
+    if(!sel) return;
+    const current=isTaskSelected() ? activeTaskId : '_scratch';
+    const store=loadStore();
+    const ids=listAllTaskIds().sort((a,b)=>taskLabel(a).localeCompare(taskLabel(b), undefined, {sensitivity:'base'}));
+    const opts=['<option value="_scratch">All tasks</option>'];
+    ids.forEach(id=>{
+      const n=(store.tasks[id] && store.tasks[id].entries && store.tasks[id].entries.length) || 0;
+      const count=n?` (${n})`:'';
+      opts.push(`<option value="${esc(id)}">${esc(taskLabel(id))}${count}</option>`);
+    });
+    opts.push('<option value="__new__">+ Add new task</option>');
+    sel.innerHTML=opts.join('');
+    sel.value = ids.includes(current) ? current : '_scratch';
+  }
+
+  function showAllTasksHome(){
+    saveDraftNow();
+    activeTaskId='_scratch';
+    compareMode=false;
+    compareIndexes=[];
+    viewingHistoryIndex=null;
+    resetWorkspace();
+    renderHistory(false);
+  }
+
+  document.getElementById('taskSelect').addEventListener('change', function(){
+    const id=this.value;
+    if(id==='__new__'){
+      promptAddTask();
+      return;
+    }
+    if(!id || id==='_scratch'){
+      showAllTasksHome();
+      return;
+    }
+    switchToTask(id);
+  });
+
+  function renderTaskHome(){
+    const list=document.getElementById('taskHomeList');
+    if(!list) return;
+    const store=loadStore();
+    const ids=listAllTaskIds().sort((a,b)=>taskLabel(a).localeCompare(taskLabel(b), undefined, {sensitivity:'base'}));
+    const cards=[];
+    if(!ids.length){
+      cards.push('<div class="task-home-empty">No tasks yet. Add one to start marking.</div>');
+    }
+    ids.forEach(id=>{
+      const entries=(store.tasks[id] && store.tasks[id].entries) || [];
+      const latest=entries[entries.length-1];
+      const latestScore=latest && latest.score!=null ? latest.score : (latest ? '??' : '—');
+      const attempts=entries.length;
+      const lastDate=latest && latest.date ? latest.date : '';
+      const mini=entries.length
+        ? `<div class="task-card-strip">${entries.map(e=>`<div class="task-mini">${e.score!=null?esc(e.score):'??'}<span>${esc(e.date||'')}</span></div>`).join('')}</div>`
+        : `<div class="task-home-empty" style="text-align:left;padding:0">No marks yet</div>`;
+      const meta=attempts
+        ? `${attempts} attempt${attempts===1?'':'s'}${lastDate?' · last '+esc(lastDate):''}`
+        : 'No attempts yet';
+      cards.push(`<div class="task-card" data-task-id="${esc(id)}">
+        <div class="task-card-top">
+          <span class="task-card-name">${esc(taskLabel(id))}</span>
+          <div class="task-card-top-right">
+            <span class="task-card-score">${esc(latestScore)}</span>
+            <button type="button" class="task-card-del" data-del-id="${esc(id)}" aria-label="Delete ${esc(taskLabel(id))}">Delete</button>
+          </div>
+        </div>
+        <div class="task-card-meta">${meta}</div>
+        ${mini}
+      </div>`);
+    });
+    cards.push('<button type="button" class="task-card task-card-new" id="taskHomeAdd">+ Add new task</button>');
+    list.innerHTML=cards.join('');
+    list.querySelectorAll('[data-task-id]').forEach(card=>{
+      card.addEventListener('click',e=>{
+        if(e.target.closest('[data-del-id]')) return;
+        switchToTask(card.getAttribute('data-task-id'));
+      });
+    });
+    list.querySelectorAll('[data-del-id]').forEach(btn=>{
+      btn.addEventListener('click',e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        removeTask(btn.getAttribute('data-del-id'));
+      });
+    });
+    const add=document.getElementById('taskHomeAdd');
+    if(add) add.addEventListener('click',()=>promptAddTask());
+  }
+
   function renderHistory(animateLatest=false){
-    const history=getHistory();
+    const home=document.getElementById('taskHome');
+    const card=document.getElementById('historyCard');
+    const result=document.getElementById('resultArea');
+    fillTaskSelect();
+
+    if(!isTaskSelected()){
+      if(home) home.style.display='block';
+      if(card) card.style.display='none';
+      if(result){ result.style.display='none'; result.innerHTML=''; }
+      viewedEntry=null;
+      renderTaskHome();
+      return;
+    }
+    if(home) home.style.display='none';
+    if(card) card.style.display='';
+    if(result) result.style.display='';
+
+    const history=getCurrentEntries();
     const strip=document.getElementById('historyStrip');
     const trendRow=document.getElementById('trendRow');
-    const card=document.getElementById('historyCard');
+    const compareBtn=document.getElementById('compareBtn');
+
+    if(history.length>=2) compareBtn.removeAttribute('hidden');
+    else compareBtn.setAttribute('hidden','');
+    compareBtn.classList.toggle('active', compareMode);
+    compareBtn.textContent = compareMode ? 'Comparing…' : 'Compare';
 
     if(!history.length){
       strip.innerHTML='<div class="strip-empty">Grade your first attempt to start tracking progress.</div>';
@@ -1079,61 +2291,57 @@ ${criteriaContent}
       return;
     }
 
-    const scores=history.map(h=>h.score).filter(s=>s!==null);
+    const scores=history.map(h=>h.score).filter(s=>s!==null && s!==undefined);
     const best=scores.length?Math.max(...scores):null;
     const first=history[0].score, last=history[history.length-1].score;
-    const overallDelta=(first!==null&&last!==null)?last-first:null;
+    const overallDelta=(first!=null&&last!=null)?last-first:null;
 
-    // Determine flash class for the new latest item
     let latestFlashClass='animate-new';
     if(animateLatest && history.length>=2){
       const prev=history[history.length-2];
       const curr=history[history.length-1];
-      if(prev.score!==null && curr.score!==null){
+      if(prev.score!=null && curr.score!=null){
         latestFlashClass = curr.score >= prev.score ? 'flash-good' : 'flash-bad';
       }
     }
 
     const items=history.map((h,i)=>{
       const isLatest=i===history.length-1;
-      const isBest=h.score!==null&&h.score===best&&scores.filter(s=>s===best).length===1;
-      const isViewing=viewingHistoryIndex===i;
+      const isBest=h.score!=null&&h.score===best&&scores.filter(s=>s===best).length===1;
+      const isViewing=!compareMode && viewingHistoryIndex===i;
+      const isCA=compareMode && compareIndexes[0]===i;
+      const isCB=compareMode && compareIndexes[1]===i;
       const prev=i>0?history[i-1]:null;
       let dHtml='<span class="strip-delta same">—</span>';
-      if(prev&&prev.score!==null&&h.score!==null){
+      if(prev&&prev.score!=null&&h.score!=null){
         const d=h.score-prev.score;
         if(d>0) dHtml=`<span class="strip-delta up">▲${d}</span>`;
         else if(d<0) dHtml=`<span class="strip-delta down">▼${Math.abs(d)}</span>`;
         else dHtml='<span class="strip-delta same">±0</span>';
       }
-      const pct=h.score!==null?h.score:0;
-      const hasFeedback=!!(h.feedbackSection);
-      const baseCls=['strip-item',isLatest?'is-latest':'',isBest?'is-best':'',isViewing?'is-viewing':''].filter(Boolean).join(' ');
+      const pct=h.score!=null?h.score:0;
+      const baseCls=['strip-item',isLatest?'is-latest':'',isBest?'is-best':'',isViewing?'is-viewing':'',isCA?'is-compare-a':'',isCB?'is-compare-b':''].filter(Boolean).join(' ');
       const animCls=(animateLatest&&isLatest)?' '+latestFlashClass:'';
-      const clickHandler=hasFeedback?(isLatest?`onclick="showLatestResult()"`:`onclick="viewHistoryEntry(${i})"`):'';
-      const tipStyle=hasFeedback?'cursor:pointer':'cursor:default;opacity:.7';
-      return `<div class="${baseCls}${animCls}" ${clickHandler} style="${tipStyle}" data-pct="${pct}" title="${hasFeedback?'Click to view':'No saved feedback'}">
-        <div class="strip-score">${h.score!==null?h.score:'??'}</div>
-        <div class="strip-date">${h.date}</div>
+      return `<div class="${baseCls}${animCls}" onclick="viewHistoryEntry(${i})" data-pct="${pct}" title="${compareMode?'Click to compare':'Click to view'}">
+        <div class="strip-score">${h.score!=null?h.score:'??'}</div>
+        <div class="strip-date">${esc(h.date||'')}</div>
         <div class="strip-bar-wrap"><div class="strip-bar-fill" style="width:0%" data-target="${pct}"></div></div>
         ${dHtml}
         ${isBest?'<div class="strip-tag">⭐ best</div>':''}
         ${isLatest&&!isBest?'<div class="strip-tag">latest</div>':''}
         ${isViewing?'<div class="strip-tag" style="color:var(--amber)">viewing</div>':''}
+        ${isCA?'<div class="strip-tag" style="color:var(--amber)">A</div>':''}
+        ${isCB?'<div class="strip-tag" style="color:var(--amber)">B</div>':''}
       </div>`;
     });
 
-
     strip.innerHTML=`<div class="strip">${items.join('')}</div>`;
 
-    // Animate bars after render
     requestAnimationFrame(()=>{
       strip.querySelectorAll('.strip-bar-fill').forEach(bar=>{
         const t=bar.dataset.target;
         setTimeout(()=>{bar.style.width=t+'%';},animateLatest?200:50);
       });
-      const line=strip.querySelector('#chartLine');
-      if(line) setTimeout(()=>line.classList.add('drawn'),100);
     });
 
     if(animateLatest){
@@ -1143,7 +2351,6 @@ ${criteriaContent}
       card.addEventListener('animationend',()=>card.classList.remove('bump'),{once:true});
     }
 
-    // Trend row
     if(history.length>=2&&overallDelta!==null){
       trendRow.style.display='flex';
       const pill=document.getElementById('trendPill');
@@ -1170,11 +2377,22 @@ ${criteriaContent}
       trendRow.style.display='none';
     }
   }
-
-  // Init
+</script>
+<script src="sync-config.js"></script>
+<script src="profile-store.js"></script>
+<script>
+  window.getHdrDarkIcon = function(){
+    return document.body.classList.contains('light') ? '🌙' : '☀️';
+  };
+  window.toggleDark = function(){
+    const isLight=document.body.classList.toggle('light');
+    localStorage.setItem('studybase_dark',isLight?'0':'1');
+    document.querySelectorAll('.pt-dark').forEach(b => { b.textContent = isLight ? '🌙' : '☀️'; });
+  };
+  if(typeof updateHdrProfile === 'function') updateHdrProfile();
+  migrateHistoryIfNeeded();
+  restoreDraft();
   renderHistory();
-  switchAsgMode('text');
-  switchCriteriaMode('text');
   updateTokens();
 </script>
 </body>
