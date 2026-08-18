@@ -1239,7 +1239,7 @@ function viewTopic(id, originId){
   el.innerHTML = `
       <div class="dh">
         <div>
-          <div class="dh-name">${ancestorChain.length ? `${ancestorChain.map(a=>esc(a.name)).join(' <span class="dh-crumb-sep">›</span> ')} <span class="dh-sub-badge">${esc(t.name)}</span>` : esc(t.name)}</div>
+          <div class="dh-name">${ancestorChain.length ? `${esc(t.name)} <span class="dh-sub-badge">${ancestorChain.map(a=>esc(a.name)).join(' <span class="dh-crumb-sep">›</span> ')}</span>` : esc(t.name)}</div>
           <div class="dh-meta">
             ${originBadge}
             ${t.unit ? `<span class="dh-unit">${esc(t.unit)}</span>` : ''}
