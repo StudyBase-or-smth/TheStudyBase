@@ -6,28 +6,22 @@
 <title>StudyBase — Dev Panel</title>
 <link rel="icon" href="icon.png" type="image/png">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mainstyle.css">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#f5f2ed;--card:#ffffff;--card2:#faf8f5;
-  --border:#e2ddd7;--border2:#d4cec7;--text:#1c1917;
-  --muted:#78716c;--muted2:#a8a29e;--accent:#7c3aed;--ac-l:rgba(124,58,237,.08);--ac-b:rgba(124,58,237,.22);
-  --shadow:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+body.dev-page{
+  --accent:#7c3aed;--ac-l:rgba(124,58,237,.08);--ac-b:rgba(124,58,237,.22);
+  font-size:13px;
 }
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;min-height:100vh}
-select{color-scheme:light}
-body.dark{
-  --bg:#141210;--card:#1e1c19;--card2:#252220;--border:#302d29;--border2:#3d3935;
-  --text:#e8e3dc;--muted:#9e9890;--muted2:#6b6560;--ac-l:rgba(167,139,250,.1);--ac-b:rgba(167,139,250,.25);
-}
-body.dark select{color-scheme:dark}
+body.dev-page.dark{--ac-l:rgba(167,139,250,.1);--ac-b:rgba(167,139,250,.25)}
+body.dev-page .wrap{max-width:1100px;padding:16px 18px 48px}
+body.dev-page .sec-title{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted2);margin:12px 0 8px;padding:0;border:none}
 
 a,button,select,[tabindex]{outline:none}
 a:focus-visible,button:focus-visible,select:focus-visible,[tabindex]:focus-visible{
   outline:2px solid var(--accent);outline-offset:2px;border-radius:4px;
 }
 
-.bar{display:flex;align-items:center;gap:10px;padding:10px 18px;background:var(--card);border-bottom:1px solid var(--border)}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 18px;background:var(--card);flex:1;min-width:0}
 .bar h1{font-family:'Lora',serif;font-size:16px;font-weight:700}
 .tag{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);background:var(--ac-l);border:1px solid var(--ac-b);padding:2px 8px;border-radius:99px;cursor:pointer}
 .bar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
@@ -35,7 +29,6 @@ a:focus-visible,button:focus-visible,select:focus-visible,[tabindex]:focus-visib
 .bar a:hover{background:var(--card2);color:var(--text)}
 .icon-btn{background:none;border:1px solid var(--border);border-radius:7px;width:30px;height:30px;cursor:pointer;font-size:14px}
 
-.wrap{max-width:1100px;margin:0 auto;padding:16px 18px 48px}
 .strip{display:flex;gap:18px;padding:10px 0 14px;color:var(--muted);font-size:12px;flex-wrap:wrap}
 .strip b{color:var(--text);font-family:'Lora',serif;font-size:16px;margin-right:4px}
 .toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
@@ -101,30 +94,24 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
 .queue-empty{padding:28px;text-align:center;color:var(--muted2);font-size:13px;font-style:italic}
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
 .stat-box{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
-.stat-num{font-family:'Lora',serif;font-size:22px;font-weight:700;color:var(--accent)}
-.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
+.stat-box .stat-num{font-family:'Lora',serif;font-size:22px;font-weight:700;color:var(--accent);line-height:1;margin-bottom:0}
+.stat-box .stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:3px;font-weight:500}
 .subjects-table,.activity-table{background:var(--card2);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px}
 .subjects-row,.activity-row{display:flex;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);gap:12px;font-size:13px}
 .subjects-row:last-child,.activity-row:last-child{border-bottom:none}
 .subjects-row .sname,.activity-row .sname{font-weight:600;flex:1}
 .subjects-row .scount,.activity-row .stime{color:var(--muted2);font-size:12px}
-.sec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted2);margin:12px 0 8px}
 
 .gate{display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;flex-direction:column;gap:10px}
 .gate .spin{font-size:22px;animation:spin 1.1s linear infinite}
 @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-
-#toast-container{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:999}
-.toast{background:var(--card);border:1.5px solid var(--border2);border-radius:7px;padding:9px 14px;font-size:12.5px;box-shadow:0 4px 16px rgba(0,0,0,.15)}
-.toast.success{border-color:#86efac}
-.toast.error{border-color:#fca5a5}
 
 @media(max-width:700px){
   .ur-actions{max-width:220px}
 }
 </style>
 </head>
-<body>
+<body class="dev-page">
 
 <div class="gate" id="gate">
   <div class="spin">| |</div>
@@ -132,14 +119,17 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
 </div>
 
 <div id="panel" style="display:none">
-  <header class="bar">
-    <h1>StudyBase</h1>
-    <span class="tag" onclick="window.location.href='devbackend.html'">Dev Panel</span>
-    <div class="bar-right">
-      <button class="icon-btn" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
-      <a href="index.html">← Hub</a>
-    </div>
-  </header>
+  <div class="hdr-outer">
+    <a class="accent-bar is-back" href="index.html" title="Back to Hub" aria-label="Back to Hub"></a>
+    <header class="bar">
+      <h1>StudyBase</h1>
+      <span class="tag" onclick="window.location.href='devbackend.html'">Dev Panel</span>
+      <div class="bar-right">
+        <button class="icon-btn" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+        <a href="index.html">← Hub</a>
+      </div>
+    </header>
+  </div>
 
   <div class="wrap">
     <div class="strip" id="statsStrip">
@@ -285,8 +275,15 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
     loadStats();
   });
 
+  // Missing/empty claims (role+status "None") are queue items the table can
+  // approve — count and filter them as pending, not as a separate bucket.
+  function isPendingStatus(status){
+    const s = String(status || '').toLowerCase();
+    return s === 'pending' || s === 'none' || s === '';
+  }
+
   function updateStrip(){
-    const pending = lastUsers.filter(u => u.status === 'pending').length;
+    const pending = lastUsers.filter(u => isPendingStatus(u.status)).length;
     document.getElementById('statAccounts').textContent = lastUsers.length;
     document.getElementById('statPending').textContent = pending;
   }
@@ -294,7 +291,9 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
   function applyUserFilter(){
     const term = (document.getElementById('userSearch').value || '').toLowerCase().trim();
     document.querySelectorAll('#usersTableBody tr').forEach(tr => {
-      const statusOk = statusFilter === 'all' || tr.dataset.status === statusFilter;
+      const rowStatus = tr.dataset.status || '';
+      const statusOk = statusFilter === 'all'
+        || (statusFilter === 'pending' ? isPendingStatus(rowStatus) : rowStatus === statusFilter);
       const textOk = !term || (tr.dataset.text || '').includes(term);
       tr.style.display = statusOk && textOk ? '' : 'none';
     });
@@ -316,7 +315,7 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
       <option value="teacher" ${u.role==='teacher'?'selected':''}>Teacher</option>
       <option value="dev" ${u.role==='dev'?'selected':''}>Dev</option>
     </select>`;
-    if(u.status === 'pending' || u.status === 'none'){
+    if(isPendingStatus(u.status)){
       return `${sel}
         <button class="btn approve" onclick="approve('${u.uid}')">Approve</button>
         <button class="btn deny" onclick="deny('${u.uid}')">Deny</button>
@@ -356,7 +355,7 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
           <tbody id="usersTableBody">
             ${sorted.map(u => {
               const text = ((u.displayName || '') + ' ' + (u.email || '')).toLowerCase();
-              return `<tr class="${u.status === 'pending' ? 'pending' : ''}" data-status="${esc(u.status)}" data-text="${esc(text)}" id="ur_${u.uid}">
+              return `<tr class="${isPendingStatus(u.status) ? 'pending' : ''}" data-status="${esc(u.status)}" data-text="${esc(text)}" id="ur_${u.uid}">
                 <td>
                   <div class="ur-name" id="urname_${u.uid}">
                     <span class="ur-name-text">${esc(u.displayName || '(no name)')}</span>
@@ -366,7 +365,7 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
                 </td>
                 <td><span class="role-badge ${esc(u.role)}">${esc(u.role)}</span></td>
                 <td><span class="role-badge ${esc(u.status)}">${esc(u.status)}</span></td>
-                <td class="req-date">${formatDate(u.requestedAt || (u.status === 'pending' ? u.createdAt : ''))}</td>
+                <td class="req-date">${formatDate(u.requestedAt || (isPendingStatus(u.status) ? u.createdAt : ''))}</td>
                 <td class="ur-actions">${rowActions(u)}</td>
               </tr>`;
             }).join('')}
