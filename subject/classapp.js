@@ -959,11 +959,15 @@ function toggleTopicExpand(id){
 }
 
 // ── Topic detail ──
+function findTopicById(topics, id){
+  return topics.find(x => x.id == id);
+}
+
 function getTopicAncestors(t, allTopics){
   const ancestors = [];
   let cur = t;
-  while(cur && cur.parentId){
-    const p = allTopics.find(x => x.id == cur.parentId);
+  while(cur && cur.parentId != null && cur.parentId !== ''){
+    const p = findTopicById(allTopics, cur.parentId);
     if(!p) break;
     ancestors.unshift(p);
     cur = p;
@@ -971,26 +975,10 @@ function getTopicAncestors(t, allTopics){
   return ancestors;
 }
 
-function ensureTopicPathNodes(){
-  let bcPathSep = document.getElementById('hdrTopicPathSep');
-  let bcPath = document.getElementById('hdrTopicPath');
-  if(bcPath && bcPathSep) return { bcPath, bcPathSep };
-  const anchor = document.getElementById('hdrSubjectName');
-  if(!anchor) return { bcPath: null, bcPathSep: null };
-  bcPathSep = document.createElement('span');
-  bcPathSep.className = 'bc-sep';
-  bcPathSep.id = 'hdrTopicPathSep';
-  bcPathSep.textContent = '›';
-  bcPath = document.createElement('span');
-  bcPath.id = 'hdrTopicPath';
-  anchor.insertAdjacentElement('afterend', bcPathSep);
-  bcPathSep.insertAdjacentElement('afterend', bcPath);
-  return { bcPath, bcPathSep };
-}
-
 function updateTopicBreadcrumb(t, allTopics){
   const bcTopic = document.getElementById('hdrTopicName');
   const bcSep = document.getElementById('hdrTopicSep');
+  const trail = document.getElementById('hdrTopicTrail');
   if(!bcTopic || !bcSep) return;
 
   const ancestors = getTopicAncestors(t, allTopics);
@@ -998,35 +986,31 @@ function updateTopicBreadcrumb(t, allTopics){
   bcTopic.style.display = '';
   bcSep.style.display = '';
 
-  const { bcPath, bcPathSep } = ensureTopicPathNodes();
-  if(!bcPath || !bcPathSep) return;
-  if(ancestors.length){
-    bcPathSep.style.display = '';
-    bcPath.style.display = '';
-    bcPath.innerHTML = ancestors.map((a, i) =>
-      `${i ? '<span class="bc-sep">›</span>' : ''}<a class="bc-link" href="javascript:void(0)" onclick="viewTopic(${a.id})">${esc(a.name)}</a>`
-    ).join('');
-  } else {
-    bcPath.innerHTML = '';
-    bcPath.style.display = 'none';
-    bcPathSep.style.display = 'none';
+  if(trail){
+    if(ancestors.length){
+      trail.style.display = 'inline-flex';
+      trail.innerHTML = ancestors.map(a =>
+        `<span class="bc-sep">›</span><a class="bc-link" href="javascript:void(0)" onclick="viewTopic(${a.id})">${esc(a.name)}</a>`
+      ).join('');
+    } else {
+      trail.innerHTML = '';
+      trail.style.display = 'none';
+    }
   }
 }
 
 function clearTopicBreadcrumb(){
   const bcTopic = document.getElementById('hdrTopicName');
   const bcSep = document.getElementById('hdrTopicSep');
-  const bcPath = document.getElementById('hdrTopicPath');
-  const bcPathSep = document.getElementById('hdrTopicPathSep');
+  const trail = document.getElementById('hdrTopicTrail');
   if(bcTopic && bcSep){
     bcTopic.textContent = '';
     bcTopic.style.display = 'none';
     bcSep.style.display = 'none';
   }
-  if(bcPath && bcPathSep){
-    bcPath.innerHTML = '';
-    bcPath.style.display = 'none';
-    bcPathSep.style.display = 'none';
+  if(trail){
+    trail.innerHTML = '';
+    trail.style.display = 'none';
   }
 }
 
@@ -1052,8 +1036,8 @@ function viewTopic(id){
   const allTopics = getTopics();
   expandedTopics = new Set();
   let cur = t;
-  while(cur.parentId){
-    const parent = allTopics.find(x => x.id === cur.parentId);
+  while(cur && cur.parentId != null && cur.parentId !== ''){
+    const parent = findTopicById(allTopics, cur.parentId);
     if(!parent) break;
     expandedTopics.add(parent.id);
     cur = parent;
@@ -1142,14 +1126,12 @@ function viewTopic(id){
   bodyHtml += sec('subtopics',    'Subtopics',     '🧩', subtopicsHtml);
   bodyHtml += sec('relatedTerms', 'Related Terms', '🔗', relHtml);
 
-  const ancestorChain = getTopicAncestors(t, allTopics);
-
   destroyDesmosView(); // the old container (if any) is about to be replaced below
   closeEnlarge(); // any enlarged content belongs to the topic being replaced
   el.innerHTML = `
       <div class="dh">
         <div>
-          <div class="dh-name">${ancestorChain.length ? `${esc(t.name)} <span class="dh-sub-badge">${ancestorChain.map(a=>esc(a.name)).join(' <span class="dh-crumb-sep">›</span> ')}</span>` : esc(t.name)}</div>
+          <div class="dh-name">${esc(t.name)}</div>
           <div class="dh-meta">
             ${t.unit ? `<span class="dh-unit">${esc(t.unit)}</span>` : ''}
             <span class="dh-date">Added ${created}</span>${editedStr}
@@ -1514,9 +1496,12 @@ async function syncPull(){
           try { local = JSON.parse(localStorage.getItem(ST)||'[]'); } catch(e) { local = []; }
           if(!Array.isArray(local)) local = [];
           const merged = res.data.map(rem => {
-            const loc = local.find(t => t.id===rem.id);
+            const loc = local.find(t => t.id == rem.id);
             if(!loc) return rem;
             const m = {...rem};
+            if((m.parentId == null || m.parentId === '') && loc.parentId != null && loc.parentId !== ''){
+              m.parentId = loc.parentId;
+            }
             Object.keys(m).forEach(k => {
               if(typeof m[k]==='string' && m[k].includes(PLACEHOLDER) &&
                  loc[k] && typeof loc[k]==='string' && !loc[k].includes(PLACEHOLDER)){
