@@ -1,5 +1,10 @@
 /* Self-hosted so AdGuard cannot block fonts.googleapis.com.
    Files live in /fonts (SIL OFL). url() is relative to this stylesheet. */
+:root{
+  --font-sans:'Inter',sans-serif;
+  --font-serif:'Lora',serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
 @font-face{
   font-family:'Inter';
   font-style:normal;

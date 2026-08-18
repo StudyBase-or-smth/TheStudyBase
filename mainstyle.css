@@ -1,12 +1,12 @@
 *{margin:0;padding:0;box-sizing:border-box}
 *::-webkit-scrollbar{display:none}
 
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;font-size:14px}
 :root{
   --bg:#f5f2ed;--card:#ffffff;--card2:#faf8f5;--border:#e2ddd7;--border2:#d4cec7;
   --text:#1c1917;--muted:#78716c;--muted2:#a8a29e;--accent:#f59e0b;
   --shadow:0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);
 }
+body{background:#f5f2ed;background:var(--bg,#f5f2ed);color:#1c1917;color:var(--text,#1c1917);font-family:var(--font-sans,'Inter',sans-serif);min-height:100vh;font-size:14px}
 .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
 
 /* ── HEADER ── */
@@ -945,7 +945,12 @@ body.subject-page .desmos-view-calc:fullscreen,
 body.subject-page .desmos-calculator:fullscreen{width:100vw;height:100vh}
 body.subject-page .plain-text:fullscreen{width:100vw;height:100vh;overflow:auto;padding:40px;background:var(--card);box-sizing:border-box;font-size:17px}
 body.subject-page .pdf-viewer:fullscreen{width:100vw;height:100vh}
+/* Invert only the bitmap — chrome (border/letterbox/background) stays on .pdf-viewer-stage */
+body.subject-page .pdf-viewer-stage{background:var(--card2);border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;justify-content:center;align-items:center}
+body.subject-page .pdf-viewer-img{display:block;width:auto;max-width:100%;height:auto;max-height:85vh;min-height:0;object-fit:contain;margin:0 auto;background:transparent;border:none;border-radius:0}
 body.subject-page .pdf-viewer-img:fullscreen{width:100vw;height:100vh;max-height:100vh;object-fit:contain;background:#000}
+body.subject-page .enlarge-slot{display:flex;justify-content:center;align-items:center}
+body.subject-page .enlarge-slot .pdf-viewer-img.enlarged-active{max-width:100%;max-height:100%;width:auto;height:auto}
 body.subject-page .rich-content:fullscreen{width:100vw;height:100vh;overflow:auto;padding:40px;box-sizing:border-box;font-size:17px;background:var(--card2)}
 
 /* Editor-side field label row (Desmos Graph) that also carries expand

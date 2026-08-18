@@ -224,7 +224,7 @@ function pdfDocViewHtml(t){
   // always the right call (photos, already-dark images, etc.), so clicking
   // the image toggles it back to its normal colours and back again.
   const viewer = isImg
-    ? `<img class="pdf-viewer-img" id="pdfViewerFrame" src="${src}" alt="${name}" title="Click to toggle dark-mode inversion" onclick="toggleImgInvert(this)">`
+    ? `<div class="pdf-viewer-stage"><img class="pdf-viewer-img" id="pdfViewerFrame" src="${src}" alt="${name}" title="Click to toggle dark-mode inversion" onclick="toggleImgInvert(this)"></div>`
     : `<iframe class="pdf-viewer" id="pdfViewerFrame" src="${src}" title="${name}"></iframe>`;
   return `<div class="pdf-viewer-wrap">${viewer}
       <a class="pdf-open-link" href="${t.pdfData}" ${/^https?:/i.test(t.pdfData) ? 'target="_blank" rel="noopener"' : `download="${name}"`}>⬇ ${name}</a></div>`;

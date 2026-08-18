@@ -7,7 +7,7 @@
 <!-- Favicon -->
 <link rel="icon" href="../icon.png" type="image/png">
 <link rel="apple-touch-icon" href="../icon.png">
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../fonts.css">
 <link rel="stylesheet" href="../mainstyle.css">
 <style>
   /* Quiz UI — uses the app's existing CSS variables, with fallbacks in case any aren't set */
@@ -97,14 +97,14 @@
     margin-bottom: 14px;
   }
   .quiz-image-wrap:empty { display: none; }
-  .quiz-image-wrap { margin-bottom: 16px; }
+  .quiz-image-wrap { margin-bottom: 16px; background: var(--card, #fff); border-radius: 8px; }
   .quiz-image {
     display: block;
     max-width: 100%;
     height: auto;
     border-radius: 8px;
     border: 1px solid var(--border, #e0e0e0);
-    background: var(--card, #fff);
+    background: transparent;
   }
   /* This page reuses mainstyle.css's subject-page dark-mode img filter
      (auto-inverts images so light diagrams don't glow), which is why
@@ -255,7 +255,18 @@
     font-size: 32px;
     font-weight: 700;
     color: var(--text, #1a1a1a);
-    margin: 12px 0 22px;
+    margin: 12px 0 8px;
+  }
+  .quiz-ratio {
+    font-size: 15px;
+    color: var(--muted, #666);
+    margin: 0 0 8px;
+  }
+  .quiz-ratio strong { color: var(--text, #1a1a1a); }
+  .quiz-summary-sub {
+    font-size: 12px;
+    color: var(--muted2, #999);
+    margin: 0 0 22px;
   }
 </style>
 </head>
@@ -281,7 +292,9 @@
     if (user) {
       sessionStorage.removeItem('studybase_guest');
       user.getIdTokenResult(true).then(result => {
+        const role = result.claims.role || '';
         const status = result.claims.status || '';
+        window.userRole = role;
         if (status === 'rejected') {
           window.location.href = '../waiting.html';
           return;
@@ -291,19 +304,23 @@
           document.body.classList.add('guest-mode');
           document.getElementById('guest-border').style.display = 'block';
           document.getElementById('guest-nudge').style.display = 'block';
+          if (typeof bootHdrProfile === 'function') bootHdrProfile(user, role || 'guest');
           return;
         }
+        if (typeof bootHdrProfile === 'function') bootHdrProfile(user, role);
       }).catch(() => {
         window.isGuest = true;
         document.body.classList.add('guest-mode');
         document.getElementById('guest-border').style.display = 'block';
         document.getElementById('guest-nudge').style.display = 'block';
+        if (typeof bootHdrProfile === 'function') bootHdrProfile(user, 'guest');
       });
     } else if (isGuest) {
       window.isGuest = true;
       document.body.classList.add('guest-mode');
       document.getElementById('guest-border').style.display = 'block';
       document.getElementById('guest-nudge').style.display = 'block';
+      if (typeof bootHdrProfile === 'function') bootHdrProfile(null, 'guest');
     } else {
       window.location.href = "../login.html";
     }
@@ -336,8 +353,12 @@
         <span class="bc-current" id="hdrCurrent">HSC</span>
       </div>
       <div class="hdr-right-row">
-        <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out">⎋</button>
-        <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()" data-tip="Dark mode">🌙</button>
+        <div class="hdr-profile-wrap">
+          <button class="hdr-ghost hdr-profile" id="hdrProfileBtn" onclick="window.location.href='../profile.html'" aria-label="Profile">
+            <span class="hdr-profile-face">👤</span>
+          </button>
+          <div class="hdr-profile-tip" id="hdrProfileTip"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -359,19 +380,13 @@
   <button onclick="document.getElementById('guest-nudge').style.display='none'" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;margin-top:6px;width:100%;font-family:'Inter',sans-serif">Dismiss</button>
 </div>
 
+<script src="../sync-config.js"></script>
+<script src="../profile-store.js"></script>
 <script>
-// ── Dark mode (shared key with the rest of the app) ──
 (function(){
   const on = localStorage.getItem('studybase_dark') === '1';
   if(on) document.body.classList.add('dark');
-  const btn = document.getElementById('darkToggle');
-  if(btn) btn.textContent = on ? '☀️' : '🌙';
 })();
-function toggleDark(){
-  const on = document.body.classList.toggle('dark');
-  localStorage.setItem('studybase_dark', on ? '1' : '0');
-  document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
-}
 </script>
 
 <!-- ── Quiz engine ──
@@ -636,7 +651,7 @@ function renderChoiceQuestion(q, index, total, prior) {
     applyChoiceGrading(canvas, q, new Set(prior.selected));
     showFeedback(canvas, prior.earned, prior.total);
     document.getElementById('quizSubmitBtn').style.display = 'none';
-    if (index + 1 < total) document.getElementById('quizNextBtn').style.display = 'inline-block';
+    revealAdvanceButton();
   }
 }
 
@@ -700,7 +715,7 @@ function submitAnswer() {
 
   showFeedback(canvas, earned, 1);
   document.getElementById('quizSubmitBtn').style.display = 'none';
-  document.getElementById('quizNextBtn').style.display = 'inline-block';
+  revealAdvanceButton();
   renderSidebar(); // reflect the new correct/partial/incorrect color on this question's nav button
 }
 
@@ -780,7 +795,7 @@ function renderMathQuestion(q, index, total, prior) {
     applyMathGrading(canvas, q, prior.values);
     showFeedback(canvas, prior.earned, q.answers.length);
     document.getElementById('quizSubmitBtn').style.display = 'none';
-    if (index + 1 < total) document.getElementById('quizNextBtn').style.display = 'inline-block';
+    revealAdvanceButton();
   }
 }
 
@@ -923,7 +938,7 @@ function submitMathAnswer() {
 
   showFeedback(canvas, earned, q.answers.length);
   document.getElementById('quizSubmitBtn').style.display = 'none';
-  document.getElementById('quizNextBtn').style.display = 'inline-block';
+  revealAdvanceButton();
   renderSidebar(); // reflect the new correct/partial/incorrect color on this question's nav button
 }
 
@@ -1054,7 +1069,7 @@ function renderAICheckQuestion(q, index, total, prior) {
     textarea.disabled = true;
     showFeedback(canvas, prior.earned, q.marks, prior.feedback);
     document.getElementById('quizSubmitBtn').style.display = 'none';
-    if (index + 1 < total) document.getElementById('quizNextBtn').style.display = 'inline-block';
+    revealAdvanceButton();
   }
 }
 
@@ -1100,9 +1115,7 @@ async function submitAICheck() {
     textarea.disabled = true;
     showFeedback(canvas, earned, q.marks, feedback);
     document.getElementById('quizSubmitBtn').style.display = 'none';
-    if (quizState.index + 1 < quizState.questions.length) {
-      document.getElementById('quizNextBtn').style.display = 'inline-block';
-    }
+    revealAdvanceButton();
     renderSidebar();
   } catch (err) {
     setAICheckBusy(canvas, false);
@@ -1113,20 +1126,67 @@ async function submitAICheck() {
 
 /* ── Shared ── */
 
+function revealAdvanceButton() {
+  const btn = document.getElementById('quizNextBtn');
+  if (!btn) return;
+  const last = quizState.index + 1 >= quizState.questions.length;
+  btn.textContent = last ? 'Submit' : 'Next →';
+  btn.style.display = 'inline-block';
+}
+
 function nextQuestion() {
+  if (quizState.index + 1 >= quizState.questions.length) {
+    renderSummary();
+    return;
+  }
   quizState.index++;
   renderQuestion();
+}
+
+function questionOutcomes() {
+  let correct = 0, incorrect = 0, partial = 0, unanswered = 0;
+  quizState.perQuestion.forEach(p => {
+    if (!p) { unanswered++; return; }
+    if (p.earned === p.total) correct++;
+    else if (p.earned === 0) incorrect++;
+    else partial++;
+  });
+  return { correct, incorrect, partial, unanswered };
+}
+
+function nextSectionEntry() {
+  const i = quizManifest.findIndex(m => m.file === quizState.filename);
+  if (i < 0 || i + 1 >= quizManifest.length) return null;
+  return quizManifest[i + 1];
+}
+
+function continueToNextSection() {
+  const next = nextSectionEntry();
+  quizState = null;
+  if (next) loadQuizByFile(next.file, next.name);
+  else loadQuizByFile(quizManifest[0].file, quizManifest[0].name);
 }
 
 function renderSummary() {
   const canvas = document.getElementById('hscCanvas');
   const earnedMarks = getEarnedMarks();
-  const { totalMarks } = quizState;
+  const { totalMarks, quizName } = quizState;
+  const { correct, incorrect, partial, unanswered } = questionOutcomes();
+  const next = nextSectionEntry();
+  const extra = [
+    partial ? `${partial} partial` : '',
+    unanswered ? `${unanswered} unanswered` : ''
+  ].filter(Boolean).join(' · ');
+
   canvas.innerHTML = `
     <div class="quiz-wrap quiz-summary">
-      <div class="quiz-progress">Quiz complete</div>
+      <div class="quiz-progress">${escapeHtml(quizName || 'Section')} complete</div>
       <div class="quiz-score">${earnedMarks} / ${totalMarks} marks</div>
-      <button class="quiz-btn quiz-btn-primary" onclick="loadRandomQuiz()">Try another quiz</button>
+      <p class="quiz-ratio">Correct to incorrect <strong>${correct} : ${incorrect}</strong></p>
+      ${extra ? `<p class="quiz-summary-sub">${escapeHtml(extra)}</p>` : '<div class="quiz-summary-sub"></div>'}
+      <button class="quiz-btn quiz-btn-primary" onclick="continueToNextSection()">
+        ${next ? 'Continue' : 'Start over'}
+      </button>
     </div>
   `;
 }

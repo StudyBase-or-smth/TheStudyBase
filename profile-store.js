@@ -29,11 +29,14 @@ function normalizeProfile(raw, uid){
   const allS = allSubjectIds();
   const allC = allClassIds();
   const p = (raw && typeof raw === 'object') ? raw : {};
-  const photoUrl = (typeof p.photoUrl === 'string' && /^(https:\/\/(lh3\.googleusercontent\.com|drive\.google\.com)\/|data:image\/)/i.test(p.photoUrl))
+  const photoUrl = (typeof p.photoUrl === 'string' && /^(https:\/\/(lh[0-9]\.googleusercontent\.com|drive\.google\.com)\/|data:image\/)/i.test(p.photoUrl))
     ? p.photoUrl : '';
+  const photoThumb = (typeof p.photoThumb === 'string' && /^data:image\//i.test(p.photoThumb) && p.photoThumb.length < 60000)
+    ? p.photoThumb : '';
   return {
     uid: uid || p.uid || '',
     photoUrl,
+    photoThumb,
     enabledSubjects: mergeEnabled(p.enabledSubjects, p.knownSubjectIds, allS),
     enabledClasses: mergeEnabled(p.enabledClasses, p.knownClassIds, allC),
     knownSubjectIds: allS.slice(),
@@ -188,29 +191,77 @@ async function compressImageToDataUrl(file, maxBytes){
   return best ? best.dataUrl : original;
 }
 
+function makePhotoThumb(dataUrl, edge){
+  const size = edge || 96;
+  return loadImageFromDataUrl(dataUrl).then(img => {
+    const s = Math.min(img.width, img.height) || 1;
+    const sx = Math.max(0, (img.width - s) / 2);
+    const sy = Math.max(0, (img.height - s) / 2);
+    const cv = document.createElement('canvas');
+    cv.width = size;
+    cv.height = size;
+    cv.getContext('2d').drawImage(img, sx, sy, s, s, 0, 0, size, size);
+    return cv.toDataURL('image/jpeg', 0.72);
+  });
+}
+
+function isRemotePhotoUrl(url){
+  return typeof url === 'string' && /^https:\/\/(lh[0-9]\.googleusercontent\.com|drive\.google\.com)\//i.test(url);
+}
+
+function profilePhotoSrc(url){
+  if(!url || typeof url !== 'string') return '';
+  if(/^data:image\//i.test(url)) return url;
+  if(!isRemotePhotoUrl(url)) return '';
+  try {
+    if(typeof location !== 'undefined' && /^https?:$/i.test(location.protocol)){
+      return '/api/avatar?u=' + encodeURIComponent(url);
+    }
+  } catch(e) {}
+  return url;
+}
+
+function profilePhotoImgHtml(url){
+  const src = profilePhotoSrc(url);
+  if(!src) return '';
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  const remote = isRemotePhotoUrl(url);
+  const fallback = remote
+    ? ' data-direct="' + esc(url) + '" onerror="if(this.dataset.direct&&this.src!==this.dataset.direct){this.referrerPolicy=\'no-referrer\';this.src=this.dataset.direct;}else{this.onerror=null;this.remove();}"'
+    : '';
+  return '<img alt="" referrerpolicy="no-referrer" decoding="async" src="' + esc(src) + '"' + fallback + '>';
+}
+
 function uploadProfilePhoto(file){
-  return compressImageToDataUrl(file, PROFILE_PHOTO_MAX_BYTES).then(dataUrl => new Promise((resolve, reject) => {
-    const uid = Date.now() + '' + Math.random().toString(36).slice(2, 6);
-    const ext = /^data:image\/png/i.test(dataUrl) ? 'png' : 'jpg';
-    sbSyncPush('_up_' + uid, { image: dataUrl, filename: 'avatar_' + uid + '.' + ext });
-    let tries = 0;
-    const poll = setInterval(async () => {
-      tries++;
-      try {
-        const res = await sbJsonpGet(SYNC_URL + '?key=' + encodeURIComponent('_ur_' + uid));
-        if(res && res.data){
-          clearInterval(poll);
-          if(res.data.ok && res.data.url) resolve(res.data.url);
-          else reject(new Error('Drive upload failed'));
-        }
-      } catch(e) {}
-      if(tries >= 30){ clearInterval(poll); reject(new Error('Drive upload timed out')); }
-    }, 1500);
-  }));
+  return compressImageToDataUrl(file, PROFILE_PHOTO_MAX_BYTES).then(dataUrl =>
+    makePhotoThumb(dataUrl).then(thumb => new Promise((resolve, reject) => {
+      const uid = Date.now() + '' + Math.random().toString(36).slice(2, 6);
+      const ext = /^data:image\/png/i.test(dataUrl) ? 'png' : 'jpg';
+      sbSyncPush('_up_' + uid, { image: dataUrl, filename: 'avatar_' + uid + '.' + ext });
+      let tries = 0;
+      const poll = setInterval(async () => {
+        tries++;
+        try {
+          const res = await sbJsonpGet(SYNC_URL + '?key=' + encodeURIComponent('_ur_' + uid));
+          if(res && res.data){
+            clearInterval(poll);
+            if(res.data.ok && res.data.url) resolve({ url: res.data.url, thumb: thumb });
+            else reject(new Error('Drive upload failed'));
+          }
+        } catch(e) {}
+        if(tries >= 30){ clearInterval(poll); reject(new Error('Drive upload timed out')); }
+      }, 1500);
+    }))
+  );
+}
+
+function currentDarkIcon(){
+  if(typeof window.getHdrDarkIcon === 'function') return window.getHdrDarkIcon();
+  return document.body.classList.contains('dark') ? '☀️' : '🌙';
 }
 
 function syncDarkButtons(){
-  const icon = document.body.classList.contains('dark') ? '☀️' : '🌙';
+  const icon = currentDarkIcon();
   document.querySelectorAll('.pt-dark').forEach(b => { b.textContent = icon; });
   const legacy = document.getElementById('darkToggle');
   if(legacy) legacy.textContent = icon;
@@ -229,13 +280,7 @@ function updateHdrProfile(){
   if(!btn) return;
   const face = btn.querySelector('.hdr-profile-face') || btn;
   const tip = document.getElementById('hdrProfileTip');
-  const url = window.sbProfile && window.sbProfile.photoUrl;
-  const safe = url && /^(https:\/\/(lh3\.googleusercontent\.com|drive\.google\.com)\/|data:image\/)/i.test(url);
-  if(safe){
-    face.innerHTML = '<img alt="" src="' + url.replace(/"/g, '') + '">';
-  } else if(!face.querySelector('img')){
-    face.textContent = '👤';
-  }
+  face.textContent = '👤';
 
   const acct = window.sbAccount || {};
   const name = acct.name || localStorage.getItem('studybase_display_name') || (window.isGuest ? 'Guest' : 'Profile');
@@ -244,7 +289,7 @@ function updateHdrProfile(){
   const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
   if(tip){
     const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const darkIcon = document.body.classList.contains('dark') ? '☀️' : '🌙';
+    const darkIcon = currentDarkIcon();
     tip.innerHTML = '<div class="pt-top"><div class="pt-name">' + esc(name) + '</div>' +
       '<div class="pt-actions">' +
       '<button type="button" class="pt-dark" onclick="event.stopPropagation();toggleDark()" aria-label="Toggle dark mode">' + darkIcon + '</button>' +

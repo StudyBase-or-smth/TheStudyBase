@@ -6,7 +6,7 @@
 <title>Profile — StudyBase</title>
 <link rel="icon" href="icon.png" type="image/png">
 <link rel="apple-touch-icon" href="icon.png">
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="mainstyle.css">
 </head>
 <body class="profile-page">
@@ -86,7 +86,7 @@
 
 <!-- Header -->
 <div class="hdr-outer">
-  <div class="accent-bar"></div>
+  <a class="accent-bar is-back" href="index.html" title="Back to Hub" aria-label="Back to Hub"></a>
   <div class="hdr-main">
     <div class="hdr-top">
       <div class="logo-block">
@@ -230,6 +230,7 @@ function startEdit(){
   const p = profileCtx.profile || defaultProfile(profileCtx.uid);
   editDraft = {
     photoUrl: p.photoUrl || '',
+    photoThumb: p.photoThumb || '',
     enabledSubjects: (p.enabledSubjects || allSubjectIds()).slice(),
     enabledClasses: (p.enabledClasses || allClassIds()).slice()
   };
@@ -255,6 +256,7 @@ function saveEdit(){
   if(!profileCtx || profileCtx.isGuest || !editDraft) return;
   const next = Object.assign({}, profileCtx.profile, {
     photoUrl: editDraft.photoUrl || '',
+    photoThumb: editDraft.photoThumb || '',
     enabledSubjects: editDraft.enabledSubjects.slice(),
     enabledClasses: editDraft.enabledClasses.slice(),
     knownSubjectIds: allSubjectIds(),
@@ -275,7 +277,9 @@ async function onProfilePhotoPicked(input){
   photoUploading = true;
   buildProfile();
   try {
-    editDraft.photoUrl = await uploadProfilePhoto(file);
+    const up = await uploadProfilePhoto(file);
+    editDraft.photoUrl = up.url || up;
+    editDraft.photoThumb = up.thumb || '';
     showToast('Photo uploaded');
   } catch(e) {
     showToast(e.message || 'Photo upload failed', 'error');
@@ -284,16 +288,11 @@ async function onProfilePhotoPicked(input){
   buildProfile();
 }
 
-function avatarHtml(photoUrl, initials, color, editing){
-  const inner = photoUrl
-    ? `<img src="${esc(photoUrl)}" alt="">`
-    : esc(initials || '?');
+function avatarHtml(photoUrl, photoThumb, initials, color, editing){
+  const inner = '👤';
   if(!editing) return `<div class="profile-avatar" style="background:${color}">${inner}</div>`;
   return `<div class="avatar-edit">
     <div class="profile-avatar" style="background:${color}">${inner}</div>
-    <button type="button" class="avatar-change" ${photoUploading ? 'disabled' : ''} onclick="document.getElementById('profilePhotoInput').click()">
-      ${photoUploading ? 'Uploading…' : 'Change photo'}
-    </button>
   </div>`;
 }
 
@@ -375,6 +374,7 @@ function buildProfile() {
   const initials    = getInitials(displayName);
   const avatarColor = isGuest ? '#6b7280' : (subjects[0]?.colour || '#f59e0b');
   const photoUrl    = editing ? (editDraft && editDraft.photoUrl) : (profile && profile.photoUrl);
+  const photoThumb  = editing ? (editDraft && editDraft.photoThumb) : (profile && profile.photoThumb);
 
   const badgesHtml = isGuest
     ? `<span class="profile-badge badge-guest">Guest</span>`
@@ -416,7 +416,7 @@ function buildProfile() {
 
   document.getElementById('profilePage').innerHTML = `
     <div class="profile-hero">
-      ${avatarHtml(photoUrl, initials, avatarColor, editing && !isGuest)}
+      ${avatarHtml(photoUrl, photoThumb, initials, avatarColor, editing && !isGuest)}
       <div class="profile-hero-text">
         <div class="profile-name">${esc(displayName)}</div>
         ${email ? `<div class="profile-email">${esc(email)}</div>` : ''}

@@ -290,7 +290,7 @@ function renderSidebar() {
   if (document.getElementById('markerSection')) {
     document.getElementById('markerSection').innerHTML = `
       <div class="tools-list">
-        <a href="analyser.html" class="tool-btn">📍 Marker Tool</a>
+        <a href="analyser.html" class="tool-btn">📍 Analyser Tool</a>
         <a href="HSC/HSC.html" class="tool-btn">🎓 HSC</a>
       </div>`;
   }
