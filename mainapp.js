@@ -20,15 +20,7 @@
 (function () {
   const on = localStorage.getItem('studybase_dark') === '1';
   if (on) document.body.classList.add('dark');
-  const btn = document.getElementById('darkToggle');
-  if (btn) btn.textContent = on ? '☀️' : '🌙';
 })();
-
-document.getElementById('darkToggle').onclick = function () {
-  const on = document.body.classList.toggle('dark');
-  localStorage.setItem('studybase_dark', on ? '1' : '0');
-  this.textContent = on ? '☀️' : '🌙';
-};
 
 // ── Branch version badge ──
 async function loadBranchVersion() {
@@ -93,6 +85,31 @@ function initCollapsibles() {
 const TODAY = new Date();
 let calYear = TODAY.getFullYear(), calMonth = TODAY.getMonth();
 
+function hubSubjects(){
+  return (typeof visibleSubjects === 'function') ? visibleSubjects() : (subjectsData.subjects || []);
+}
+function hubClasses(){
+  return (typeof visibleClasses === 'function') ? visibleClasses() : ((typeof classesData !== 'undefined' && classesData.subjects) || []);
+}
+
+function refreshHubLists(){
+  renderSubjects();
+  renderClasses();
+  renderStats();
+  renderSidebar();
+  updateHdrProfile();
+}
+
+
+window.onHubAuthReady = function (uid) {
+  window.currentUid = uid;
+  if (typeof applyProfileCache === 'function') applyProfileCache(uid);
+  refreshHubLists();
+  if (typeof pullProfile === 'function') {
+    pullProfile(uid).then(() => refreshHubLists());
+  }
+};
+
 // ── Init ──
 function init() {
   if (typeof subjectsData === 'undefined') {
@@ -100,6 +117,9 @@ function init() {
       '<p style="color:red;padding:20px;grid-column:1/-1">subjects.js not found or failed to load.</p>';
     return;
   }
+
+  const cachedUid = localStorage.getItem('studybase_uid');
+  if (cachedUid && typeof applyProfileCache === 'function') applyProfileCache(cachedUid);
 
   // Populate subject options in event modal
   const sel = document.getElementById('evSubject');
@@ -113,6 +133,7 @@ function init() {
   renderClasses();
   renderStats();
   renderSidebar();
+  updateHdrProfile();
   renderCalendar();
   calSync();
   syncAllSubjectsAndUnits();
@@ -134,7 +155,12 @@ function getUnits(s) {
 
 // ── Subject cards ──
 function renderSubjects() {
-  const subjects = subjectsData.subjects || [];
+  const subjects = hubSubjects();
+  if (!subjects.length) {
+    document.getElementById('subjectsGrid').innerHTML =
+      '<p class="empty-note" style="grid-column:1/-1;padding:8px 0">No subjects enabled — turn them on in Profile.</p>';
+    return;
+  }
   document.getElementById('subjectsGrid').innerHTML = subjects.map(s => {
     const topics = getTopics(s), units = getUnits(s);
     const meta = topics.length
@@ -168,7 +194,11 @@ function renderClasses() {
     el.innerHTML = '<p class="empty-note" style="grid-column:1/-1;padding:8px 0">No classes defined yet.</p>';
     return;
   }
-  const classes = classesData.subjects || [];
+  const classes = hubClasses();
+  if (!classes.length) {
+    el.innerHTML = '<p class="empty-note" style="grid-column:1/-1;padding:8px 0">No classes enabled — turn them on in Profile.</p>';
+    return;
+  }
   el.innerHTML = classes.map(s => {
     const topics = getTopics(s), units = getUnits(s);
     const meta = topics.length
@@ -193,7 +223,7 @@ function renderClasses() {
 
 // ── Stats ──
 function renderStats() {
-  const subjects = subjectsData.subjects || [];
+  const subjects = hubSubjects();
   const countEl = document.getElementById('subjCount');
   if (countEl) countEl.textContent = subjects.length;
   let totalTopics = 0, totalUnits = 0, lastDate = null;
@@ -217,7 +247,7 @@ function renderStats() {
 // ── Sidebar: Recently Added + Units + Marker ──
 function renderSidebar() {
   if (typeof subjectsData === 'undefined') return;
-  const subjects = subjectsData.subjects || [];
+  const subjects = hubSubjects();
   let allTopics = [];
   subjects.forEach(s => {
     const topics = getTopics(s);
@@ -544,7 +574,7 @@ function startSyncCountdown() {
   if (!el) return;
   setInterval(() => {
     const secs = Math.max(0, Math.round((_nextSync - Date.now()) / 1000));
-    el.textContent = secs > 0 ? '↻ ' + secs + 's' : '';
+    el.textContent = secs > 0 ? secs + 's' : '';
   }, 1000);
 }
 

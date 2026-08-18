@@ -51,9 +51,23 @@
             return;
           }
 
+          window.currentUid = user.uid;
+          localStorage.setItem('studybase_uid', user.uid);
+          const displayName = user.displayName ||
+            (user.email || '').split('@')[0].split('.').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+          window.sbAccount = { name: displayName, email: user.email || '', role: role };
+          localStorage.setItem('studybase_display_name', displayName);
+          localStorage.setItem('studybase_email', user.email || '');
+          if (typeof onHubAuthReady === 'function') onHubAuthReady(user.uid);
+
           if (role === 'dev' && status === 'active') {
-            const btn = document.getElementById('devPanelBtn');
-            if (btn) btn.style.display = '';
+            const bar = document.getElementById('accentBar');
+            if (bar) {
+              bar.classList.add('is-dev');
+              bar.href = 'Devpanel.html';
+              bar.title = 'Dev Panel';
+              bar.setAttribute('aria-label', 'Dev Panel');
+            }
           }
           if (role === 'teacher' || role === 'dev') {
             window.isTeacher = true;
@@ -68,9 +82,11 @@
         });
       } else if (isGuest) {
         window.isGuest = true;
+        window.sbAccount = { name: 'Guest', email: '', role: 'guest' };
         document.body.classList.add('guest-mode');
         document.getElementById('guest-border').style.display = 'block';
         document.getElementById('guest-nudge').style.display = 'block';
+        if (typeof updateHdrProfile === 'function') updateHdrProfile();
       } else {
         window.location.href = "login.html";
       }
@@ -89,7 +105,7 @@
 
   <!-- ── Header ── -->
   <div class="hdr-outer">
-    <div class="accent-bar" style="background:#f59e0b"></div>
+    <a class="accent-bar" id="accentBar" style="background:#f59e0b"></a>
     <div class="hdr-main">
       <div class="hdr-top">
         <div class="logo-block">
@@ -102,15 +118,16 @@
           </div>
         </div>
         <div id="branch-badge" style="font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;">Loading…</div>
-        <button id="devPanelBtn" class="hdr-ghost" onclick="window.location.href='Devpanel.html'" data-tip="Dev Panel" aria-label="Dev Panel" style="display:none;width:auto;padding:4px 12px;font-size:11px;font-weight:600;border-radius:20px;">🛠️ Dev Panel</button>
         <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
           <span class="hdr-date-pill">Today — <strong id="todayDate"></strong></span>
-          <span id="syncCountdown" style="font-size:11px;color:var(--muted2);font-variant-numeric:tabular-nums"></span>
-          <button class="hdr-ghost" onclick="manualSync()" data-tip="Sync now" aria-label="Sync now">⟳</button>
+          <button class="hdr-ghost hdr-sync" onclick="manualSync()" data-tip="Sync now" aria-label="Sync now">⟳<span id="syncCountdown"></span></button>
           <button class="hdr-ghost" onclick="openSuggestions()" data-tip="Suggestions" aria-label="Suggestions">📝</button>
-          <button class="hdr-ghost" onclick="window.location.href='profile.html'" data-tip="Profile" aria-label="Profile">👤</button>
-          <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out" aria-label="Sign out">⎋</button>
-          <button class="hdr-ghost" id="darkToggle" data-tip="Dark mode" aria-label="Toggle dark mode">🌙</button>
+          <div class="hdr-profile-wrap">
+            <button class="hdr-ghost hdr-profile" id="hdrProfileBtn" onclick="window.location.href='profile.html'" aria-label="Profile">
+              <span class="hdr-profile-face">👤</span>
+            </button>
+            <div class="hdr-profile-tip" id="hdrProfileTip"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -282,6 +299,7 @@
   <!-- subjects.js, sync-config.js and BranchVersion.js must load before mainapp.js -->
   <script src="subjects.js"></script>
   <script src="sync-config.js"></script>
+  <script src="profile-store.js"></script>
   <script src="BranchVersion.js"></script>
   <script src="mainapp.js"></script>
   

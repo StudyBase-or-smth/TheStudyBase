@@ -55,6 +55,7 @@
           document.body.classList.add('guest-mode');
           document.getElementById('guest-border').style.display = 'block';
           document.getElementById('guest-nudge').style.display = 'block';
+          if (typeof bootHdrProfile === 'function') bootHdrProfile(user, role || 'guest');
           return;
         }
 
@@ -63,17 +64,20 @@
           window.teacherName = user.displayName || user.email.split('@')[0];
           document.body.classList.add('teacher-mode');
         }
+        if (typeof bootHdrProfile === 'function') bootHdrProfile(user, role);
       }).catch(() => {
         window.isGuest = true;
         document.body.classList.add('guest-mode');
         document.getElementById('guest-border').style.display = 'block';
         document.getElementById('guest-nudge').style.display = 'block';
+        if (typeof bootHdrProfile === 'function') bootHdrProfile(user, 'guest');
       });
     } else if (isGuest) {
       window.isGuest = true;
       document.body.classList.add('guest-mode');
       document.getElementById('guest-border').style.display = 'block';
       document.getElementById('guest-nudge').style.display = 'block';
+      if (typeof bootHdrProfile === 'function') bootHdrProfile(null, 'guest');
     } else {
       window.location.href = "../login.html";
     }
@@ -111,12 +115,15 @@
       </div>
       <div class="hdr-right-row">
         <span id="syncStatus" style="font-size:11px;font-weight:600"></span>
-        <span id="syncCountdown" style="font-size:11px;color:var(--muted2);font-variant-numeric:tabular-nums"></span>
-        <button class="hdr-ghost" onclick="syncPull()" data-tip="Sync now" aria-label="Sync now">⟳</button>
+        <button class="hdr-ghost hdr-sync" onclick="syncPull()" data-tip="Sync now" aria-label="Sync now">⟳<span id="syncCountdown"></span></button>
         <button class="hdr-ghost" id="btnFlashcards" onclick="window.location.href='flashcards.html#'" data-tip="Flashcards" aria-label="Flashcards">🃏</button>
-        <button class="hdr-ghost" onclick="sbSignOut()" data-tip="Sign out" aria-label="Sign out">⎋</button>
-        <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()" data-tip="Dark mode" aria-label="Toggle dark mode">🌙</button>
         <button class="hdr-action" id="btnNewTopic" onclick="openModal()">+ New topic</button>
+        <div class="hdr-profile-wrap">
+          <button class="hdr-ghost hdr-profile" id="hdrProfileBtn" onclick="window.location.href='../profile.html'" aria-label="Profile">
+            <span class="hdr-profile-face">👤</span>
+          </button>
+          <div class="hdr-profile-tip" id="hdrProfileTip"></div>
+        </div>
       </div>
     </div>
     <div style="display:flex;border-top:1px solid var(--border)">
@@ -357,6 +364,7 @@
 
 <script src="../subjects.js"></script>
 <script src="../sync-config.js"></script>
+<script src="../profile-store.js"></script>
 <script src="classapp.js"></script>
 
 <!-- Guest overlays -->

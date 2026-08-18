@@ -85,15 +85,10 @@ function applySubjectTheme(){
   const btn = document.getElementById('darkToggle');
   if(btn) btn.textContent = on ? '☀️' : '🌙';
 })();
-function toggleDark(){
-  const on = document.body.classList.toggle('dark');
-  localStorage.setItem('studybase_dark', on ? '1' : '0');
-  document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
-  // Desmos doesn't inherit page CSS, so any already-mounted calculators need
-  // their colors pushed explicitly instead of just picking up the new class.
+window.onDarkModeChange = function(){
   if(typeof desmosEditorCalc !== 'undefined' && desmosEditorCalc) desmosEditorCalc.updateSettings(desmosThemeOpts());
   if(typeof desmosViewCalc !== 'undefined' && desmosViewCalc) desmosViewCalc.updateSettings(desmosThemeOpts());
-}
+};
 
 // ── Sidebar collapse (desktop) ──
 // Shared with class.html via the same localStorage key, so collapsing it on
@@ -253,17 +248,18 @@ function tableViewHtml(t){
 
 function pdfDocViewHtml(t){
   if(!t.pdfData) return '<p class="empty-note">No PDF or image uploaded yet.</p>';
-  const isImg = isImageDataUrl(t.pdfData);
+  const isImg = isPdfImageSrc(t.pdfData, t.pdfName);
   const name = esc(t.pdfName || (isImg ? 'image' : 'document.pdf'));
+  const src = isImg ? t.pdfData : driveEmbedUrl(t.pdfData);
   // Images get auto-inverted in dark mode (see the global img filter rule in
   // mainstyle.css) so light-background diagrams don't glow — but that's not
   // always the right call (photos, already-dark images, etc.), so clicking
   // the image toggles it back to its normal colours and back again.
   const viewer = isImg
-    ? `<img class="pdf-viewer-img" id="pdfViewerFrame" src="${t.pdfData}" alt="${name}" title="Click to toggle dark-mode inversion" onclick="toggleImgInvert(this)">`
-    : `<iframe class="pdf-viewer" id="pdfViewerFrame" src="${t.pdfData}" title="${name}"></iframe>`;
+    ? `<img class="pdf-viewer-img" id="pdfViewerFrame" src="${src}" alt="${name}" title="Click to toggle dark-mode inversion" onclick="toggleImgInvert(this)">`
+    : `<iframe class="pdf-viewer" id="pdfViewerFrame" src="${src}" title="${name}"></iframe>`;
   return `<div class="pdf-viewer-wrap">${viewer}
-      <a class="pdf-open-link" href="${t.pdfData}" download="${name}">⬇ ${name}</a></div>`;
+      <a class="pdf-open-link" href="${t.pdfData}" ${/^https?:/i.test(t.pdfData) ? 'target="_blank" rel="noopener"' : `download="${name}"`}>⬇ ${name}</a></div>`;
 }
 
 // Toggles an uploaded image between the dark-mode auto-inverted look and its
@@ -464,19 +460,78 @@ const LAYOUT_LABELS = { basic:'Basic', overview:'Overview', math:'Math', text:'T
 let currentLayout = 'basic';
 
 // ── PDF/Image topic type ──
-// PDFs and images are embedded as base64 data URLs directly on the topic
-// (like the rich-text image uploads, but simpler — no server round trip).
-// This bloats sync payloads for large files, so we cap it rather than let
-// it silently break syncPush/localStorage.
-const PDF_MAX_BYTES = 6 * 1024 * 1024; // ~6MB (base64 already ~33% bigger than the raw file)
-let pendingPdfData = null;   // null = no change; '' = explicitly removed; string = new data URL
+// Files go to the same Drive folder as rich-text images (Apps Script
+// handles `_up_` / `_ur_` keys). The topic only stores the returned URL
+// plus the original filename — not a base64 blob.
+const PDF_MAX_BYTES = 6 * 1024 * 1024;
+let pendingPdfData = null;   // null = no change; '' = removed; string = Drive URL or legacy data URL
 let pendingPdfName = null;
+let pendingPdfUploading = false;
 
 function isImageDataUrl(url){
   return !!url && /^data:image\//i.test(url);
 }
 
-function onPdfFileSelected(input){
+function isPdfImageSrc(url, name){
+  if(!url) return false;
+  if(/^data:application\/pdf/i.test(url)) return false;
+  if(isImageDataUrl(url)) return true;
+  if(name && /\.pdf$/i.test(name)) return false;
+  if(name && /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(name)) return true;
+  return /lh3\.googleusercontent\.com/i.test(url);
+}
+
+function driveEmbedUrl(url){
+  if(!url || /^data:/i.test(url)) return url;
+  const id = (url.match(/[?&]id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/) || [])[1];
+  return id ? ('https://drive.google.com/file/d/' + id + '/preview') : url;
+}
+
+function fileToDataUrl(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = () => reject(new Error('Could not read file'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function compressImageFile(file){
+  return fileToDataUrl(file).then(src => new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 900; let w = img.width, h = img.height;
+      if(w > MAX){ h = Math.round(h * MAX / w); w = MAX; }
+      const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(cv.toDataURL('image/jpeg', 0.82));
+    };
+    img.onerror = () => reject(new Error('Could not read image'));
+    img.src = src;
+  }));
+}
+
+function uploadDataUrlToDrive(dataUrl, filename){
+  return new Promise((resolve, reject) => {
+    const uid = Date.now() + '' + Math.random().toString(36).slice(2, 6);
+    syncPush('_up_' + uid, { image: dataUrl, filename: filename || ('sb_' + uid) });
+    let tries = 0;
+    const poll = setInterval(async () => {
+      tries++;
+      try{
+        const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent('_ur_'+uid));
+        if(res && res.data){
+          clearInterval(poll);
+          if(res.data.ok && res.data.url) resolve(res.data.url);
+          else reject(new Error('Drive upload failed'));
+        }
+      } catch(e) {}
+      if(tries >= 30){ clearInterval(poll); reject(new Error('Drive upload timed out')); }
+    }, 1500);
+  });
+}
+
+async function onPdfFileSelected(input){
   const file = input.files && input.files[0];
   input.value = '';
   if(!file) return;
@@ -489,29 +544,41 @@ function onPdfFileSelected(input){
     showToast(`File is too large (${(file.size/1024/1024).toFixed(1)}MB) — max ${(PDF_MAX_BYTES/1024/1024).toFixed(0)}MB`, 'error');
     return;
   }
-  const reader = new FileReader();
-  reader.onload = e => {
-    pendingPdfData = e.target.result;
+  pendingPdfUploading = true;
+  pendingPdfName = file.name;
+  renderPdfPreview();
+  try{
+    const dataUrl = isImage ? await compressImageFile(file) : await fileToDataUrl(file);
+    const filename = isImage ? ('sb_' + Date.now() + '.jpg') : file.name;
+    pendingPdfData = await uploadDataUrlToDrive(dataUrl, filename);
     pendingPdfName = file.name;
-    renderPdfPreview();
-  };
-  reader.readAsDataURL(file);
+    showToast('Uploaded to Drive', 'success');
+  } catch(e){
+    showToast(e.message || 'Drive upload failed', 'error');
+  }
+  pendingPdfUploading = false;
+  renderPdfPreview();
 }
 
 function removePdfFile(){
   pendingPdfData = '';
   pendingPdfName = '';
+  pendingPdfUploading = false;
   renderPdfPreview();
 }
 
 function renderPdfPreview(){
   const area = document.getElementById('pdfPreviewArea');
   if(!area) return;
+  if(pendingPdfUploading){
+    area.innerHTML = `<div class="pdf-picked-row"><span class="pdf-picked-name">⏳ Uploading ${esc(pendingPdfName || 'file')} to Drive…</span></div>`;
+    return;
+  }
   const ex = editId ? ((editOrigin ? topicsForOrigin(editOrigin) : getTopics()).find(t => t.id===editId)||{}) : {};
   const data = pendingPdfData !== null ? pendingPdfData : (ex.pdfData || '');
   const name = pendingPdfData !== null ? pendingPdfName : (ex.pdfName || '');
   const hasFile = !!data;
-  const icon = isImageDataUrl(data) ? '🖼' : '📄';
+  const icon = isPdfImageSrc(data, name) ? '🖼' : '📄';
   area.innerHTML = hasFile
     ? `<div class="pdf-picked-row"><span class="pdf-picked-name">${icon} ${esc(name || (icon==='🖼' ? 'image' : 'document.pdf'))}</span>
         <button type="button" class="btn-small" onclick="document.getElementById('fPdfFile').click()">Replace</button>
@@ -1241,7 +1308,7 @@ function openModal(id){
     buildTableEditor(t.tableData);
     mountDesmosEditor(t.desmosState || null);
     currentLayout = LAYOUTS.includes(t.layout) ? t.layout : 'basic';
-    pendingPdfData = null; pendingPdfName = null;
+    pendingPdfData = null; pendingPdfName = null; pendingPdfUploading = false;
   } else {
     document.getElementById('modalTitle').textContent = 'New topic';
     ['fName','fDefinition'].forEach(i => document.getElementById(i).value = '');
@@ -1251,7 +1318,7 @@ function openModal(id){
     buildTableEditor(null);
     mountDesmosEditor(null);
     currentLayout = 'basic';
-    pendingPdfData = null; pendingPdfName = null;
+    pendingPdfData = null; pendingPdfName = null; pendingPdfUploading = false;
   }
   renderPdfPreview();
   applyLayoutUI();
@@ -1777,7 +1844,7 @@ function startCountdown(){
   if(!el)return;
   setInterval(()=>{
     const secs=Math.max(0,Math.round((_nextSync-Date.now())/1000));
-    el.textContent=secs>0?'↻ '+secs+'s':'';
+    el.textContent=secs>0?secs+'s':'';
   },1000);
 }
 

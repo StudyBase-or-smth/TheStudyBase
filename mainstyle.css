@@ -10,7 +10,11 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;min-height:
 
 /* ── HEADER ── */
 .hdr-outer{background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:stretch}
-.accent-bar{width:6px;flex-shrink:0}
+.accent-bar{width:6px;flex-shrink:0;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:width .22s cubic-bezier(.34,1.2,.64,1)}
+.accent-bar.is-dev{cursor:pointer}
+.accent-bar.is-dev:hover{width:36px}
+.accent-bar.is-dev::after{content:'';position:absolute;left:6px;top:50%;transform:translateY(-50%);width:22px;height:22px;opacity:0;transition:opacity .18s .05s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.7)' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:contain;pointer-events:none}
+.accent-bar.is-dev:hover::after{opacity:1}
 .hdr-main{flex:1;display:flex;flex-direction:column;min-width:0}
 .hdr-top{display:flex;align-items:center;padding:0 20px;height:44px;gap:10px}
 .logo-block{display:flex;align-items:center;gap:9px;padding-right:14px;border-right:1px solid var(--border);flex-shrink:0}
@@ -20,9 +24,38 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;min-height:
 .hdr-date-pill{font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap}
 .hdr-ghost{background:none;border:1px solid var(--border);border-radius:5px;padding:4px 7px;font-size:12px;color:var(--text);cursor:pointer;transition:all .12s;line-height:1;display:flex;align-items:center;justify-content:center;font-family:inherit;position:relative}
 .hdr-ghost:hover{background:var(--card2);border-color:var(--muted2)}
+.hdr-sync{gap:5px;width:auto;padding:4px 8px}
+.hdr-sync #syncCountdown{font-size:11px;color:var(--muted2);font-variant-numeric:tabular-nums}
+.hdr-sync #syncCountdown:empty{display:none}
 .hdr-ghost::after{content:attr(data-tip);position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--card);color:var(--text);font-size:10px;font-weight:600;white-space:nowrap;padding:4px 9px;border-radius:5px;border:2px solid var(--border2);pointer-events:none;opacity:0;transition:opacity .12s;letter-spacing:.2px;font-family:'Inter',sans-serif;box-shadow:0 2px 6px rgba(0,0,0,.08);z-index:50}
 .hdr-ghost::before{content:'';position:absolute;top:calc(100% + 1px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-bottom-color:var(--border2);pointer-events:none;opacity:0;transition:opacity .12s;z-index:50}
 .hdr-ghost:hover::after,.hdr-ghost:hover::before{opacity:1}
+.hdr-profile-wrap{position:relative;display:flex;align-items:center}
+.hdr-profile{width:28px;height:28px;padding:0;border-radius:50%;overflow:visible;flex-shrink:0;font-size:13px}
+.hdr-profile::after,.hdr-profile::before{display:none!important;content:none!important;opacity:0!important}
+.hdr-profile-face{width:100%;height:100%;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.hdr-profile-face img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
+.hdr-profile-tip{position:absolute;top:calc(100% + 8px);right:0;left:auto;transform:none;width:max-content;min-width:200px;max-width:min(90vw,520px);background:var(--card);color:var(--text);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;text-align:left;pointer-events:none;opacity:0;transition:opacity .12s;z-index:80;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.hdr-profile-tip::before{content:'';position:absolute;left:0;right:0;bottom:100%;height:10px}
+.hdr-profile-wrap:hover .hdr-profile-tip,.hdr-profile-tip:hover{opacity:1;pointer-events:auto}
+.hdr-profile-tip .pt-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:2px}
+.hdr-profile-tip .pt-name{font-size:13px;font-weight:700;font-family:'Lora',serif;line-height:1.25;white-space:nowrap}
+.hdr-profile-tip .pt-role{font-size:11px;font-weight:600;color:var(--muted);text-transform:capitalize;margin-bottom:4px}
+.hdr-profile-tip .pt-email{font-size:11px;color:var(--muted2);word-break:break-all}
+.hdr-profile-tip .pt-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.hdr-profile-tip .pt-dark,.hdr-profile-tip .pt-signout{flex-shrink:0;margin:0;padding:3px 8px;border:1px solid var(--border);border-radius:5px;background:none;color:var(--text);font-family:inherit;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;line-height:1.2}
+.hdr-profile-tip .pt-dark:hover{background:var(--card2);border-color:var(--border2)}
+.hdr-profile-tip .pt-signout:hover{border-color:#ef4444;color:#ef4444}
+body.subject-page .hdr-ghost.hdr-profile{width:28px!important;height:28px!important;min-width:28px;padding:0!important;border-radius:50%!important;overflow:visible}
+body.subject-page .hdr-profile::after,body.subject-page .hdr-profile::before{display:none!important;content:none!important;opacity:0!important}
+body.subject-page .hdr-profile-face{width:100%;height:100%;border-radius:50%;overflow:hidden}
+body.subject-page .hdr-profile-face img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
+body.dark.subject-page img{filter:none!important}
+body.dark.subject-page .def-text img:not(.no-invert),
+body.dark.subject-page .rich-content img:not(.no-invert),
+body.dark.subject-page .pdf-viewer-img:not(.no-invert),
+body.dark.subject-page .enlarge-slot img:not(.no-invert),
+body.dark.subject-page .quiz-image:not(.no-invert){filter:invert(1) hue-rotate(180deg)!important}
 
 /* ── STATS ── */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:28px 0}
@@ -76,8 +109,8 @@ body{background:#f5f2ed;color:#1c1917;font-family:'Inter',sans-serif;min-height:
    back to the OS's native light scrollbar even inside a dark card. Setting
    it directly, and re-declaring it under body.dark since --border2/--muted2
    only update their values there, is what actually themes it correctly. */
-#unitsList{max-height:280px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#d4cec7 transparent;padding-right:4px}
-#unitsList::-webkit-scrollbar{display:block;width:6px}
+#unitsList{max-height:280px;overflow-x:hidden;overflow-y:auto;overscroll-behavior-x:none;scrollbar-width:thin;scrollbar-color:#d4cec7 transparent;padding-right:4px}
+#unitsList::-webkit-scrollbar{display:block;width:6px;height:0}
 #unitsList::-webkit-scrollbar-track{background:transparent}
 #unitsList::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 #unitsList::-webkit-scrollbar-thumb:hover{background:var(--muted2)}

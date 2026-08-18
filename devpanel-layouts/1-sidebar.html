@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dev Panel — A · Sidebar</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f5f2ed;--card:#fff;--card2:#faf8f5;--border:#e2ddd7;--border2:#d4cec7;
+  --text:#1c1917;--muted:#78716c;--muted2:#a8a29e;--accent:#7c3aed;
+  --ac-l:rgba(124,58,237,.08);--ac-b:rgba(124,58,237,.22);
+  --shadow:0 1px 3px rgba(0,0,0,.07);
+}
+body.dark{--bg:#141210;--card:#1e1c19;--card2:#252220;--border:#302d29;--border2:#3d3935;--text:#e8e3dc;--muted:#9e9890;--muted2:#6b6560;--ac-l:rgba(167,139,250,.1);--ac-b:rgba(167,139,250,.25)}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px}
+.app{display:flex;min-height:100%}
+.rail{width:220px;flex-shrink:0;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:16px 12px}
+.brand{display:flex;align-items:center;gap:8px;padding:4px 8px 18px}
+.brand-mark{width:22px;height:22px;border-radius:6px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.brand-name{font-family:'Lora',serif;font-weight:700;font-size:15px}
+.brand-sub{font-size:10px;color:var(--muted2);letter-spacing:.4px;text-transform:uppercase}
+.nav-label{font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--muted2);padding:8px 10px 6px}
+.nav-btn{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:8px 10px;border:none;background:none;border-radius:8px;color:var(--muted);font:600 13px/1.2 Inter,sans-serif;cursor:pointer}
+.nav-btn:hover{background:var(--card2);color:var(--text)}
+.nav-btn.active{background:var(--ac-l);color:var(--accent)}
+.nav-count{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px}
+.rail-foot{margin-top:auto;padding:10px 8px 4px;border-top:1px solid var(--border)}
+.rail-foot a{font-size:12px;color:var(--muted);text-decoration:none}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{height:52px;display:flex;align-items:center;gap:12px;padding:0 22px;border-bottom:1px solid var(--border);background:var(--card)}
+.top h1{font-family:'Lora',serif;font-size:17px;font-weight:700}
+.search{margin-left:auto;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font:13px Inter,sans-serif;color:var(--text);width:220px}
+.icon-btn{background:none;border:1px solid var(--border);border-radius:7px;width:32px;height:32px;cursor:pointer}
+.page{padding:22px 24px 48px;max-width:980px}
+.hint{font-size:12px;color:var(--muted);margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow)}
+.q-name{font-weight:600}
+.q-email{font-size:12px;color:var(--muted);margin-top:2px}
+.q-meta{display:flex;gap:8px;margin-top:6px;align-items:center}
+.pill{font-size:10.5px;font-weight:700;text-transform:uppercase;background:var(--ac-l);border:1px solid var(--ac-b);color:var(--accent);padding:2px 8px;border-radius:4px}
+.muted{font-size:11px;color:var(--muted2)}
+.actions{margin-left:auto;display:flex;gap:6px}
+.btn{font:600 12px Inter,sans-serif;border-radius:6px;padding:7px 11px;cursor:pointer;border:1px solid var(--border);background:var(--card2);color:var(--text)}
+.btn.ok{background:#dcfce7;border-color:#86efac;color:#15803d}
+.btn.warn{background:#fef9c3;border-color:#fde68a;color:#92400e}
+.btn.bad{background:#fef2f2;border-color:#fca5a5;color:#dc2626}
+select{font:12px Inter,sans-serif;border:1px solid var(--border);border-radius:6px;padding:6px 8px;background:var(--card2);color:var(--text)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.stat b{display:block;font-family:'Lora',serif;font-size:24px;color:var(--accent)}
+.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.row{display:grid;grid-template-columns:1.2fr 1.4fr 90px 90px 140px;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;align-items:center}
+.row.head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted2);background:var(--card2)}
+.table{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.hidden{display:none}
+.layout-tag{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);background:var(--ac-l);border:1px solid var(--ac-b);padding:2px 8px;border-radius:99px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="rail">
+    <div class="brand">
+      <div class="brand-mark">S</div>
+      <div>
+        <div class="brand-name">StudyBase</div>
+        <div class="brand-sub">Dev console</div>
+      </div>
+    </div>
+    <div class="nav-label">Manage</div>
+    <button class="nav-btn active" data-tab="queue">Approval queue <span class="nav-count">3</span></button>
+    <button class="nav-btn" data-tab="users">All users</button>
+    <button class="nav-btn" data-tab="stats">Site stats</button>
+    <button class="nav-btn" data-tab="tools">Tools</button>
+    <div class="rail-foot"><a href="../index.html">← Back to Hub</a></div>
+  </aside>
+  <div class="main">
+    <header class="top">
+      <h1 id="pageTitle">Approval queue</h1>
+      <span class="layout-tag">Layout A · Sidebar</span>
+      <input class="search" placeholder="Search name or email…">
+      <button class="icon-btn" id="darkToggle">🌙</button>
+    </header>
+    <div class="page">
+      <section id="queue">
+        <p class="hint">Pending accounts wait here until a dev approves, denies, or removes them.</p>
+        <div class="card">
+          <div>
+            <div class="q-name">Mia Chen</div>
+            <div class="q-email">mia.chen@pcs.nsw.edu.au</div>
+            <div class="q-meta"><span class="pill">Requested: teacher</span><span class="muted">16 Aug 2026</span></div>
+          </div>
+          <div class="actions">
+            <select><option>Student</option><option selected>Teacher</option><option>Dev</option></select>
+            <button class="btn ok">Approve</button>
+            <button class="btn warn">Deny</button>
+            <button class="btn bad">Remove</button>
+          </div>
+        </div>
+        <div class="card">
+          <div>
+            <div class="q-name">Liam Patel</div>
+            <div class="q-email">liam.patel@pcs.nsw.edu.au</div>
+            <div class="q-meta"><span class="pill">Requested: student</span><span class="muted">17 Aug 2026</span></div>
+          </div>
+          <div class="actions">
+            <select><option selected>Student</option><option>Teacher</option><option>Dev</option></select>
+            <button class="btn ok">Approve</button>
+            <button class="btn warn">Deny</button>
+            <button class="btn bad">Remove</button>
+          </div>
+        </div>
+        <div class="card">
+          <div>
+            <div class="q-name">Sofia Nguyen</div>
+            <div class="q-email">sofia.nguyen@pcs.nsw.edu.au</div>
+            <div class="q-meta"><span class="pill">Requested: student</span><span class="muted">18 Aug 2026</span></div>
+          </div>
+          <div class="actions">
+            <select><option selected>Student</option><option>Teacher</option><option>Dev</option></select>
+            <button class="btn ok">Approve</button>
+            <button class="btn warn">Deny</button>
+            <button class="btn bad">Remove</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="users" class="hidden">
+        <p class="hint">Every Firebase account, including pending and rejected.</p>
+        <div class="table">
+          <div class="row head"><span>Name</span><span>Email</span><span>Role</span><span>Status</span><span>Actions</span></div>
+          <div class="row"><span>Ethan Cook</span><span>ethan.cook@pcs.nsw.edu.au</span><span class="pill">Dev</span><span>Active</span><span><button class="btn">Edit</button></span></div>
+          <div class="row"><span>Ms. Harris</span><span>s.harris@pcs.nsw.edu.au</span><span class="pill">Teacher</span><span>Active</span><span><button class="btn">Edit</button></span></div>
+          <div class="row"><span>Mia Chen</span><span>mia.chen@pcs.nsw.edu.au</span><span class="pill">Teacher</span><span>Pending</span><span><button class="btn">Edit</button></span></div>
+        </div>
+      </section>
+
+      <section id="stats" class="hidden">
+        <div class="stats">
+          <div class="stat"><b>148</b><span>Accounts</span></div>
+          <div class="stat"><b>3</b><span>Pending</span></div>
+          <div class="stat"><b>412</b><span>Topics</span></div>
+          <div class="stat"><b>9</b><span>Subjects</span></div>
+        </div>
+        <div class="table">
+          <div class="row head"><span>Subject</span><span>Topics</span><span></span><span></span><span>Updated</span></div>
+          <div class="row"><span>Mathematics</span><span>86</span><span></span><span></span><span>Today</span></div>
+          <div class="row"><span>Chemistry</span><span>54</span><span></span><span></span><span>Yesterday</span></div>
+        </div>
+      </section>
+
+      <section id="tools" class="hidden">
+        <p class="hint">Bootstrap a role by UID. Bypasses the normal approval flow.</p>
+        <div class="card">
+          <input class="search" style="width:280px;margin:0" placeholder="Firebase UID…">
+          <select><option>Student</option><option>Teacher</option><option>Dev</option></select>
+          <button class="btn ok">Set role</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  const on = localStorage.getItem('studybase_dark') === '1';
+  document.body.classList.toggle('dark', on);
+  const darkBtn = document.getElementById('darkToggle');
+  darkBtn.textContent = on ? '☀️' : '🌙';
+  darkBtn.onclick = () => {
+    const next = document.body.classList.toggle('dark');
+    localStorage.setItem('studybase_dark', next ? '1' : '0');
+    darkBtn.textContent = next ? '☀️' : '🌙';
+  };
+  const titles = {queue:'Approval queue',users:'All users',stats:'Site stats',tools:'Tools'};
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      ['queue','users','stats','tools'].forEach(id => {
+        document.getElementById(id).classList.toggle('hidden', id !== btn.dataset.tab);
+      });
+      document.getElementById('pageTitle').textContent = titles[btn.dataset.tab];
+    };
+  });
+})();
+</script>
+</body>
+</html>

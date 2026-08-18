@@ -74,12 +74,48 @@ body.dark .badge-pending{background:#1f1208!important;border-color:#c2410c!impor
 .subj-link-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .subj-link-name{font-size:13px;font-weight:500;color:var(--text);flex:1}
 .subj-link-count{font-size:11px;color:var(--muted2)}
+.profile-hero-text{flex:1;min-width:0}
+.profile-avatar{overflow:hidden;position:relative}
+.profile-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.profile-hero-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.profile-edit-btn{background:none;border:1px solid var(--border);border-radius:7px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:600;color:var(--text);cursor:pointer}
+.profile-edit-btn:hover{background:var(--card2);border-color:var(--border2)}
+.profile-edit-btn:disabled{opacity:.45;cursor:not-allowed}
+.avatar-edit{position:relative;flex-shrink:0}
+.avatar-change{position:absolute;left:0;right:0;bottom:0;border:none;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:600;padding:5px 0;cursor:pointer;font-family:inherit}
+.avatar-change:disabled{opacity:.6;cursor:wait}
+.check-list{display:flex;flex-direction:column;gap:6px}
+.check-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card2);cursor:pointer}
+.check-row input{accent-color:var(--accent)}
+.check-row .subj-link-name{flex:1}
+.check-row-id{font-size:11px;color:var(--muted2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.check-hint{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.45}
+.check-search{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;font-family:inherit;font-size:13px;color:var(--text);outline:none;margin-bottom:10px}
+.check-search:focus{border-color:var(--border2);background:var(--card)}
+.check-empty{display:none;font-size:12px;color:var(--muted2);padding:8px 2px}
+.profile-signout{display:inline-block;margin:0;background:none;border:1px solid var(--border);border-radius:7px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:600;color:var(--text);cursor:pointer}
+.profile-signout:hover{border-color:#ef4444;color:#ef4444}
+.edit-actions{display:flex;gap:8px}
+.btn-save-profile{background:var(--text);color:var(--card);border:none;border-radius:7px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.btn-cancel-profile{background:none;border:1px solid var(--border);border-radius:7px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:600;color:var(--text);cursor:pointer}
 body.dark{background:#141210;color:#e8e3dc;--card:#1e1c19;--card2:#252220;--border:#302d29;--border2:#3d3935;--text:#e8e3dc;--muted:#9e9890;--muted2:#6b6560;--shadow:0 1px 3px rgba(0,0,0,.3)}
 body.dark .hdr-outer{background:var(--card)}
 #sb-toast-c{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none}
 .sb-toast{display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--border2);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:180px;animation:tb-in .2s ease;transition:opacity .3s,transform .3s}
 .sb-toast.out{opacity:0;transform:translateX(16px)}
 @keyframes tb-in{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+.so-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+.so-overlay.open{display:flex}
+.so-modal{background:var(--card);border:1px solid var(--border);border-radius:12px;width:100%;max-width:360px;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.15);animation:sopop .18s cubic-bezier(.34,1.4,.64,1)}
+@keyframes sopop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.so-modal h3{font-family:'Lora',serif;font-size:17px;font-weight:600;color:var(--text);margin-bottom:8px}
+.so-modal p{font-size:13px;color:var(--muted);line-height:1.45;margin-bottom:18px}
+.so-actions{display:flex;gap:8px;justify-content:flex-end}
+.so-btn{padding:7px 14px;border-radius:7px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.so-btn.cancel{background:none;border:1px solid var(--border);color:var(--text)}
+.so-btn.cancel:hover{background:var(--card2);border-color:var(--border2)}
+.so-btn.confirm{background:#dc2626;border:none;color:#fff}
+.so-btn.confirm:hover{opacity:.88}
 @media(max-width:600px){.profile-grid{grid-template-columns:1fr}.profile-hero{flex-direction:column;text-align:center}}
 
 /* ── Guest mode ── */
@@ -138,13 +174,17 @@ body.dark .hdr-outer{background:var(--card)}
         localStorage.setItem('studybase_member_since', new Date().toISOString());
 
       const effectiveStatus = status === 'active' ? 'active' : (status || 'pending');
-      buildProfile(displayName, email, uid, false, role, effectiveStatus);
+      if (typeof applyProfileCache === 'function') applyProfileCache(uid);
+      bootProfile(displayName, email, uid, false, role, effectiveStatus);
+      if (typeof pullProfile === 'function') {
+        pullProfile(uid).then(() => bootProfile(displayName, email, uid, false, role, effectiveStatus));
+      }
     } else if (isGuest) {
       window.isGuest = true;
       document.body.classList.add('guest-mode');
       document.getElementById('guest-border').style.display = 'block';
       document.getElementById('guest-nudge').style.display = 'block';
-      buildProfile('Guest', '', 'guest', true, 'guest', 'active');
+      bootProfile('Guest', '', 'guest', true, 'guest', 'active');
     } else {
       window.location.href = 'login.html';
     }
@@ -177,7 +217,6 @@ body.dark .hdr-outer{background:var(--card)}
         <span class="bc-current">Profile</span>
       </div>
       <div class="hdr-right">
-        <button class="hdr-ghost" onclick="sbSignOut()">⎋ Sign out</button>
         <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()">🌙</button>
       </div>
     </div>
@@ -188,7 +227,18 @@ body.dark .hdr-outer{background:var(--card)}
   <div style="color:var(--muted);font-size:13px;padding:40px 0;text-align:center">Loading profile…</div>
 </div>
 
+<input type="file" id="profilePhotoInput" accept="image/*" style="display:none">
 <div id="sb-toast-c"></div>
+<div class="so-overlay" id="signOutOverlay" onclick="if(event.target===this) closeSignOutPopup()">
+  <div class="so-modal" role="dialog" aria-modal="true" aria-labelledby="soTitle">
+    <h3 id="soTitle">Sign out?</h3>
+    <p>You’ll need to sign in again to use your account.</p>
+    <div class="so-actions">
+      <button type="button" class="so-btn cancel" onclick="closeSignOutPopup()">Cancel</button>
+      <button type="button" class="so-btn confirm" onclick="closeSignOutPopup();sbSignOut()">Sign out</button>
+    </div>
+  </div>
+</div>
 
 <!-- Guest overlays -->
 <div id="guest-border"></div>
@@ -200,6 +250,8 @@ body.dark .hdr-outer{background:var(--card)}
 </div>
 
 <script src="subjects.js"></script>
+<script src="sync-config.js"></script>
+<script src="profile-store.js"></script>
 <script>
 // ── Dark mode ──
 (function(){
@@ -216,6 +268,48 @@ function toggleDark(){
 
 function getInitials(name){
   return name.split(' ').map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
+}
+
+function esc(s){
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function openSignOutPopup(){
+  const el = document.getElementById('signOutOverlay');
+  if(el) el.classList.add('open');
+}
+function closeSignOutPopup(){
+  const el = document.getElementById('signOutOverlay');
+  if(el) el.classList.remove('open');
+}
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') closeSignOutPopup();
+});
+
+function showToast(msg, type){
+  const c = document.getElementById('sb-toast-c');
+  if(!c) return;
+  const t = document.createElement('div');
+  t.className = 'sb-toast';
+  t.textContent = msg;
+  if(type === 'error') t.style.borderColor = '#ef4444';
+  c.appendChild(t);
+  setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, 2800);
+}
+
+let profileCtx = null;
+let editDraft = null;
+let photoUploading = false;
+
+function bootProfile(displayName, email, uid, isGuest, role, status){
+  const keepEditing = profileCtx && profileCtx.editing && profileCtx.uid === uid;
+  profileCtx = {
+    displayName, email, uid, isGuest, role, status,
+    editing: keepEditing,
+    profile: (typeof readCachedProfile === 'function') ? readCachedProfile(uid) : { photoUrl:'', enabledSubjects: [], enabledClasses: [] }
+  };
+  if(!keepEditing) editDraft = null;
+  buildProfile();
 }
 
 function formatDate(iso){
@@ -242,10 +336,139 @@ function roleBadge(role, status) {
   return map[role] || `<span class="profile-badge badge-student">🎒 Student</span>`;
 }
 
-function buildProfile(displayName, email, uid, isGuest, role, status) {
-  const subjects = (typeof subjectsData !== 'undefined') ? (subjectsData.subjects || []) : [];
+function canEditClasses(role){
+  return role === 'teacher' || role === 'dev';
+}
 
-  // Count topics added by this user
+function startEdit(){
+  if(!profileCtx || profileCtx.isGuest) return;
+  const p = profileCtx.profile || defaultProfile(profileCtx.uid);
+  editDraft = {
+    photoUrl: p.photoUrl || '',
+    enabledSubjects: (p.enabledSubjects || allSubjectIds()).slice(),
+    enabledClasses: (p.enabledClasses || allClassIds()).slice()
+  };
+  profileCtx.editing = true;
+  buildProfile();
+}
+
+function cancelEdit(){
+  editDraft = null;
+  photoUploading = false;
+  if(profileCtx) profileCtx.editing = false;
+  buildProfile();
+}
+
+function toggleDraftId(listName, id, on){
+  if(!editDraft) return;
+  const list = new Set(editDraft[listName] || []);
+  if(on) list.add(id); else list.delete(id);
+  editDraft[listName] = [...list];
+}
+
+function saveEdit(){
+  if(!profileCtx || profileCtx.isGuest || !editDraft) return;
+  const next = Object.assign({}, profileCtx.profile, {
+    photoUrl: editDraft.photoUrl || '',
+    enabledSubjects: editDraft.enabledSubjects.slice(),
+    enabledClasses: editDraft.enabledClasses.slice(),
+    knownSubjectIds: allSubjectIds(),
+    knownClassIds: allClassIds()
+  });
+  profileCtx.profile = pushProfile(profileCtx.uid, next);
+  profileCtx.editing = false;
+  editDraft = null;
+  showToast('Profile saved');
+  buildProfile();
+}
+
+async function onProfilePhotoPicked(input){
+  const file = input.files && input.files[0];
+  input.value = '';
+  if(!file || !editDraft) return;
+  if(!file.type.startsWith('image/')){ showToast('Please choose an image', 'error'); return; }
+  photoUploading = true;
+  buildProfile();
+  try {
+    editDraft.photoUrl = await uploadProfilePhoto(file);
+    showToast('Photo uploaded');
+  } catch(e) {
+    showToast(e.message || 'Photo upload failed', 'error');
+  }
+  photoUploading = false;
+  buildProfile();
+}
+
+function avatarHtml(photoUrl, initials, color, editing){
+  const inner = photoUrl
+    ? `<img src="${esc(photoUrl)}" alt="">`
+    : esc(initials || '?');
+  if(!editing) return `<div class="profile-avatar" style="background:${color}">${inner}</div>`;
+  return `<div class="avatar-edit">
+    <div class="profile-avatar" style="background:${color}">${inner}</div>
+    <button type="button" class="avatar-change" ${photoUploading ? 'disabled' : ''} onclick="document.getElementById('profilePhotoInput').click()">
+      ${photoUploading ? 'Uploading…' : 'Change photo'}
+    </button>
+  </div>`;
+}
+
+function filterCheckList(input, listId){
+  const needle = (input.value || '').trim().toLowerCase();
+  const list = document.getElementById(listId);
+  if(!list) return;
+  let shown = 0;
+  list.querySelectorAll('.check-row').forEach(row => {
+    const hay = (row.getAttribute('data-search') || '').toLowerCase();
+    const match = !needle || hay.includes(needle);
+    row.style.display = match ? '' : 'none';
+    if(match) shown++;
+  });
+  const empty = list.querySelector('.check-empty');
+  if(empty) empty.style.display = shown ? 'none' : 'block';
+}
+
+function subjectChecksHtml(enabled){
+  const subjects = (typeof subjectsData !== 'undefined') ? (subjectsData.subjects || []) : [];
+  const on = new Set(enabled || []);
+  if(!subjects.length) return '<div style="font-size:13px;color:var(--muted2)">No subjects configured.</div>';
+  return `<p class="check-hint">Checked subjects show on your hub.</p>
+    <input class="check-search" type="search" placeholder="Search subjects…" aria-label="Search subjects" oninput="filterCheckList(this,'subjectCheckList')">
+    <div class="check-list" id="subjectCheckList">${subjects.map(s => `
+      <label class="check-row" data-search="${esc((s.name || '') + ' ' + (s.id || ''))}">
+        <input type="checkbox" ${on.has(s.id) ? 'checked' : ''} onchange="toggleDraftId('enabledSubjects','${s.id}',this.checked)">
+        <span class="subj-link-dot" style="background:${s.colour}"></span>
+        <span class="subj-link-name">${s.emoji || ''} ${esc(s.name)}</span>
+        <span class="check-row-id">${esc(s.id)}</span>
+      </label>`).join('')}
+      <div class="check-empty">No subjects match that search.</div>
+    </div>`;
+}
+
+function classChecksHtml(enabled){
+  const classes = (typeof classesData !== 'undefined') ? (classesData.subjects || []) : [];
+  const on = new Set(enabled || []);
+  if(!classes.length) return '<div style="font-size:13px;color:var(--muted2)">No classes configured.</div>';
+  return `<p class="check-hint">Checked classes show on your hub.</p>
+    <input class="check-search" type="search" placeholder="Search classes…" aria-label="Search classes" oninput="filterCheckList(this,'classCheckList')">
+    <div class="check-list" id="classCheckList">${classes.map(s => {
+      const label = (s.name || '') + (s.class ? ' ' + s.class : '') + (s.teacher ? ' ' + s.teacher : '') + ' ' + (s.id || '');
+      return `<label class="check-row" data-search="${esc(label)}">
+        <input type="checkbox" ${on.has(s.id) ? 'checked' : ''} onchange="toggleDraftId('enabledClasses','${esc(s.id)}',this.checked)">
+        <span class="subj-link-dot" style="background:${s.colour}"></span>
+        <span class="subj-link-name">${s.emoji || ''} ${esc(s.name)}${s.class ? ' · ' + esc(s.class) : ''}</span>
+        <span class="check-row-id">${esc(s.id)}</span>
+      </label>`;
+    }).join('')}
+      <div class="check-empty">No classes match that search.</div>
+    </div>`;
+}
+
+function buildProfile() {
+  if(!profileCtx) return;
+  const { displayName, email, uid, isGuest, role, status, editing, profile } = profileCtx;
+  const subjects = (typeof subjectsData !== 'undefined') ? (subjectsData.subjects || []) : [];
+  const enabledSet = new Set((profile && profile.enabledSubjects) || subjects.map(s => s.id));
+
   let totalTopics = 0, mostActive = null, mostActiveCount = 0;
   subjects.forEach(s => {
     const all  = getTopics(s);
@@ -254,7 +477,6 @@ function buildProfile(displayName, email, uid, isGuest, role, status) {
     if (mine.length > mostActiveCount) { mostActiveCount = mine.length; mostActive = s; }
   });
 
-  // Flashcard stats
   const statsKey = 'studybase_fc_stats_' + uid;
   let fcStats = {correct:0,close:0,incorrect:0,total:0};
   try { fcStats = JSON.parse(localStorage.getItem(statsKey) || '{}'); } catch(e) {}
@@ -267,35 +489,59 @@ function buildProfile(displayName, email, uid, isGuest, role, status) {
   const memberSince = formatDate(localStorage.getItem('studybase_member_since'));
   const initials    = getInitials(displayName);
   const avatarColor = isGuest ? '#6b7280' : (subjects[0]?.colour || '#f59e0b');
+  const photoUrl    = editing ? (editDraft && editDraft.photoUrl) : (profile && profile.photoUrl);
 
   const badgesHtml = isGuest
-    ? `<span class="profile-badge badge-guest">👤 Guest</span>`
+    ? `<span class="profile-badge badge-guest">Guest</span>`
     : roleBadge(role, status);
 
-  const subjLinksHtml = subjects.length
-    ? subjects.map(s => {
+  const visibleForLinks = subjects.filter(s => enabledSet.has(s.id));
+  const subjLinksHtml = visibleForLinks.length
+    ? visibleForLinks.map(s => {
         const all  = getTopics(s);
         const mine = uid === 'guest' ? all : all.filter(t => !t.addedBy || t.addedBy === uid);
         return `<a class="subj-link-item" href="subject/subject.html#${s.id}">
           <div class="subj-link-dot" style="background:${s.colour}"></div>
-          <span class="subj-link-name">${s.emoji || ''} ${s.name}</span>
+          <span class="subj-link-name">${s.emoji || ''} ${esc(s.name)}</span>
           <span class="subj-link-count">${mine.length} mine · ${all.length} total</span>
         </a>`;
       }).join('')
-    : '<div style="font-size:13px;color:var(--muted2)">No subjects configured.</div>';
+    : '<div style="font-size:13px;color:var(--muted2)">No subjects enabled.</div>';
 
   const barW = n => fcTotal > 0 ? Math.round((n / fcTotal) * 100) : 0;
+  const heroActions = `<div class="profile-hero-actions">${
+    isGuest ? '' : (editing
+      ? `<div class="edit-actions">
+          <button type="button" class="btn-save-profile" onclick="saveEdit()" ${photoUploading ? 'disabled' : ''}>Save</button>
+          <button type="button" class="btn-cancel-profile" onclick="cancelEdit()">Cancel</button>
+        </div>`
+      : `<button type="button" class="profile-edit-btn" onclick="startEdit()">Edit</button>`)
+  }${editing ? '' : '<button type="button" class="profile-signout" onclick="openSignOutPopup()">Sign out</button>'}</div>`;
+
+  const editPanel = editing ? `
+    <div class="profile-card" style="margin-bottom:20px">
+      <div class="profile-card-title">Available subjects</div>
+      ${subjectChecksHtml(editDraft.enabledSubjects)}
+    </div>
+    ${canEditClasses(role) ? `
+    <div class="profile-card" style="margin-bottom:20px">
+      <div class="profile-card-title">Available classes</div>
+      ${classChecksHtml(editDraft.enabledClasses)}
+    </div>` : ''}` : '';
 
   document.getElementById('profilePage').innerHTML = `
     <div class="profile-hero">
-      <div class="profile-avatar" style="background:${avatarColor}">${initials || '?'}</div>
-      <div>
-        <div class="profile-name">${displayName}</div>
-        ${email ? `<div class="profile-email">${email}</div>` : ''}
-        <div class="profile-since">Member since ${memberSince}</div>
+      ${avatarHtml(photoUrl, initials, avatarColor, editing && !isGuest)}
+      <div class="profile-hero-text">
+        <div class="profile-name">${esc(displayName)}</div>
+        ${email ? `<div class="profile-email">${esc(email)}</div>` : ''}
+        <div class="profile-since">Member since ${esc(memberSince)}</div>
         <div class="profile-badges">${badgesHtml}</div>
       </div>
+      ${heroActions}
     </div>
+
+    ${editPanel}
 
     <div class="profile-grid">
       <div class="profile-card">
@@ -306,11 +552,11 @@ function buildProfile(displayName, email, uid, isGuest, role, status) {
         </div>
         <div class="stat-row">
           <span class="stat-label">Subjects</span>
-          <span class="stat-val">${subjects.length}</span>
+          <span class="stat-val">${visibleForLinks.length}</span>
         </div>
         <div class="stat-row">
           <span class="stat-label">Most active subject</span>
-          <span class="stat-val" style="font-size:13px">${mostActive ? mostActive.name : '—'}</span>
+          <span class="stat-val" style="font-size:13px">${mostActive ? esc(mostActive.name) : '—'}</span>
         </div>
         <div class="stat-row">
           <span class="stat-label">Questions answered</span>
@@ -328,15 +574,15 @@ function buildProfile(displayName, email, uid, isGuest, role, status) {
           ? `<div style="font-size:13px;color:var(--muted2);padding:12px 0">No flashcard questions answered yet.</div>`
           : `<div class="fc-breakdown">
               <div class="fc-bar-row">
-                <div class="fc-bar-label"><span>✓ Correct</span><span>${fcCorrect}</span></div>
+                <div class="fc-bar-label"><span>Correct</span><span>${fcCorrect}</span></div>
                 <div class="fc-bar-track"><div class="fc-bar-fill correct" style="width:${barW(fcCorrect)}%"></div></div>
               </div>
               <div class="fc-bar-row">
-                <div class="fc-bar-label"><span>~ Close</span><span>${fcClose}</span></div>
+                <div class="fc-bar-label"><span>Close</span><span>${fcClose}</span></div>
                 <div class="fc-bar-track"><div class="fc-bar-fill close" style="width:${barW(fcClose)}%"></div></div>
               </div>
               <div class="fc-bar-row">
-                <div class="fc-bar-label"><span>✕ Incorrect</span><span>${fcIncorrect}</span></div>
+                <div class="fc-bar-label"><span>Incorrect</span><span>${fcIncorrect}</span></div>
                 <div class="fc-bar-track"><div class="fc-bar-fill incorrect" style="width:${barW(fcIncorrect)}%"></div></div>
               </div>
             </div>
@@ -345,20 +591,22 @@ function buildProfile(displayName, email, uid, isGuest, role, status) {
               <span style="font-size:15px;font-weight:700">${fcTotal}</span>
             </div>
             <button onclick="if(confirm('Reset all flashcard stats?')){localStorage.removeItem('studybase_fc_stats_${uid}');location.reload();}"
-              style="margin-top:10px;background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);cursor:pointer;transition:all .12s"
-              onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444'"
-              onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+              style="margin-top:10px;background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);cursor:pointer">
               Reset stats
             </button>`
         }
       </div>
     </div>
 
-    <div class="profile-card" style="margin-bottom:20px">
+    ${editing ? '' : `<div class="profile-card" style="margin-bottom:20px">
       <div class="profile-card-title">Subjects</div>
       <div class="subj-links">${subjLinksHtml}</div>
-    </div>`;
+    </div>`}`;
 }
+
+document.getElementById('profilePhotoInput').addEventListener('change', function(){
+  onProfilePhotoPicked(this);
+});
 </script>
 </body>
 </html>
