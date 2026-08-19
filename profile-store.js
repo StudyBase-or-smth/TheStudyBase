@@ -1,8 +1,9 @@
 // profile-store.js
 //
-// Per-user profile (photo + enabled subjects/classes) stored via SYNC_URL
-// under `_profile_<uid>`, with a localStorage cache for the hub.
-// Loaded after sync-config.js (needs SYNC_URL).
+// Per-user profile (photo + enabled subjects/classes + flashcard stats)
+// stored via SYNC_URL under `_profile_<uid>`. The local store maps that
+// key to StudyBaseData/users/<uid>/profile.json. Cached in localStorage
+// for the hub. Loaded after sync-config.js (needs SYNC_URL).
 
 function profileLocalKey(uid){ return 'studybase_profile_' + (uid || 'guest'); }
 function profileSyncKey(uid){ return '_profile_' + uid; }
@@ -44,8 +45,53 @@ function normalizeProfile(raw, uid){
     enabledClasses: mergeEnabled(p.enabledClasses, p.knownClassIds, allC),
     knownSubjectIds: allS.slice(),
     knownClassIds: allC.slice(),
+    stats: { flashcards: normalizeFcStats(p.stats && p.stats.flashcards) },
     updatedAt: p.updatedAt || ''
   };
+}
+
+function emptyFcStats(){
+  return { correct: 0, close: 0, incorrect: 0, total: 0 };
+}
+
+function normalizeFcStats(raw){
+  const s = (raw && typeof raw === 'object') ? raw : {};
+  const n = k => Math.max(0, parseInt(s[k], 10) || 0);
+  return {
+    correct: n('correct'),
+    close: n('close'),
+    incorrect: n('incorrect'),
+    total: n('total')
+  };
+}
+
+function fcStatsLocalKey(uid){ return 'studybase_fc_stats_' + (uid || 'guest'); }
+
+function readLocalFcStats(uid){
+  try {
+    return normalizeFcStats(JSON.parse(localStorage.getItem(fcStatsLocalKey(uid)) || 'null'));
+  } catch(e) {
+    return emptyFcStats();
+  }
+}
+
+function writeLocalFcStats(uid, stats){
+  const s = normalizeFcStats(stats);
+  try { localStorage.setItem(fcStatsLocalKey(uid), JSON.stringify(s)); } catch(e) {}
+  return s;
+}
+
+function pickNewerFcStats(a, b){
+  const A = normalizeFcStats(a), B = normalizeFcStats(b);
+  return A.total >= B.total ? A : B;
+}
+
+function applyFcStatsToProfile(uid, stats){
+  if(!uid || uid === 'guest') return writeLocalFcStats(uid, stats);
+  const s = writeLocalFcStats(uid, stats);
+  const p = readCachedProfile(uid);
+  p.stats = Object.assign({}, p.stats, { flashcards: s });
+  return writeCachedProfile(uid, p);
 }
 
 function defaultProfile(uid){

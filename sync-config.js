@@ -39,7 +39,14 @@ function isAllowedSyncMediaUrl(src){
   if(src.startsWith('https://drive.google.com/')) return true;
   if(/^https:\/\/lh[0-9]\.googleusercontent\.com\//i.test(src)) return true;
   const origin = syncMediaOrigin();
-  return !!(origin && src.startsWith(origin + '/files/'));
+  if (!origin) return false;
+  if (src.startsWith(origin + '/files/')) return true;
+  try {
+    const u = new URL(src);
+    return u.origin === origin && /\/users\/[A-Za-z0-9._-]+\/photo\/?$/.test(u.pathname);
+  } catch (e) {
+    return false;
+  }
 }
 
 function usesConfirmableSync(){
