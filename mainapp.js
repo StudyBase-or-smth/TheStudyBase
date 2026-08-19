@@ -146,13 +146,11 @@ function init() {
 // ── Data helpers ──
 function getTopics(s) {
   const key = s.storageKey || (s.id + '_topics');
-  const v = sbMemGet(key, []);
-  return Array.isArray(v) ? v : [];
+  return normalizeTopicList(sbMemGet(key, []));
 }
 function getUnits(s) {
   const key = s.unitsKey || (s.id + '_units');
-  const v = sbMemGet(key, []);
-  return Array.isArray(v) ? v : [];
+  return normalizeUnits(sbMemGet(key, []));
 }
 
 // ── Subject cards ──
@@ -253,7 +251,14 @@ function renderSidebar() {
   let allTopics = [];
   subjects.forEach(s => {
     const topics = getTopics(s);
-    topics.forEach(t => allTopics.push({ ...t, sName: s.name, sColour: s.colour, sFile: 'subject/subject.html?topic=' + encodeURIComponent(t.id) + '#' + s.id }));
+    const units = getUnits(s);
+    topics.forEach(t => allTopics.push({
+      ...t,
+      sName: s.name,
+      sColour: s.colour,
+      unitName: unitLabel(t.unit, units),
+      sFile: 'subject/subject.html?topic=' + encodeURIComponent(t.id) + '#' + s.id
+    }));
   });
 
   // Recently Added
@@ -265,7 +270,7 @@ function renderSidebar() {
         <div class="feed-dot" style="background:${t.sColour};flex-shrink:0;margin-top:5px"></div>
         <div>
           <div class="feed-name">${t.name}</div>
-          <div class="feed-sub" style="color:${t.sColour}">${t.sName}${t.unit ? ' · ' + t.unit : ''}</div>
+          <div class="feed-sub" style="color:${t.sColour}">${t.sName}${t.unitName ? ' · ' + t.unitName : ''}</div>
         </div>
       </a>`).join('');
 
@@ -275,12 +280,12 @@ function renderSidebar() {
   subjects.forEach(s => {
     const units = getUnits(s), topics = getTopics(s);
     units.forEach(u => {
-      const n = topics.filter(t => t.unit === u).length;
-      const href = 'subject/subject.html?unit=' + encodeURIComponent(u) + '#' + s.id;
+      const n = unitTopicCount(topics, u);
+      const href = 'subject/subject.html?unit=' + encodeURIComponent(u.id) + '#' + s.id;
       unitsHtml += `<a class="feed-item" href="${href}" style="text-decoration:none;display:flex;align-items:flex-start;gap:10px;padding:9px 6px;border-bottom:1px solid var(--border);border-radius:4px;margin:0 -6px;transition:background .12s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
         <div class="feed-dot" style="background:${s.colour};flex-shrink:0;margin-top:5px"></div>
         <div>
-          <div class="feed-name" style="font-size:12px">${u}</div>
+          <div class="feed-name" style="font-size:12px">${u.name}</div>
           <div class="feed-sub" style="color:${s.colour}">${s.name} · ${n} topic${n !== 1 ? 's' : ''}</div>
         </div>
       </a>`;

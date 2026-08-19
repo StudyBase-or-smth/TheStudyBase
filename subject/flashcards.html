@@ -246,10 +246,11 @@ function resolveSubject(){
 }
 
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function jsFc(v){ return "'" + String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'") + "'"; }
 function stripHtml(h){ const d=document.createElement('div');d.innerHTML=h||'';return d.textContent.trim(); }
 
-const getTopics = () => { const v = sbMemGet(ST, []); return Array.isArray(v) ? v : []; };
-const getUnits  = () => { const v = sbMemGet(SU, []); return Array.isArray(v) ? v : []; };
+const getTopics = () => normalizeTopicList(sbMemGet(ST, []));
+const getUnits  = () => normalizeUnits(sbMemGet(SU, []));
 
 // ── State ──
 let fcCards = [], fcIndex = 0, fcFlipped = false, activeUnit = 'all';
@@ -279,7 +280,7 @@ function applyTheme(){
 // ── Build deck from current filter ──
 function buildDeck(){
   const all = getTopics();
-  const pool = activeUnit === 'all' ? [...all] : all.filter(t => t.unit === activeUnit);
+  const pool = activeUnit === 'all' ? [...all] : all.filter(t => topicMatchesUnit(t, findUnit(getUnits(), activeUnit) || { id: activeUnit, name: activeUnit }));
   // Expand: each topic becomes 1 base card + N Q&A cards
   fcCards = [];
   pool.forEach(t => {
@@ -310,15 +311,13 @@ function render(){
 
   const units = getUnits();
   const topics = getTopics();
-  const counts = {};
-  topics.forEach(t => { if(t.unit) counts[t.unit] = (counts[t.unit]||0)+1; });
 
   const unitPillsHtml = units.length
     ? `<div class="fc-filter-label">Filter by unit</div>
        <div class="unit-pills">
          <button class="unit-pill${activeUnit==='all'?' active':''}" onclick="setUnit('all')">All (${topics.length})</button>
-         ${units.map(u=>`<button class="unit-pill${activeUnit===u?' active':''}" onclick="setUnit('${u.replace(/'/g,"\\'")}')">
-           ${esc(u)} <span style="color:var(--muted2);font-weight:400">(${counts[u]||0})</span>
+         ${units.map(u=>`<button class="unit-pill${activeUnit===u.id?' active':''}" onclick="setUnit(${jsFc(u.id)})">
+           ${esc(u.name)} <span style="color:var(--muted2);font-weight:400">(${unitTopicCount(topics, u)})</span>
          </button>`).join('')}
        </div>`
     : '';
@@ -386,7 +385,7 @@ function renderCard(){
   if(card.type === 'qa'){
     // Q&A card: question shown, no flip — answer typed below
     front.innerHTML = `
-      ${t.unit ? `<div class="fc-unit-badge">${esc(t.unit)}</div>` : ''}
+      ${t.unit ? `<div class="fc-unit-badge">${esc(unitLabel(t.unit, getUnits()))}</div>` : ''}
       <div style="font-size:11px;color:var(--muted2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600">${esc(t.name)}</div>
       <div class="fc-term" style="font-size:22px">${esc(card.q)}</div>`;
     back.innerHTML = '';
@@ -414,7 +413,7 @@ function renderCard(){
     document.getElementById('fcResult').className = 'fc-result';
 
     front.innerHTML = `
-      ${t.unit ? `<div class="fc-unit-badge">${esc(t.unit)}</div>` : ''}
+      ${t.unit ? `<div class="fc-unit-badge">${esc(unitLabel(t.unit, getUnits()))}</div>` : ''}
       <div class="fc-term">${esc(t.name)}</div>
       <div class="fc-hint">Click · Space to flip</div>`;
 
@@ -451,8 +450,8 @@ function renderCard(){
   if(sub){
     const card = fcCards[fcIndex];
     const typeLabel = card.type === 'qa' ? '· Question' : '· Term';
-    const unitLabel = card.topic.unit ? ` · ${card.topic.unit}` : '';
-    sub.textContent = typeLabel + unitLabel;
+    const unitTxt = card.topic.unit ? ` · ${unitLabel(card.topic.unit, getUnits())}` : '';
+    sub.textContent = typeLabel + unitTxt;
   }
 
   // Dots (max 20 shown)

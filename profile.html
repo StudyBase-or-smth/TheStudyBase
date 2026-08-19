@@ -207,8 +207,7 @@ function formatDate(iso){
 
 function getTopics(s){
   const key = s.storageKey || (s.id + '_topics');
-  const v = sbMemGet(key, []);
-  return Array.isArray(v) ? v : [];
+  return normalizeTopicList(sbMemGet(key, []));
 }
 
 // Returns a styled badge for the user's role + status

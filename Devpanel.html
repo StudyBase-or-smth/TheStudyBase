@@ -494,13 +494,19 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
     const subjectRows = [], activityRows = [];
 
     subjects.forEach(s => {
-      let topics = [], units = [], notesObj = {};
-      try{ topics   = sbMemGet(s.storageKey || s.id+'_topics', []) || []; }catch(e){}
-      try{ units    = sbMemGet(s.unitsKey   || s.id+'_units', []) || []; }catch(e){}
-      try{ notesObj = sbMemGet('tnotes_'+s.id, {}) || {}; }catch(e){}
+      const topics = normalizeTopicList(sbMemGet(s.storageKey || s.id+'_topics', []));
+      const units = normalizeUnits(sbMemGet(s.unitsKey || s.id+'_units', []));
+      const notesObj = sbMemGet('tnotes_'+s.id, {}) || {};
 
       let noteCount = 0;
-      Object.values(notesObj).forEach(blocks => {
+      const notedIds = new Set();
+      topics.forEach(t => {
+        Object.values(t.notes || {}).forEach(arr => { if(Array.isArray(arr)) noteCount += arr.length; });
+        if(t.notes && Object.keys(t.notes).length) notedIds.add(String(t.id));
+      });
+      Object.keys(notesObj).forEach(id => {
+        if(notedIds.has(String(id))) return;
+        const blocks = notesObj[id];
         if(Array.isArray(blocks)) noteCount += blocks.length;
         else if(blocks && typeof blocks==='object') Object.values(blocks).forEach(arr => { if(Array.isArray(arr)) noteCount += arr.length; });
       });

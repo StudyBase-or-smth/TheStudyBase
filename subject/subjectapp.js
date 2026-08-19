@@ -391,9 +391,11 @@ function destroyDesmosView(){
 }
 
 // ── Storage helpers ──
-const CELL_LIMIT = 45000;
-const getTopics  = () => { const v = sbMemGet(ST, []); return Array.isArray(v) ? v : []; };
-const getUnits   = () => { const v = sbMemGet(SU, null); return Array.isArray(v) ? v : DEF_UNITS.slice(); };
+const getTopics  = () => normalizeTopicList(sbMemGet(ST, []));
+const getUnits   = () => {
+  const n = normalizeUnits(sbMemGet(SU, null));
+  return n.length ? n : normalizeUnits(DEF_UNITS);
+};
 const getPinned  = () => { try{ return JSON.parse(localStorage.getItem(SP)||'[]'); }catch(e){ return []; } };
 
 // `activeOrigin` is null while viewing/editing the subject's own content, or
@@ -408,13 +410,11 @@ let openCommentBlocks = new Set();
 // class.html/classapp.js, keeping each class's content genuinely separate.
 function topicsForOrigin(origin){
   if(!origin) return getTopics();
-  const v = sbMemGet(origin.storageKey || (origin.id + '_topics'), []);
-  return Array.isArray(v) ? v : [];
+  return normalizeTopicList(sbMemGet(origin.storageKey || (origin.id + '_topics'), []));
 }
 function unitsForOrigin(origin){
   if(!origin) return getUnits();
-  const v = sbMemGet(origin.unitsKey || (origin.id + '_units'), []);
-  return Array.isArray(v) ? v : [];
+  return normalizeUnits(sbMemGet(origin.unitsKey || (origin.id + '_units'), []));
 }
 // Write counterparts — only ever reached when window.userRole === 'dev' and
 // the user explicitly edits/deletes a class topic from the subject page's
@@ -424,18 +424,18 @@ function unitsForOrigin(origin){
 function saveTopicsForOrigin(origin, topics){
   if(!origin){ saveTopics(topics); return; }
   const key = origin.storageKey || (origin.id + '_topics');
-  const changed = changedTopicIds(topicsForOrigin(origin), topics);
-  sbMemSet(key, topics);
-  const sd = sanitizeForSync(topics);
-  if(JSON.stringify(sd).length > CELL_LIMIT){ setSyncStatus('warn'); return; }
+  const next = normalizeTopicList(topics);
+  const changed = changedTopicIds(topicsForOrigin(origin), next);
+  sbMemSet(key, next);
+  const sd = serializeTopicList(sanitizeForSync(next));
   trackTopicPush(key, changed, syncPush(key, sd)).finally(refreshUnsyncedUI);
 }
 function saveUnitsForOrigin(origin, units){
   if(!origin){ saveUnits(units); return; }
   const key = origin.unitsKey || (origin.id + '_units');
-  sbMemSet(key, units);
-  if(JSON.stringify(units).length > CELL_LIMIT){ setSyncStatus('warn'); }
-  else{ syncPush(key, units); }
+  const items = normalizeUnits(units);
+  sbMemSet(key, items);
+  syncPush(key, serializeUnits(items));
 }
 // Tracks which class (if any) the currently-open modal is editing into —
 // set by openModal, read by saveTopic. Null means "the subject's own
@@ -443,16 +443,16 @@ function saveUnitsForOrigin(origin, units){
 let editOrigin = null;
 
 const saveTopics = t => {
-  const changed = changedTopicIds(getTopics(), t);
-  sbMemSet(ST, t);
-  const sd = sanitizeForSync(t);
-  if(JSON.stringify(sd).length > CELL_LIMIT){ setSyncStatus('warn'); return; }
+  const next = normalizeTopicList(t);
+  const changed = changedTopicIds(getTopics(), next);
+  sbMemSet(ST, next);
+  const sd = serializeTopicList(sanitizeForSync(next));
   trackTopicPush(ST, changed, syncPush(ST, sd)).finally(refreshUnsyncedUI);
 };
 const saveUnits = u => {
-  sbMemSet(SU, u);
-  if(JSON.stringify(u).length > CELL_LIMIT){ setSyncStatus('warn'); }
-  else{ syncPush(SU, u); }
+  const items = normalizeUnits(u);
+  sbMemSet(SU, items);
+  syncPush(SU, serializeUnits(items));
 };
 const savePinned = p => {
   localStorage.setItem(SP, JSON.stringify(p));
@@ -619,22 +619,39 @@ function applyLayoutUI(){
 }
 
 // ── Teacher notes (per block) ──
-// When viewing an aggregated class topic (activeOrigin set), notes are kept
-// in that class's own tnotes bucket — not the subject's — so a comment
-// posted here is the same comment you'd see on the class page, not a
-// separate copy.
-const TN_KEY = () => 'tnotes_' + (activeOrigin ? activeOrigin.id : (SUBJECT ? SUBJECT.id : 'default'));
-const getTeacherNotes = () => { const v = sbMemGet(TN_KEY(), {}); return (v && typeof v === 'object') ? v : {}; };
+// Notes live on the topic itself (`topic.notes`). Legacy tnotes_* buckets
+// are still read on pull and absorbed into topics, then dropped.
+function teacherNotesOrigin(){
+  return activeOrigin || null;
+}
+function getTeacherNotes(){
+  const topics = teacherNotesOrigin() ? topicsForOrigin(teacherNotesOrigin()) : getTopics();
+  const fromTopics = {};
+  topics.forEach(t => {
+    if(t.notes && Object.keys(t.notes).length) fromTopics[t.id] = t.notes;
+  });
+  const legacyKey = 'tnotes_' + (activeOrigin ? activeOrigin.id : (SUBJECT ? SUBJECT.id : 'default'));
+  const legacy = sbMemGet(legacyKey, {});
+  if(legacy && typeof legacy === 'object'){
+    Object.keys(legacy).forEach(id => {
+      if(!fromTopics[id]) fromTopics[id] = Array.isArray(legacy[id]) ? { general: legacy[id] } : legacy[id];
+    });
+  }
+  return fromTopics;
+}
 const saveTeacherNotes = obj => {
-  sbMemSet(TN_KEY(), obj);
-  syncPush(TN_KEY(), obj);
+  const origin = teacherNotesOrigin();
+  const topics = origin ? topicsForOrigin(origin) : getTopics();
+  const next = topics.map(t => {
+    const n = obj[t.id] || obj[String(t.id)];
+    return Object.assign({}, t, { notes: n && typeof n === 'object' ? n : {} });
+  });
+  saveTopicsForOrigin(origin, next);
 };
 
-// Notes are stored as { [topicId]: { [blockKey]: [note, ...] } }.
-// Legacy data may have { [topicId]: [note, ...] } — normalise on read.
 function getTopicBlockNotes(topicId){
   const all = getTeacherNotes();
-  let n = all[topicId];
+  let n = all[topicId] || all[String(topicId)];
   if(Array.isArray(n)) return { general: n };
   return n || {};
 }
@@ -647,7 +664,7 @@ function saveBlockNote(topicId, block, text){
   if(!all[topicId]) all[topicId] = {};
   if(!all[topicId][block]) all[topicId][block] = [];
   all[topicId][block].push({
-    id: Date.now().toString(36),
+    id: newNoteId(),
     text,
     author: window.teacherName || 'Teacher',
     uid: window.currentUid || '',
@@ -740,13 +757,13 @@ function blockCommentHtml(topicId, block, label, icon){
       <div class="blk-note-meta">
         <span class="blk-note-author">🎓 ${esc(n.author)}</span>
         <span class="blk-note-date">${n.date}</span>
-        ${window.isTeacher ? `<button class="blk-note-del" onclick="deleteBlockNote(${topicId},'${block}','${n.id}')" title="Delete">✕</button>` : ''}
+        ${window.isTeacher ? `<button class="blk-note-del" onclick="deleteBlockNote(${jsArg(topicId)},'${block}','${n.id}')" title="Delete">✕</button>` : ''}
       </div>
       <p class="blk-note-text">${esc(n.text)}</p>
     </div>`).join('');
 
   const iconAction = window.isTeacher
-    ? `openCommentPopover(${topicId},'${block}','${esc(label).replace(/'/g,"\\'")}',this)`
+    ? `openCommentPopover(${jsArg(topicId)},'${block}','${esc(label).replace(/'/g,"\\'")}',this)`
     : `toggleBlockCard('${block}')`;
 
   const commentIcon = `
@@ -907,10 +924,10 @@ window.addEventListener('resize', () => {
 
 // ── Pin / unpin a topic ──
 function togglePinTopic(id){
-  id = Number(id);
-  const pinned = getPinned();
-  const idx = pinned.indexOf(id);
-  if(idx === -1){ pinned.push(id); }
+  const sid = String(id);
+  const pinned = getPinned().map(String);
+  const idx = pinned.indexOf(sid);
+  if(idx === -1){ pinned.push(sid); }
   else { pinned.splice(idx, 1); }
   savePinned(pinned);
   renderList();
@@ -951,7 +968,8 @@ function jsArg(v){
 }
 
 function getDescendantIds(id, topics){
-  const direct = topics.filter(t => t.parentId === id).map(t => t.id);
+  const sid = String(id);
+  const direct = topics.filter(t => t.parentId != null && t.parentId !== '' && String(t.parentId) === sid).map(t => t.id);
   return direct.concat(direct.flatMap(cid => getDescendantIds(cid, topics)));
 }
 
@@ -970,9 +988,9 @@ function renderSubtree(c, topics){
     : '';
   return `
     <div class="tree-node">
-      <div class="subtopic-sidebar-item${(activeId==c.id)?' active':''}" onclick="event.stopPropagation();viewTopic(${c.id})">
+      <div class="subtopic-sidebar-item${(activeId==c.id)?' active':''}" onclick="event.stopPropagation();viewTopic(${jsArg(c.id)})">
         ${hasKids
-          ? `<button class="ti-expand-btn sub-expand" onclick="event.stopPropagation();toggleTopicExpand(${c.id})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>`
+          ? `<button class="ti-expand-btn sub-expand" onclick="event.stopPropagation();toggleTopicExpand(${jsArg(c.id)})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>`
           : `<span class="ssi-dot"></span>`}
         <span class="ssi-label">${topicTitleHtml(c.name, c.id, ST)}</span>
       </div>
@@ -983,17 +1001,20 @@ function renderSubtree(c, topics){
 function renderList(){
   const q = document.getElementById('searchInput').value.toLowerCase();
   const topics = getTopics();
+  const units = getUnits();
   const pinned = getPinned();
   const matches = t => {
-    const mu = activeUnits.size === 0 || (t.unit && activeUnits.has(t.unit));
+    const mu = topicInActiveUnits(t, activeUnits, units);
+    const uName = unitLabel(t.unit, units);
     const mq = !q || t.name.toLowerCase().includes(q) ||
       (t.definition||'').toLowerCase().includes(q) ||
       (t.unit||'').toLowerCase().includes(q) ||
+      uName.toLowerCase().includes(q) ||
       (t.relatedTerms||[]).some(r => r.toLowerCase().includes(q));
     return mu && mq;
   };
   const topLevel = topics.filter(t => !t.parentId && matches(t)).sort((a,b) => {
-    const ap = pinned.includes(a.id), bp = pinned.includes(b.id);
+    const ap = pinHas(pinned, a.id), bp = pinHas(pinned, b.id);
     if(ap && !bp) return -1;
     if(!ap && bp) return 1;
     return a.name.localeCompare(b.name);
@@ -1002,24 +1023,25 @@ function renderList(){
   document.getElementById('topicList').innerHTML = topLevel.length === 0
     ? `<div class="sidebar-empty">${q ? 'No results for "'+esc(q)+'"' : 'No topics yet.<br>Click <strong>+ New topic</strong> to begin.'}</div>`
     : topLevel.map(t => {
-        const isPinned = pinned.includes(t.id);
-        const children = topics.filter(c => c.parentId === t.id);
+        const isPinned = pinHas(pinned, t.id);
+        const children = topics.filter(c => String(c.parentId) === String(t.id));
         const hasSubs = children.length > 0;
         const isExpanded = hasSubs && expandedTopics.has(t.id);
         const subListHtml = isExpanded
           ? `<div class="subtopic-sidebar-list">` + children.map(c => renderSubtree(c, topics)).join('') + `</div>`
           : '';
+        const uName = unitLabel(t.unit, units);
         return `
         <div class="topic-item-wrap">
-          <div class="topic-item${(t.id==activeId && !activeOrigin)?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${t.id})">
+          <div class="topic-item${(t.id==activeId && !activeOrigin)?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${jsArg(t.id)})">
             <div class="ti-top">
               <div class="ti-name">
-                ${hasSubs ? `<button class="ti-expand-btn" onclick="event.stopPropagation();toggleTopicExpand(${t.id})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>` : ''}
+                ${hasSubs ? `<button class="ti-expand-btn" onclick="event.stopPropagation();toggleTopicExpand(${jsArg(t.id)})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>` : ''}
                 ${isPinned?'<span class="ti-pin-icon"></span>':''}${topicTitleHtml(t.name, t.id, ST)}
               </div>
-              <button class="ti-pin-btn" onclick="event.stopPropagation();togglePinTopic(${t.id})" title="${isPinned?'Unpin':'Pin'}">${isPinned?'★':'☆'}</button>
+              <button class="ti-pin-btn" onclick="event.stopPropagation();togglePinTopic(${jsArg(t.id)})" title="${isPinned?'Unpin':'Pin'}">${isPinned?'★':'☆'}</button>
             </div>
-            ${t.unit ? `<div class="ti-unit">${esc(t.unit)}</div>` : ''}
+            ${uName ? `<div class="ti-unit">${esc(uName)}</div>` : ''}
             ${t.definition ? `<div class="ti-prev">${esc(t.definition.substring(0,55))}…</div>` : ''}
           </div>
           ${subListHtml}
@@ -1057,7 +1079,7 @@ function setActiveClass(id){
 }
 
 function renderClassNode(t, topics, cls){
-  const children = topics.filter(k => k.parentId === t.id);
+  const children = topics.filter(k => String(k.parentId) === String(t.id));
   const hasKids = children.length > 0;
   const isExpanded = hasKids && expandedTopics.has(t.id);
   const originArg = jsArg(cls.id);
@@ -1065,16 +1087,17 @@ function renderClassNode(t, topics, cls){
     ? `<div class="subtopic-sidebar-list">` + children.map(c => renderClassNode(c, topics, cls)).join('') + `</div>`
     : '';
   const isActive = t.id == activeId && activeOrigin && activeOrigin.id === cls.id;
+  const uName = unitLabel(t.unit, unitsForOrigin(cls));
   return `
     <div class="topic-item-wrap">
-      <div class="topic-item${isActive ? ' active' : ''}" onclick="viewTopic(${t.id}, ${originArg})">
+      <div class="topic-item${isActive ? ' active' : ''}" onclick="viewTopic(${jsArg(t.id)}, ${originArg})">
         <div class="ti-top">
           <div class="ti-name">
-            ${hasKids ? `<button class="ti-expand-btn" onclick="event.stopPropagation();toggleTopicExpand(${t.id})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>` : ''}
+            ${hasKids ? `<button class="ti-expand-btn" onclick="event.stopPropagation();toggleTopicExpand(${jsArg(t.id)})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>` : ''}
             ${topicTitleHtml(t.name, t.id, cls.storageKey || (cls.id + '_topics'))}
           </div>
         </div>
-        ${t.unit ? `<div class="ti-unit">${esc(t.unit)}</div>` : ''}
+        ${uName ? `<div class="ti-unit">${esc(uName)}</div>` : ''}
         ${t.definition ? `<div class="ti-prev">${esc(t.definition.substring(0,55))}…</div>` : ''}
       </div>
       ${childrenHtml}
@@ -1090,8 +1113,10 @@ function renderClassSections(){
   if(!cls){ container.innerHTML = ''; return; }
 
   const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const clsUnits = unitsForOrigin(cls);
   const matches = t => !q || t.name.toLowerCase().includes(q) ||
-    (t.definition||'').toLowerCase().includes(q) || (t.unit||'').toLowerCase().includes(q);
+    (t.definition||'').toLowerCase().includes(q) || (t.unit||'').toLowerCase().includes(q) ||
+    unitLabel(t.unit, clsUnits).toLowerCase().includes(q);
 
   const topics = topicsForOrigin(cls);
   const topLevel = topics.filter(t => !t.parentId && matches(t)).sort((a,b) => a.name.localeCompare(b.name));
@@ -1102,20 +1127,19 @@ function renderClassSections(){
 }
 
 function renderPills(){
-  const units = getUnits(), topics = getTopics(), counts = {};
-  topics.forEach(t => { if(t.unit) counts[t.unit] = (counts[t.unit]||0)+1; });
+  const units = getUnits(), topics = getTopics();
 
   const body = document.getElementById('unitsListBody');
   if(body){
     const q = (document.getElementById('unitsSearchInput')?.value || '').toLowerCase();
-    const shown = units.filter(u => !q || u.toLowerCase().includes(q));
+    const shown = units.filter(u => !q || u.name.toLowerCase().includes(q));
     body.innerHTML = shown.length === 0
       ? `<div class="units-empty">No units match "${esc(q)}"</div>`
       : shown.map(u => `
-        <label class="units-row" data-unit="${esc(u)}">
-          <input type="checkbox" ${activeUnits.has(u)?'checked':''} onclick="event.stopPropagation();toggleUnit(this.closest('[data-unit]').dataset.unit)">
-          <span>${esc(u)}</span>
-          <span class="units-count">${counts[u]||0}</span>
+        <label class="units-row" data-unit="${esc(u.id)}">
+          <input type="checkbox" ${activeUnits.has(u.id)?'checked':''} onclick="event.stopPropagation();toggleUnit(this.closest('[data-unit]').dataset.unit)">
+          <span>${esc(u.name)}</span>
+          <span class="units-count">${unitTopicCount(topics, u)}</span>
           <button type="button" class="units-del" title="Remove this unit" onclick="event.stopPropagation();confirmDeleteUnit(this.closest('[data-unit]').dataset.unit)">🗑</button>
         </label>`).join('');
   }
@@ -1136,7 +1160,7 @@ function toggleUnit(u){
 }
 
 function toggleTopicExpand(id){
-  id = Number(id);
+  id = String(id);
   if(expandedTopics.has(id)) expandedTopics.delete(id);
   else expandedTopics.add(id);
   renderList();
@@ -1181,7 +1205,7 @@ function updateTopicBreadcrumb(t, allTopics, origin){
     if(ancestors.length){
       trail.style.display = 'inline-flex';
       trail.innerHTML = ancestors.map(a =>
-        `<span class="bc-sep">›</span><a class="bc-link" href="javascript:void(0)" onclick="viewTopic(${a.id}, ${oid})">${esc(a.name)}</a>`
+        `<span class="bc-sep">›</span><a class="bc-link" href="javascript:void(0)" onclick="viewTopic(${jsArg(a.id)}, ${oid})">${esc(a.name)}</a>`
       ).join('');
     } else {
       trail.innerHTML = '';
@@ -1239,7 +1263,7 @@ function viewTopic(id, originId){
     expandedTopics.add(parent.id);
     cur = parent;
   }
-  if(allTopics.some(c => c.parentId === t.id)) expandedTopics.add(Number(id));
+  if(allTopics.some(c => String(c.parentId) === String(t.id))) expandedTopics.add(String(id));
   if(!origin && location.protocol !== 'file:') history.replaceState(null,'', '#' + SUBJECT.id);
   renderList();
 
@@ -1258,12 +1282,12 @@ function viewTopic(id, originId){
   const relHtml = (t.relatedTerms||[]).length
     ? `<div class="related-tags">${t.relatedTerms.map(r => {
         const m = allTopics.find(x => x.name.toLowerCase()===r.toLowerCase());
-        return `<span class="rtag"${m?` onclick="viewTopic(${m.id}, ${oid})"`:''}>${esc(r)}</span>`;
+        return `<span class="rtag"${m?` onclick="viewTopic(${jsArg(m.id)}, ${oid})"`:''}>${esc(r)}</span>`;
       }).join('')}</div>`
     : '<p class="empty-note">None listed.</p>';
 
   const subtopicsHtml = children.length
-    ? `<div class="related-tags">${children.map(c => `<span class="rtag" onclick="viewTopic(${c.id}, ${oid})">${esc(c.name)}</span>`).join('')}</div>`
+    ? `<div class="related-tags">${children.map(c => `<span class="rtag" onclick="viewTopic(${jsArg(c.id)}, ${oid})">${esc(c.name)}</span>`).join('')}</div>`
     : '<p class="empty-note">No subtopics yet.</p>';
 
   const created = new Date(t.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
@@ -1283,7 +1307,7 @@ function viewTopic(id, originId){
       t.bodyText ? `<div class="plain-text">${sanitizeRich(t.bodyText)}</div>` : '<p class="empty-note">No overview written yet.</p>');
     const ovwItems = [];
     (t.keyPoints||[]).forEach(k => ovwItems.push(`<li class="ovw-list-item ovw-kp-item"><div class="kp-dot"></div><span>${esc(k)}</span></li>`));
-    children.forEach(c => ovwItems.push(`<li class="ovw-list-item ovw-subtopic-item"><div class="kp-dot kp-dot-link"></div><a class="subtopic-link" href="javascript:void(0)" onclick="viewTopic(${c.id}, ${oid})">${esc(c.name)}</a><span class="ovw-subtopic-badge">subtopic →</span></li>`));
+    children.forEach(c => ovwItems.push(`<li class="ovw-list-item ovw-subtopic-item"><div class="kp-dot kp-dot-link"></div><a class="subtopic-link" href="javascript:void(0)" onclick="viewTopic(${jsArg(c.id)}, ${oid})">${esc(c.name)}</a><span class="ovw-subtopic-badge">subtopic →</span></li>`));
     if(ovwItems.length) bodyHtml += sec('overviewPoints', 'Points & Subtopics', '📋', `<ul class="ovw-list">${ovwItems.join('')}</ul>`);
   } else if(layout === 'math'){
     bodyHtml += sec('formula', 'Formula / Equation', '∑',
@@ -1320,6 +1344,7 @@ function viewTopic(id, originId){
   bodyHtml += sec('subtopics',    'Subtopics',     '🧩', subtopicsHtml);
   bodyHtml += sec('relatedTerms', 'Related Terms', '🔗', relHtml);
 
+  const uName = unitLabel(t.unit, origin ? unitsForOrigin(origin) : getUnits());
   const originBadge = origin
     ? `<span class="dh-unit" style="background:${origin.colour}22;color:${origin.colour};border-color:${origin.colour}55">${esc(origin.emoji||'🏫')} From ${esc(origin.name)}${origin.class?' · '+esc(origin.class):''}</span>`
     : '';
@@ -1334,13 +1359,13 @@ function viewTopic(id, originId){
           <div class="dh-name${titleUnsynced ? ' unsynced-title' : ''}"${titleUnsynced ? ' title="unable to connect to servers"' : ''}>${esc(t.name)}</div>
           <div class="dh-meta">
             ${originBadge}
-            ${t.unit ? `<span class="dh-unit">${esc(t.unit)}</span>` : ''}
+            ${uName ? `<span class="dh-unit">${esc(uName)}</span>` : ''}
             <span class="dh-date">Added ${created}</span>${editedStr}
           </div>
         </div>
         <div class="dh-actions">
-          ${(window.isGuest || (origin && window.userRole !== 'dev')) ? '' : `<button class="btn-act" onclick="openModal(${t.id})">Edit</button>
-          <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>`}
+          ${(window.isGuest || (origin && window.userRole !== 'dev')) ? '' : `<button class="btn-act" onclick="openModal(${jsArg(t.id)})">Edit</button>
+          <button class="btn-act danger" onclick="confirmDeleteTopic(${jsArg(t.id)})">Delete</button>`}
         </div>
       </div>
       ${bodyHtml}`;
@@ -1368,7 +1393,7 @@ function openModal(id){
   editOrigin = (id && canEditClassTopic) ? activeOrigin : null;
   const topicsSrc = () => editOrigin ? topicsForOrigin(editOrigin) : getTopics();
   // Teachers and devs can add/edit topics just like students
-  editId = id || null;
+  editId = id ? String(id) : null;
   tempTags = [];
   document.getElementById('kpList').innerHTML = '';
   document.getElementById('subtopicEditorList').innerHTML = '';
@@ -1378,7 +1403,8 @@ function openModal(id){
     const t = topicsSrc().find(x => x.id == id);
     document.getElementById('modalTitle').textContent = editOrigin ? `Edit topic (${editOrigin.name})` : 'Edit topic';
     document.getElementById('fName').value = t.name || '';
-    document.getElementById('fUnit').value = t.unit || '';
+    const uHit = findUnit(editOrigin ? unitsForOrigin(editOrigin) : getUnits(), t.unit);
+    document.getElementById('fUnit').value = uHit ? uHit.id : (t.unit || '');
     document.getElementById('fDefinition').value = t.definition || '';
     setRichVal('fFormula', t.formula || '');
     setRichVal('fMaterials', t.materials || '');
@@ -1417,7 +1443,7 @@ function populateSel(){
   const units = editOrigin ? unitsForOrigin(editOrigin) : getUnits();
   const sel = document.getElementById('fUnit'), cur = sel.value;
   sel.innerHTML = '<option value="">— No unit —</option>' +
-    units.map(u => `<option value="${esc(u)}"${u===cur?' selected':''}>${esc(u)}</option>`).join('');
+    units.map(u => `<option value="${esc(u.id)}"${(u.id===cur || u.name===cur)?' selected':''}>${esc(u.name)}</option>`).join('');
 }
 function showUnitInput(){ document.getElementById('unitInputRow').style.display='block'; document.getElementById('newUnitInput').value=''; document.getElementById('newUnitInput').focus(); document.getElementById('btnAddUnit').style.display='none'; }
 function hideUnitInput(){ document.getElementById('unitInputRow').style.display='none'; document.getElementById('btnAddUnit').style.display=''; }
@@ -1425,8 +1451,12 @@ function confirmAddUnit(){
   const name = document.getElementById('newUnitInput').value.trim();
   if(!name) return;
   const units = getUnits();
-  if(!units.includes(name)){ units.push(name); saveUnits(units); }
-  populateSel(); document.getElementById('fUnit').value = name; hideUnitInput(); renderPills();
+  if(!units.some(u => u.name.toLowerCase() === name.toLowerCase())){
+    units.push({ id: newUnitId(), name });
+    saveUnits(units);
+  }
+  const u = findUnit(getUnits(), name);
+  populateSel(); document.getElementById('fUnit').value = u ? u.id : ''; hideUnitInput(); renderPills();
 }
 
 function addKpRow(val){
@@ -1506,14 +1536,14 @@ function saveTopic(){
   }).filter(qa => qa.q);
   const subtopicRows = Array.from(document.getElementById('subtopicEditorList').children).map(row => {
     const name = row.querySelector('.subtopic-name-i').value.trim();
-    const childId = row.dataset.childId ? Number(row.dataset.childId) : null;
+    const childId = row.dataset.childId || null;
     return name ? { id: childId, name } : null;
   }).filter(Boolean);
   const topicsSrc = () => editOrigin ? topicsForOrigin(editOrigin) : getTopics();
   const ex = editId ? (topicsSrc().find(t => t.id===editId)||{}) : {};
   const newDesmosState = readDesmosState();
   const topic = {
-    id: editId || Date.now(),
+    id: editId || newTopicId(),
     name,
     unit: document.getElementById('fUnit').value,
     definition: document.getElementById('fDefinition').value.trim(),
@@ -1535,6 +1565,7 @@ function saveTopic(){
     relatedTerms,
     flashcardQA,
     parentId: ex.parentId || null,
+    notes: ex.notes || {},
     addedBy: ex.addedBy || window.currentUid || null,
     createdAt: ex.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -1551,13 +1582,12 @@ function saveTopic(){
       keptChildIds.add(row.id);
     } else {
       // create a new linked child topic
-      const childId = Date.now() + Math.floor(Math.random()*1000);
+      const childId = newTopicId();
       topics.push({
         id: childId,
         name: row.name,
         unit: topic.unit,
-        definition: '', keyPoints: [], formula: '', materials: '', process: '', safety: '', examTip: '',
-        relatedTerms: [], flashcardQA: [], tableData: { columns: [], rows: [] }, desmosState: null,
+        layout: 'basic',
         parentId: topic.id,
         addedBy: window.currentUid || null,
         createdAt: new Date().toISOString(),
@@ -1588,9 +1618,12 @@ function confirmDeleteTopic(id){
   document.getElementById('cMsg').textContent = '"'+t.name+'"'+(origin ? ' (from '+origin.name+')' : '')+' will be permanently removed.';
   document.getElementById('confirmOverlay').classList.add('open');
 }
-function confirmDeleteUnit(name){
-  const count = getTopics().filter(t => t.unit===name).length;
-  pendingAction = { type:'unit', name };
+function confirmDeleteUnit(id){
+  const u = findUnit(getUnits(), id);
+  const name = u ? u.name : id;
+  const uid = u ? u.id : id;
+  const count = getTopics().filter(t => topicMatchesUnit(t, u || { id: uid, name })).length;
+  pendingAction = { type:'unit', id: uid, name };
   document.getElementById('cTitle').textContent = 'Remove this unit?';
   document.getElementById('cMsg').textContent = '"'+name+'"'+(count?' — '+count+' topic(s) will become unassigned.':' will be removed.');
   document.getElementById('confirmOverlay').classList.add('open');
@@ -1626,12 +1659,13 @@ function doDelete(){
   if(pendingAction.type==='topic'){
     const origin = pendingAction.origin || null;
     const topics = origin ? topicsForOrigin(origin) : getTopics();
-    const toRemove = new Set([pendingAction.id, ...getDescendantIds(pendingAction.id, topics)]);
-    saveTopicsForOrigin(origin, topics.filter(t => !toRemove.has(t.id)));
+    const toRemove = new Set([pendingAction.id, ...getDescendantIds(pendingAction.id, topics)].map(String));
+    saveTopicsForOrigin(origin, topics.filter(t => !toRemove.has(String(t.id))));
     if(activeId==pendingAction.id) closeTopicView();
   } else {
-    saveTopics(getTopics().map(t => t.unit===pendingAction.name ? {...t,unit:''} : t));
-    saveUnits(getUnits().filter(u => u!==pendingAction.name));
+    saveTopics(getTopics().map(t => (t.unit===pendingAction.id || t.unit===pendingAction.name) ? {...t,unit:''} : t));
+    saveUnits(getUnits().filter(u => u.id !== pendingAction.id && u.name !== pendingAction.name));
+    activeUnits.delete(pendingAction.id);
     activeUnits.delete(pendingAction.name);
     populateSel();
   }
@@ -1712,11 +1746,7 @@ async function syncPull(){
     for(const key of [ST, SU]){
       const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(key));
       if(res && res.data !== null && res.data !== undefined){
-        if(key===ST && Array.isArray(res.data)){
-          sbMemSet(key, mergeRemoteTopicList(res.data, ST, PLACEHOLDER));
-        } else {
-          sbMemSet(key, res.data);
-        }
+        sbIngestKey(key, res.data, key===ST ? PLACEHOLDER : undefined);
       }
     }
 
@@ -1732,23 +1762,25 @@ async function syncPull(){
         try{
           const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(key));
           if(res && res.data !== null && res.data !== undefined){
-            if(key===cKeyT && Array.isArray(res.data)){
-              sbMemSet(key, mergeRemoteTopicList(res.data, cKeyT, PLACEHOLDER));
-            } else {
-              sbMemSet(key, res.data);
-            }
+            sbIngestKey(key, res.data, key===cKeyT ? PLACEHOLDER : undefined);
           }
         } catch(e){ /* one class failing to sync shouldn't block the rest */ }
       }
     }
 
-    // Pull shared teacher notes (routed to the right bucket by TN_KEY(),
-    // which follows activeOrigin — see its definition above)
-    const tnRes = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(TN_KEY()));
-    if(tnRes && tnRes.data !== null && tnRes.data !== undefined){
-      sbMemSet(TN_KEY(), tnRes.data);
-      if(activeId) viewTopic(activeId, activeOrigin ? activeOrigin.id : null);
+    // Absorb legacy tnotes_* into topic.notes (once), then persist on the topic.
+    const absorbNotes = (topicsKey, notesKey, saver) => jsonpGet(SYNC_URL+'?key='+encodeURIComponent(notesKey)).then(tnRes => {
+      if(!tnRes || tnRes.data == null) return;
+      sbMemSet(notesKey, tnRes.data);
+      const { topics, changed } = absorbLegacyNotes(normalizeTopicList(sbMemGet(topicsKey, [])), tnRes.data);
+      if(changed) saver(topics);
+    }).catch(() => {});
+    await absorbNotes(ST, 'tnotes_' + (SUBJECT ? SUBJECT.id : 'default'), saveTopics);
+    for(const cls of LINKED_CLASSES){
+      const cKeyT = cls.storageKey || (cls.id + '_topics');
+      await absorbNotes(cKeyT, 'tnotes_' + cls.id, t => saveTopicsForOrigin(cls, t));
     }
+    if(activeId) viewTopic(activeId, activeOrigin ? activeOrigin.id : null);
     setSyncStatus(unsyncedTopicBuckets().length ? 'err' : 'ok');
     refreshUnsyncedUI();
   } catch(e){ setSyncStatus('err'); }
@@ -1923,8 +1955,9 @@ function applyUnitLinkFromUrl(){
   const input = document.getElementById('unitsSearchInput');
   if(panel) panel.classList.add('open');
   if(btn) btn.setAttribute('aria-expanded', 'true');
-  if(input) input.value = unit;
-  activeUnits.add(unit);
+  const u = findUnit(getUnits(), unit);
+  if(input) input.value = u ? u.name : unit;
+  activeUnits.add(u ? u.id : unit);
   renderList();
   if(input) input.focus();
 }
