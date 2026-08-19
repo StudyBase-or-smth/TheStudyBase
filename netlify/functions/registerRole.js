@@ -91,10 +91,11 @@ exports.handler = async function (event) {
 
     await admin.auth().setCustomUserClaims(uid, claims);
 
-    // Notify via the existing Apps Script web app — fire-and-forget,
-    // a failed notification shouldn't block the sign-up itself.
+    // Notify the StudyBaseData store — fire-and-forget. A failed
+    // notification shouldn't block the sign-up itself. Netlify's cloud
+    // often cannot reach the Tailscale host, so this may no-op.
     try {
-      const SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
+      const SYNC_URL = 'http://basecomputer.tail8c20e2.ts.net:8787/sync';
       await fetch(SYNC_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

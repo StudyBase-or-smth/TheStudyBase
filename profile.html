@@ -55,6 +55,7 @@
       localStorage.setItem('studybase_display_name', displayName);
       localStorage.setItem('studybase_email', email);
       localStorage.setItem('studybase_uid', uid);
+      window.currentUid = uid;
       if (!localStorage.getItem('studybase_member_since'))
         localStorage.setItem('studybase_member_since', new Date().toISOString());
 
@@ -267,6 +268,7 @@ function saveEdit(){
   profileCtx.profile = pushProfile(profileCtx.uid, next);
   profileCtx.editing = false;
   editDraft = null;
+  if(typeof updateHdrProfile === 'function') updateHdrProfile();
   showToast('Profile saved');
   buildProfile();
 }
@@ -291,10 +293,12 @@ async function onProfilePhotoPicked(input){
 }
 
 function avatarHtml(photoUrl, photoThumb, initials, color, editing){
-  const inner = '👤';
+  const img = (typeof profilePhotoImgHtml === 'function') ? profilePhotoImgHtml(photoUrl || photoThumb) : '';
+  const inner = img || esc(initials || '');
   if(!editing) return `<div class="profile-avatar" style="background:${color}">${inner}</div>`;
   return `<div class="avatar-edit">
     <div class="profile-avatar" style="background:${color}">${inner}</div>
+    <button type="button" class="avatar-change" onclick="document.getElementById('profilePhotoInput').click()" ${photoUploading ? 'disabled' : ''}>${photoUploading ? 'Uploading…' : 'Change'}</button>
   </div>`;
 }
 
@@ -363,9 +367,11 @@ function buildProfile() {
     if (mine.length > mostActiveCount) { mostActiveCount = mine.length; mostActive = s; }
   });
 
-  const statsKey = 'studybase_fc_stats_' + uid;
+  const stats = (profile && profile.stats && profile.stats.flashcards)
+    ? profile.stats.flashcards
+    : ((typeof readLocalFcStats === 'function') ? readLocalFcStats(uid) : {correct:0,close:0,incorrect:0,total:0});
   let fcStats = {correct:0,close:0,incorrect:0,total:0};
-  try { fcStats = JSON.parse(localStorage.getItem(statsKey) || '{}'); } catch(e) {}
+  try { fcStats = Object.assign(fcStats, stats); } catch(e) {}
   const fcTotal     = fcStats.total     || 0;
   const fcCorrect   = fcStats.correct   || 0;
   const fcClose     = fcStats.close     || 0;
@@ -477,7 +483,7 @@ function buildProfile() {
               <span style="font-size:12px;color:var(--muted)">Total answered</span>
               <span style="font-size:15px;font-weight:700">${fcTotal}</span>
             </div>
-            <button onclick="if(confirm('Reset all flashcard stats?')){localStorage.removeItem('studybase_fc_stats_${uid}');location.reload();}"
+            <button onclick="if(confirm('Reset all flashcard stats?')){resetFcStats('${esc(uid)}');location.reload();}"
               style="margin-top:10px;background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);cursor:pointer">
               Reset stats
             </button>`

@@ -556,13 +556,16 @@ function checkAnswer(){
 
 function trackStat(type){
   const uid = localStorage.getItem('studybase_uid') || 'guest';
-  const key = 'studybase_fc_stats_' + uid;
-  try{
-    const stats = JSON.parse(localStorage.getItem(key)||'{"correct":0,"close":0,"incorrect":0,"total":0}');
-    stats[type] = (stats[type]||0) + 1;
-    stats.total = (stats.total||0) + 1;
-    localStorage.setItem(key, JSON.stringify(stats));
-  }catch(e){}
+  let stats = {correct:0,close:0,incorrect:0,total:0};
+  if(typeof readLocalFcStats === 'function') stats = readLocalFcStats(uid);
+  else {
+    const key = 'studybase_fc_stats_' + uid;
+    try{ stats = JSON.parse(localStorage.getItem(key)||'{"correct":0,"close":0,"incorrect":0,"total":0}'); }catch(e){}
+  }
+  stats[type] = (stats[type]||0) + 1;
+  stats.total = (stats.total||0) + 1;
+  if(typeof queueFcStatsPush === 'function') queueFcStatsPush(uid, stats);
+  else try{ localStorage.setItem('studybase_fc_stats_' + uid, JSON.stringify(stats)); }catch(e){}
 }
 
 function flipCard(){

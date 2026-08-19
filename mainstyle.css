@@ -363,6 +363,8 @@ body.profile-page .page{flex:1;padding:32px 24px 60px;max-width:800px;margin:0 a
 .profile-hero{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px 32px;box-shadow:var(--shadow);display:flex;align-items:center;gap:24px;margin-bottom:20px}
 .profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-size:28px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:-1px;overflow:hidden;position:relative}
 .profile-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+body.dark .profile-avatar img,
+body.dark .hdr-profile-face img{filter:none}
 .profile-name{font-family:'Lora',serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:4px}
 .profile-email{font-size:13px;color:var(--muted);margin-bottom:4px}
 .profile-since{font-size:11px;color:var(--muted2);margin-bottom:8px}

@@ -158,17 +158,53 @@ async function pullProfile(uid){
   try {
     const res = await sbJsonpGet(SYNC_URL + '?key=' + encodeURIComponent(profileSyncKey(uid)));
     if(res && res.data && typeof res.data === 'object'){
-      return writeCachedProfile(uid, res.data);
+      const remote = normalizeProfile(res.data, uid);
+      const local = readCachedProfile(uid);
+      const localFc = readLocalFcStats(uid);
+      remote.stats.flashcards = pickNewerFcStats(
+        pickNewerFcStats(remote.stats.flashcards, local.stats && local.stats.flashcards),
+        localFc
+      );
+      const p = writeCachedProfile(uid, remote);
+      writeLocalFcStats(uid, p.stats.flashcards);
+      if(p.stats.flashcards.total > normalizeFcStats(res.data.stats && res.data.stats.flashcards).total){
+        sbSyncPush(profileSyncKey(uid), p);
+      }
+      return p;
     }
   } catch(e) { /* keep cache */ }
-  return readCachedProfile(uid);
+  const cached = readCachedProfile(uid);
+  writeLocalFcStats(uid, pickNewerFcStats(cached.stats && cached.stats.flashcards, readLocalFcStats(uid)));
+  return cached;
 }
 
 function pushProfile(uid, profile){
   if(!uid || uid === 'guest' || typeof SYNC_URL === 'undefined') return;
-  const p = writeCachedProfile(uid, Object.assign({}, profile, { uid, updatedAt: new Date().toISOString() }));
+  const incoming = Object.assign({}, profile, { uid, updatedAt: new Date().toISOString() });
+  if(!incoming.stats || !incoming.stats.flashcards){
+    incoming.stats = { flashcards: readLocalFcStats(uid) };
+  } else {
+    writeLocalFcStats(uid, incoming.stats.flashcards);
+  }
+  const p = writeCachedProfile(uid, incoming);
   sbSyncPush(profileSyncKey(uid), p);
   return p;
+}
+
+let _fcStatsPushTimer = null;
+function queueFcStatsPush(uid, stats){
+  const p = applyFcStatsToProfile(uid, stats);
+  if(!uid || uid === 'guest') return p;
+  clearTimeout(_fcStatsPushTimer);
+  _fcStatsPushTimer = setTimeout(() => {
+    pushProfile(uid, readCachedProfile(uid));
+  }, 1500);
+  return p;
+}
+
+function resetFcStats(uid){
+  applyFcStatsToProfile(uid, emptyFcStats());
+  if(uid && uid !== 'guest') pushProfile(uid, readCachedProfile(uid));
 }
 
 const PROFILE_PHOTO_MAX_BYTES = 300 * 1024;
@@ -253,8 +289,7 @@ function profilePhotoSrc(url){
   if(!url || typeof url !== 'string') return '';
   if(/^data:image\//i.test(url)) return url;
   try {
-    const origin = typeof syncMediaOrigin === 'function' ? syncMediaOrigin() : '';
-    if(origin && url.startsWith(origin + '/files/')) return url;
+    if(typeof isAllowedSyncMediaUrl === 'function' && isAllowedSyncMediaUrl(url) && !url.startsWith('data:')) return url;
   } catch(e) {}
   if(!isRemotePhotoUrl(url)) return '';
   try {
@@ -273,24 +308,32 @@ function profilePhotoImgHtml(url){
   const fallback = remote
     ? ' data-direct="' + esc(url) + '" onerror="if(this.dataset.direct&&this.src!==this.dataset.direct){this.referrerPolicy=\'no-referrer\';this.src=this.dataset.direct;}else{this.onerror=null;this.remove();}"'
     : '';
-  return '<img alt="" referrerpolicy="no-referrer" decoding="async" src="' + esc(src) + '"' + fallback + '>';
+  return '<img alt="" class="no-invert" referrerpolicy="no-referrer" decoding="async" src="' + esc(src) + '"' + fallback + '>';
+}
+
+function currentAccountUid(){
+  return window.currentUid || localStorage.getItem('studybase_uid') || '';
 }
 
 function uploadProfilePhoto(file){
   return compressImageToDataUrl(file, PROFILE_PHOTO_MAX_BYTES).then(dataUrl =>
     makePhotoThumb(dataUrl).then(thumb => new Promise((resolve, reject) => {
-      const uid = Date.now() + '' + Math.random().toString(36).slice(2, 6);
+      const accountUid = String(currentAccountUid()).replace(/[^A-Za-z0-9._-]/g, '');
+      const upKey = accountUid ? ('_up_avatar_' + accountUid) : ('_up_' + Date.now() + Math.random().toString(36).slice(2, 6));
+      const resultKey = accountUid ? ('_ur_avatar_' + accountUid) : ('_ur_' + upKey.slice(4));
       const ext = /^data:image\/png/i.test(dataUrl) ? 'png' : 'jpg';
-      Promise.resolve(sbSyncPush('_up_' + uid, { image: dataUrl, filename: 'avatar_' + uid + '.' + ext })).then(() => {
+      Promise.resolve(sbSyncPush(upKey, { image: dataUrl, filename: 'photo.' + ext })).then(() => {
         let tries = 0;
         const poll = setInterval(async () => {
           tries++;
           try {
-            const res = await sbJsonpGet(SYNC_URL + '?key=' + encodeURIComponent('_ur_' + uid));
+            const res = await sbJsonpGet(SYNC_URL + '?key=' + encodeURIComponent(resultKey));
             if(res && res.data){
               clearInterval(poll);
-              if(res.data.ok && res.data.url) resolve({ url: res.data.url, thumb: thumb });
-              else reject(new Error('Upload failed'));
+              if(res.data.ok && res.data.url){
+                const url = res.data.url + (res.data.url.includes('?') ? '&' : '?') + 'v=' + Date.now();
+                resolve({ url: url, thumb: thumb });
+              } else reject(new Error('Upload failed'));
             }
           } catch(e) {}
           if(tries >= 30){ clearInterval(poll); reject(new Error('Upload timed out')); }
@@ -325,7 +368,10 @@ function updateHdrProfile(){
   if(!btn) return;
   const face = btn.querySelector('.hdr-profile-face') || btn;
   const tip = document.getElementById('hdrProfileTip');
-  face.textContent = '👤';
+  const p = window.sbProfile || {};
+  const img = profilePhotoImgHtml(p.photoThumb || p.photoUrl);
+  if(img) face.innerHTML = img;
+  else face.textContent = '👤';
 
   const acct = window.sbAccount || {};
   const name = acct.name || localStorage.getItem('studybase_display_name') || (window.isGuest ? 'Guest' : 'Profile');
