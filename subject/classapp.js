@@ -872,6 +872,74 @@ function jsArg(v){
   return "'" + String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'") + "'";
 }
 
+function hideTopicCtxMenu(){
+  const m = document.getElementById('topicCtxMenu');
+  if(m) m.classList.remove('open');
+}
+function ensureTopicCtxMenu(){
+  let m = document.getElementById('topicCtxMenu');
+  if(m) return m;
+  m = document.createElement('div');
+  m.id = 'topicCtxMenu';
+  m.className = 'topic-ctx-menu';
+  m.innerHTML = '<button type="button" class="topic-ctx-item" data-act="copy-id">Copy ID</button>';
+  m.addEventListener('click', e => {
+    const btn = e.target.closest('[data-act]');
+    if(!btn) return;
+    const id = m.dataset.topicId;
+    hideTopicCtxMenu();
+    if(btn.dataset.act === 'copy-id') copyTopicId(id);
+  });
+  document.body.appendChild(m);
+  return m;
+}
+function topicContextMenu(e, id){
+  e.preventDefault();
+  e.stopPropagation();
+  const m = ensureTopicCtxMenu();
+  m.dataset.topicId = String(id);
+  m.classList.add('open');
+  const pad = 8;
+  m.style.left = '0px';
+  m.style.top = '0px';
+  let x = e.clientX, y = e.clientY;
+  const w = m.offsetWidth, h = m.offsetHeight;
+  if(x + w + pad > window.innerWidth) x = Math.max(pad, window.innerWidth - w - pad);
+  if(y + h + pad > window.innerHeight) y = Math.max(pad, window.innerHeight - h - pad);
+  m.style.left = x + 'px';
+  m.style.top = y + 'px';
+  return false;
+}
+function copyTopicId(id){
+  const text = String(id || '');
+  if(!text) return;
+  const done = ok => {
+    if(typeof showToast === 'function') showToast(ok ? 'Copied ID' : 'Copy failed', ok ? 'success' : 'error', 1800);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(() => done(true)).catch(() => copyTopicIdFallback(text, done));
+  } else {
+    copyTopicIdFallback(text, done);
+  }
+}
+function copyTopicIdFallback(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.cssText = 'position:fixed;left:-9999px;top:0';
+  document.body.appendChild(ta);
+  ta.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch(err) {}
+  ta.remove();
+  done(ok);
+}
+document.addEventListener('mousedown', e => {
+  const m = document.getElementById('topicCtxMenu');
+  if(m && m.classList.contains('open') && !m.contains(e.target)) hideTopicCtxMenu();
+});
+document.addEventListener('scroll', hideTopicCtxMenu, true);
+
 function topicTitleHtml(name, id, bucket){
   if(typeof isTopicUnsynced === 'function' && isTopicUnsynced(bucket || ST, id)){
     return `<span class="unsynced-title" title="unable to connect to servers">${esc(name)}</span>`;
@@ -916,7 +984,7 @@ function renderSubtree(c, topics){
     : '';
   return `
     <div class="tree-node">
-      <div class="subtopic-sidebar-item${(activeId==c.id)?' active':''}" onclick="event.stopPropagation();viewTopic(${jsArg(c.id)})">
+      <div class="subtopic-sidebar-item${(activeId==c.id)?' active':''}" onclick="event.stopPropagation();viewTopic(${jsArg(c.id)})" oncontextmenu="return topicContextMenu(event, ${jsArg(c.id)})">
         ${hasKids
           ? `<button class="ti-expand-btn sub-expand" onclick="event.stopPropagation();toggleTopicExpand(${jsArg(c.id)})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>`
           : `<span class="ssi-dot"></span>`}
@@ -961,7 +1029,7 @@ function renderList(){
         const uName = unitLabel(t.unit, units);
         return `
         <div class="topic-item-wrap">
-          <div class="topic-item${(t.id==activeId)?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${jsArg(t.id)})">
+          <div class="topic-item${(t.id==activeId)?' active':''}${isPinned?' pinned':''}" onclick="viewTopic(${jsArg(t.id)})" oncontextmenu="return topicContextMenu(event, ${jsArg(t.id)})">
             <div class="ti-top">
               <div class="ti-name">
                 ${hasSubs ? `<button class="ti-expand-btn" onclick="event.stopPropagation();toggleTopicExpand(${jsArg(t.id)})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>` : ''}
@@ -1214,15 +1282,16 @@ function viewTopic(id){
   el.innerHTML = `
       <div class="dh">
         <div>
-          <div class="dh-name${isTopicUnsynced(ST, t.id) ? ' unsynced-title' : ''}"${isTopicUnsynced(ST, t.id) ? ' title="unable to connect to servers"' : ''}>${esc(t.name)}</div>
+          <div class="dh-name${isTopicUnsynced(ST, t.id) ? ' unsynced-title' : ''}"${isTopicUnsynced(ST, t.id) ? ' title="unable to connect to servers"' : ''} oncontextmenu="return topicContextMenu(event, ${jsArg(t.id)})">${esc(t.name)}</div>
           <div class="dh-meta">
             ${uName ? `<span class="dh-unit">${esc(uName)}</span>` : ''}
             <span class="dh-date">Added ${created}</span>${editedStr}
           </div>
         </div>
         <div class="dh-actions">
-          ${(window.isGuest || !window.isTeacher) ? '' : `<button class="btn-act" onclick="openModal(${jsArg(t.id)})">Edit</button>
-          <button class="btn-act danger" onclick="confirmDeleteTopic(${jsArg(t.id)})">Delete</button>`}
+          ${(window.isGuest || !window.isTeacher) ? '' : `<div class="dh-action-btns"><button class="btn-act" onclick="openModal(${jsArg(t.id)})">Edit</button>
+          <button class="btn-act danger" onclick="confirmDeleteTopic(${jsArg(t.id)})">Delete</button></div>`}
+          ${window.userRole === 'dev' ? `<span class="dh-id" title="Topic file id">${esc(t.id)}</span>` : ''}
         </div>
       </div>
       ${bodyHtml}`;
@@ -1285,8 +1354,60 @@ function openModal(id){
   applyLayoutUI();
   document.getElementById('modalOverlay').classList.add('open');
   setTimeout(() => document.getElementById('fName').focus(), 80);
+  captureModalSnapshot();
 }
-function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); editId = null; destroyDesmosEditor(); }
+function isModalOpen(){
+  return document.getElementById('modalOverlay')?.classList.contains('open');
+}
+function isTypingTarget(el){
+  if(!el) return false;
+  if(el.isContentEditable || el.closest?.('[contenteditable="true"]')) return true;
+  const tag = (el.tagName || '').toLowerCase();
+  return tag === 'input' || tag === 'textarea' || tag === 'select';
+}
+function readModalDraft(){
+  const keyPoints = Array.from(document.getElementById('kpList').querySelectorAll('.kp-row input')).map(i => i.value);
+  const flashcardQA = Array.from(document.getElementById('fqaList').querySelectorAll('.fqa-row')).map(row => {
+    const inputs = row.querySelectorAll('.fqa-input');
+    return { q: inputs[0]?.value || '', a: inputs[1]?.value || '' };
+  });
+  const subtopics = Array.from(document.getElementById('subtopicEditorList').children).map(row => ({
+    id: row.dataset.childId || '',
+    name: row.querySelector('.subtopic-name-i')?.value || ''
+  }));
+  return JSON.stringify({
+    name: document.getElementById('fName')?.value || '',
+    unit: document.getElementById('fUnit')?.value || '',
+    definition: document.getElementById('fDefinition')?.value || '',
+    formula: getRichVal('fFormula'),
+    materials: getRichVal('fMaterials'),
+    process: getRichVal('fProcess'),
+    safety: getRichVal('fSafety'),
+    examTip: getRichVal('fExamTip'),
+    bodyText: getRichVal('fBodyText'),
+    keyPoints,
+    tags: [...tempTags],
+    tagInput: document.getElementById('tagsInput')?.value || '',
+    subtopics,
+    flashcardQA,
+    tableData: readTableData(),
+    layout: currentLayout,
+    pdfData: pendingPdfData,
+    pdfName: pendingPdfName
+  });
+}
+let _modalSnapshot = null;
+function captureModalSnapshot(){ _modalSnapshot = readModalDraft(); }
+function modalHasChanges(){
+  if(!isModalOpen() || _modalSnapshot == null) return false;
+  return readModalDraft() !== _modalSnapshot;
+}
+function requestCloseModal(){
+  if(!isModalOpen()) return;
+  if(!modalHasChanges()){ closeModal(); return; }
+  showToast('Save your changes first, or undo them to close', 'info');
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); editId = null; destroyDesmosEditor(); _modalSnapshot = null; }
 
 function populateSel(){
   const units = getUnits(), sel = document.getElementById('fUnit'), cur = sel.value;
@@ -1514,12 +1635,27 @@ function doDelete(){
 
 // ── Keyboard shortcuts ──
 document.addEventListener('keydown', e => {
-  if(e.key==='Escape'){ closeModal(); closeConfirm(); }
+  if(e.key==='Escape'){
+    hideTopicCtxMenu();
+    if(document.getElementById('confirmOverlay')?.classList.contains('open')){ closeConfirm(); return; }
+    requestCloseModal();
+    return;
+  }
+  if(e.key==='Backspace' && isModalOpen() && !e.altKey && !e.ctrlKey && !e.metaKey){
+    if(!isTypingTarget(e.target)){
+      e.preventDefault();
+      requestCloseModal();
+    }
+    return;
+  }
   if((e.metaKey||e.ctrlKey)&&e.key==='k'){ e.preventDefault(); document.getElementById('searchInput').focus(); }
+});
+window.addEventListener('beforeunload', e => {
+  if(isModalOpen() && modalHasChanges()){ e.preventDefault(); e.returnValue = ''; }
 });
 document.getElementById('searchInput').addEventListener('input', renderList);
 document.getElementById('modalOverlay').addEventListener('click', e => {
-  if(e.target===document.getElementById('modalOverlay')) closeModal();
+  if(e.target===document.getElementById('modalOverlay')) requestCloseModal();
 });
 
 // ── Units filter panel open/close ──

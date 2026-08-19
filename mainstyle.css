@@ -971,3 +971,11 @@ body.subject-page .rich-content:fullscreen{width:100vw;height:100vh;overflow:aut
    buttons — same .sh-expand-btn/.sh-expand-btns as the read view */
 body.subject-page .form-l-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 body.subject-page .form-l-row .form-l{margin-bottom:6px}
+
+body.subject-page .topic-ctx-menu{position:fixed;z-index:400;min-width:148px;background:var(--card);border:1px solid var(--border2);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.14);padding:4px;display:none}
+body.subject-page .topic-ctx-menu.open{display:block}
+body.subject-page .topic-ctx-item{display:block;width:100%;text-align:left;background:none;border:none;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;color:var(--text);cursor:pointer}
+body.subject-page .topic-ctx-item:hover{background:var(--ac-l);color:var(--accent)}
+body.subject-page .dh-actions{flex-direction:column;align-items:flex-end;gap:6px}
+body.subject-page .dh-action-btns{display:flex;gap:6px}
+body.subject-page .dh-id{font-size:11px;color:var(--muted2);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;user-select:all;letter-spacing:.15px;text-align:right}

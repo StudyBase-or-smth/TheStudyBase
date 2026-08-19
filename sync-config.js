@@ -3,9 +3,9 @@
 // Shared client config loaded before mainapp.js / subjectapp.js / classapp.js.
 //
 // SYNC_URL — shared JSON + file store. On this laptop (localhost / file://)
-// the site talks to C:\Users\Ethan\Documents\StudyBaseData\server.js.
-// Everywhere else it still uses Google Apps Script until the laptop is
-// reachable over the internet.
+// the site talks to the sync program on BaseComputer over Tailscale.
+// Everywhere else it still uses Google Apps Script (Netlify is HTTPS and
+// cannot call the tailnet over plain HTTP).
 // registerRole.js runs server-side on Netlify and keeps its own copy.
 //
 // DESMOS_API_KEY — Desmos Graphing Calculator key (desmos.com/my-api).
@@ -14,7 +14,7 @@
 // hitting /api/desmosKey. If this is empty, those pages fall back to the
 // Netlify env var via netlify/functions/desmosKey.js.
 const APPS_SCRIPT_SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
-const LOCAL_SYNC_URL = 'http://127.0.0.1:8787/sync';
+const LOCAL_SYNC_URL = 'http://basecomputer.tail8c20e2.ts.net:8787/sync';
 
 function isLocalDevHost(){
   try {
@@ -45,7 +45,7 @@ function isAllowedSyncMediaUrl(src){
 function usesConfirmableSync(){
   try {
     const h = new URL(SYNC_URL).hostname;
-    return h === '127.0.0.1' || h === 'localhost';
+    return h !== 'script.google.com';
   } catch(e) {
     return false;
   }
