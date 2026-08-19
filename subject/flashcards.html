@@ -248,8 +248,8 @@ function resolveSubject(){
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function stripHtml(h){ const d=document.createElement('div');d.innerHTML=h||'';return d.textContent.trim(); }
 
-const getTopics = () => { try{ return JSON.parse(localStorage.getItem(ST)||'[]'); }catch(e){ return []; } };
-const getUnits  = () => { try{ return JSON.parse(localStorage.getItem(SU)||'[]'); }catch(e){ return []; } };
+const getTopics = () => { const v = sbMemGet(ST, []); return Array.isArray(v) ? v : []; };
+const getUnits  = () => { const v = sbMemGet(SU, []); return Array.isArray(v) ? v : []; };
 
 // ── State ──
 let fcCards = [], fcIndex = 0, fcFlipped = false, activeUnit = 'all';
@@ -615,6 +615,7 @@ document.addEventListener('keydown', e => {
 if(resolveSubject()){
   applyTheme();
   render();
+  Promise.all([sbLoadKey(ST), sbLoadKey(SU)]).then(render).catch(() => {});
 } else {
   document.getElementById('fcWrap').innerHTML = `<div class="fc-empty">
     <div class="fc-empty-icon">⚠️</div>

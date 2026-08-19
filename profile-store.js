@@ -1,6 +1,6 @@
 // profile-store.js
 //
-// Per-user profile (photo + enabled subjects/classes) stored in Apps Script
+// Per-user profile (photo + enabled subjects/classes) stored via SYNC_URL
 // under `_profile_<uid>`, with a localStorage cache for the hub.
 // Loaded after sync-config.js (needs SYNC_URL).
 
@@ -29,8 +29,11 @@ function normalizeProfile(raw, uid){
   const allS = allSubjectIds();
   const allC = allClassIds();
   const p = (raw && typeof raw === 'object') ? raw : {};
-  const photoUrl = (typeof p.photoUrl === 'string' && /^(https:\/\/(lh[0-9]\.googleusercontent\.com|drive\.google\.com)\/|data:image\/)/i.test(p.photoUrl))
-    ? p.photoUrl : '';
+  const photoUrl = (typeof p.photoUrl === 'string' && (
+    /^data:image\//i.test(p.photoUrl) ||
+    /^https:\/\/(lh[0-9]\.googleusercontent\.com|drive\.google\.com)\//i.test(p.photoUrl) ||
+    (typeof isAllowedSyncMediaUrl === 'function' && isAllowedSyncMediaUrl(p.photoUrl) && !p.photoUrl.startsWith('data:'))
+  )) ? p.photoUrl : '';
   const photoThumb = (typeof p.photoThumb === 'string' && /^data:image\//i.test(p.photoThumb) && p.photoThumb.length < 60000)
     ? p.photoThumb : '';
   return {
@@ -101,16 +104,7 @@ function sbJsonpGet(url){
 }
 
 function sbSyncPush(key, data){
-  const id = 'pf' + Date.now();
-  const iframe = document.createElement('iframe');
-  iframe.name = id; iframe.style.cssText = 'display:none;width:0;height:0;border:0';
-  const form = document.createElement('form');
-  form.method = 'POST'; form.action = SYNC_URL; form.target = id; form.style.display = 'none';
-  [['key', key], ['data', JSON.stringify(data)]].forEach(([n, v]) => {
-    const inp = document.createElement('input'); inp.type = 'hidden'; inp.name = n; inp.value = v; form.appendChild(inp);
-  });
-  document.body.appendChild(iframe); document.body.appendChild(form); form.submit();
-  setTimeout(() => { if(iframe.parentNode) iframe.remove(); if(form.parentNode) form.remove(); }, 6000);
+  return sbPushToSync(key, data);
 }
 
 async function pullProfile(uid){
@@ -212,6 +206,10 @@ function isRemotePhotoUrl(url){
 function profilePhotoSrc(url){
   if(!url || typeof url !== 'string') return '';
   if(/^data:image\//i.test(url)) return url;
+  try {
+    const origin = typeof syncMediaOrigin === 'function' ? syncMediaOrigin() : '';
+    if(origin && url.startsWith(origin + '/files/')) return url;
+  } catch(e) {}
   if(!isRemotePhotoUrl(url)) return '';
   try {
     if(typeof location !== 'undefined' && /^https?:$/i.test(location.protocol)){
@@ -237,20 +235,21 @@ function uploadProfilePhoto(file){
     makePhotoThumb(dataUrl).then(thumb => new Promise((resolve, reject) => {
       const uid = Date.now() + '' + Math.random().toString(36).slice(2, 6);
       const ext = /^data:image\/png/i.test(dataUrl) ? 'png' : 'jpg';
-      sbSyncPush('_up_' + uid, { image: dataUrl, filename: 'avatar_' + uid + '.' + ext });
-      let tries = 0;
-      const poll = setInterval(async () => {
-        tries++;
-        try {
-          const res = await sbJsonpGet(SYNC_URL + '?key=' + encodeURIComponent('_ur_' + uid));
-          if(res && res.data){
-            clearInterval(poll);
-            if(res.data.ok && res.data.url) resolve({ url: res.data.url, thumb: thumb });
-            else reject(new Error('Drive upload failed'));
-          }
-        } catch(e) {}
-        if(tries >= 30){ clearInterval(poll); reject(new Error('Drive upload timed out')); }
-      }, 1500);
+      Promise.resolve(sbSyncPush('_up_' + uid, { image: dataUrl, filename: 'avatar_' + uid + '.' + ext })).then(() => {
+        let tries = 0;
+        const poll = setInterval(async () => {
+          tries++;
+          try {
+            const res = await sbJsonpGet(SYNC_URL + '?key=' + encodeURIComponent('_ur_' + uid));
+            if(res && res.data){
+              clearInterval(poll);
+              if(res.data.ok && res.data.url) resolve({ url: res.data.url, thumb: thumb });
+              else reject(new Error('Upload failed'));
+            }
+          } catch(e) {}
+          if(tries >= 30){ clearInterval(poll); reject(new Error('Upload timed out')); }
+        }, 1500);
+      }).catch(() => reject(new Error('Upload failed')));
     }))
   );
 }

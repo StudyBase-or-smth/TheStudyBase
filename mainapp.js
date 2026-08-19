@@ -146,11 +146,13 @@ function init() {
 // ── Data helpers ──
 function getTopics(s) {
   const key = s.storageKey || (s.id + '_topics');
-  try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { return []; }
+  const v = sbMemGet(key, []);
+  return Array.isArray(v) ? v : [];
 }
 function getUnits(s) {
   const key = s.unitsKey || (s.id + '_units');
-  try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { return []; }
+  const v = sbMemGet(key, []);
+  return Array.isArray(v) ? v : [];
 }
 
 // ── Subject cards ──
@@ -303,14 +305,10 @@ const EVENTS_KEY = 'studybase_events';
 let editingEventId = null;
 
 function getEvents() {
-  try {
-    const v = JSON.parse(localStorage.getItem(EVENTS_KEY) || '[]');
-    return Array.isArray(v) ? v : [];
-  } catch (e) {
-    return [];
-  }
+  const v = sbMemGet(EVENTS_KEY, []);
+  return Array.isArray(v) ? v : [];
 }
-function saveEvents(ev) { localStorage.setItem(EVENTS_KEY, JSON.stringify(ev)); syncPushEvents(ev); }
+function saveEvents(ev) { sbMemSet(EVENTS_KEY, ev); syncPushEvents(ev); }
 
 function renderCalendar() {
   document.getElementById('calMonthLabel').textContent = MONTHS[calMonth] + ' ' + calYear;
@@ -472,19 +470,7 @@ function jsonpGet(url) {
 }
 
 function syncPushEvents(events) {
-  try {
-    const id = 'sf' + Date.now();
-    const iframe = document.createElement('iframe');
-    iframe.name = id; iframe.style.cssText = 'display:none;width:0;height:0;border:0';
-    const form = document.createElement('form');
-    form.method = 'POST'; form.action = SYNC_URL; form.target = id; form.style.display = 'none';
-    [['key', EVENTS_KEY], ['data', JSON.stringify(events)]].forEach(([n, v]) => {
-      const inp = document.createElement('input'); inp.type = 'hidden'; inp.name = n; inp.value = v; form.appendChild(inp);
-    });
-    document.body.appendChild(iframe); document.body.appendChild(form);
-    form.submit();
-    setTimeout(() => { iframe.remove(); form.remove(); }, 6000);
-  } catch (e) { console.warn('Sync push failed', e); }
+  sbPushToSync(EVENTS_KEY, events).catch(e => console.warn('Sync push failed', e));
 }
 
 async function calSync() {
@@ -494,7 +480,7 @@ async function calSync() {
       const local = getEvents(), remote = res.data;
       const merged = [...remote];
       local.forEach(le => { if (!merged.find(e => e.id === le.id)) merged.push(le); });
-      localStorage.setItem(EVENTS_KEY, JSON.stringify(merged));
+      sbMemSet(EVENTS_KEY, merged);
       renderCalendar();
     }
   } catch (e) { console.warn('Sync pull failed', e); }
@@ -502,23 +488,14 @@ async function calSync() {
 }
 setInterval(calSync, 60000);
 
-// The hub only ever showed a subject's topics/units as they existed in this
-// browser's own localStorage — populated whenever *this device* previously
-// visited that subject's page. Add/edit a unit on your phone, then open the
-// hub on your laptop without ever opening that subject page there, and the
-// laptop's "Units Overview" / subject card counts were permanently stale.
 // Pull every subject's (and, for teacher/dev, every class's) topics + units
 // keys straight from the sync backend so the hub reflects the latest data
 // regardless of which device last edited it.
 const SYNC_IMG_PLACEHOLDER = '[image — only visible on device where it was saved]';
 
 function parseLocalJsonArray(key) {
-  try {
-    const v = JSON.parse(localStorage.getItem(key) || '[]');
-    return Array.isArray(v) ? v : [];
-  } catch (e) {
-    return [];
-  }
+  const v = sbMemGet(key, []);
+  return Array.isArray(v) ? v : [];
 }
 
 function mergeRemoteTopics(remote, localKey) {
@@ -553,9 +530,9 @@ async function syncAllSubjectsAndUnits() {
           const res = await jsonpGet(SYNC_URL + '?key=' + encodeURIComponent(key));
           if (res && res.data !== null && res.data !== undefined) {
             if (key === tKey && Array.isArray(res.data)) {
-              localStorage.setItem(key, JSON.stringify(mergeRemoteTopics(res.data, tKey)));
+              sbMemSet(key, mergeRemoteTopics(res.data, tKey));
             } else {
-              localStorage.setItem(key, JSON.stringify(res.data));
+              sbMemSet(key, res.data);
             }
           }
         } catch (e) { /* keep whatever's already cached locally on failure */ }
@@ -663,16 +640,7 @@ function pushSuggestions(){
 }
 function _doPushSuggestions(){
   _pushSuggestionsTimer = null;
-  const iframe=document.createElement('iframe');
-  const fid='spush'+Date.now(); iframe.name=fid; iframe.style.cssText='display:none;width:0;height:0;border:0';
-  const form=document.createElement('form');
-  form.method='POST'; form.action=SYNC_URL; form.target=fid; form.style.display='none';
-  [['key',SUG_KEY],['data',JSON.stringify(_sugCache)]].forEach(([n,v])=>{
-    const inp=document.createElement('input');inp.type='hidden';inp.name=n;inp.value=v;form.appendChild(inp);
-  });
-  document.body.appendChild(iframe); document.body.appendChild(form);
-  form.submit();
-  setTimeout(()=>{iframe.remove();form.remove();},5000);
+  sbPushToSync(SUG_KEY, _sugCache).catch(e => console.warn('Suggestion push failed', e));
 }
 
 function renderSugList(){

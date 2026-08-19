@@ -855,6 +855,17 @@ body.subject-page .rtag{border-radius:5px}
    separates sibling groups) */
 body.subject-page .topic-item{padding:10px 12px;border-radius:7px;border-left:3px solid transparent;border-bottom:none}
 
+body.subject-page .unsynced-title{color:#c9a227;cursor:help}
+body.dark.subject-page .unsynced-title{color:#e4c441}
+body.subject-page .bc-current.unsynced-title,
+body.subject-page .dh-name.unsynced-title,
+body.subject-page .topic-item.active .unsynced-title,
+body.subject-page .subtopic-sidebar-item.active .unsynced-title{color:#c9a227}
+body.dark.subject-page .bc-current.unsynced-title,
+body.dark.subject-page .dh-name.unsynced-title,
+body.dark.subject-page .topic-item.active .unsynced-title,
+body.dark.subject-page .subtopic-sidebar-item.active .unsynced-title{color:#e4c441}
+
 /* topic/question list rows sat with zero inset, so each row's rounded
    corners and active-state left border ran flush against the sidebar's
    edge — the mockup's equivalent container (.sidebar-scroll) has 10px

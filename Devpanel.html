@@ -182,6 +182,7 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
 <div id="toast-container"></div>
 
 <script src="subjects.js"></script>
+<script src="sync-config.js"></script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -484,16 +485,19 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
     document.getElementById('bootstrapUid').value = '';
   };
 
-  function loadStats(){
+  async function loadStats(){
+    if(typeof sbLoadAllContentKeys === 'function'){
+      try { await sbLoadAllContentKeys(); } catch(e) {}
+    }
     const subjects = (typeof subjectsData !== 'undefined' && subjectsData.subjects) ? subjectsData.subjects : [];
     let totalTopics = 0, totalUnits = 0, totalNotes = 0;
     const subjectRows = [], activityRows = [];
 
     subjects.forEach(s => {
       let topics = [], units = [], notesObj = {};
-      try{ topics   = JSON.parse(localStorage.getItem(s.storageKey || s.id+'_topics') || '[]'); }catch(e){}
-      try{ units    = JSON.parse(localStorage.getItem(s.unitsKey   || s.id+'_units')  || '[]'); }catch(e){}
-      try{ notesObj = JSON.parse(localStorage.getItem('tnotes_'+s.id) || '{}'); }catch(e){}
+      try{ topics   = sbMemGet(s.storageKey || s.id+'_topics', []) || []; }catch(e){}
+      try{ units    = sbMemGet(s.unitsKey   || s.id+'_units', []) || []; }catch(e){}
+      try{ notesObj = sbMemGet('tnotes_'+s.id, {}) || {}; }catch(e){}
 
       let noteCount = 0;
       Object.values(notesObj).forEach(blocks => {

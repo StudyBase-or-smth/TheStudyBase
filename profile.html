@@ -194,7 +194,9 @@ function bootProfile(displayName, email, uid, isGuest, role, status){
     profile: (typeof readCachedProfile === 'function') ? readCachedProfile(uid) : { photoUrl:'', enabledSubjects: [], enabledClasses: [] }
   };
   if(!keepEditing) editDraft = null;
-  buildProfile();
+  const finish = () => buildProfile();
+  if(typeof sbLoadAllContentKeys === 'function') sbLoadAllContentKeys().then(finish).catch(finish);
+  else finish();
 }
 
 function formatDate(iso){
@@ -205,7 +207,8 @@ function formatDate(iso){
 
 function getTopics(s){
   const key = s.storageKey || (s.id + '_topics');
-  try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { return []; }
+  const v = sbMemGet(key, []);
+  return Array.isArray(v) ? v : [];
 }
 
 // Returns a styled badge for the user's role + status

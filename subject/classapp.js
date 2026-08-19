@@ -1,7 +1,7 @@
 // ── Resolve subject from URL hash ──
 let SUBJECT = null; // the matched entry from classesData
-let ST = '';        // localStorage key for topics
-let SU = '';        // localStorage key for units
+let ST = '';        // store key for topics
+let SU = '';        // store key for units
 let SP = '';        // localStorage key for pinned topics
 let DEF_UNITS = []; // default units if none saved
 
@@ -106,7 +106,7 @@ function sanitizeRich(html){
   });
   d.querySelectorAll('img').forEach(img=>{
     const src=img.getAttribute('src')||img.src||'';
-    if(!src.startsWith('data:')&&!src.startsWith('https://drive.google.com/')&&!src.startsWith('https://lh3.googleusercontent.com/'))img.remove();
+    if(typeof isAllowedSyncMediaUrl === 'function' ? !isAllowedSyncMediaUrl(src) : (!src.startsWith('data:')&&!src.startsWith('https://drive.google.com/')&&!src.startsWith('https://lh3.googleusercontent.com/')))img.remove();
   });
   return d.innerHTML;
 }
@@ -362,20 +362,21 @@ function destroyDesmosView(){
 
 // ── Storage helpers ──
 const CELL_LIMIT = 45000;
-const getTopics  = () => { try{ return JSON.parse(localStorage.getItem(ST)||'[]'); }catch(e){ return []; } };
-const getUnits   = () => { try{ return JSON.parse(localStorage.getItem(SU)||JSON.stringify(DEF_UNITS)); }catch(e){ return []; } };
+const getTopics  = () => { const v = sbMemGet(ST, []); return Array.isArray(v) ? v : []; };
+const getUnits   = () => { const v = sbMemGet(SU, null); return Array.isArray(v) ? v : DEF_UNITS.slice(); };
 const getPinned  = () => { try{ return JSON.parse(localStorage.getItem(SP)||'[]'); }catch(e){ return []; } };
 
 const saveTopics = t => {
-  localStorage.setItem(ST, JSON.stringify(t));
+  const changed = changedTopicIds(getTopics(), t);
+  sbMemSet(ST, t);
   const sd = sanitizeForSync(t);
-  if(JSON.stringify(sd).length > CELL_LIMIT){ setSyncStatus('warn'); }
-  else{ syncPush(ST, sd); setSyncStatus('ok'); }
+  if(JSON.stringify(sd).length > CELL_LIMIT){ setSyncStatus('warn'); return; }
+  trackTopicPush(ST, changed, syncPush(ST, sd)).finally(refreshUnsyncedUI);
 };
 const saveUnits = u => {
-  localStorage.setItem(SU, JSON.stringify(u));
+  sbMemSet(SU, u);
   if(JSON.stringify(u).length > CELL_LIMIT){ setSyncStatus('warn'); }
-  else{ syncPush(SU, u); setSyncStatus('ok'); }
+  else{ syncPush(SU, u); }
 };
 const savePinned = p => {
   localStorage.setItem(SP, JSON.stringify(p));
@@ -387,9 +388,9 @@ const LAYOUT_LABELS = { basic:'Basic', overview:'Overview', math:'Math', text:'T
 let currentLayout = 'basic';
 
 // ── PDF/Image topic type ──
-// Files go to the same Drive folder as rich-text images (Apps Script
-// handles `_up_` / `_ur_` keys). The topic only stores the returned URL
-// plus the original filename — not a base64 blob.
+// Files go to the sync store (StudyBaseData on this laptop, Apps Script
+// elsewhere) via `_up_` / `_ur_` keys. The topic only stores the returned
+// URL plus the original filename — not a base64 blob.
 const PDF_MAX_BYTES = 6 * 1024 * 1024;
 let pendingPdfData = null;   // null = no change; '' = removed; string = Drive URL or legacy data URL
 let pendingPdfName = null;
@@ -405,6 +406,7 @@ function isPdfImageSrc(url, name){
   if(isImageDataUrl(url)) return true;
   if(name && /\.pdf$/i.test(name)) return false;
   if(name && /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(name)) return true;
+  if(/\.(png|jpe?g|gif|webp|svg|bmp)(\?|#|$)/i.test(url)) return true;
   return /lh3\.googleusercontent\.com/i.test(url);
 }
 
@@ -441,20 +443,23 @@ function compressImageFile(file){
 function uploadDataUrlToDrive(dataUrl, filename){
   return new Promise((resolve, reject) => {
     const uid = Date.now() + '' + Math.random().toString(36).slice(2, 6);
-    syncPush('_up_' + uid, { image: dataUrl, filename: filename || ('sb_' + uid) });
-    let tries = 0;
-    const poll = setInterval(async () => {
-      tries++;
-      try{
-        const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent('_ur_'+uid));
-        if(res && res.data){
-          clearInterval(poll);
-          if(res.data.ok && res.data.url) resolve(res.data.url);
-          else reject(new Error('Drive upload failed'));
-        }
-      } catch(e) {}
-      if(tries >= 30){ clearInterval(poll); reject(new Error('Drive upload timed out')); }
-    }, 1500);
+    const payload = { image: dataUrl, filename: filename || ('sb_' + uid) };
+    const startPoll = () => {
+      let tries = 0;
+      const poll = setInterval(async () => {
+        tries++;
+        try{
+          const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent('_ur_'+uid));
+          if(res && res.data){
+            clearInterval(poll);
+            if(res.data.ok && res.data.url) resolve(res.data.url);
+            else reject(new Error('Upload failed'));
+          }
+        } catch(e) {}
+        if(tries >= 30){ clearInterval(poll); reject(new Error('Upload timed out')); }
+      }, 1500);
+    };
+    Promise.resolve(syncPush('_up_' + uid, payload)).then(startPoll).catch(() => reject(new Error('Upload failed')));
   });
 }
 
@@ -479,9 +484,9 @@ async function onPdfFileSelected(input){
     const filename = isImage ? ('sb_' + Date.now() + '.jpg') : file.name;
     pendingPdfData = await uploadDataUrlToDrive(dataUrl, filename);
     pendingPdfName = file.name;
-    showToast('Uploaded to Drive', 'success');
+    showToast('Uploaded', 'success');
   } catch(e){
-    showToast(e.message || 'Drive upload failed', 'error');
+    showToast(e.message || 'Upload failed', 'error');
   }
   pendingPdfUploading = false;
   renderPdfPreview();
@@ -498,7 +503,7 @@ function renderPdfPreview(){
   const area = document.getElementById('pdfPreviewArea');
   if(!area) return;
   if(pendingPdfUploading){
-    area.innerHTML = `<div class="pdf-picked-row"><span class="pdf-picked-name">⏳ Uploading ${esc(pendingPdfName || 'file')} to Drive…</span></div>`;
+    area.innerHTML = `<div class="pdf-picked-row"><span class="pdf-picked-name">⏳ Uploading ${esc(pendingPdfName || 'file')}…</span></div>`;
     return;
   }
   const ex = editId ? (getTopics().find(t => t.id===editId)||{}) : {};
@@ -539,11 +544,10 @@ function applyLayoutUI(){
 
 // ── Teacher notes (per block) ──
 const TN_KEY = () => 'tnotes_' + (SUBJECT ? SUBJECT.id : 'default');
-const getTeacherNotes = () => { try{ return JSON.parse(localStorage.getItem(TN_KEY())||'{}'); }catch(e){ return {}; } };
+const getTeacherNotes = () => { const v = sbMemGet(TN_KEY(), {}); return (v && typeof v === 'object') ? v : {}; };
 const saveTeacherNotes = obj => {
-  localStorage.setItem(TN_KEY(), JSON.stringify(obj));
+  sbMemSet(TN_KEY(), obj);
   syncPush(TN_KEY(), obj);
-  setSyncStatus('ok');
 };
 
 // Notes are stored as { [topicId]: { [blockKey]: [note, ...] } }.
@@ -834,6 +838,27 @@ function togglePinTopic(id){
 
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+function topicTitleHtml(name, id, bucket){
+  if(typeof isTopicUnsynced === 'function' && isTopicUnsynced(bucket || ST, id)){
+    return `<span class="unsynced-title" title="unable to connect to servers">${esc(name)}</span>`;
+  }
+  return esc(name);
+}
+
+function refreshUnsyncedUI(){
+  renderList();
+  const t = getTopics().find(x => x.id == activeId);
+  const unsynced = !!(t && isTopicUnsynced(ST, t.id));
+  const dh = document.querySelector('#detailContent .dh-name');
+  const bc = document.getElementById('hdrTopicName');
+  [dh, bc].forEach(el => {
+    if(!el) return;
+    el.classList.toggle('unsynced-title', unsynced);
+    if(unsynced) el.title = 'unable to connect to servers';
+    else el.removeAttribute('title');
+  });
+}
+
 function getDescendantIds(id, topics){
   const direct = topics.filter(t => t.parentId === id).map(t => t.id);
   return direct.concat(direct.flatMap(cid => getDescendantIds(cid, topics)));
@@ -860,7 +885,7 @@ function renderSubtree(c, topics){
         ${hasKids
           ? `<button class="ti-expand-btn sub-expand" onclick="event.stopPropagation();toggleTopicExpand(${c.id})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>`
           : `<span class="ssi-dot"></span>`}
-        <span class="ssi-label">${esc(c.name)}</span>
+        <span class="ssi-label">${topicTitleHtml(c.name, c.id, ST)}</span>
       </div>
       ${childrenHtml}
     </div>`;
@@ -901,7 +926,7 @@ function renderList(){
             <div class="ti-top">
               <div class="ti-name">
                 ${hasSubs ? `<button class="ti-expand-btn" onclick="event.stopPropagation();toggleTopicExpand(${t.id})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>` : ''}
-                ${isPinned?'<span class="ti-pin-icon"></span>':''}${esc(t.name)}
+                ${isPinned?'<span class="ti-pin-icon"></span>':''}${topicTitleHtml(t.name, t.id, ST)}
               </div>
               <button class="ti-pin-btn" onclick="event.stopPropagation();togglePinTopic(${t.id})" title="${isPinned?'Unpin':'Pin'}">${isPinned?'★':'☆'}</button>
             </div>
@@ -983,6 +1008,10 @@ function updateTopicBreadcrumb(t, allTopics){
 
   const ancestors = getTopicAncestors(t, allTopics);
   bcTopic.textContent = t.name;
+  const unsynced = isTopicUnsynced(ST, t.id);
+  bcTopic.classList.toggle('unsynced-title', unsynced);
+  if(unsynced) bcTopic.title = 'unable to connect to servers';
+  else bcTopic.removeAttribute('title');
   bcTopic.style.display = '';
   bcSep.style.display = '';
 
@@ -1005,6 +1034,8 @@ function clearTopicBreadcrumb(){
   const trail = document.getElementById('hdrTopicTrail');
   if(bcTopic && bcSep){
     bcTopic.textContent = '';
+    bcTopic.classList.remove('unsynced-title');
+    bcTopic.removeAttribute('title');
     bcTopic.style.display = 'none';
     bcSep.style.display = 'none';
   }
@@ -1131,7 +1162,7 @@ function viewTopic(id){
   el.innerHTML = `
       <div class="dh">
         <div>
-          <div class="dh-name">${esc(t.name)}</div>
+          <div class="dh-name${isTopicUnsynced(ST, t.id) ? ' unsynced-title' : ''}"${isTopicUnsynced(ST, t.id) ? ' title="unable to connect to servers"' : ''}>${esc(t.name)}</div>
           <div class="dh-meta">
             ${t.unit ? `<span class="dh-unit">${esc(t.unit)}</span>` : ''}
             <span class="dh-date">Added ${created}</span>${editedStr}
@@ -1466,20 +1497,16 @@ function jsonpGet(url){
   });
 }
 
+let _pushGen = 0;
 function syncPush(key, data){
-  try{
-    const id = 'sf'+Date.now();
-    const iframe = document.createElement('iframe');
-    iframe.name = id; iframe.style.cssText='display:none;width:0;height:0;border:0';
-    const form = document.createElement('form');
-    form.method='POST'; form.action=SYNC_URL; form.target=id; form.style.display='none';
-    [['key',key],['data',JSON.stringify(data)]].forEach(([n,v]) => {
-      const inp = document.createElement('input'); inp.type='hidden'; inp.name=n; inp.value=v; form.appendChild(inp);
-    });
-    document.body.appendChild(iframe); document.body.appendChild(form); form.submit();
-    setTimeout(() => { if(iframe.parentNode)iframe.parentNode.removeChild(iframe); if(form.parentNode)form.parentNode.removeChild(form); }, 6000);
-    setSyncStatus('ok');
-  } catch(e){ setSyncStatus('err'); }
+  const gen = ++_pushGen;
+  setSyncStatus('syncing');
+  return sbPushToSync(key, data).then(() => {
+    if(gen === _pushGen) setSyncStatus('ok');
+  }).catch(err => {
+    if(gen === _pushGen) setSyncStatus('err');
+    throw err;
+  });
 }
 
 let _nextSync = Date.now() + 60000;
@@ -1488,43 +1515,27 @@ async function syncPull(){
   setSyncStatus('syncing');
   const PLACEHOLDER = '[image — only visible on device where it was saved]';
   try{
+    const flush = await flushUnsyncedTopics();
+    if(flush.flushed) refreshUnsyncedUI();
+
     for(const key of [ST, SU]){
       const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(key));
       if(res && res.data !== null && res.data !== undefined){
         if(key===ST && Array.isArray(res.data)){
-          let local = [];
-          try { local = JSON.parse(localStorage.getItem(ST)||'[]'); } catch(e) { local = []; }
-          if(!Array.isArray(local)) local = [];
-          const merged = res.data.map(rem => {
-            const loc = local.find(t => t.id == rem.id);
-            if(!loc) return rem;
-            const m = {...rem};
-            if((m.parentId == null || m.parentId === '') && loc.parentId != null && loc.parentId !== ''){
-              m.parentId = loc.parentId;
-            }
-            Object.keys(m).forEach(k => {
-              if(typeof m[k]==='string' && m[k].includes(PLACEHOLDER) &&
-                 loc[k] && typeof loc[k]==='string' && !loc[k].includes(PLACEHOLDER)){
-                m[k] = loc[k];
-              }
-            });
-            return m;
-          });
-          local.forEach(lt => { if(!merged.find(t => t.id===lt.id)) merged.push(lt); });
-          localStorage.setItem(key, JSON.stringify(merged));
+          sbMemSet(key, mergeTopicsKeepUnsynced(res.data, ST, PLACEHOLDER));
         } else {
-          localStorage.setItem(key, JSON.stringify(res.data));
+          sbMemSet(key, res.data);
         }
       }
     }
     // Pull shared teacher notes
     const tnRes = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(TN_KEY()));
     if(tnRes && tnRes.data !== null && tnRes.data !== undefined){
-      localStorage.setItem(TN_KEY(), JSON.stringify(tnRes.data));
+      sbMemSet(TN_KEY(), tnRes.data);
       if(activeId) viewTopic(activeId);
     }
-    setSyncStatus('ok');
-    renderList();
+    setSyncStatus(unsyncedTopicBuckets().length ? 'err' : 'ok');
+    refreshUnsyncedUI();
   } catch(e){ setSyncStatus('err'); }
   _nextSync = Date.now() + 60000;
 }
@@ -1587,8 +1598,10 @@ function compressAndInsert(editor, file) {
         rng.setStartAfter(ph); rng.collapse(true); sel.removeAllRanges(); sel.addRange(rng);
       } else { editor.appendChild(ph); }
       const uid = Date.now() + '' + Math.random().toString(36).slice(2, 6);
-      syncPush('_up_' + uid, { image: b64, filename: 'sb_' + uid + '.jpg' });
-      pollUploadResult(uid, ph);
+      const fallback = () => { const img = document.createElement('img'); img.src = ph._b64; ph.replaceWith(img); };
+      Promise.resolve(syncPush('_up_' + uid, { image: b64, filename: 'sb_' + uid + '.jpg' }))
+        .then(() => pollUploadResult(uid, ph))
+        .catch(fallback);
     };
     img.src = e.target.result;
   };
@@ -1721,6 +1734,14 @@ if(resolveSubject()){
   applyTopicLinkFromUrl();
   syncPull();
   setInterval(syncPull, 60000);
+  setInterval(() => {
+    if(!unsyncedTopicBuckets().length) return;
+    flushUnsyncedTopics().then(r => {
+      if(!r.flushed) return;
+      refreshUnsyncedUI();
+      if(!r.remaining) setSyncStatus('ok');
+    });
+  }, 4000);
   startCountdown();
 }
 
@@ -1784,7 +1805,7 @@ if(resolveSubject()){
       if (!isMobile()) return;
       closeSidebar();
       try {
-        var topics = JSON.parse(localStorage.getItem(ST) || '[]');
+        var topics = sbMemGet(ST, []) || [];
         var t = topics.find(function (x) { return x.id == id; });
         var titleEl = document.getElementById('mobBarTitle');
         if (t && titleEl) titleEl.textContent = t.name;
