@@ -204,9 +204,21 @@ function readTableData(){
   return { columns, rows };
 }
 
+function hasFieldContent(val){
+  if(val == null) return false;
+  const s = String(val)
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .trim();
+  return s.length > 0;
+}
+function hasTableData(td){
+  return !!(td && td.columns && td.columns.length);
+}
+
 function tableViewHtml(t){
   const td = t.tableData;
-  if(!td || !td.columns || !td.columns.length) return '<p class="empty-note">No table data yet.</p>';
+  if(!hasTableData(td)) return '';
   const head = '<tr>' + td.columns.map(c => `<th>${esc(c)}</th>`).join('') + '</tr>';
   const body = (td.rows||[]).map(r =>
     '<tr>' + td.columns.map((c,i) => `<td>${sanitizeRich(r[i]||'')}</td>`).join('') + '</tr>'
@@ -215,7 +227,7 @@ function tableViewHtml(t){
 }
 
 function pdfDocViewHtml(t){
-  if(!t.pdfData) return '<p class="empty-note">No PDF or image uploaded yet.</p>';
+  if(!t.pdfData) return '';
   const isImg = isPdfImageSrc(t.pdfData, t.pdfName);
   const name = esc(t.pdfName || (isImg ? 'image' : 'document.pdf'));
   const src = isImg ? t.pdfData : driveEmbedUrl(t.pdfData);
@@ -1056,18 +1068,18 @@ function viewTopic(id){
 
   const kpHtml = (t.keyPoints||[]).length
     ? `<ul class="key-points">${t.keyPoints.map(k=>`<li class="kp-item"><div class="kp-dot"></div><span>${esc(k)}</span></li>`).join('')}</ul>`
-    : '<p class="empty-note">No key points added yet.</p>';
+    : '';
 
   const relHtml = (t.relatedTerms||[]).length
     ? `<div class="related-tags">${t.relatedTerms.map(r => {
         const m = getTopics().find(x => x.name.toLowerCase()===r.toLowerCase());
         return `<span class="rtag"${m?` onclick="viewTopic(${m.id})"`:''}>${esc(r)}</span>`;
       }).join('')}</div>`
-    : '<p class="empty-note">None listed.</p>';
+    : '';
 
   const subtopicsHtml = children.length
     ? `<div class="related-tags">${children.map(c => `<span class="rtag" onclick="viewTopic(${c.id})">${esc(c.name)}</span>`).join('')}</div>`
-    : '<p class="empty-note">No subtopics yet.</p>';
+    : '';
 
   const created = new Date(t.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
   const editedStr = t.updatedAt && t.updatedAt !== t.createdAt
@@ -1076,55 +1088,68 @@ function viewTopic(id){
   // visibleBlocks tracks each section for sidebar alignment
   const visibleBlocks = [];
   const sec = (block, label, icon, bodyHtml, headerExtra) => {
+    if(bodyHtml == null || bodyHtml === '') return '';
     visibleBlocks.push({ block, label, icon });
     return sectionHtml(t.id, icon, label, block, bodyHtml, headerExtra);
   };
 
   let bodyHtml = '';
   if(layout === 'overview'){
-    bodyHtml += sec('bodyText', 'Overview', '📖',
-      t.bodyText ? `<div class="plain-text">${sanitizeRich(t.bodyText)}</div>` : '<p class="empty-note">No overview written yet.</p>');
+    if(hasFieldContent(t.bodyText)){
+      bodyHtml += sec('bodyText', 'Overview', '📖',
+        `<div class="plain-text">${sanitizeRich(t.bodyText)}</div>`);
+    }
     const ovwItems = [];
     (t.keyPoints||[]).forEach(k => ovwItems.push(`<li class="ovw-list-item ovw-kp-item"><div class="kp-dot"></div><span>${esc(k)}</span></li>`));
     children.forEach(c => ovwItems.push(`<li class="ovw-list-item ovw-subtopic-item"><div class="kp-dot kp-dot-link"></div><a class="subtopic-link" href="javascript:void(0)" onclick="viewTopic(${c.id})">${esc(c.name)}</a><span class="ovw-subtopic-badge">subtopic →</span></li>`));
     if(ovwItems.length) bodyHtml += sec('overviewPoints', 'Points & Subtopics', '📋', `<ul class="ovw-list">${ovwItems.join('')}</ul>`);
   } else if(layout === 'math'){
-    bodyHtml += sec('formula', 'Formula / Equation', '∑',
-      t.formula ? `<div class="formula-box">${sanitizeRich(t.formula)}</div>` : '<p class="empty-note">No formula added yet.</p>');
-    bodyHtml += sec('flashcardQA', 'Flashcard Questions', '🃏',
-      (t.flashcardQA||[]).length ? qaRowsHtml(t) : '<p class="empty-note">No flashcard questions yet.</p>');
-    bodyHtml += sec('desmos', 'Desmos Graph', '📐', `<div class="desmos-view-wrap">
-      <div class="desmos-view-calc" id="desmosViewCalc" style="display:none"></div>
-      <div class="desmos-loading" id="desmosViewLoading" style="display:none;height:420px"><span class="desmos-spinner"></span>Loading graph…</div>
-      <p class="empty-note" id="desmosViewEmpty" style="display:none">No graph created yet.</p>
-      <p class="desmos-unavailable" id="desmosViewUnavailable" style="display:none">Desmos graphing isn't configured yet — set DESMOS_API_KEY in sync-config.js.</p>
-    </div>`, t.desmosState ? expandBtnsHtml('desmosViewCalc', {enlarge:true, fullscreen:true}) : '');
+    if(hasFieldContent(t.formula)){
+      bodyHtml += sec('formula', 'Formula / Equation', '∑',
+        `<div class="formula-box">${sanitizeRich(t.formula)}</div>`);
+    }
+    if((t.flashcardQA||[]).length){
+      bodyHtml += sec('flashcardQA', 'Flashcard Questions', '🃏', qaRowsHtml(t));
+    }
+    if(t.desmosState){
+      bodyHtml += sec('desmos', 'Desmos Graph', '📐', `<div class="desmos-view-wrap">
+        <div class="desmos-view-calc" id="desmosViewCalc" style="display:none"></div>
+        <div class="desmos-loading" id="desmosViewLoading" style="display:none;height:420px"><span class="desmos-spinner"></span>Loading graph…</div>
+        <p class="desmos-unavailable" id="desmosViewUnavailable" style="display:none">Desmos graphing isn't configured yet — set DESMOS_API_KEY in sync-config.js.</p>
+      </div>`, expandBtnsHtml('desmosViewCalc', {enlarge:true, fullscreen:true}));
+    }
   } else if(layout === 'text'){
-    bodyHtml += sec('bodyText', 'Main Text', '📄',
-      t.bodyText ? `<div class="plain-text" id="mainTextView">${sanitizeRich(t.bodyText)}</div>` : '<p class="empty-note">No text added yet.</p>',
-      t.bodyText ? expandBtnsHtml('mainTextView', {enlarge:true, fullscreen:true}) : '');
-    bodyHtml += sec('keyPoints', 'Points of Interest', '✦', kpHtml);
+    if(hasFieldContent(t.bodyText)){
+      bodyHtml += sec('bodyText', 'Main Text', '📄',
+        `<div class="plain-text" id="mainTextView">${sanitizeRich(t.bodyText)}</div>`,
+        expandBtnsHtml('mainTextView', {enlarge:true, fullscreen:true}));
+    }
+    if(kpHtml) bodyHtml += sec('keyPoints', 'Points of Interest', '✦', kpHtml);
   } else if(layout === 'pdf'){
-    bodyHtml += sec('pdfDoc', 'PDF / Image Document', '📄',
-      pdfDocViewHtml(t),
-      t.pdfData ? expandBtnsHtml('pdfViewerFrame', {fullscreen:true}) : '');
+    const pdfHtml = pdfDocViewHtml(t);
+    if(pdfHtml){
+      bodyHtml += sec('pdfDoc', 'PDF / Image Document', '📄', pdfHtml,
+        expandBtnsHtml('pdfViewerFrame', {fullscreen:true}));
+    }
   } else if(layout === 'table'){
-    bodyHtml += sec('tableData', 'Table', '▦', tableViewHtml(t));
+    const tableHtml = tableViewHtml(t);
+    if(tableHtml) bodyHtml += sec('tableData', 'Table', '▦', tableHtml);
   } else { // basic
-    bodyHtml += sec('definition', 'Definition', '📝',
-      t.definition ? `<p class="def-text">${esc(t.definition)}</p>` : '<p class="empty-note">No definition added yet.</p>');
-    bodyHtml += sec('keyPoints', 'Key Points', '✦', kpHtml);
-    if(t.formula)                  bodyHtml += sec('formula',     'Formula / Equation', '∑',  `<div class="formula-box">${sanitizeRich(t.formula)}</div>`);
-    if(t.materials)                bodyHtml += sec('materials',   'Extra Notes',        '📋', `<p class="plain-text">${sanitizeRich(t.materials)}</p>`);
-    if(t.process)                  bodyHtml += sec('process',     'Process / Method',   '⚙',  `<div class="formula-box">${sanitizeRich(t.process)}</div>`);
-    if(t.safety)                   bodyHtml += sec('safety',      'Safety / Warnings',  '⚠',  `<div class="warning-box">${sanitizeRich(t.safety)}</div>`);
-    if(t.examTip)                  bodyHtml += sec('examTip',     'Exam Tip',           '⚡', `<div class="exam-tip">${sanitizeRich(t.examTip)}</div>`);
-    if((t.flashcardQA||[]).length) bodyHtml += sec('flashcardQA', 'Flashcard Questions','🃏', qaRowsHtml(t));
+    if(hasFieldContent(t.definition)){
+      bodyHtml += sec('definition', 'Definition', '📝',
+        `<p class="def-text">${esc(t.definition)}</p>`);
+    }
+    if(kpHtml) bodyHtml += sec('keyPoints', 'Key Points', '✦', kpHtml);
+    if(hasFieldContent(t.formula))     bodyHtml += sec('formula',     'Formula / Equation', '∑',  `<div class="formula-box">${sanitizeRich(t.formula)}</div>`);
+    if(hasFieldContent(t.materials))   bodyHtml += sec('materials',   'Extra Notes',        '📋', `<p class="plain-text">${sanitizeRich(t.materials)}</p>`);
+    if(hasFieldContent(t.process))     bodyHtml += sec('process',     'Process / Method',   '⚙',  `<div class="formula-box">${sanitizeRich(t.process)}</div>`);
+    if(hasFieldContent(t.safety))      bodyHtml += sec('safety',      'Safety / Warnings',  '⚠',  `<div class="warning-box">${sanitizeRich(t.safety)}</div>`);
+    if(hasFieldContent(t.examTip))     bodyHtml += sec('examTip',     'Exam Tip',           '⚡', `<div class="exam-tip">${sanitizeRich(t.examTip)}</div>`);
+    if((t.flashcardQA||[]).length)     bodyHtml += sec('flashcardQA', 'Flashcard Questions','🃏', qaRowsHtml(t));
   }
 
-  // Common to every layout: subtopics, then related terms
-  bodyHtml += sec('subtopics',    'Subtopics',     '🧩', subtopicsHtml);
-  bodyHtml += sec('relatedTerms', 'Related Terms', '🔗', relHtml);
+  if(subtopicsHtml) bodyHtml += sec('subtopics', 'Subtopics', '🧩', subtopicsHtml);
+  if(relHtml)       bodyHtml += sec('relatedTerms', 'Related Terms', '🔗', relHtml);
 
   destroyDesmosView(); // the old container (if any) is about to be replaced below
   closeEnlarge(); // any enlarged content belongs to the topic being replaced
