@@ -2,7 +2,7 @@
 // Mirrors BranchVersion.json for pages opened via file:// (see comment there).
 window.BRANCH_VERSION = {
   "date": "19-8-26",
-  "branch": "Devpanel",
-  "version": "6.0.5",
+  "branch": "Backend",
+  "version": "7.0.0",
   "colour": "main"
 };
