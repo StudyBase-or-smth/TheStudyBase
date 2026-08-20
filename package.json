@@ -1,0 +1,15 @@
+{
+  "name": "thestudybase",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "dotenv": "^16.4.0",
+    "express": "^4.21.0",
+    "firebase-admin": "^13.10.0",
+    "nodemailer": "^9.0.1"
+  }
+}
