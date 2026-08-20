@@ -216,7 +216,8 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
   function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
   async function apiFetch(url, options = {}) {
-    const res = await fetch(url, options);
+    const dest = (typeof sbApiUrl === 'function' && url.charAt(0) === '/') ? sbApiUrl(url) : url;
+    const res = await fetch(dest, options);
     const raw = await res.text();
     let data;
     try {

@@ -978,7 +978,7 @@ async function callAI(provider, prompt, userKey) {
     if (currentUser) {
       headers['Authorization'] = 'Bearer ' + await currentUser.getIdToken();
     }
-    const res = await fetch('/api/grade', {
+    const res = await fetch((typeof sbApiUrl === 'function' ? sbApiUrl('/api/grade') : '/api/grade'), {
       method: 'POST',
       headers,
       body: JSON.stringify({ provider, prompt, userKey })

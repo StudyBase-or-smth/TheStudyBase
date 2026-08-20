@@ -8,6 +8,7 @@
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="mainstyle.css">
+<script src="sync-config.js"></script>
 </head>
 <body class="auth-page">
 
@@ -232,7 +233,7 @@
       let result = { status: 'pending', requestedRole };
       try {
         const idToken = await cred.user.getIdToken();
-        const res = await fetch('/api/registerRole', {
+        const res = await fetch((typeof sbApiUrl === 'function' ? sbApiUrl('/api/registerRole') : '/api/registerRole'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
           body: JSON.stringify({ uid: cred.user.uid, email, requestedRole }),

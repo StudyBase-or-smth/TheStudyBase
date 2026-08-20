@@ -294,7 +294,7 @@ function profilePhotoSrc(url){
   if(!isRemotePhotoUrl(url)) return '';
   try {
     if(typeof location !== 'undefined' && /^https?:$/i.test(location.protocol)){
-      return '/api/avatar?u=' + encodeURIComponent(url);
+      return (typeof sbApiUrl === 'function' ? sbApiUrl('/api/avatar') : '/api/avatar') + '?u=' + encodeURIComponent(url);
     }
   } catch(e) {}
   return url;

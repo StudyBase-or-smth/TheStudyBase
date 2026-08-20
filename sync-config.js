@@ -10,8 +10,8 @@
 // DESMOS_API_KEY — Desmos Graphing Calculator key (desmos.com/my-api).
 // Desmos embeds this in a public <script src>, so it is not a spend
 // secret. Keep it here so subject/class pages work from file:// without
-// hitting /api/desmosKey. If this is empty, those pages fall back to the
-// Netlify env var via netlify/functions/desmosKey.js.
+// hitting /api/desmosKey. If this is empty, those pages fall back to
+// /api/desmosKey on the standalone store (or Netlify when USE_APPS_SCRIPT).
 const APPS_SCRIPT_SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
 const LOCAL_SYNC_URL = 'http://basecomputer.tail8c20e2.ts.net:8787/sync';
 const USE_APPS_SCRIPT = false;
@@ -28,6 +28,16 @@ function isLocalDevHost(){
 
 const SYNC_URL = (USE_APPS_SCRIPT && !isLocalDevHost()) ? APPS_SCRIPT_SYNC_URL : LOCAL_SYNC_URL;
 const DESMOS_API_KEY = '7339116aaed4438899621e81f10dd250';
+
+function sbApiOrigin(){
+  if(USE_APPS_SCRIPT && !isLocalDevHost()) return '';
+  try { return new URL(LOCAL_SYNC_URL).origin; } catch(e) { return ''; }
+}
+function sbApiUrl(path){
+  const p = (path && path.charAt(0) === '/') ? path : '/' + (path || '');
+  const origin = sbApiOrigin();
+  return origin ? origin + p : p;
+}
 
 function syncMediaOrigin(){
   try { return new URL(SYNC_URL).origin; } catch(e) { return ''; }

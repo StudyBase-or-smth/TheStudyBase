@@ -291,7 +291,7 @@ function loadDesmosScript(){
   const fromConfig = (typeof DESMOS_API_KEY === 'string' && DESMOS_API_KEY.trim()) ? DESMOS_API_KEY.trim() : '';
   _desmosLoadPromise = fromConfig
     ? injectDesmosScript(fromConfig)
-    : fetch('/api/desmosKey')
+    : fetch((typeof sbApiUrl === 'function' ? sbApiUrl('/api/desmosKey') : '/api/desmosKey'))
         .then(res => res.ok ? res.json() : { apiKey: '' })
         .catch(() => ({ apiKey: '' }))
         .then(data => injectDesmosScript((data && data.apiKey) || ''));
