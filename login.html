@@ -89,17 +89,9 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { loadFirebaseConfig } from "./firebase-config.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAZeyBIaTstTJ5Pr9o86MHk8dhDPAJFFCA",
-    authDomain: "studybase-8cfa1.firebaseapp.com",
-    projectId: "studybase-8cfa1",
-    storageBucket: "studybase-8cfa1.firebasestorage.app",
-    messagingSenderId: "434992387793",
-    appId: "1:434992387793:web:e5bcae8cad63b4eb6f17f0"
-  };
-
-  const app = initializeApp(firebaseConfig);
+  const app = initializeApp(await loadFirebaseConfig());
   const auth = getAuth(app);
 
   // Prevents the auth-state listener auto-redirecting during sign-up flow

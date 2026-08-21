@@ -44,6 +44,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/firebaseConfig"
+  to = "/.netlify/functions/firebaseConfig"
+  status = 200
+
+[[redirects]]
   from = "/api/avatar"
   to = "/.netlify/functions/avatar"
   status = 200

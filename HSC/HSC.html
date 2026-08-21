@@ -277,15 +277,8 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  const cfg = {
-    apiKey:"AIzaSyAZeyBIaTstTJ5Pr9o86MHk8dhDPAJFFCA",
-    authDomain:"studybase-8cfa1.firebaseapp.com",
-    projectId:"studybase-8cfa1",
-    storageBucket:"studybase-8cfa1.firebasestorage.app",
-    messagingSenderId:"434992387793",
-    appId:"1:434992387793:web:e5bcae8cad63b4eb6f17f0"
-  };
-  const auth = getAuth(initializeApp(cfg));
+  import { loadFirebaseConfig } from "../firebase-config.js";
+  const auth = getAuth(initializeApp(await loadFirebaseConfig()));
   window.__sbAuth = auth; // so the quiz engine's callAI() can fetch a fresh ID token for /api/grade
   onAuthStateChanged(auth, user => {
     const isGuest = sessionStorage.getItem('studybase_guest') === '1';
