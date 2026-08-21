@@ -75,11 +75,11 @@ exports.handler = async function (event) {
     // client-supplied field.
     const existingUser = await admin.auth().getUser(uid);
     const existingStatus = (existingUser.customClaims && existingUser.customClaims.status) || '';
-    if (existingStatus === 'active') {
+    if (existingStatus === 'active' || existingStatus === 'rejected') {
       return {
         statusCode: 403,
         headers: JSON_HEADERS,
-        body: JSON.stringify({ error: 'Account is already active; cannot re-register' }),
+        body: JSON.stringify({ error: existingStatus === 'rejected' ? 'Account was rejected; cannot re-register' : 'Account is already active; cannot re-register' }),
       };
     }
 

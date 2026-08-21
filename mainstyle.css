@@ -960,3 +960,7 @@ body.subject-page .rich-content:fullscreen{width:100vw;height:100vh;overflow:aut
    buttons — same .sh-expand-btn/.sh-expand-btns as the read view */
 body.subject-page .form-l-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 body.subject-page .form-l-row .form-l{margin-bottom:6px}
+
+/* Class pages: only teachers/devs may add topics. Students can still
+   read; guests already hide this via guest-mode. */
+body.class-page:not(.teacher-mode) #btnNewTopic{display:none !important}

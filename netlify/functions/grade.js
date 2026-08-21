@@ -54,6 +54,9 @@ exports.handler = async function (event) {
   if (!prompt || typeof prompt !== 'string') {
     return { statusCode: 400, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Missing prompt' }) };
   }
+  if (prompt.length > 20000) {
+    return { statusCode: 413, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Prompt is too long' }) };
+  }
 
   try {
     const decoded = await requireSignedInUser(event);

@@ -259,19 +259,19 @@ function tableViewHtml(t){
 }
 
 function pdfDocViewHtml(t){
-  if(!t.pdfData) return '';
+  if(!t.pdfData || !isAllowedMediaUrl(t.pdfData)) return '';
   const isImg = isPdfImageSrc(t.pdfData, t.pdfName);
   const name = esc(t.pdfName || (isImg ? 'image' : 'document.pdf'));
   const src = isImg ? t.pdfData : driveEmbedUrl(t.pdfData);
-  // Images get auto-inverted in dark mode (see the global img filter rule in
-  // mainstyle.css) so light-background diagrams don't glow — but that's not
-  // always the right call (photos, already-dark images, etc.), so clicking
-  // the image toggles it back to its normal colours and back again.
+  if(!src) return '';
+  const srcAttr = esc(src).replace(/"/g, '&quot;');
+  const hrefAttr = esc(t.pdfData).replace(/"/g, '&quot;');
   const viewer = isImg
-    ? `<div class="pdf-viewer-stage"><img class="pdf-viewer-img" id="pdfViewerFrame" src="${src}" alt="${name}" title="Click to toggle dark-mode inversion" onclick="toggleImgInvert(this)"></div>`
-    : `<iframe class="pdf-viewer" id="pdfViewerFrame" src="${src}" title="${name}"></iframe>`;
+    ? `<div class="pdf-viewer-stage"><img class="pdf-viewer-img" id="pdfViewerFrame" src="${srcAttr}" alt="${name}" title="Click to toggle dark-mode inversion" onclick="toggleImgInvert(this)"></div>`
+    : `<iframe class="pdf-viewer" id="pdfViewerFrame" src="${srcAttr}" title="${name}"></iframe>`;
+  const isHttps = /^https?:/i.test(t.pdfData);
   return `<div class="pdf-viewer-wrap">${viewer}
-      <a class="pdf-open-link" href="${t.pdfData}" ${/^https?:/i.test(t.pdfData) ? 'target="_blank" rel="noopener"' : `download="${name}"`}>⬇ ${name}</a></div>`;
+      <a class="pdf-open-link" href="${hrefAttr}" ${isHttps ? 'target="_blank" rel="noopener"' : `download="${name}"`}>⬇ ${name}</a></div>`;
 }
 
 // Toggles an uploaded image between the dark-mode auto-inverted look and its
@@ -493,10 +493,22 @@ function isPdfImageSrc(url, name){
   return /lh3\.googleusercontent\.com/i.test(url);
 }
 
+function isAllowedMediaUrl(url){
+  if(!url) return false;
+  if(/^data:image\//i.test(url) || /^data:application\/pdf/i.test(url)) return true;
+  try{
+    const u = new URL(url);
+    if(u.protocol !== 'https:') return false;
+    const host = u.hostname.toLowerCase();
+    return host === 'drive.google.com' || host === 'lh3.googleusercontent.com';
+  }catch(e){ return false; }
+}
+
 function driveEmbedUrl(url){
-  if(!url || /^data:/i.test(url)) return url;
+  if(!url || /^data:/i.test(url)) return url || '';
+  if(!isAllowedMediaUrl(url)) return '';
   const id = (url.match(/[?&]id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/) || [])[1];
-  return id ? ('https://drive.google.com/file/d/' + id + '/preview') : url;
+  return id ? ('https://drive.google.com/file/d/' + id + '/preview') : '';
 }
 
 function fileToDataUrl(file){
@@ -2053,20 +2065,32 @@ if(resolveSubject()){
   window.showToast=function(msg,type='info',duration=2500){
     const icons={success:'✓',error:'✕',info:'ℹ',warning:'⚠'};
     const t=document.createElement('div');t.className='sb-toast '+(type||'info');
-    t.innerHTML=`<span>${icons[type]||'ℹ'}</span><span>${msg}</span>`;
+    const ic=document.createElement('span');ic.textContent=icons[type]||'ℹ';
+    const tx=document.createElement('span');tx.textContent=String(msg==null?'':msg);
+    t.appendChild(ic);t.appendChild(tx);
     c.appendChild(t);setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),350);},duration);
   };
 })();
 
-// ── AI Fill Gaps ──
-function _gKey(){
-  const a="wac6rvA43LkJB_Cs9ry80JfzhYL3d61g6eglwef7b89J6";
-  const b="AQ.Ab8RN";
-  let k=b+a;
-  k=k.substring(0,8)+k.substring(8).split('').reverse().join('');
-  return k;
+// ── AI Fill Gaps (via /api/grade — never a client-side API key) ──
+async function callGradeGemini(prompt){
+  const currentUser = window.__sbAuth && window.__sbAuth.currentUser;
+  if(!currentUser) throw new Error('Sign in to use AI fill');
+  const res = await fetch('/api/grade', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + await currentUser.getIdToken()
+    },
+    body: JSON.stringify({ provider: 'gemini', prompt })
+  });
+  const contentType = res.headers.get('content-type') || '';
+  if(!contentType.includes('application/json')) throw new Error('AI fill needs the live site');
+  const data = await res.json().catch(() => ({}));
+  if(res.status === 429) throw new Error('RATE_LIMIT');
+  if(!res.ok) throw new Error(data.error || ('API error ' + res.status));
+  return data.text || '';
 }
-const GEMINI_URL=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${_gKey()}`;
 
 // ── AI Fill inside the modal ──
 // Reads the current form state (name + any existing field values) and fills
@@ -2117,15 +2141,7 @@ Field rules:
 Return ONLY valid JSON, no markdown, no explanation.`;
 
   try{
-    const res = await fetch(GEMINI_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] })
-    });
-    if(res.status===429) throw new Error('RATE_LIMIT');
-    if(!res.ok) throw new Error('API error ' + res.status);
-    const data = await res.json();
-    let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    let text = await callGradeGemini(prompt);
     text = text.replace(/```json|```/g,'').trim();
     const filled = JSON.parse(text);
 

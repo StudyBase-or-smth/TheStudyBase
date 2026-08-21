@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="../fonts.css">
 <link rel="stylesheet" href="../mainstyle.css">
 </head>
-<body class="subject-page">
+<body class="subject-page class-page">
 
 <!-- Firebase auth -->
 <script type="module">
@@ -19,6 +19,7 @@
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { loadFirebaseConfig } from "../firebase-config.js";
   const auth = getAuth(initializeApp(await loadFirebaseConfig()));
+  window.__sbAuth = auth;
   onAuthStateChanged(auth, user => {
     const isGuest = sessionStorage.getItem('studybase_guest') === '1';
     if (user) {
@@ -35,20 +36,8 @@
         const status = result.claims.status || '';
         window.userRole = role;
 
-        if (status === 'rejected') {
-          window.location.href = '../waiting.html';
-          return;
-        }
-
         if (status !== 'active') {
-          // Pending, missing claims, or unknown — restrict to guest-mode
-          // until a dev approves. Empty status used to fall through as
-          // full edit access.
-          window.isGuest = true;
-          document.body.classList.add('guest-mode');
-          document.getElementById('guest-border').style.display = 'block';
-          document.getElementById('guest-nudge').style.display = 'block';
-          if (typeof bootHdrProfile === 'function') bootHdrProfile(user, role || 'guest');
+          window.location.href = '../waiting.html';
           return;
         }
 
@@ -59,11 +48,7 @@
         }
         if (typeof bootHdrProfile === 'function') bootHdrProfile(user, role);
       }).catch(() => {
-        window.isGuest = true;
-        document.body.classList.add('guest-mode');
-        document.getElementById('guest-border').style.display = 'block';
-        document.getElementById('guest-nudge').style.display = 'block';
-        if (typeof bootHdrProfile === 'function') bootHdrProfile(user, 'guest');
+        window.location.href = '../waiting.html';
       });
     } else if (isGuest) {
       window.isGuest = true;

@@ -288,25 +288,13 @@
         const role = result.claims.role || '';
         const status = result.claims.status || '';
         window.userRole = role;
-        if (status === 'rejected') {
-          window.location.href = '../waiting.html';
-          return;
-        }
         if (status !== 'active') {
-          window.isGuest = true;
-          document.body.classList.add('guest-mode');
-          document.getElementById('guest-border').style.display = 'block';
-          document.getElementById('guest-nudge').style.display = 'block';
-          if (typeof bootHdrProfile === 'function') bootHdrProfile(user, role || 'guest');
+          window.location.href = '../waiting.html';
           return;
         }
         if (typeof bootHdrProfile === 'function') bootHdrProfile(user, role);
       }).catch(() => {
-        window.isGuest = true;
-        document.body.classList.add('guest-mode');
-        document.getElementById('guest-border').style.display = 'block';
-        document.getElementById('guest-nudge').style.display = 'block';
-        if (typeof bootHdrProfile === 'function') bootHdrProfile(user, 'guest');
+        window.location.href = '../waiting.html';
       });
     } else if (isGuest) {
       window.isGuest = true;
