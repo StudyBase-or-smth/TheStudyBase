@@ -1,19 +1,17 @@
 // netlify/functions/firebaseConfig.js
 //
-// Returns the public Firebase *web* config used by the browser SDK.
+// Returns the Firebase *web* project id used by the browser SDK.
 // Admin SDK secrets stay server-side (FIREBASE_CLIENT_EMAIL /
-// FIREBASE_PRIVATE_KEY). This endpoint exists so FIREBASE_PROJECT_ID and
-// the rest of the web config are not committed in HTML/JS — Netlify
-// secrets scanning flags those values in the repo/build output.
+// FIREBASE_PRIVATE_KEY). This endpoint exists so FIREBASE_PROJECT_ID is
+// not committed in HTML/JS — Netlify secrets scanning flags that value
+// in the repo/build output.
 //
-// Set these in Netlify (Site settings -> Environment variables):
-//   FIREBASE_PROJECT_ID            (already used by the Admin SDK functions)
-//   FIREBASE_API_KEY               (Project settings -> Web API key)
-//   FIREBASE_APP_ID                (Project settings -> App ID)
-//   FIREBASE_MESSAGING_SENDER_ID   (Project settings -> Sender ID)
-// Optional overrides:
-//   FIREBASE_AUTH_DOMAIN           (defaults to <projectId>.firebaseapp.com)
-//   FIREBASE_STORAGE_BUCKET        (defaults to <projectId>.firebasestorage.app)
+// Required Netlify env:
+//   FIREBASE_PROJECT_ID   (already used by the Admin SDK functions)
+// Optional overrides for the public web SDK fields (otherwise the
+// client uses the committed public defaults in firebase-config.js):
+//   FIREBASE_API_KEY, FIREBASE_APP_ID, FIREBASE_MESSAGING_SENDER_ID
+//   FIREBASE_AUTH_DOMAIN, FIREBASE_STORAGE_BUCKET
 
 const JSON_HEADERS = {
   'Content-Type': 'application/json',
@@ -26,11 +24,7 @@ exports.handler = async function (event) {
   }
 
   const projectId = (process.env.FIREBASE_PROJECT_ID || '').trim();
-  const apiKey = (process.env.FIREBASE_API_KEY || '').trim();
-  const appId = (process.env.FIREBASE_APP_ID || '').trim();
-  const messagingSenderId = (process.env.FIREBASE_MESSAGING_SENDER_ID || '').trim();
-
-  if (!projectId || !apiKey || !appId || !messagingSenderId) {
+  if (!projectId) {
     return {
       statusCode: 503,
       headers: JSON_HEADERS,
@@ -38,19 +32,22 @@ exports.handler = async function (event) {
     };
   }
 
-  const authDomain = (process.env.FIREBASE_AUTH_DOMAIN || `${projectId}.firebaseapp.com`).trim();
-  const storageBucket = (process.env.FIREBASE_STORAGE_BUCKET || `${projectId}.firebasestorage.app`).trim();
+  const body = {
+    projectId,
+    authDomain: (process.env.FIREBASE_AUTH_DOMAIN || `${projectId}.firebaseapp.com`).trim(),
+    storageBucket: (process.env.FIREBASE_STORAGE_BUCKET || `${projectId}.firebasestorage.app`).trim(),
+  };
+
+  const apiKey = (process.env.FIREBASE_API_KEY || '').trim();
+  const appId = (process.env.FIREBASE_APP_ID || '').trim();
+  const messagingSenderId = (process.env.FIREBASE_MESSAGING_SENDER_ID || '').trim();
+  if (apiKey) body.apiKey = apiKey;
+  if (appId) body.appId = appId;
+  if (messagingSenderId) body.messagingSenderId = messagingSenderId;
 
   return {
     statusCode: 200,
     headers: JSON_HEADERS,
-    body: JSON.stringify({
-      apiKey,
-      authDomain,
-      projectId,
-      storageBucket,
-      messagingSenderId,
-      appId,
-    }),
+    body: JSON.stringify(body),
   };
 };
