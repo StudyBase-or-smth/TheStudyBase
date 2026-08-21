@@ -2,9 +2,8 @@
 //
 // Loads FIREBASE_PROJECT_ID at runtime from /api/firebaseConfig so that
 // value is not committed (Netlify secrets scanning). The web API key,
-// app id, and sender id are public Firebase client identifiers — they
-// are not Admin SDK secrets — and live here so sign-in works without
-// extra Netlify env vars.
+// app id, and sender id are public Firebase client identifiers and live
+// here — they are not env vars.
 
 const PUBLIC_WEB_CONFIG = {
   apiKey: 'AIzaSyAZeyBIaTstTJ5Pr9o86MHk8dhDPAJFFCA',
@@ -23,12 +22,12 @@ export function loadFirebaseConfig() {
         throw new Error((data && data.error) || 'Firebase is not configured');
       }
       return {
-        apiKey: data.apiKey || PUBLIC_WEB_CONFIG.apiKey,
+        apiKey: PUBLIC_WEB_CONFIG.apiKey,
         authDomain: data.authDomain || (data.projectId + '.firebaseapp.com'),
         projectId: data.projectId,
         storageBucket: data.storageBucket || (data.projectId + '.firebasestorage.app'),
-        messagingSenderId: data.messagingSenderId || PUBLIC_WEB_CONFIG.messagingSenderId,
-        appId: data.appId || PUBLIC_WEB_CONFIG.appId,
+        messagingSenderId: PUBLIC_WEB_CONFIG.messagingSenderId,
+        appId: PUBLIC_WEB_CONFIG.appId,
       };
     })
     .catch(err => {
