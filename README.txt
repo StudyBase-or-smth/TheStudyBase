@@ -14,6 +14,9 @@ This folder lives on the machine running the sync program, not in the git repo.
   users/      One folder per signed-in user (uid)
               profile.json  subjects, classes, photo URL, stats
               photo.jpg     profile picture (any image ext)
+  analyser/   Analyser history and drafts, one folder per uid
+              history.json  sync key _analyser_<uid>
+              draft.json    sync key _analyser_draft_<uid>
   api.js      Standalone /api/* (dev panel, grade, registerRole, desmos, avatar)
   secrets.json  Firebase Admin + LLM keys (not in git; see secrets.example.json)
 
