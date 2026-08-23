@@ -120,7 +120,7 @@
         <button class="hdr-ghost hdr-sync" onclick="syncPull()" data-tip="Sync now" aria-label="Sync now">⟳<span id="syncCountdown"></span></button>
         <button class="hdr-ghost" id="btnFlashcards" onclick="window.location.href='flashcards.html#'" data-tip="Flashcards" aria-label="Flashcards">🃏</button>
         <button class="hdr-action" id="btnNewTopic" onclick="openModal()">+ New topic</button>
-        <div class="hdr-notify-wrap" id="hdrNotifyWrap" hidden>
+        <div class="hdr-notify-wrap" id="hdrNotifyWrap">
           <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications">
             <span class="hdr-notify-bell" aria-hidden="true">🔔</span>
             <span class="hdr-notify-badge" id="hdrNotifyBadge" hidden></span>
@@ -340,7 +340,7 @@
       </div>
     </div>
     <div class="modal-foot">
-      <button class="btn-cancel" onclick="requestCloseModal()">Cancel</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
       <!-- ✨ Fill gaps lives here now -->
       <button class="btn-act safe" id="btnAiFillModal" onclick="aiFillModal()" style="margin-left:auto;margin-right:8px">✨ Fill gaps</button>      <button class="btn-save" onclick="saveTopic()">Save topic</button>
     </div>

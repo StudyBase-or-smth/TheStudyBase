@@ -134,7 +134,7 @@ body.dark .console-log .c-err{color:#f29b9b}
       <h1>StudyBase</h1>
       <span class="tag" onclick="window.location.href='devbackend.html'">Dev Panel</span>
       <div class="bar-right">
-        <div class="hdr-notify-wrap" id="hdrNotifyWrap" hidden>
+        <div class="hdr-notify-wrap" id="hdrNotifyWrap">
           <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications">
             <span class="hdr-notify-bell" aria-hidden="true">🔔</span>
             <span class="hdr-notify-badge" id="hdrNotifyBadge" hidden></span>
@@ -180,14 +180,15 @@ body.dark .console-log .c-err{color:#f29b9b}
 
     <div class="drawer" id="consoleDrawer">
       <h3>Console</h3>
-      <p>More commands will land here later.<br>
-        <code>notify name/@everyone/@role/#id "text"</code><br>
-        <code>notify-ask name/@everyone/@role/#id "text" "option 1" "option 2"</code>
+      <p>Tab cycles the command, then the next argument (@everyone, @dev, @student, names, emails, #id, or a stored id).<br>
+        <code>notify name/email/@everyone/@role/#id "text"</code><br>
+        <code>notify-ask name/email/@everyone/@role/#id "text" "option 1" "option 2" id</code><br>
+        <code>notify-remove id</code>
       </p>
-      <div class="console-log" id="consoleLog">Ready. Example: notify-ask @everyone "Which day?" "Mon" "Tue"</div>
+      <div class="console-log" id="consoleLog">Ready. Example: notify-ask @everyone "Which day?" "Mon" "Tue" week-poll</div>
       <form class="console-form" id="consoleForm" autocomplete="off">
         <span class="console-prompt">&gt;</span>
-        <input id="consoleInput" placeholder='notify-ask @everyone "Which day?" "Mon" "Tue"' spellcheck="false">
+        <input id="consoleInput" placeholder='notify-ask @everyone "Which day?" "Mon" "Tue" week-poll' spellcheck="false">
         <button type="submit" class="btn accent">Run</button>
       </form>
     </div>
@@ -305,6 +306,37 @@ body.dark .console-log .c-err{color:#f29b9b}
     log.appendChild(line);
     log.scrollTop = log.scrollHeight;
   }
+  let consoleTab = { key: '', i: -1 };
+  function applyConsoleTab(reverse){
+    const input = document.getElementById('consoleInput');
+    if(!input || typeof sbNotifyConsoleSuggest !== 'function') return;
+    const caret = input.selectionStart == null ? input.value.length : input.selectionStart;
+    const before = input.value.slice(0, caret);
+    const after = input.value.slice(caret);
+    const hint = sbNotifyConsoleSuggest(before, lastUsers);
+    const options = hint.options || [];
+    if(!options.length) return;
+    const key = before.slice(0, hint.replaceFrom) + '|' + options.join('\n');
+    if(consoleTab.key !== key){
+      consoleTab = { key, i: reverse ? options.length - 1 : 0 };
+    } else {
+      consoleTab.i = reverse
+        ? (consoleTab.i - 1 + options.length) % options.length
+        : (consoleTab.i + 1) % options.length;
+    }
+    const pick = options[consoleTab.i] + (hint.suffix || '');
+    const next = before.slice(0, hint.replaceFrom) + pick;
+    input.value = next + after;
+    input.setSelectionRange(next.length, next.length);
+  }
+  document.getElementById('consoleInput').addEventListener('keydown', (ev) => {
+    if(ev.key !== 'Tab') return;
+    ev.preventDefault();
+    applyConsoleTab(ev.shiftKey);
+  });
+  document.getElementById('consoleInput').addEventListener('input', () => {
+    consoleTab = { key: '', i: -1 };
+  });
   document.getElementById('consoleForm').addEventListener('submit', async (ev) => {
     ev.preventDefault();
     const input = document.getElementById('consoleInput');

@@ -242,7 +242,7 @@ function sbNotifyRenderList(items, emptyText, me){
     return '<div class="hdr-notify-empty">' + sbNotifyEsc(emptyText) + '</div>';
   }
   return items.map(n => {
-    const meta = [n.fromName || 'StudyBase', sbNotifyFormatTime(n.createdAt)].filter(Boolean).join(' · ');
+    const meta = [n.kind === 'ask' ? n.id : '', n.fromName || 'StudyBase', sbNotifyFormatTime(n.createdAt)].filter(Boolean).join(' · ');
     return '<div class="hdr-notify-item' + (n.kind === 'ask' ? ' is-ask' : '') + '">' +
       '<div class="hdr-notify-item-text">' + sbNotifyEsc(n.text) + '</div>' +
       sbNotifyRenderOptions(n, me) +
@@ -251,17 +251,27 @@ function sbNotifyRenderList(items, emptyText, me){
   }).join('');
 }
 
+function sbNotifyAuthPending(){
+  if(typeof sbIsGuestSession === 'function' && sbIsGuestSession()) return false;
+  if(window.isGuest) return false;
+  if(sbNotifyMe()) return false;
+  return !!(window.__sbAuth);
+}
+
 function sbNotifyUpdateUi(){
   const wrap = document.getElementById('hdrNotifyWrap');
   const badge = document.getElementById('hdrNotifyBadge');
   const tip = document.getElementById('hdrNotifyTip');
   if(!wrap || !tip) return;
+  wrap.hidden = false;
   const me = sbNotifyMe();
   if(!me){
-    wrap.hidden = true;
+    wrap.classList.remove('has-unread');
+    wrap.classList.toggle('open', _sbNotifyOpen);
+    if(badge){ badge.hidden = true; badge.textContent = ''; }
+    tip.innerHTML = sbNotifyRenderList([], sbNotifyAuthPending() ? 'Checking…' : 'No notifications', null);
     return;
   }
-  wrap.hidden = false;
   const unread = sbNotifyUnread(_sbNotifyItems, me);
   const shown = _sbNotifyOpen ? _sbNotifyShown : unread;
   wrap.classList.toggle('has-unread', unread.length > 0);
@@ -374,6 +384,7 @@ function sbNotifyWaitForUser(){
 
 function sbNotifyInit(){
   sbNotifyBind();
+  sbNotifyUpdateUi();
   sbNotifyWaitForUser().then(me => {
     if(!me){ sbNotifyUpdateUi(); return; }
     sbNotifyRefresh();
@@ -415,6 +426,20 @@ function sbNotifyResolveTarget(target, users){
     return { target: { kind: 'user', uid, name: hit.displayName || '' }, audience: [uid] };
   }
   const needle = raw.toLowerCase();
+  const emailMatches = people.filter(u => String(u.email || '').trim().toLowerCase() === needle);
+  if(emailMatches.length === 1){
+    const u = emailMatches[0];
+    return { target: { kind: 'user', uid: u.uid, name: u.displayName || u.email || '' }, audience: [u.uid] };
+  }
+  if(needle.indexOf('@') !== -1){
+    const partialEmail = people.filter(u => String(u.email || '').toLowerCase().indexOf(needle) !== -1);
+    if(partialEmail.length === 1){
+      const u = partialEmail[0];
+      return { target: { kind: 'user', uid: u.uid, name: u.displayName || u.email || '' }, audience: [u.uid] };
+    }
+    if(!partialEmail.length) return { error: 'No active user with email "' + raw + '"' };
+    return { error: 'Several people match that email. Use the full address or #id.' };
+  }
   const matches = people.filter(u => String(u.displayName || '').trim().toLowerCase() === needle);
   if(!matches.length){
     const partial = people.filter(u => String(u.displayName || '').toLowerCase().indexOf(needle) !== -1);
@@ -437,6 +462,21 @@ function sbNotifyParseQuoted(rest){
   return quoted;
 }
 
+function sbNotifyParseId(id){
+  const s = String(id || '').trim();
+  if(!s) return { error: 'Missing id' };
+  if(!/^[A-Za-z0-9._-]{1,80}$/.test(s)) return { error: 'id must be letters, numbers, . _ or - (max 80)' };
+  return { id: s };
+}
+
+function sbNotifyTailAfterQuotes(rest){
+  const lastDq = rest.lastIndexOf('"');
+  const lastSq = rest.lastIndexOf("'");
+  const last = Math.max(lastDq, lastSq);
+  if(last === -1) return '';
+  return rest.slice(last + 1).trim();
+}
+
 function sbNotifyCleanOptions(list){
   return (list || []).map(o => String(o || '').trim()).filter(Boolean).slice(0, SB_NOTIFY_MAX_OPTIONS);
 }
@@ -448,12 +488,19 @@ function sbNotifyParseCommand(line){
   const cmd = (parts && parts[1] ? parts[1] : '').toLowerCase();
   const rest = parts && parts[2] ? parts[2] : '';
   const quoted = sbNotifyParseQuoted(rest);
+  if(cmd === 'notify-remove'){
+    const idRaw = (quoted[0] || rest.trim().split(/\s+/)[0] || '').trim();
+    const parsedId = sbNotifyParseId(idRaw);
+    if(parsedId.error) return { error: parsedId.error + '. Usage: notify-remove id' };
+    return { cmd: 'notify-remove', id: parsedId.id };
+  }
   if(cmd === 'notify-ask'){
     let target = '';
     let text = '';
     let options = [];
+    const usage = 'Usage: notify-ask name/email/@everyone/@role/#id "text" "option 1" "option 2" id';
     if(/^\s*["']/.test(rest)){
-      if(quoted.length < 4) return { error: 'Usage: notify-ask name/@everyone/@role/#id "text" "option 1" "option 2"' };
+      if(quoted.length < 4) return { error: usage };
       target = quoted[0];
       text = quoted[1];
       options = quoted.slice(2);
@@ -462,8 +509,11 @@ function sbNotifyParseCommand(line){
       text = quoted[0];
       options = quoted.slice(1);
     } else {
-      return { error: 'Usage: notify-ask name/@everyone/@role/#id "text" "option 1" "option 2"' };
+      return { error: usage };
     }
+    const tail = sbNotifyTailAfterQuotes(rest);
+    const parsedId = sbNotifyParseId(tail.split(/\s+/)[0] || '');
+    if(parsedId.error) return { error: 'notify-ask needs an id after the options. ' + usage };
     if(!target) return { error: 'Missing target' };
     text = String(text || '').trim();
     if(!text) return { error: 'Missing question text' };
@@ -471,10 +521,10 @@ function sbNotifyParseCommand(line){
     options = sbNotifyCleanOptions(options);
     if(options.length < 2) return { error: 'notify-ask needs at least two options' };
     if(options.some(o => o.length > SB_NOTIFY_MAX_OPTION)) return { error: 'An option is too long (max ' + SB_NOTIFY_MAX_OPTION + ')' };
-    return { cmd: 'notify-ask', target, text, options };
+    return { cmd: 'notify-ask', target, text, options, id: parsedId.id };
   }
   if(cmd !== 'notify'){
-    return { error: 'Unknown command. Try: notify … or notify-ask …' };
+    return { error: 'Unknown command. Try: notify …, notify-ask …, or notify-remove id' };
   }
   let target = '';
   let text = '';
@@ -485,7 +535,7 @@ function sbNotifyParseCommand(line){
     text = quoted[quoted.length - 1];
     target = rest.replace(/["'][^"']*["']\s*$/, '').trim();
   } else {
-    return { error: 'Usage: notify name/@everyone/@role/#id "text"' };
+    return { error: 'Usage: notify name/email/@everyone/@role/#id "text"' };
   }
   if(!target) return { error: 'Missing target' };
   text = String(text || '').trim();
@@ -524,15 +574,17 @@ function sbNotifySend(targetSpec, text, users){
   });
 }
 
-function sbNotifySendAsk(targetSpec, text, options, users){
+function sbNotifySendAsk(targetSpec, text, options, users, customId){
   const me = sbNotifyMe();
   if(!me) return Promise.reject(new Error('Sign in to send notifications'));
   const resolved = sbNotifyResolveTarget(targetSpec, users);
   if(resolved.error) return Promise.reject(new Error(resolved.error));
+  const parsedId = sbNotifyParseId(customId);
+  if(parsedId.error) return Promise.reject(new Error(parsedId.error));
   const clean = sbNotifyCleanOptions(options);
   if(clean.length < 2) return Promise.reject(new Error('notify-ask needs at least two options'));
   const item = {
-    id: 'n_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+    id: parsedId.id,
     kind: 'ask',
     text: String(text || '').trim(),
     createdAt: new Date().toISOString(),
@@ -545,9 +597,28 @@ function sbNotifySendAsk(targetSpec, text, options, users){
     answers: {},
     reportTo: sbNotifyDevUids(users, me.uid)
   };
-  return sbNotifyLoad().then(items => sbNotifySave(items.concat([item]))).then(() => {
+  return sbNotifyLoad().then(items => {
+    if(items.some(n => n.id === parsedId.id)){
+      throw new Error('A notification with id "' + parsedId.id + '" already exists');
+    }
+    return sbNotifySave(items.concat([item]));
+  }).then(() => {
     sbNotifyUpdateUi();
     return item;
+  });
+}
+
+function sbNotifyRemove(id){
+  const parsedId = sbNotifyParseId(id);
+  if(parsedId.error) return Promise.reject(new Error(parsedId.error));
+  return sbNotifyLoad().then(items => {
+    const next = items.filter(n => n.id !== parsedId.id && n.sourceAskId !== parsedId.id);
+    if(next.length === items.length) throw new Error('No notification with id ' + parsedId.id);
+    _sbNotifyShown = _sbNotifyShown.filter(n => n.id !== parsedId.id && n.sourceAskId !== parsedId.id);
+    return sbNotifySave(next);
+  }).then(() => {
+    sbNotifyUpdateUi();
+    return parsedId.id;
   });
 }
 
@@ -589,10 +660,13 @@ function sbNotifyRunCommand(line, users){
   const parsed = sbNotifyParseCommand(line);
   if(parsed.error) return Promise.reject(new Error(parsed.error));
   if(parsed.cmd === 'notify-ask'){
-    return sbNotifySendAsk(parsed.target, parsed.text, parsed.options, users).then(item => {
+    return sbNotifySendAsk(parsed.target, parsed.text, parsed.options, users, parsed.id).then(item => {
       const n = (item.audience || []).length;
-      return 'Ask sent to ' + n + ' user' + (n === 1 ? '' : 's');
+      return 'Ask ' + item.id + ' sent to ' + n + ' user' + (n === 1 ? '' : 's');
     });
+  }
+  if(parsed.cmd === 'notify-remove'){
+    return sbNotifyRemove(parsed.id).then(id => 'Removed ' + id);
   }
   return sbNotifySend(parsed.target, parsed.text, users).then(item => {
     const n = (item.audience || []).length;
@@ -600,10 +674,47 @@ function sbNotifyRunCommand(line, users){
   });
 }
 
+const SB_NOTIFY_COMMANDS = ['notify', 'notify-ask', 'notify-remove'];
+const SB_NOTIFY_TARGET_HINTS = ['@everyone', '@dev', '@student', '@teacher'];
+
+function sbNotifyConsoleSuggest(line, users){
+  const s = String(line || '');
+  if(!/\s/.test(s)){
+    const p = s.toLowerCase();
+    const options = SB_NOTIFY_COMMANDS.filter(c => !p || c.startsWith(p));
+    return { replaceFrom: 0, options: options.length ? options : SB_NOTIFY_COMMANDS.slice(), suffix: '' };
+  }
+  const sp = s.indexOf(' ');
+  const cmd = s.slice(0, sp).toLowerCase();
+  const rest = s.slice(sp + 1);
+  if(cmd === 'notify-remove'){
+    const lead = rest.match(/^\s*/)[0].length;
+    const prefix = rest.trim().toLowerCase();
+    const ids = (_sbNotifyItems || []).map(n => n.id).filter(Boolean);
+    const options = ids.filter(id => !prefix || id.toLowerCase().startsWith(prefix));
+    return { replaceFrom: sp + 1 + lead, options: options.length ? options : ids, suffix: '' };
+  }
+  if(cmd !== 'notify' && cmd !== 'notify-ask') return { replaceFrom: s.length, options: [], suffix: '' };
+  if(/["']/.test(rest)) return { replaceFrom: s.length, options: [], suffix: '' };
+  const lead = rest.match(/^\s*/)[0].length;
+  const prefix = rest.trim().toLowerCase();
+  const people = sbNotifyActiveUsers(users);
+  const extras = [];
+  people.forEach(u => {
+    if(u.displayName) extras.push(u.displayName);
+    if(u.email) extras.push(u.email);
+    if(u.uid) extras.push('#' + u.uid);
+  });
+  const all = SB_NOTIFY_TARGET_HINTS.concat(extras);
+  const options = all.filter(o => !prefix || String(o).toLowerCase().startsWith(prefix));
+  return { replaceFrom: sp + 1 + lead, options: options.length ? options : all, suffix: ' ' };
+}
+
 window.sbNotifyInit = sbNotifyInit;
 window.sbNotifyRefresh = sbNotifyRefresh;
 window.sbNotifyRunCommand = sbNotifyRunCommand;
 window.sbNotifyParseCommand = sbNotifyParseCommand;
+window.sbNotifyConsoleSuggest = sbNotifyConsoleSuggest;
 
 if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', sbNotifyInit);
