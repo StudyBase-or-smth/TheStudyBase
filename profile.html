@@ -104,6 +104,13 @@
         <span class="bc-current">Profile</span>
       </div>
       <div class="hdr-right">
+        <div class="hdr-notify-wrap" id="hdrNotifyWrap" hidden>
+          <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications">
+            <span class="hdr-notify-bell" aria-hidden="true">🔔</span>
+            <span class="hdr-notify-badge" id="hdrNotifyBadge" hidden></span>
+          </button>
+          <div class="hdr-notify-tip" id="hdrNotifyTip"></div>
+        </div>
         <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()">🌙</button>
       </div>
     </div>
@@ -139,6 +146,7 @@
 <script src="subjects.js"></script>
 <script src="sync-config.js"></script>
 <script src="profile-store.js"></script>
+<script src="notifications.js"></script>
 <script>
 // ── Dark mode ──
 (function(){
