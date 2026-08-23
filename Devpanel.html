@@ -180,15 +180,16 @@ body.dark .console-log .c-err{color:#f29b9b}
 
     <div class="drawer" id="consoleDrawer">
       <h3>Console</h3>
-      <p>Tab cycles the command, then the next argument (@everyone, @dev, @student, names, emails, #id, or a stored id).<br>
-        <code>notify name/email/@everyone/@role/#id "text"</code><br>
-        <code>notify-ask name/email/@everyone/@role/#id "text" "option 1" "option 2" id</code><br>
-        <code>notify-remove id</code>
+      <p>Tab cycles the command, then the next argument.<br>
+        <code>notify whomever id "text"</code><br>
+        <code>notify-ask whomever id "text" "1" "2"</code><br>
+        <code>notify-remove id</code><br>
+        <code>notify-remove id whomever</code>
       </p>
-      <div class="console-log" id="consoleLog">Ready. Example: notify-ask @everyone "Which day?" "Mon" "Tue" week-poll</div>
+      <div class="console-log" id="consoleLog">Ready. Example: notify-ask @everyone week-poll "Which day?" "Mon" "Tue"</div>
       <form class="console-form" id="consoleForm" autocomplete="off">
         <span class="console-prompt">&gt;</span>
-        <input id="consoleInput" placeholder='notify-ask @everyone "Which day?" "Mon" "Tue" week-poll' spellcheck="false">
+        <input id="consoleInput" placeholder='notify-ask @everyone week-poll "Which day?" "Mon" "Tue"' spellcheck="false">
         <button type="submit" class="btn accent">Run</button>
       </form>
     </div>
