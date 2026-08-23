@@ -4,6 +4,7 @@
 
 'use strict';
 
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
@@ -11,6 +12,10 @@ const ALLOWED_ROLES_SIGNUP = ['student', 'teacher'];
 const ALLOWED_ROLES_ASSIGN = ['student', 'teacher', 'dev'];
 const AVATAR_HOST = /^(lh\d\.googleusercontent\.com|drive\.google\.com)$/i;
 const AVATAR_MAX = 500 * 1024;
+const GRADE_MAX_PROMPT = 8000;
+const GRADE_WINDOW_MS = 10 * 60 * 1000;
+const GRADE_MAX_PER_WINDOW = 20;
+const gradeHits = new Map();
 
 let adminMod = null;
 let adminInitError = null;
@@ -20,7 +25,7 @@ let secretsPath = null;
 function cors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-StudyBase-Store');
 }
 
 function sendJson(res, status, obj) {
@@ -38,6 +43,7 @@ function loadSecrets(dataDir) {
     DESMOS_API_KEY: process.env.DESMOS_API_KEY || '',
     CLAUDE_API_KEY: process.env.CLAUDE_API_KEY || '',
     GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
+    STORE_PASSWORD: process.env.STORE_PASSWORD || '',
   };
   const file = path.join(dataDir, 'secrets.json');
   try {
@@ -51,6 +57,52 @@ function loadSecrets(dataDir) {
   secretsCache = out;
   secretsPath = dataDir;
   return out;
+}
+
+function safeEqual(a, b) {
+  const left = Buffer.from(String(a || ''), 'utf8');
+  const right = Buffer.from(String(b || ''), 'utf8');
+  if (!left.length || left.length !== right.length) return false;
+  return crypto.timingSafeEqual(left, right);
+}
+
+function readStoreToken(req, url) {
+  const headerStore = req && (req.headers['x-studybase-store'] || req.headers['X-StudyBase-Store']);
+  if (headerStore) return String(headerStore).trim();
+  const token = bearer(req);
+  if (token && /^store:/i.test(token)) return token.replace(/^store:/i, '').trim();
+  if (url && url.searchParams) {
+    const q = url.searchParams.get('store');
+    if (q) return String(q).trim();
+  }
+  return '';
+}
+
+function requireStorePassword(req, res, url, secrets) {
+  const expected = (secrets && secrets.STORE_PASSWORD) || process.env.STORE_PASSWORD || '';
+  if (!expected || expected.length < 16) {
+    sendJson(res, 503, { error: 'STORE_PASSWORD is not configured on the server.' });
+    return false;
+  }
+  const got = readStoreToken(req, url);
+  if (!got || !safeEqual(got, expected)) {
+    sendJson(res, 401, { error: 'Store login required' });
+    return false;
+  }
+  return true;
+}
+
+function gradeAllowed(uid) {
+  const now = Date.now();
+  const id = String(uid || 'anon');
+  const hits = (gradeHits.get(id) || []).filter(t => now - t < GRADE_WINDOW_MS);
+  if (hits.length >= GRADE_MAX_PER_WINDOW) {
+    gradeHits.set(id, hits);
+    return false;
+  }
+  hits.push(now);
+  gradeHits.set(id, hits);
+  return true;
 }
 
 function getAdmin(secrets) {
@@ -161,6 +213,15 @@ async function handleGrade(req, res, secrets, readBody) {
   const decoded = await requireCaller(req, secrets);
   if (decoded.status !== 'active') {
     return sendJson(res, 403, { error: 'Account must be approved before using AI marking.' });
+  }
+  if (prompt.length > GRADE_MAX_PROMPT) {
+    return sendJson(res, 400, { error: 'Prompt is too long' });
+  }
+  if (userKey && String(userKey).length > 200) {
+    return sendJson(res, 400, { error: 'Invalid user key' });
+  }
+  if (!gradeAllowed(decoded.uid)) {
+    return sendJson(res, 429, { error: 'Too many AI requests — wait a few minutes.' });
   }
 
   if (provider === 'claude') {
@@ -350,4 +411,4 @@ async function handleApi(req, res, url, opts) {
   }
 }
 
-module.exports = { handleApi, loadSecrets };
+module.exports = { handleApi, loadSecrets, requireStorePassword, readStoreToken };

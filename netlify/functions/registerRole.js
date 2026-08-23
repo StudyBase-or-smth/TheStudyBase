@@ -96,9 +96,11 @@ exports.handler = async function (event) {
     // often cannot reach the Tailscale host, so this may no-op.
     try {
       const SYNC_URL = 'http://basecomputer.tail8c20e2.ts.net:8787/sync';
+      const storeHeaders = { 'Content-Type': 'application/x-www-form-urlencoded' };
+      if (process.env.STORE_PASSWORD) storeHeaders['X-StudyBase-Store'] = process.env.STORE_PASSWORD;
       await fetch(SYNC_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: storeHeaders,
         body: new URLSearchParams({
           key: '_pending_approval_request_',
           data: JSON.stringify({ uid, email, requestedRole, requestedAt: claims.requestedAt }),

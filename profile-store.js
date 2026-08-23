@@ -137,16 +137,7 @@ function visibleClasses(){
 }
 
 function sbJsonpGet(url){
-  return new Promise((resolve, reject) => {
-    const cb = '_pcb' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const s = document.createElement('script');
-    const cleanup = () => { delete window[cb]; if(s.parentNode) s.remove(); };
-    window[cb] = data => { cleanup(); resolve(data); };
-    s.onerror = () => { cleanup(); reject(new Error('JSONP error')); };
-    s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
-    document.head.appendChild(s);
-    setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 8000);
-  });
+  return sbJsonp(url);
 }
 
 function sbSyncPush(key, data){
@@ -289,7 +280,9 @@ function profilePhotoSrc(url){
   if(!url || typeof url !== 'string') return '';
   if(/^data:image\//i.test(url)) return url;
   try {
-    if(typeof isAllowedSyncMediaUrl === 'function' && isAllowedSyncMediaUrl(url) && !url.startsWith('data:')) return url;
+    if(typeof isAllowedSyncMediaUrl === 'function' && isAllowedSyncMediaUrl(url) && !url.startsWith('data:')){
+      return typeof sbMediaUrl === 'function' ? sbMediaUrl(url) : url;
+    }
   } catch(e) {}
   if(!isRemotePhotoUrl(url)) return '';
   try {

@@ -29,6 +29,23 @@ if (!admin.apps.length) {
 }
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
+const GRADE_MAX_PROMPT = 8000;
+const GRADE_WINDOW_MS = 10 * 60 * 1000;
+const GRADE_MAX_PER_WINDOW = 20;
+const gradeHits = new Map();
+
+function gradeAllowed(uid) {
+  const now = Date.now();
+  const id = String(uid || 'anon');
+  const hits = (gradeHits.get(id) || []).filter(t => now - t < GRADE_WINDOW_MS);
+  if (hits.length >= GRADE_MAX_PER_WINDOW) {
+    gradeHits.set(id, hits);
+    return false;
+  }
+  hits.push(now);
+  gradeHits.set(id, hits);
+  return true;
+}
 
 async function requireSignedInUser(event) {
   const authHeader = event.headers.authorization || event.headers.Authorization || '';
@@ -63,6 +80,15 @@ exports.handler = async function (event) {
         headers: JSON_HEADERS,
         body: JSON.stringify({ error: 'Account must be approved before using AI marking.' }),
       };
+    }
+    if (prompt.length > GRADE_MAX_PROMPT) {
+      return { statusCode: 400, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Prompt is too long' }) };
+    }
+    if (userKey && String(userKey).length > 200) {
+      return { statusCode: 400, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Invalid user key' }) };
+    }
+    if (!gradeAllowed(decoded.uid)) {
+      return { statusCode: 429, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Too many AI requests — wait a few minutes.' }) };
     }
 
     if (provider === 'claude') {

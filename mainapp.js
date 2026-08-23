@@ -463,15 +463,7 @@ document.addEventListener('keydown', e => {
 let _nextSync = Date.now() + 60000;
 
 function jsonpGet(url) {
-  return new Promise((res, rej) => {
-    const cb = '_jcb' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const s = document.createElement('script');
-    window[cb] = r => { delete window[cb]; s.remove(); res(r); };
-    s.onerror = () => { delete window[cb]; s.remove(); rej(new Error('JSONP error')); };
-    s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
-    document.head.appendChild(s);
-    setTimeout(() => { delete window[cb]; s.remove(); rej(new Error('timeout')); }, 8000);
-  });
+  return sbJsonp(url);
 }
 
 function syncPushEvents(events) {

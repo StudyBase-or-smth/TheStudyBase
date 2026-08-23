@@ -68,6 +68,97 @@ function usesConfirmableSync(){
   }
 }
 
+const STORE_LOGIN_KEY = 'studybase_store_login';
+let _storeLoginPromise = null;
+
+function sbGetStoreLogin(){
+  try { return localStorage.getItem(STORE_LOGIN_KEY) || ''; } catch(e){ return ''; }
+}
+function sbSetStoreLogin(pw){
+  try { if(pw) localStorage.setItem(STORE_LOGIN_KEY, pw); } catch(e){}
+}
+function sbClearStoreLogin(){
+  try { localStorage.removeItem(STORE_LOGIN_KEY); } catch(e){}
+}
+function sbStoreAuthHeaders(){
+  const pw = sbGetStoreLogin();
+  if(!pw) return {};
+  return { Authorization: 'Bearer store:' + pw, 'X-StudyBase-Store': pw };
+}
+function sbMediaUrl(src){
+  if(!src || typeof src !== 'string' || !usesConfirmableSync()) return src;
+  const token = sbGetStoreLogin();
+  if(!token) return src;
+  try {
+    const origin = syncMediaOrigin();
+    if(!origin) return src;
+    const u = new URL(src);
+    if(u.origin !== origin) return src;
+    u.searchParams.set('store', token);
+    return u.href;
+  } catch(e){ return src; }
+}
+function sbEnsureStoreLogin(){
+  if(!usesConfirmableSync()) return Promise.resolve('');
+  const existing = sbGetStoreLogin();
+  if(existing) return Promise.resolve(existing);
+  if(_storeLoginPromise) return _storeLoginPromise;
+  _storeLoginPromise = new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.id = 'sb-store-login';
+    overlay.innerHTML =
+      '<style>#sb-store-login{position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;font-family:Inter,system-ui,sans-serif}' +
+      '#sb-store-login .box{width:min(420px,calc(100vw - 32px));background:#fff;color:#111827;border-radius:12px;padding:22px 22px 18px;box-shadow:0 18px 50px rgba(0,0,0,.25)}' +
+      '#sb-store-login h2{margin:0 0 6px;font-size:18px}#sb-store-login p{margin:0 0 14px;color:#6b7280;font-size:13px;line-height:1.45}' +
+      '#sb-store-login input{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font:inherit}' +
+      '#sb-store-login button{margin-top:12px;width:100%;padding:10px 12px;border:0;border-radius:8px;background:#1f2937;color:#fff;font:inherit;font-weight:600;cursor:pointer}' +
+      '#sb-store-login .err{min-height:1.2em;margin-top:8px;color:#b91c1c;font-size:12px}' +
+      'body.dark #sb-store-login .box{background:#111827;color:#e5e7eb}body.dark #sb-store-login input{background:#0f172a;border-color:#334155;color:#e5e7eb}</style>' +
+      '<form class="box" autocomplete="off">' +
+      '<h2>Unlock the study store</h2>' +
+      '<p>Enter the long store password from StudyBaseData <code>secrets.json</code> (<code>STORE_PASSWORD</code>). This is separate from your StudyBase account.</p>' +
+      '<input id="sbStorePass" type="password" placeholder="Store password" autocomplete="current-password">' +
+      '<div class="err" id="sbStoreErr"></div>' +
+      '<button type="submit">Unlock</button></form>';
+    (document.body || document.documentElement).appendChild(overlay);
+    const input = overlay.querySelector('#sbStorePass');
+    const err = overlay.querySelector('#sbStoreErr');
+    overlay.querySelector('form').onsubmit = e => {
+      e.preventDefault();
+      const pw = (input.value || '').trim();
+      if(pw.length < 16){ err.textContent = 'That password is too short.'; return; }
+      sbSetStoreLogin(pw);
+      overlay.remove();
+      _storeLoginPromise = null;
+      resolve(pw);
+    };
+    setTimeout(() => { try { input.focus(); } catch(e){} }, 40);
+  });
+  return _storeLoginPromise;
+}
+function sbAuthorizedFetch(url, opts){
+  const attempt = retried => sbEnsureStoreLogin().then(() => {
+    const headers = Object.assign({}, (opts && opts.headers) || {}, sbStoreAuthHeaders());
+    const ctrl = new AbortController();
+    const ms = (opts && opts.timeout) || 15000;
+    const timer = setTimeout(() => ctrl.abort(), ms);
+    const fetchOpts = Object.assign({}, opts, { headers, signal: ctrl.signal });
+    delete fetchOpts.timeout;
+    return fetch(url, fetchOpts).then(res => {
+      clearTimeout(timer);
+      if(res.status === 401 && !retried){
+        sbClearStoreLogin();
+        return attempt(true);
+      }
+      return res;
+    }).catch(err => {
+      clearTimeout(timer);
+      throw err;
+    });
+  });
+  return attempt(false);
+}
+
 // Local sync answers the POST; Apps Script does not (CORS), so that path
 // still uses a hidden form and cannot be confirmed.
 function sbPushToSync(key, data){
@@ -76,19 +167,12 @@ function sbPushToSync(key, data){
   body.set('data', JSON.stringify(data));
 
   if(usesConfirmableSync()){
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 15000);
-    return fetch(SYNC_URL, {
+    return sbAuthorizedFetch(SYNC_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body.toString(),
-      signal: ctrl.signal
+      body: body.toString()
     }).then(res => {
-      clearTimeout(timer);
       if(!res.ok) throw new Error('sync failed');
-    }).catch(err => {
-      clearTimeout(timer);
-      throw err;
     });
   }
 
@@ -141,6 +225,12 @@ function sbMemSet(key, val){
 }
 
 function sbJsonp(url){
+  if(usesConfirmableSync()){
+    return sbAuthorizedFetch(url, { timeout: 8000 }).then(res => {
+      if(!res.ok) throw new Error('sync failed');
+      return res.json();
+    });
+  }
   return new Promise((resolve, reject) => {
     const cb = '_sbj' + Date.now() + '_' + Math.random().toString(36).slice(2);
     const s = document.createElement('script');
