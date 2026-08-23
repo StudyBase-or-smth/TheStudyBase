@@ -10,13 +10,16 @@
 //   GET/POST _profile_<uid>  →  users/<uid>/profile.json
 //
 // Lives in this folder with the data it manages.
-// Override with env: STUDYBASE_DATA_DIR, PORT, STUDYBASE_PUBLIC_URL
+// Override with env: STUDYBASE_DATA_DIR, PORT, STUDYBASE_PUBLIC_URL,
+//   STUDYBASE_WEBSITE_DIR, STUDYBASE_PICK_WEBSITE, STUDYBASE_OPEN_BROWSER
+// Website folder is stored in website.json and served at http://127.0.0.1:PORT/
 
 'use strict';
 
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { spawn, spawnSync } = require('child_process');
 const { URL } = require('url');
 const querystring = require('querystring');
 
@@ -25,6 +28,9 @@ const DATA_DIR = process.env.STUDYBASE_DATA_DIR || __dirname;
 const JSON_DIR = path.join(DATA_DIR, 'json');
 const FILES_DIR = path.join(DATA_DIR, 'files');
 const USERS_DIR = path.join(DATA_DIR, 'users');
+const WEBSITE_CONFIG = path.join(DATA_DIR, 'website.json');
+const WEB_BLOCK_DIRS = new Set(['.git', 'node_modules']);
+const WEB_BLOCK_FILES = new Set(['secrets.json', '.env', 'website.json']);
 const PHOTO_NAMES = ['photo.jpg', 'photo.jpeg', 'photo.png', 'photo.webp', 'photo.gif', 'photo.bmp'];
 const MAX_BODY = 12 * 1024 * 1024;
 const MAX_FILE = 8 * 1024 * 1024;
@@ -50,6 +56,22 @@ const EXT_MIME = {
   '.bmp': 'image/bmp',
   '.pdf': 'application/pdf',
 };
+const WEB_MIME = Object.assign({
+  '.html': 'text/html; charset=utf-8',
+  '.htm': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.txt': 'text/plain; charset=utf-8',
+  '.map': 'application/json; charset=utf-8',
+  '.webp': 'image/webp',
+}, EXT_MIME);
 
 function ensureDirs() {
   fs.mkdirSync(JSON_DIR, { recursive: true });
@@ -441,6 +463,152 @@ function handleFile(name, res) {
   fs.createReadStream(p).pipe(res);
 }
 
+let websiteDir = '';
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+}
+
+function validateWebsiteDir(dir) {
+  if (!dir || !String(dir).trim()) return 'Choose a folder that contains the StudyBase website.';
+  const d = path.resolve(String(dir).trim());
+  try {
+    if (!fs.existsSync(d)) return 'That folder does not exist on this computer.';
+    if (!fs.statSync(d).isDirectory()) return 'That path is not a folder.';
+  } catch (e) {
+    return 'That folder cannot be read.';
+  }
+  return '';
+}
+
+function loadWebsiteDir() {
+  const fromEnv = String(process.env.STUDYBASE_WEBSITE_DIR || '').trim();
+  if (fromEnv && !validateWebsiteDir(fromEnv)) return path.resolve(fromEnv);
+  try {
+    const raw = JSON.parse(fs.readFileSync(WEBSITE_CONFIG, 'utf8'));
+    const d = String(raw.websiteDir || '').trim();
+    return d ? path.resolve(d) : '';
+  } catch (e) {
+    return '';
+  }
+}
+
+function saveWebsiteDir(dir) {
+  const resolved = path.resolve(String(dir).trim());
+  const err = validateWebsiteDir(resolved);
+  if (err) return err;
+  writeJsonFile(WEBSITE_CONFIG, { websiteDir: resolved });
+  websiteDir = resolved;
+  return '';
+}
+
+function websiteReady() {
+  return !validateWebsiteDir(websiteDir);
+}
+
+function pickWebsiteDirNative() {
+  if (process.platform === 'win32') {
+    const ps = [
+      'Add-Type -AssemblyName System.Windows.Forms',
+      '$d = New-Object System.Windows.Forms.FolderBrowserDialog',
+      "$d.Description = 'Select the folder that contains the StudyBase website'",
+      '$d.ShowNewFolderButton = $false',
+      'try { $d.RootFolder = [Environment+SpecialFolder]::MyComputer } catch {}',
+      'if ($d.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { [Console]::Out.Write($d.SelectedPath) }',
+    ].join('; ');
+    const r = spawnSync('powershell.exe', ['-NoProfile', '-STA', '-Command', ps], {
+      encoding: 'utf8',
+      windowsHide: false,
+      timeout: 300000,
+    });
+    return String(r.stdout || '').trim();
+  }
+  const linux = [
+    ['zenity', ['--file-selection', '--directory', '--title=Select the StudyBase website folder']],
+    ['yad', ['--file-selection', '--directory', '--title=Select the StudyBase website folder']],
+    ['kdialog', ['--getexistingdirectory', process.env.HOME || '.', 'Select the StudyBase website folder']],
+  ];
+  for (let i = 0; i < linux.length; i++) {
+    const r = spawnSync(linux[i][0], linux[i][1], { encoding: 'utf8', timeout: 300000 });
+    const out = String(r.stdout || '').trim();
+    if (r.status === 0 && out) return out;
+  }
+  const py = [
+    'import sys',
+    'try:',
+    '    import tkinter as tk',
+    '    from tkinter import filedialog',
+    '    root = tk.Tk()',
+    '    root.withdraw()',
+    '    root.attributes("-topmost", True)',
+    '    p = filedialog.askdirectory(title="Select the StudyBase website folder")',
+    '    sys.stdout.write(p or "")',
+    'except Exception:',
+    '    sys.exit(1)',
+  ].join('\n');
+  const r = spawnSync('python3', ['-c', py], { encoding: 'utf8', timeout: 300000, env: process.env });
+  return String(r.stdout || '').trim();
+}
+
+function openBrowser(target) {
+  try {
+    if (process.platform === 'win32') {
+      spawn('cmd', ['/c', 'start', '', target], { detached: true, stdio: 'ignore' }).unref();
+    } else {
+      spawn('xdg-open', [target], { detached: true, stdio: 'ignore' }).unref();
+    }
+  } catch (e) {}
+}
+
+function resolveWebsiteFile(pathname) {
+  if (!websiteReady()) return null;
+  const root = path.resolve(websiteDir);
+  let rel = '/';
+  try { rel = decodeURIComponent(pathname || '/'); } catch (e) { return null; }
+  if (rel === '/') rel = 'index.html';
+  else rel = rel.replace(/^\/+/, '');
+  const parts = rel.split(/[\\/]+/).filter(Boolean);
+  if (!parts.length) return null;
+  if (parts.some(p => p === '.' || p === '..' || WEB_BLOCK_DIRS.has(p.toLowerCase()))) return null;
+  if (WEB_BLOCK_FILES.has(parts[parts.length - 1].toLowerCase())) return null;
+  const target = path.resolve(root, ...parts);
+  if (target !== root && !target.startsWith(root + path.sep)) return null;
+  try {
+    if (fs.existsSync(target) && fs.statSync(target).isDirectory()) {
+      const idx = path.join(target, 'index.html');
+      if (fs.existsSync(idx) && fs.statSync(idx).isFile()) return idx;
+      return null;
+    }
+    if (fs.existsSync(target) && fs.statSync(target).isFile()) return target;
+  } catch (e) {
+    return null;
+  }
+  return null;
+}
+
+function handleWebsiteFile(filePath, res) {
+  const ext = path.extname(filePath).toLowerCase();
+  const type = WEB_MIME[ext] || 'application/octet-stream';
+  cors(res);
+  res.writeHead(200, {
+    'Content-Type': type,
+    'Cache-Control': 'no-cache',
+  });
+  fs.createReadStream(filePath).pipe(res);
+}
+
+function websiteConfigPayload() {
+  const err = websiteDir ? validateWebsiteDir(websiteDir) : '';
+  return {
+    websiteDir: websiteDir || '',
+    ready: !err && !!websiteDir,
+    error: err || '',
+    hasIndex: !err && !!websiteDir && fs.existsSync(path.join(websiteDir, 'index.html')),
+  };
+}
+
 function statusHtml() {
   let jsonCount = 0;
   let fileCount = 0;
@@ -448,18 +616,74 @@ function statusHtml() {
   try { fileCount = fs.readdirSync(FILES_DIR).length; } catch (e) {}
   let userCount = 0;
   try { userCount = fs.readdirSync(USERS_DIR).filter(n => fs.statSync(path.join(USERS_DIR, n)).isDirectory()).length; } catch (e) {}
+  const web = websiteConfigPayload();
+  const webNote = web.ready
+    ? (web.hasIndex
+      ? 'This folder is served at the same address as the sync program.'
+      : 'Folder saved. There is no index.html in it yet — open a page path such as /subject/subject.html.')
+    : 'Choose the folder that has the StudyBase website (the one with index.html). The next time this program starts, it will serve that site.';
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>StudyBase local sync</title>
 <style>
-  body{font:15px/1.45 system-ui,sans-serif;max-width:40rem;margin:3rem auto;padding:0 1.2rem;color:#1f2937}
+  body{font:15px/1.45 system-ui,sans-serif;max-width:42rem;margin:3rem auto;padding:0 1.2rem;color:#1f2937}
   code{background:#f3f4f6;padding:.1em .35em;border-radius:4px}
   .ok{color:#15803d;font-weight:600}
+  .warn{color:#b45309}
+  label{display:block;font-weight:600;margin:1.2rem 0 .4rem}
+  .row{display:flex;gap:.5rem;flex-wrap:wrap}
+  input[type=text]{flex:1;min-width:16rem;padding:.45rem .55rem;border:1px solid #d1d5db;border-radius:6px;font:inherit}
+  button{padding:.45rem .75rem;border:1px solid #d1d5db;border-radius:6px;background:#fff;font:inherit;cursor:pointer}
+  button.primary{background:#1f2937;color:#fff;border-color:#1f2937}
+  #msg{margin-top:.7rem;min-height:1.3em}
 </style></head><body>
 <h1>StudyBase local sync</h1>
 <p class="ok">Running on this computer.</p>
-<p>Data folder: <code>${DATA_DIR}</code></p>
+<p>Data folder: <code>${esc(DATA_DIR)}</code></p>
 <p>JSON records: <strong>${jsonCount}</strong> &nbsp; Files: <strong>${fileCount}</strong> &nbsp; Users: <strong>${userCount}</strong></p>
-<p>This program should stay running while the site is using the store.</p>
+<label for="websiteDir">Website folder</label>
+<form id="webform">
+  <div class="row">
+    <input id="websiteDir" name="websiteDir" type="text" value="${esc(web.websiteDir)}" placeholder="Folder that contains index.html" spellcheck="false">
+    <button type="button" id="browse">Browse…</button>
+    <button type="submit" class="primary">Save</button>
+  </div>
+</form>
+<p class="${web.ready ? 'ok' : 'warn'}">${esc(webNote)}</p>
+<p id="msg">${web.error ? esc(web.error) : ''}</p>
+<p>${web.ready ? '<a href="/">Open the website</a> · ' : ''}This program should stay running while the site is using the store.</p>
+<p>Browse opens a folder window on <em>this</em> computer. From another machine, type the path instead.</p>
+<script>
+const form = document.getElementById('webform');
+const input = document.getElementById('websiteDir');
+const msg = document.getElementById('msg');
+document.getElementById('browse').onclick = async function () {
+  msg.textContent = 'Open the folder window on this computer…';
+  try {
+    const r = await fetch('/_website-pick', { method: 'POST' });
+    const j = await r.json();
+    if (j.websiteDir) { location.reload(); return; }
+    msg.textContent = j.error || 'Cancelled. You can type the path instead.';
+  } catch (e) {
+    msg.textContent = 'Could not open a folder window. Type the path instead.';
+  }
+};
+form.onsubmit = async function (e) {
+  e.preventDefault();
+  msg.textContent = 'Saving…';
+  try {
+    const r = await fetch('/_website-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ websiteDir: input.value })
+    });
+    const j = await r.json();
+    if (j.ok) { location.href = j.hasIndex ? '/' : '/_status'; return; }
+    msg.textContent = j.error || 'Could not save that folder.';
+  } catch (err) {
+    msg.textContent = 'Could not save that folder.';
+  }
+};
+</script>
 </body></html>`;
 }
 
@@ -482,7 +706,7 @@ function readBody(req) {
 }
 
 function isSyncPath(pathname) {
-  return pathname === '/' || pathname === '/sync';
+  return pathname === '/sync';
 }
 
 let handleStandaloneApi = null;
@@ -493,6 +717,17 @@ try {
 }
 
 ensureDirs();
+websiteDir = loadWebsiteDir();
+if (!websiteReady() && process.env.STUDYBASE_PICK_WEBSITE === '1') {
+  console.log('Select the folder that contains the StudyBase website…');
+  const picked = pickWebsiteDirNative();
+  if (picked) {
+    const err = saveWebsiteDir(picked);
+    if (err) console.log('Folder not used: ' + err);
+  } else {
+    console.log('No website folder selected. Open /_status to choose one.');
+  }
+}
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', 'http://' + (req.headers.host || '127.0.0.1'));
@@ -505,7 +740,49 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && pathname === '/health') {
-    return send(res, 200, 'application/json', JSON.stringify({ ok: true, dataDir: DATA_DIR, api: !!handleStandaloneApi }));
+    const web = websiteConfigPayload();
+    return send(res, 200, 'application/json', JSON.stringify({
+      ok: true,
+      dataDir: DATA_DIR,
+      api: !!handleStandaloneApi,
+      websiteDir: web.websiteDir,
+      website: web.ready,
+    }));
+  }
+
+  if (req.method === 'GET' && pathname === '/_status') {
+    return send(res, 200, 'text/html; charset=utf-8', statusHtml());
+  }
+
+  if (req.method === 'GET' && pathname === '/_website-config') {
+    return send(res, 200, 'application/json; charset=utf-8', JSON.stringify(websiteConfigPayload()));
+  }
+
+  if (req.method === 'POST' && pathname === '/_website-config') {
+    let raw;
+    try { raw = await readBody(req); } catch (e) {
+      return send(res, 413, 'text/plain', 'too large');
+    }
+    let dir = '';
+    try {
+      const parsed = JSON.parse(raw);
+      dir = parsed && parsed.websiteDir != null ? String(parsed.websiteDir) : '';
+    } catch (e) {
+      dir = String(querystring.parse(raw).websiteDir || '');
+    }
+    const err = saveWebsiteDir(dir);
+    if (err) return send(res, 400, 'application/json; charset=utf-8', JSON.stringify({ ok: false, error: err }));
+    return send(res, 200, 'application/json; charset=utf-8', JSON.stringify(Object.assign({ ok: true }, websiteConfigPayload())));
+  }
+
+  if (req.method === 'POST' && pathname === '/_website-pick') {
+    const picked = pickWebsiteDirNative();
+    if (!picked) {
+      return send(res, 200, 'application/json; charset=utf-8', JSON.stringify({ cancelled: true }));
+    }
+    const err = saveWebsiteDir(picked);
+    if (err) return send(res, 400, 'application/json; charset=utf-8', JSON.stringify({ ok: false, error: err }));
+    return send(res, 200, 'application/json; charset=utf-8', JSON.stringify(Object.assign({ ok: true }, websiteConfigPayload())));
   }
 
   if (req.method === 'GET' && pathname.startsWith('/files/')) {
@@ -526,12 +803,16 @@ const server = http.createServer(async (req, res) => {
     return handleStandaloneApi(req, res, url, { dataDir: DATA_DIR, readBody });
   }
 
+  if (req.method === 'GET' && pathname === '/' && url.searchParams.has('key')) {
+    return handleGetSync(url, res);
+  }
+
   if (req.method === 'GET' && isSyncPath(pathname)) {
     if (url.searchParams.has('key')) return handleGetSync(url, res);
     return send(res, 200, 'text/html; charset=utf-8', statusHtml());
   }
 
-  if (req.method === 'POST' && isSyncPath(pathname)) {
+  if (req.method === 'POST' && (isSyncPath(pathname) || pathname === '/')) {
     let raw;
     try { raw = await readBody(req); } catch (e) {
       return send(res, 413, 'text/plain', 'too large');
@@ -542,11 +823,31 @@ const server = http.createServer(async (req, res) => {
     return handlePostSync(key, data, req, res);
   }
 
+  if (req.method === 'GET') {
+    if (websiteReady()) {
+      const filePath = resolveWebsiteFile(url.pathname || '/');
+      if (filePath) return handleWebsiteFile(filePath, res);
+      if (pathname === '/') return send(res, 200, 'text/html; charset=utf-8', statusHtml());
+      return send(res, 404, 'text/plain', 'not found');
+    }
+    if (pathname === '/') return send(res, 200, 'text/html; charset=utf-8', statusHtml());
+  }
+
   send(res, 404, 'text/plain', 'not found');
 });
 
 server.listen(PORT, '0.0.0.0', () => {
+  const origin = 'http://127.0.0.1:' + PORT;
   console.log('StudyBase local sync');
-  console.log('  http://127.0.0.1:' + PORT);
+  console.log('  ' + origin);
   console.log('  data: ' + DATA_DIR);
+  if (websiteReady()) {
+    console.log('  website: ' + websiteDir);
+    console.log('  status: ' + origin + '/_status');
+  } else {
+    console.log('  website: (none — open ' + origin + '/_status to choose a folder)');
+  }
+  if (process.env.STUDYBASE_OPEN_BROWSER === '1') {
+    openBrowser(origin + (websiteReady() ? '/' : '/_status'));
+  }
 });

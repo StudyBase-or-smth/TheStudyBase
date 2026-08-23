@@ -15,6 +15,13 @@ if [ -z "$NODE" ]; then
   echo "Node.js not found. Install Node or place it at ~/.local/node"
   exit 1
 fi
+if [ -t 0 ]; then
+  export STUDYBASE_PICK_WEBSITE=1
+  export STUDYBASE_OPEN_BROWSER=1
+fi
 echo "Starting StudyBase local sync on http://127.0.0.1:${PORT}"
 echo "Data folder: $(pwd)"
+if [ -z "${STUDYBASE_WEBSITE_DIR:-}" ] && [ ! -f website.json ]; then
+  echo "If no website folder is saved yet, a folder window will open."
+fi
 exec "$NODE" server.js

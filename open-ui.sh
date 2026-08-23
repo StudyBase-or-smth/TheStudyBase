@@ -1,5 +1,5 @@
 #!/bin/bash
-# Start StudyBase sync if needed, then open the status page.
+# Start StudyBase sync if needed, then open the website (or the status page).
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 systemctl --user start studybase-sync.service
 for _ in 1 2 3 4 5 6 7 8 9 10; do

@@ -2,9 +2,11 @@ StudyBaseData — local store (Apps Script replacement)
 
 This folder lives on the machine running the sync program, not in the git repo.
 
-  start.bat   Windows: double-click to run
-  start.sh    Linux: ./start.sh
-  server.js   The program the website talks to
+  start.bat   Windows: double-click to run (asks for the website folder once)
+  start.sh    Linux: ./start.sh (same, when run in a terminal)
+  server.js   The program the website talks to; also serves that website folder
+  website.json  Saved website folder (created when you pick one)
+  /_status    Server page: choose or change the website folder
   json/       Shared JSON records
               *_topics/  one file per topic + _meta.json
               *_units.json  { v: 1, items: [{ id, name }] }
@@ -25,6 +27,10 @@ This folder lives on the machine running the sync program, not in the git repo.
   POST /api/approveUser
   POST /api/rejectUser
   POST /api/updateUserName
+
+Pick the folder that contains the StudyBase website (index.html). After that,
+http://127.0.0.1:8787 serves the site and the sync API together. Change it
+later at http://127.0.0.1:8787/_status or set STUDYBASE_WEBSITE_DIR.
 
 On BaseComputer the systemd user service studybase-sync keeps it running.
 This laptop (localhost / file://) talks to it over Tailscale at
