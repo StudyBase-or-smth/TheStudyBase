@@ -9,6 +9,7 @@
 //   GET  /files/<name>  →  uploaded image or PDF
 //   GET  /users/<uid>/photo  →  that user's profile picture
 //   GET/POST _profile_<uid>  →  users/<uid>/profile.json
+//   GET/POST _analyser_<uid> / _analyser_draft_<uid>  →  analyser/<uid>/history.json and draft.json
 //
 // Lives in this folder with the data it manages.
 // Override with env: STUDYBASE_DATA_DIR, PORT, STUDYBASE_PUBLIC_URL,
@@ -29,6 +30,7 @@ const DATA_DIR = process.env.STUDYBASE_DATA_DIR || __dirname;
 const JSON_DIR = path.join(DATA_DIR, 'json');
 const FILES_DIR = path.join(DATA_DIR, 'files');
 const USERS_DIR = path.join(DATA_DIR, 'users');
+const ANALYSER_DIR = path.join(DATA_DIR, 'analyser');
 const WEBSITE_CONFIG = path.join(DATA_DIR, 'website.json');
 const WEB_BLOCK_DIRS = new Set(['.git', 'node_modules']);
 const WEB_BLOCK_FILES = new Set(['secrets.json', '.env', 'website.json']);
@@ -78,6 +80,7 @@ function ensureDirs() {
   fs.mkdirSync(JSON_DIR, { recursive: true });
   fs.mkdirSync(FILES_DIR, { recursive: true });
   fs.mkdirSync(USERS_DIR, { recursive: true });
+  fs.mkdirSync(ANALYSER_DIR, { recursive: true });
 }
 
 function cors(res) {
@@ -119,6 +122,37 @@ function isUnitsKey(key) {
 
 function isProfileKey(key) {
   return key.startsWith('_profile_') && key.length > '_profile_'.length;
+}
+
+function isAnalyserDraftKey(key) {
+  return key.startsWith('_analyser_draft_') && key.length > '_analyser_draft_'.length;
+}
+
+function isAnalyserHistoryKey(key) {
+  return key.startsWith('_analyser_') && !isAnalyserDraftKey(key) && key.length > '_analyser_'.length;
+}
+
+function analyserUidFromKey(key) {
+  if (isAnalyserDraftKey(key)) return key.slice('_analyser_draft_'.length);
+  if (isAnalyserHistoryKey(key)) return key.slice('_analyser_'.length);
+  return '';
+}
+
+function analyserUserDir(uid) {
+  const id = safeUid(uid);
+  return id ? path.join(ANALYSER_DIR, id) : null;
+}
+
+function readAnalyserFile(uid, file) {
+  const dir = analyserUserDir(uid);
+  if (!dir) return null;
+  return readJsonFile(path.join(dir, file));
+}
+
+function writeAnalyserFile(uid, file, value) {
+  const dir = analyserUserDir(uid);
+  if (!dir) return;
+  writeJsonFile(path.join(dir, file), value);
 }
 
 function profileUidFromKey(key) {
@@ -317,6 +351,8 @@ function writeTopics(key, value) {
 
 function readKey(key) {
   if (isProfileKey(key)) return readProfile(profileUidFromKey(key));
+  if (isAnalyserHistoryKey(key)) return readAnalyserFile(analyserUidFromKey(key), 'history.json');
+  if (isAnalyserDraftKey(key)) return readAnalyserFile(analyserUidFromKey(key), 'draft.json');
   if (isTopicsKey(key)) return readTopics(key);
   const p = jsonPath(key);
   if (!fs.existsSync(p)) return null;
@@ -330,6 +366,14 @@ function readKey(key) {
 function writeKey(key, value) {
   if (isProfileKey(key)) {
     writeProfile(profileUidFromKey(key), value);
+    return;
+  }
+  if (isAnalyserHistoryKey(key)) {
+    writeAnalyserFile(analyserUidFromKey(key), 'history.json', value);
+    return;
+  }
+  if (isAnalyserDraftKey(key)) {
+    writeAnalyserFile(analyserUidFromKey(key), 'draft.json', value);
     return;
   }
   if (isTopicsKey(key)) {
