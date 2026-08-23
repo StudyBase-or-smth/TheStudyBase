@@ -198,6 +198,7 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
   };
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  window.__sbAuth = auth;
 
   let idToken = null;
   let myUid = null;

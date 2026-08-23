@@ -23,6 +23,7 @@
     appId:"1:434992387793:web:e5bcae8cad63b4eb6f17f0"
   };
   const auth = getAuth(initializeApp(cfg));
+  window.__sbAuth = auth;
 
   onAuthStateChanged(auth, async user => {
     const isGuest = sessionStorage.getItem('studybase_guest') === '1';

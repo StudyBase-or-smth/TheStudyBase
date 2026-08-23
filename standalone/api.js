@@ -78,18 +78,47 @@ function readStoreToken(req, url) {
   return '';
 }
 
-function requireStorePassword(req, res, url, secrets) {
+function firebaseTokenFromRequest(req, url) {
+  const token = bearer(req);
+  if (token && !/^store:/i.test(token)) return token;
+  if (url && url.searchParams) {
+    const q = url.searchParams.get('token');
+    if (q) return String(q).trim();
+  }
+  return '';
+}
+
+async function requireStoreAccess(req, res, url, secrets) {
   const expected = (secrets && secrets.STORE_PASSWORD) || process.env.STORE_PASSWORD || '';
-  if (!expected || expected.length < 16) {
-    sendJson(res, 503, { error: 'STORE_PASSWORD is not configured on the server.' });
+  const storeTok = readStoreToken(req, url);
+  if (expected && expected.length >= 16 && storeTok && safeEqual(storeTok, expected)) {
+    return true;
+  }
+
+  const token = firebaseTokenFromRequest(req, url);
+  if (!token) {
+    sendJson(res, 401, { error: 'Sign in to use the study store' });
     return false;
   }
-  const got = readStoreToken(req, url);
-  if (!got || !safeEqual(got, expected)) {
-    sendJson(res, 401, { error: 'Store login required' });
+  try {
+    const decoded = await getAdmin(secrets).auth().verifyIdToken(token, true);
+    if (!decoded || !decoded.uid) {
+      sendJson(res, 401, { error: 'Sign in to use the study store' });
+      return false;
+    }
+    if (decoded.status !== 'active') {
+      sendJson(res, 403, { error: 'Account must be approved before using the study store' });
+      return false;
+    }
+    return true;
+  } catch (err) {
+    sendJson(res, err.statusCode || 401, { error: err.message || 'Sign in to use the study store' });
     return false;
   }
-  return true;
+}
+
+function requireStorePassword(req, res, url, secrets) {
+  return requireStoreAccess(req, res, url, secrets);
 }
 
 function gradeAllowed(uid) {
@@ -411,4 +440,4 @@ async function handleApi(req, res, url, opts) {
   }
 }
 
-module.exports = { handleApi, loadSecrets, requireStorePassword, readStoreToken };
+module.exports = { handleApi, loadSecrets, requireStoreAccess, requireStorePassword, readStoreToken };

@@ -102,6 +102,7 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  window.__sbAuth = auth;
 
   // Prevents the auth-state listener auto-redirecting during sign-up flow
   // or when we've already determined the user is pending/rejected.

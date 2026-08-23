@@ -1,8 +1,8 @@
 // StudyBase local sync — Apps Script replacement that stores data on this machine.
 //
 // Talks the same protocol the site already uses:
-//   GET  /sync?key=NAME  →  { data: ... }  (requires STORE_PASSWORD)
-//   JSONP callbacks are disabled so the store password cannot leak in a script URL.
+//   GET  /sync?key=NAME  →  { data: ... }  (requires a signed-in Firebase user)
+//   JSONP callbacks are disabled so tokens cannot leak in a script URL.
 //   POST /sync   key=NAME&data=<json>  →  writes json/NAME.json
 //   POST key=_up_<id>  data={ image: dataUrl, filename }  →  files/... + _ur_<id>
 //   POST key=_up_avatar_<uid>  →  users/<uid>/photo.jpg + _ur_avatar_<uid>
@@ -714,12 +714,13 @@ try {
   handleStandaloneApi = null;
 }
 
-function requireStore(req, url, res) {
-  if (!standaloneApi || typeof standaloneApi.requireStorePassword !== 'function') {
+async function requireStore(req, url, res) {
+  const check = standaloneApi && (standaloneApi.requireStoreAccess || standaloneApi.requireStorePassword);
+  if (!check) {
     send(res, 503, 'application/json; charset=utf-8', JSON.stringify({ error: 'Store login is not available (api.js)' }));
     return false;
   }
-  return standaloneApi.requireStorePassword(req, res, url, standaloneApi.loadSecrets(DATA_DIR));
+  return check.call(standaloneApi, req, res, url, standaloneApi.loadSecrets(DATA_DIR));
 }
 
 ensureDirs();
@@ -785,13 +786,13 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && pathname.startsWith('/files/')) {
-    if (!requireStore(req, url, res)) return;
+    if (!(await requireStore(req, url, res))) return;
     return handleFile(pathname.slice('/files/'.length), res);
   }
 
   const userPhoto = pathname.match(/^\/users\/([^/]+)\/photo\/?$/);
   if (req.method === 'GET' && userPhoto) {
-    if (!requireStore(req, url, res)) return;
+    if (!(await requireStore(req, url, res))) return;
     return handleUserPhoto(userPhoto[1], res);
   }
 
@@ -805,20 +806,20 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && pathname === '/' && url.searchParams.has('key')) {
-    if (!requireStore(req, url, res)) return;
+    if (!(await requireStore(req, url, res))) return;
     return handleGetSync(url, res);
   }
 
   if (req.method === 'GET' && isSyncPath(pathname)) {
     if (url.searchParams.has('key')) {
-      if (!requireStore(req, url, res)) return;
+      if (!(await requireStore(req, url, res))) return;
       return handleGetSync(url, res);
     }
     return send(res, 200, 'text/html; charset=utf-8', statusHtml());
   }
 
   if (req.method === 'POST' && (isSyncPath(pathname) || pathname === '/')) {
-    if (!requireStore(req, url, res)) return;
+    if (!(await requireStore(req, url, res))) return;
     let raw;
     try { raw = await readBody(req); } catch (e) {
       return send(res, 413, 'text/plain', 'too large');

@@ -28,6 +28,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    window.__sbAuth = auth;
 
     onAuthStateChanged(auth, (user) => {
       const isGuest = sessionStorage.getItem('studybase_guest') === '1';
