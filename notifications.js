@@ -222,19 +222,24 @@ function sbNotifyFormatTime(iso){
   return d.toLocaleString('en-AU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
-function sbNotifyRenderOptions(n, me){
+function sbNotifyRenderOptions(n, me, answered){
   if(n.kind !== 'ask' || !n.options || !n.options.length) return '';
   const mine = me && n.answers && n.answers[me.uid];
-  const answered = !!mine;
   const buttons = n.options.map((opt, i) => {
-    const chosen = answered && Number(mine.option) === i;
+    const chosen = answered && mine && Number(mine.option) === i;
     return '<button type="button" class="hdr-notify-opt' + (chosen ? ' is-mine' : '') + '"' +
       (answered ? ' disabled' : '') +
       ' data-ask="' + sbNotifyEsc(n.id) + '" data-opt="' + i + '">' +
       sbNotifyEsc(opt) + '</button>';
   }).join('');
-  return '<div class="hdr-notify-options">' + buttons + '</div>' +
-    (answered ? '<div class="hdr-notify-item-meta">You answered</div>' : '');
+  return '<div class="hdr-notify-options">' + buttons + '</div>';
+}
+
+function sbNotifyChosenLabel(n, me){
+  const mine = me && n.answers && n.answers[me.uid];
+  if(!mine || !n.options) return '';
+  const i = Number(mine.option);
+  return (i >= 0 && i < n.options.length) ? String(n.options[i]) : '';
 }
 
 function sbNotifyRenderList(items, emptyText, me){
@@ -243,11 +248,22 @@ function sbNotifyRenderList(items, emptyText, me){
   }
   return items.map(n => {
     const meta = [n.kind === 'ask' ? n.id : '', n.fromName || 'StudyBase', sbNotifyFormatTime(n.createdAt)].filter(Boolean).join(' · ');
-    return '<div class="hdr-notify-item' + (n.kind === 'ask' ? ' is-ask' : '') + '">' +
-      '<div class="hdr-notify-item-text">' + sbNotifyEsc(n.text) + '</div>' +
-      sbNotifyRenderOptions(n, me) +
-      (meta ? '<div class="hdr-notify-item-meta">' + sbNotifyEsc(meta) + '</div>' : '') +
-      '</div>';
+    const answered = n.kind === 'ask' && !!(me && n.answers && n.answers[me.uid]);
+    const options = sbNotifyRenderOptions(n, me, answered);
+    const body = '<div class="hdr-notify-item-text">' + sbNotifyEsc(n.text) + '</div>' +
+      options +
+      (meta ? '<div class="hdr-notify-item-meta">' + sbNotifyEsc(meta) + '</div>' : '');
+    if(answered){
+      const choice = sbNotifyChosenLabel(n, me) || 'an option';
+      return '<div class="hdr-notify-item is-ask is-answered">' +
+        '<details class="hdr-notify-ask-done">' +
+          '<summary><span class="hdr-notify-ask-q">' + sbNotifyEsc(n.text) + '</span>' +
+            '<span class="hdr-notify-ask-a">' + sbNotifyEsc(choice) + '</span></summary>' +
+          body +
+        '</details>' +
+        '</div>';
+    }
+    return '<div class="hdr-notify-item' + (n.kind === 'ask' ? ' is-ask' : '') + '">' + body + '</div>';
   }).join('');
 }
 
