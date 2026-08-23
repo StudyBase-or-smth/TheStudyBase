@@ -3,6 +3,6 @@
 window.BRANCH_VERSION = {
   "date": "23-8-26",
   "branch": "Backend",
-  "version": "7.1.0",
+  "version": "7.2.0",
   "colour": "main"
 };
