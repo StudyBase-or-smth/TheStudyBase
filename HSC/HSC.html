@@ -334,6 +334,13 @@
         <span class="bc-current" id="hdrCurrent">HSC</span>
       </div>
       <div class="hdr-right-row">
+        <div class="hdr-notify-wrap" id="hdrNotifyWrap">
+          <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications">
+            <span class="hdr-notify-bell" aria-hidden="true">🔔</span>
+            <span class="hdr-notify-badge" id="hdrNotifyBadge"></span>
+          </button>
+          <div class="hdr-notify-tip" id="hdrNotifyTip"></div>
+        </div>
         <div class="hdr-profile-wrap">
           <button class="hdr-ghost hdr-profile" id="hdrProfileBtn" onclick="window.location.href='../profile.html'" aria-label="Profile">
             <span class="hdr-profile-face">👤</span>
@@ -363,6 +370,7 @@
 
 <script src="../sync-config.js"></script>
 <script src="../profile-store.js"></script>
+<script src="../notifications.js"></script>
 <script>
 (function(){
   const on = localStorage.getItem('studybase_dark') === '1';
