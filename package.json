@@ -1,0 +1,8 @@
+{
+  "name": "studybase-standalone-api",
+  "private": true,
+  "description": "Netlify /api replacements for the StudyBaseData server",
+  "dependencies": {
+    "firebase-admin": "^13.10.0"
+  }
+}

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=StudyBase UI
+Comment=Open the StudyBase sync status page
+Exec=/home/john/StudyBaseData/open-ui.sh
+Path=/home/john/StudyBaseData
+Icon=applications-internet
+Terminal=false
+Categories=Network;
+StartupNotify=true

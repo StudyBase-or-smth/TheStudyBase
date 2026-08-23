@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Stop StudyBase
+Comment=Stop the StudyBase sync program
+Exec=/home/john/StudyBaseData/stop.sh
+Path=/home/john/StudyBaseData
+Icon=process-stop
+Terminal=false
+Categories=Network;
+StartupNotify=false

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=StudyBase sync
+Comment=Start the StudyBase sync program at login
+Exec=/usr/bin/systemctl --user start studybase-sync.service
+X-GNOME-Autostart-enabled=true
+Hidden=false
+NoDisplay=false
+Terminal=false
+Icon=network-server
