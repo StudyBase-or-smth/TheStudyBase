@@ -16,6 +16,11 @@ const GRADE_MAX_PROMPT = 8000;
 const GRADE_WINDOW_MS = 10 * 60 * 1000;
 const GRADE_MAX_PER_WINDOW = 20;
 const gradeHits = new Map();
+const RESOLVE_WINDOW_MS = 10 * 60 * 1000;
+const RESOLVE_MAX_PER_WINDOW = 30;
+const resolveHits = new Map();
+const SIGNIN_USER_CACHE_MS = 30 * 1000;
+let signInUserCache = { at: 0, users: [] };
 
 let adminMod = null;
 let adminInitError = null;
@@ -132,6 +137,45 @@ function gradeAllowed(uid) {
   hits.push(now);
   gradeHits.set(id, hits);
   return true;
+}
+
+function clientIp(req) {
+  return (req && req.socket && req.socket.remoteAddress) || 'anon';
+}
+
+function resolveAllowed(ip) {
+  const now = Date.now();
+  const id = String(ip || 'anon');
+  const hits = (resolveHits.get(id) || []).filter(t => now - t < RESOLVE_WINDOW_MS);
+  if (hits.length >= RESOLVE_MAX_PER_WINDOW) {
+    resolveHits.set(id, hits);
+    return false;
+  }
+  hits.push(now);
+  resolveHits.set(id, hits);
+  return true;
+}
+
+function normSignInName(s) {
+  return String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function findSignInEmail(users, rawName) {
+  const needle = normSignInName(rawName);
+  if (!needle) return { status: 400, error: 'Enter your name or email.' };
+  if (needle.length > 100) return { status: 400, error: 'That name is too long.' };
+  const named = (users || []).filter(u => u.email && u.displayName);
+  const exact = named.filter(u => normSignInName(u.displayName) === needle);
+  if (exact.length === 1) return { email: exact[0].email };
+  if (exact.length > 1) return { status: 409, error: 'Several people have that name — sign in with email.' };
+  if (needle.length < 3) return { status: 404, error: 'No account found with that name. Try your email.' };
+  const loose = named.filter(u => {
+    const n = normSignInName(u.displayName);
+    return n.startsWith(needle) || n.split(' ')[0] === needle;
+  });
+  if (loose.length === 1) return { email: loose[0].email };
+  if (loose.length > 1) return { status: 409, error: 'Several people have that name — sign in with email.' };
+  return { status: 404, error: 'No account found with that name. Try your email.' };
 }
 
 function getAdmin(secrets) {
@@ -348,6 +392,28 @@ async function listAuthUsers(admin) {
   return users;
 }
 
+async function listSignInUsers(admin) {
+  const now = Date.now();
+  if (now - signInUserCache.at < SIGNIN_USER_CACHE_MS && signInUserCache.users.length) {
+    return signInUserCache.users;
+  }
+  const users = await listAuthUsers(admin);
+  signInUserCache = { at: now, users };
+  return users;
+}
+
+async function handleResolveSignIn(req, res, secrets, readBody) {
+  if (!resolveAllowed(clientIp(req))) {
+    return sendJson(res, 429, { error: 'Too many attempts. Try again later.' });
+  }
+  const body = await parseJsonBody(req, readBody);
+  const raw = body.name != null ? body.name : body.displayName;
+  const users = await listSignInUsers(getAdmin(secrets));
+  const found = findSignInEmail(users, raw);
+  if (found.error) return sendJson(res, found.status || 404, { error: found.error });
+  return sendJson(res, 200, { email: found.email });
+}
+
 async function handleGetAllUsers(req, res, secrets) {
   await requireDev(req, secrets);
   const users = await listAuthUsers(getAdmin(secrets));
@@ -426,6 +492,7 @@ async function handleApi(req, res, url, opts) {
     if (name === 'avatar' && method === 'GET') return handleAvatar(url, res);
     if (name === 'grade' && method === 'POST') return handleGrade(req, res, secrets, readBody);
     if (name === 'registerRole' && method === 'POST') return handleRegisterRole(req, res, secrets, readBody);
+    if (name === 'resolveSignIn' && method === 'POST') return handleResolveSignIn(req, res, secrets, readBody);
     if ((name === 'getAllUsers') && (method === 'GET' || method === 'POST')) return handleGetAllUsers(req, res, secrets);
     if ((name === 'getPendingUsers') && (method === 'GET' || method === 'POST')) return handleGetPendingUsers(req, res, secrets);
     if (name === 'approveUser' && method === 'POST') return handleApproveUser(req, res, secrets, readBody);

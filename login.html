@@ -41,8 +41,8 @@
       <!-- Sign In -->
       <div id="signInFields">
         <div class="form-group">
-          <label>Email address</label>
-          <input class="form-i" type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
+          <label>Name or email</label>
+          <input class="form-i" type="text" id="emailInput" placeholder="Jane Smith or you@example.com" autocomplete="username">
         </div>
         <div class="form-group">
           <label>Password</label>
@@ -171,28 +171,43 @@
   function friendlyError(code) {
     return ({
       'auth/invalid-email':        'That email address looks invalid.',
-      'auth/user-not-found':       'No account found with that email.',
+      'auth/user-not-found':       'No account found with that name or email.',
       'auth/wrong-password':       'Incorrect password — try again.',
       'auth/too-many-requests':    'Too many attempts. Try again later.',
-      'auth/invalid-credential':   'Email or password is incorrect.',
+      'auth/invalid-credential':   'Name, email, or password is incorrect.',
       'auth/email-already-in-use': 'An account with that email already exists.',
       'auth/weak-password':        'Password must be at least 6 characters.',
     })[code] || 'Something went wrong. Please try again.';
   }
 
+  async function resolveSignInName(name) {
+    const res = await fetch((typeof sbApiUrl === 'function' ? sbApiUrl('/api/resolveSignIn') : '/api/resolveSignIn'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    });
+    let data = {};
+    try { data = await res.json(); } catch (e) {}
+    if (!res.ok || !data.email) {
+      throw new Error(data.error || 'No account found with that name. Try your email.');
+    }
+    return data.email;
+  }
+
   // ── Sign In ──
   window.handleSignIn = async function() {
     hideMessages();
-    const email = document.getElementById('emailInput').value.trim();
+    const ident = document.getElementById('emailInput').value.trim();
     const pass  = document.getElementById('passInput').value;
-    if (!email || !pass) { showError('Please fill in both fields.'); return; }
+    if (!ident || !pass) { showError('Please fill in both fields.'); return; }
     const btn = document.getElementById('mainBtn');
     btn.disabled = true; btn.textContent = 'Signing in…';
     try {
+      const email = ident.indexOf('@') !== -1 ? ident : await resolveSignInName(ident);
       await signInWithEmailAndPassword(auth, email, pass);
       // onAuthStateChanged handles the rest (pending/rejected check + redirect)
     } catch (e) {
-      showError(friendlyError(e.code));
+      showError(e.code ? friendlyError(e.code) : (e.message || 'Something went wrong. Please try again.'));
       btn.disabled = false; btn.textContent = 'Sign In';
     }
   };

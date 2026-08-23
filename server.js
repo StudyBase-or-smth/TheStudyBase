@@ -754,8 +754,13 @@ try {
   standaloneApi = require('./api');
   handleStandaloneApi = standaloneApi.handleApi;
 } catch (e) {
-  standaloneApi = null;
-  handleStandaloneApi = null;
+  try {
+    standaloneApi = require('./standalone/api');
+    handleStandaloneApi = standaloneApi.handleApi;
+  } catch (e2) {
+    standaloneApi = null;
+    handleStandaloneApi = null;
+  }
 }
 
 async function requireStore(req, url, res) {
