@@ -1669,16 +1669,27 @@ function setSyncStatus(s){
 }
 
 function jsonpGet(url){
-  return new Promise((resolve, reject) => {
+  const job = () => new Promise((resolve, reject) => {
     const cb = '_cb'+Date.now()+'_'+Math.floor(Math.random()*99999);
     const script = document.createElement('script');
-    const cleanup = () => { delete window[cb]; if(script.parentNode) script.parentNode.removeChild(script); };
-    window[cb] = data => { cleanup(); resolve(data); };
-    script.onerror = () => { cleanup(); reject(new Error('JSONP error')); };
+    let done = false;
+    const finish = (fn, val) => {
+      if(done) return;
+      done = true;
+      delete window[cb];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      fn(val);
+    };
+    window[cb] = data => finish(resolve, data);
+    script.onerror = () => finish(reject, new Error('JSONP error'));
     script.src = url + (url.includes('?')?'&':'?') + 'callback=' + cb;
     document.head.appendChild(script);
-    setTimeout(() => { cleanup(); reject(new Error('Timeout')); }, 8000);
+    setTimeout(() => finish(reject, new Error('Timeout')), 8000);
   });
+  const prev = window.__sbJsonpChain || Promise.resolve();
+  const p = prev.catch(() => {}).then(job);
+  window.__sbJsonpChain = p.catch(() => {});
+  return p;
 }
 
 function syncPush(key, data){

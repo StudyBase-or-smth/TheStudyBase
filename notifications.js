@@ -15,6 +15,8 @@ let _sbNotifyOpen = false;
 let _sbNotifyShown = [];
 let _sbNotifyBusy = false;
 let _sbNotifyTimer = null;
+let _sbNotifyInited = false;
+let _sbNotifyLastFetch = 0;
 
 function sbNotifyEsc(s){
   return String(s == null ? '' : s)
@@ -30,7 +32,10 @@ function sbNotifyMe(){
   const user = (typeof sbCurrentUser === 'function')
     ? sbCurrentUser()
     : (window.__sbAuth && window.__sbAuth.currentUser);
-  const uid = (user && user.uid) || window.currentUid || localStorage.getItem('studybase_uid') || '';
+  // Wait for the page's auth callback (currentUid / Firebase user). Do not
+  // treat a leftover localStorage uid as signed-in — that fired a JSONP
+  // fetch before pullProfile and could stall Apps Script.
+  const uid = (user && user.uid) || window.currentUid || '';
   if(!uid) return null;
   const acct = window.sbAccount || {};
   return {
@@ -156,7 +161,7 @@ function sbNotifyBuildResults(ask){
   const lines = ['Ask results: ' + ask.text, ''];
   options.forEach((opt, i) => {
     const names = buckets[i];
-    lines.push(opt + ' ÔÇö ' + names.length + (names.length ? ' (' + names.join(', ') + ')' : ''));
+    lines.push(opt + ' — ' + names.length + (names.length ? ' (' + names.join(', ') + ')' : ''));
   });
   const audience = (ask.reportTo && ask.reportTo.length)
     ? ask.reportTo.slice()
@@ -197,20 +202,34 @@ function sbNotifyFinalize(items){
   return out;
 }
 
+function sbNotifyEnqueue(job){
+  const prev = window.__sbJsonpChain || Promise.resolve();
+  const p = prev.catch(() => {}).then(job);
+  window.__sbJsonpChain = p.catch(() => {});
+  return p;
+}
+
 function sbNotifyJsonpGet(){
   if(typeof SYNC_URL === 'undefined' || !SYNC_URL) return Promise.reject(new Error('SYNC_URL missing'));
   const url = SYNC_URL + '?key=' + encodeURIComponent(SB_NOTIFY_KEY);
   if(typeof sbJsonpGet === 'function') return sbJsonpGet(url);
-  return new Promise((resolve, reject) => {
+  return sbNotifyEnqueue(() => new Promise((resolve, reject) => {
     const cb = '_ncb' + Date.now() + '_' + Math.random().toString(36).slice(2);
     const s = document.createElement('script');
-    const cleanup = () => { delete window[cb]; if(s.parentNode) s.remove(); };
-    window[cb] = data => { cleanup(); resolve(data); };
-    s.onerror = () => { cleanup(); reject(new Error('JSONP error')); };
+    let done = false;
+    const finish = (fn, val) => {
+      if(done) return;
+      done = true;
+      delete window[cb];
+      if(s.parentNode) s.remove();
+      fn(val);
+    };
+    window[cb] = data => finish(resolve, data);
+    s.onerror = () => finish(reject, new Error('JSONP error'));
     s.src = url + '&callback=' + cb;
     document.head.appendChild(s);
-    setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 12000);
-  });
+    setTimeout(() => finish(reject, new Error('timeout')), 12000);
+  }));
 }
 
 function sbNotifyFormPush(payload){
@@ -234,6 +253,7 @@ function sbNotifyFormPush(payload){
 
 function sbNotifyLoad(){
   return sbNotifyJsonpGet().then(res => {
+    _sbNotifyLastFetch = Date.now();
     _sbNotifyItems = sbNotifyNormalizeStore(res && res.data);
     return _sbNotifyItems;
   }).catch(() => _sbNotifyItems);
@@ -278,7 +298,7 @@ function sbNotifyRenderList(items, emptyText, me){
     return '<div class="hdr-notify-empty">' + sbNotifyEsc(emptyText) + '</div>';
   }
   return items.map(n => {
-    const meta = [n.id, n.fromName || 'StudyBase', sbNotifyFormatTime(n.createdAt)].filter(Boolean).join(' ┬À ');
+    const meta = [n.id, n.fromName || 'StudyBase', sbNotifyFormatTime(n.createdAt)].filter(Boolean).join(' · ');
     const answered = n.kind === 'ask' && !!(me && n.answers && n.answers[me.uid]);
     const options = sbNotifyRenderOptions(n, me, answered);
     const body = '<div class="hdr-notify-item-text">' + sbNotifyEsc(n.text) + '</div>' +
@@ -316,7 +336,7 @@ function sbNotifyUpdateUi(){
     wrap.classList.remove('has-unread');
     wrap.classList.toggle('open', _sbNotifyOpen);
     if(badge){ badge.hidden = true; badge.textContent = ''; }
-    tip.innerHTML = sbNotifyRenderList([], sbNotifyAuthPending() ? 'CheckingÔÇª' : 'No notifications', null);
+    tip.innerHTML = sbNotifyRenderList([], sbNotifyAuthPending() ? 'Checking…' : 'No notifications', null);
     return;
   }
   const unread = sbNotifyUnread(_sbNotifyItems, me);
@@ -430,16 +450,27 @@ function sbNotifyWaitForUser(){
 }
 
 function sbNotifyInit(){
-  sbNotifyBind();
-  sbNotifyUpdateUi();
+  try {
+    sbNotifyBind();
+    sbNotifyUpdateUi();
+  } catch(e) {
+    console.warn('notifications ui', e);
+  }
+  if(_sbNotifyInited) return;
+  _sbNotifyInited = true;
   sbNotifyWaitForUser().then(me => {
     if(!me){ sbNotifyUpdateUi(); return; }
-    sbNotifyRefresh();
-    if(_sbNotifyTimer) clearInterval(_sbNotifyTimer);
-    _sbNotifyTimer = setInterval(sbNotifyRefresh, 45000);
+    // Let profile / events JSONP go first so the bell cannot stall page boot.
+    setTimeout(() => {
+      sbNotifyRefresh();
+      if(_sbNotifyTimer) clearInterval(_sbNotifyTimer);
+      _sbNotifyTimer = setInterval(sbNotifyRefresh, 90000);
+    }, 2500);
   });
   document.addEventListener('visibilitychange', () => {
-    if(document.visibilityState === 'visible') sbNotifyRefresh();
+    if(document.visibilityState !== 'visible') return;
+    if(Date.now() - _sbNotifyLastFetch < 20000) return;
+    sbNotifyRefresh();
   });
 }
 
@@ -564,7 +595,7 @@ function sbNotifyParseCommand(line){
     return { cmd: 'notify-ask', target: who.first, id: parsedId.id, text, options };
   }
   if(cmd !== 'notify'){
-    return { error: 'Unknown command. Try: notify ÔÇª, notify-ask ÔÇª, or notify-remove ÔÇª' };
+    return { error: 'Unknown command. Try: notify ..., notify-ask ..., or notify-remove ...' };
   }
   const usage = 'Usage: notify whomever id "text"';
   const who = sbNotifyTakeFirst(rest);
@@ -808,7 +839,9 @@ window.sbNotifyParseCommand = sbNotifyParseCommand;
 window.sbNotifyConsoleSuggest = sbNotifyConsoleSuggest;
 
 if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', sbNotifyInit);
+  document.addEventListener('DOMContentLoaded', () => {
+    try { sbNotifyInit(); } catch(e) { console.warn('notifications', e); }
+  });
 } else {
-  sbNotifyInit();
+  try { sbNotifyInit(); } catch(e) { console.warn('notifications', e); }
 }

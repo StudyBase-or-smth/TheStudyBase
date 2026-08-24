@@ -189,7 +189,7 @@ body.dark .console-log .c-err{color:#f29b9b}
       <div class="console-log" id="consoleLog">Ready. Example: notify-ask @everyone week-poll "Which day?" "Mon" "Tue"</div>
       <form class="console-form" id="consoleForm" autocomplete="off">
         <span class="console-prompt">&gt;</span>
-        <input id="consoleInput" placeholder='notify-ask @everyone week-poll "Which day?" "Mon" "Tue"' spellcheck="false">
+        <input id="consoleInput" placeholder="notify-ask @everyone week-poll" spellcheck="false">
         <button type="submit" class="btn accent">Run</button>
       </form>
     </div>
@@ -223,14 +223,52 @@ body.dark .console-log .c-err{color:#f29b9b}
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { loadFirebaseConfig } from "./firebase-config.js";
 
-  const app = initializeApp(await loadFirebaseConfig());
-  const auth = getAuth(app);
+  let app, auth;
+  try {
+    app = initializeApp(await loadFirebaseConfig());
+    auth = getAuth(app);
+  } catch (e) {
+    const gate = document.getElementById('gate');
+    if(gate){
+      gate.innerHTML = '<div>Could not open Dev Panel</div><div style="color:var(--muted);font-size:12px;max-width:420px">' +
+        String((e && e.message) || e) + '</div>';
+    }
+    throw e;
+  }
   window.__sbAuth = auth;
 
   let idToken = null;
   let myUid = null;
   let lastUsers = [];
   let statusFilter = 'all';
+
+  // Register auth before any console/DOM wiring so a missing node cannot
+  // leave this page stuck on "Checking access…".
+  onAuthStateChanged(auth, async (user) => {
+    if(!user){ window.location.href = 'login.html'; return; }
+    const token = await user.getIdTokenResult(true);
+    if(token.claims.role !== 'dev' || token.claims.status !== 'active'){
+      window.location.href = 'index.html';
+      return;
+    }
+    idToken = await user.getIdToken();
+    myUid = user.uid;
+    window.userRole = 'dev';
+    window.sbAccount = {
+      name: user.displayName || (user.email || '').split('@')[0],
+      email: user.email || '',
+      role: 'dev'
+    };
+    const gate = document.getElementById('gate');
+    const panel = document.getElementById('panel');
+    if(gate) gate.style.display = 'none';
+    if(panel) panel.style.display = 'block';
+    if(typeof sbNotifyInit === 'function'){
+      try { sbNotifyInit(); } catch(e) { console.warn(e); }
+    }
+    try { loadAllUsers(); } catch(e) { console.warn(e); }
+    try { loadStats(); } catch(e) { console.warn(e); }
+  });
 
   function showToast(msg, type='info'){
     const c = document.getElementById('toast-container');
@@ -278,17 +316,17 @@ body.dark .console-log .c-err{color:#f29b9b}
       else el.classList.remove('open');
     });
   }
-  document.getElementById('toolBtn').onclick = () => closeDrawers('toolDrawer');
-  document.getElementById('statsBtn').onclick = () => {
+  document.getElementById('toolBtn') && (document.getElementById('toolBtn').onclick = () => closeDrawers('toolDrawer'));
+  document.getElementById('statsBtn') && (document.getElementById('statsBtn').onclick = () => {
     closeDrawers('statsDrawer');
-    if(document.getElementById('statsDrawer').classList.contains('open')) loadStats();
-  };
-  document.getElementById('consoleBtn').onclick = () => {
+    if(document.getElementById('statsDrawer')?.classList.contains('open')) loadStats();
+  });
+  document.getElementById('consoleBtn') && (document.getElementById('consoleBtn').onclick = () => {
     closeDrawers('consoleDrawer');
-    if(document.getElementById('consoleDrawer').classList.contains('open')){
+    if(document.getElementById('consoleDrawer')?.classList.contains('open')){
       document.getElementById('consoleInput')?.focus();
     }
-  };
+  });
 
   function consoleAppend(cls, text){
     const log = document.getElementById('consoleLog');
@@ -322,21 +360,21 @@ body.dark .console-log .c-err{color:#f29b9b}
     input.value = next + after;
     input.setSelectionRange(next.length, next.length);
   }
-  document.getElementById('consoleInput').addEventListener('keydown', (ev) => {
+  document.getElementById('consoleInput')?.addEventListener('keydown', (ev) => {
     if(ev.key !== 'Tab') return;
     ev.preventDefault();
     applyConsoleTab(ev.shiftKey);
   });
-  document.getElementById('consoleInput').addEventListener('input', () => {
+  document.getElementById('consoleInput')?.addEventListener('input', () => {
     consoleTab = { key: '', i: -1 };
   });
-  document.getElementById('consoleForm').addEventListener('submit', async (ev) => {
+  document.getElementById('consoleForm')?.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     const input = document.getElementById('consoleInput');
-    const line = (input.value || '').trim();
+    const line = (input && input.value || '').trim();
     if(!line) return;
     consoleAppend('c-in', '> ' + line);
-    input.value = '';
+    if(input) input.value = '';
     try{
       if(!lastUsers.length) await loadAllUsers();
       const msg = await window.sbNotifyRunCommand(line, lastUsers);
@@ -353,29 +391,7 @@ body.dark .console-log .c-err{color:#f29b9b}
       applyUserFilter();
     };
   });
-  document.getElementById('userSearch').addEventListener('input', applyUserFilter);
-
-  onAuthStateChanged(auth, async (user) => {
-    if(!user){ window.location.href = 'login.html'; return; }
-    const token = await user.getIdTokenResult(true);
-    if(token.claims.role !== 'dev' || token.claims.status !== 'active'){
-      window.location.href = 'index.html';
-      return;
-    }
-    idToken = await user.getIdToken();
-    myUid = user.uid;
-    window.userRole = 'dev';
-    window.sbAccount = {
-      name: user.displayName || (user.email || '').split('@')[0],
-      email: user.email || '',
-      role: 'dev'
-    };
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('panel').style.display = 'block';
-    if(typeof sbNotifyInit === 'function') sbNotifyInit();
-    loadAllUsers();
-    loadStats();
-  });
+  document.getElementById('userSearch')?.addEventListener('input', applyUserFilter);
 
   // Missing/empty claims (role+status "None") are queue items the table can
   // approve — count and filter them as pending, not as a separate bucket.

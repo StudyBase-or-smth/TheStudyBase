@@ -15,7 +15,14 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { loadFirebaseConfig } from "./firebase-config.js";
-  const auth = getAuth(initializeApp(await loadFirebaseConfig()));
+  let auth;
+  try {
+    auth = getAuth(initializeApp(await loadFirebaseConfig()));
+  } catch (e) {
+    const page = document.getElementById('profilePage');
+    if (page) page.textContent = 'Could not start profile. ' + ((e && e.message) || e);
+    throw e;
+  }
   window.__sbAuth = auth;
 
   onAuthStateChanged(auth, async user => {
@@ -56,10 +63,16 @@
       window.userRole = role;
       window.currentUid = uid;
       window.sbAccount = { name: displayName, email, role };
-      if (typeof applyProfileCache === 'function') applyProfileCache(uid);
-      bootProfile(displayName, email, uid, false, role, effectiveStatus);
-      if (typeof pullProfile === 'function') {
-        pullProfile(uid).then(() => bootProfile(displayName, email, uid, false, role, effectiveStatus));
+      try {
+        if (typeof applyProfileCache === 'function') applyProfileCache(uid);
+        bootProfile(displayName, email, uid, false, role, effectiveStatus);
+        if (typeof pullProfile === 'function') {
+          pullProfile(uid).then(() => bootProfile(displayName, email, uid, false, role, effectiveStatus));
+        }
+      } catch (err) {
+        const page = document.getElementById('profilePage');
+        if (page) page.textContent = 'Profile failed to load.';
+        console.error(err);
       }
     } else if (isGuest) {
       window.isGuest = true;
@@ -294,10 +307,12 @@ async function onProfilePhotoPicked(input){
 }
 
 function avatarHtml(photoUrl, photoThumb, initials, color, editing){
-  const inner = '👤';
+  const img = (typeof profilePhotoImgHtml === 'function') ? profilePhotoImgHtml(photoUrl || photoThumb) : '';
+  const inner = img || esc(initials || '');
   if(!editing) return `<div class="profile-avatar" style="background:${color}">${inner}</div>`;
   return `<div class="avatar-edit">
     <div class="profile-avatar" style="background:${color}">${inner}</div>
+    <button type="button" class="avatar-change" onclick="document.getElementById('profilePhotoInput').click()" ${photoUploading ? 'disabled' : ''}>${photoUploading ? 'Uploading…' : 'Change'}</button>
   </div>`;
 }
 

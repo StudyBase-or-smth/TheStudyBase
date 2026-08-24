@@ -472,15 +472,27 @@ document.addEventListener('keydown', e => {
 let _nextSync = Date.now() + 60000;
 
 function jsonpGet(url) {
-  return new Promise((res, rej) => {
+  const job = () => new Promise((res, rej) => {
     const cb = '_jcb' + Date.now() + '_' + Math.random().toString(36).slice(2);
     const s = document.createElement('script');
-    window[cb] = r => { delete window[cb]; s.remove(); res(r); };
-    s.onerror = () => { delete window[cb]; s.remove(); rej(new Error('JSONP error')); };
+    let done = false;
+    const finish = (fn, val) => {
+      if(done) return;
+      done = true;
+      delete window[cb];
+      if(s.parentNode) s.remove();
+      fn(val);
+    };
+    window[cb] = r => finish(res, r);
+    s.onerror = () => finish(rej, new Error('JSONP error'));
     s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
     document.head.appendChild(s);
-    setTimeout(() => { delete window[cb]; s.remove(); rej(new Error('timeout')); }, 8000);
+    setTimeout(() => finish(rej, new Error('timeout')), 8000);
   });
+  const prev = window.__sbJsonpChain || Promise.resolve();
+  const p = prev.catch(() => {}).then(job);
+  window.__sbJsonpChain = p.catch(() => {});
+  return p;
 }
 
 function syncPushEvents(events) {
