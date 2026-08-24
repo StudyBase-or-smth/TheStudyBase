@@ -47,20 +47,18 @@ async function loadBranchVersion() {
     badge.innerHTML = `<strong>${branch}</strong> · v${version} · ( ${date} )`;
     badge.style.cssText = `font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;color:${color}`;
   };
-  // window.BRANCH_VERSION comes from BranchVersion.js (a plain <script> tag,
-  // loaded before this file) — it works when index.html is opened directly
-  // via file://, where fetch()/XHR of local files is blocked by Chrome and
-  // the branch below would otherwise always throw. Fall back to fetch() for
-  // any deploy that only ships the JSON.
-  if (window.BRANCH_VERSION) { apply(window.BRANCH_VERSION); return; }
-  try {
-    const res = await fetch('BranchVersion.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error('not found');
-    apply(await res.json());
-  } catch (e) {
-    badge.innerHTML = '<strong>dev</strong> · Local';
-    badge.style.cssText = 'font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;color:#e0c200';
+  // Prefer BranchVersion.json on http(s) so the hub tracks the file the
+  // pre-commit hook updates. BranchVersion.js is the file:// fallback
+  // (Chrome blocks fetch() of local files).
+  if (window.location.protocol !== 'file:') {
+    try {
+      const res = await fetch('BranchVersion.json', { cache: 'no-store' });
+      if (res.ok) { apply(await res.json()); return; }
+    } catch (e) { /* fall through */ }
   }
+  if (window.BRANCH_VERSION) { apply(window.BRANCH_VERSION); return; }
+  badge.innerHTML = '<strong>dev</strong> · Local';
+  badge.style.cssText = 'font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;color:#e0c200';
 }
 window.addEventListener('load', loadBranchVersion);
 loadBranchVersion();

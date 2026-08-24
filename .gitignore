@@ -5,7 +5,10 @@
 
 # Netlify
 .netlify/
-scripts/
+
+# Local-only helper scripts; keep the branch-badge updater tracked
+scripts/*
+!scripts/update-branch-date.js
 
 # Node
 node_modules/
