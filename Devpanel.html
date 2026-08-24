@@ -91,15 +91,6 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
 .ur-actions .btn{font-size:11px;padding:4px 8px}
 .req-date{font-size:12px;color:var(--muted2);white-space:nowrap}
 
-.console-log{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;min-height:120px;max-height:240px;overflow:auto;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--text);margin-bottom:10px;white-space:pre-wrap;word-break:break-word}
-.console-log .c-in{color:var(--muted)}
-.console-log .c-ok{color:#15803d}
-.console-log .c-err{color:#dc2626}
-body.dark .console-log .c-ok{color:#86efac}
-body.dark .console-log .c-err{color:#f29b9b}
-.console-form{display:flex;align-items:center;gap:8px}
-.console-prompt{font:700 13px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--accent)}
-.console-form input{flex:1;min-width:0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;border:1px solid var(--border);border-radius:7px;padding:8px 10px;background:var(--card2);color:var(--text)}
 .queue-empty{padding:28px;text-align:center;color:var(--muted2);font-size:13px;font-style:italic}
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
 .stat-box{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
@@ -134,13 +125,6 @@ body.dark .console-log .c-err{color:#f29b9b}
       <h1>StudyBase</h1>
       <span class="tag" onclick="window.location.href='devbackend.html'">Dev Panel</span>
       <div class="bar-right">
-        <div class="hdr-notify-wrap" id="hdrNotifyWrap">
-          <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications">
-            <span class="hdr-notify-bell" aria-hidden="true">🔔</span>
-            <span class="hdr-notify-badge" id="hdrNotifyBadge"></span>
-          </button>
-          <div class="hdr-notify-tip" id="hdrNotifyTip"></div>
-        </div>
         <button class="icon-btn" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
         <a href="index.html">← Hub</a>
       </div>
@@ -164,7 +148,6 @@ body.dark .console-log .c-err{color:#f29b9b}
       </div>
       <input class="search" id="userSearch" placeholder="Filter by name or email…">
       <button type="button" class="btn" id="statsBtn">Site stats</button>
-      <button type="button" class="btn" id="consoleBtn">Console</button>
       <button type="button" class="btn accent" id="toolBtn">Bootstrap role</button>
     </div>
 
@@ -176,22 +159,6 @@ body.dark .console-log .c-err{color:#f29b9b}
       <div class="subjects-table" id="subjectsTable"></div>
       <div class="sec-title">Recent activity</div>
       <div class="activity-table" id="activityTable"></div>
-    </div>
-
-    <div class="drawer" id="consoleDrawer">
-      <h3>Console</h3>
-      <p>Tab cycles the command, then the next argument.<br>
-        <code>notify whomever id "text"</code><br>
-        <code>notify-ask whomever id "text" "1" "2"</code><br>
-        <code>notify-remove id</code><br>
-        <code>notify-remove id whomever</code>
-      </p>
-      <div class="console-log" id="consoleLog">Ready. Example: notify-ask @everyone week-poll "Which day?" "Mon" "Tue"</div>
-      <form class="console-form" id="consoleForm" autocomplete="off">
-        <span class="console-prompt">&gt;</span>
-        <input id="consoleInput" placeholder="notify-ask @everyone week-poll" spellcheck="false">
-        <button type="submit" class="btn accent">Run</button>
-      </form>
     </div>
 
     <div class="drawer" id="toolDrawer">
@@ -215,60 +182,19 @@ body.dark .console-log .c-err{color:#f29b9b}
 <div id="toast-container"></div>
 
 <script src="subjects.js"></script>
-<script src="sync-config.js"></script>
-<script src="notifications.js"></script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { loadFirebaseConfig } from "./firebase-config.js";
 
-  let app, auth;
-  try {
-    app = initializeApp(await loadFirebaseConfig());
-    auth = getAuth(app);
-  } catch (e) {
-    const gate = document.getElementById('gate');
-    if(gate){
-      gate.innerHTML = '<div>Could not open Dev Panel</div><div style="color:var(--muted);font-size:12px;max-width:420px">' +
-        String((e && e.message) || e) + '</div>';
-    }
-    throw e;
-  }
-  window.__sbAuth = auth;
+  const app = initializeApp(await loadFirebaseConfig());
+  const auth = getAuth(app);
 
   let idToken = null;
   let myUid = null;
   let lastUsers = [];
   let statusFilter = 'all';
-
-  // Register auth before any console/DOM wiring so a missing node cannot
-  // leave this page stuck on "Checking access…".
-  onAuthStateChanged(auth, async (user) => {
-    if(!user){ window.location.href = 'login.html'; return; }
-    const token = await user.getIdTokenResult(true);
-    if(token.claims.role !== 'dev' || token.claims.status !== 'active'){
-      window.location.href = 'index.html';
-      return;
-    }
-    idToken = await user.getIdToken();
-    myUid = user.uid;
-    window.userRole = 'dev';
-    window.sbAccount = {
-      name: user.displayName || (user.email || '').split('@')[0],
-      email: user.email || '',
-      role: 'dev'
-    };
-    const gate = document.getElementById('gate');
-    const panel = document.getElementById('panel');
-    if(gate) gate.style.display = 'none';
-    if(panel) panel.style.display = 'block';
-    if(typeof sbNotifyInit === 'function'){
-      try { sbNotifyInit(); } catch(e) { console.warn(e); }
-    }
-    try { loadAllUsers(); } catch(e) { console.warn(e); }
-    try { loadStats(); } catch(e) { console.warn(e); }
-  });
 
   function showToast(msg, type='info'){
     const c = document.getElementById('toast-container');
@@ -308,81 +234,15 @@ body.dark .console-log .c-err{color:#f29b9b}
     document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
   });
 
-  function closeDrawers(exceptId){
-    ['toolDrawer','statsDrawer','consoleDrawer'].forEach(id => {
-      const el = document.getElementById(id);
-      if(!el) return;
-      if(id === exceptId) el.classList.toggle('open');
-      else el.classList.remove('open');
-    });
-  }
-  document.getElementById('toolBtn') && (document.getElementById('toolBtn').onclick = () => closeDrawers('toolDrawer'));
-  document.getElementById('statsBtn') && (document.getElementById('statsBtn').onclick = () => {
-    closeDrawers('statsDrawer');
-    if(document.getElementById('statsDrawer')?.classList.contains('open')) loadStats();
-  });
-  document.getElementById('consoleBtn') && (document.getElementById('consoleBtn').onclick = () => {
-    closeDrawers('consoleDrawer');
-    if(document.getElementById('consoleDrawer')?.classList.contains('open')){
-      document.getElementById('consoleInput')?.focus();
-    }
-  });
-
-  function consoleAppend(cls, text){
-    const log = document.getElementById('consoleLog');
-    if(!log) return;
-    const line = document.createElement('div');
-    line.className = cls;
-    line.textContent = text;
-    log.appendChild(line);
-    log.scrollTop = log.scrollHeight;
-  }
-  let consoleTab = { key: '', i: -1 };
-  function applyConsoleTab(reverse){
-    const input = document.getElementById('consoleInput');
-    if(!input || typeof sbNotifyConsoleSuggest !== 'function') return;
-    const caret = input.selectionStart == null ? input.value.length : input.selectionStart;
-    const before = input.value.slice(0, caret);
-    const after = input.value.slice(caret);
-    const hint = sbNotifyConsoleSuggest(before, lastUsers);
-    const options = hint.options || [];
-    if(!options.length) return;
-    const key = before.slice(0, hint.replaceFrom) + '|' + options.join('\n');
-    if(consoleTab.key !== key){
-      consoleTab = { key, i: reverse ? options.length - 1 : 0 };
-    } else {
-      consoleTab.i = reverse
-        ? (consoleTab.i - 1 + options.length) % options.length
-        : (consoleTab.i + 1) % options.length;
-    }
-    const pick = options[consoleTab.i] + (hint.suffix || '');
-    const next = before.slice(0, hint.replaceFrom) + pick;
-    input.value = next + after;
-    input.setSelectionRange(next.length, next.length);
-  }
-  document.getElementById('consoleInput')?.addEventListener('keydown', (ev) => {
-    if(ev.key !== 'Tab') return;
-    ev.preventDefault();
-    applyConsoleTab(ev.shiftKey);
-  });
-  document.getElementById('consoleInput')?.addEventListener('input', () => {
-    consoleTab = { key: '', i: -1 };
-  });
-  document.getElementById('consoleForm')?.addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-    const input = document.getElementById('consoleInput');
-    const line = (input && input.value || '').trim();
-    if(!line) return;
-    consoleAppend('c-in', '> ' + line);
-    if(input) input.value = '';
-    try{
-      if(!lastUsers.length) await loadAllUsers();
-      const msg = await window.sbNotifyRunCommand(line, lastUsers);
-      consoleAppend('c-ok', msg);
-    } catch(e){
-      consoleAppend('c-err', e.message || String(e));
-    }
-  });
+  document.getElementById('toolBtn').onclick = () => {
+    document.getElementById('toolDrawer').classList.toggle('open');
+    document.getElementById('statsDrawer').classList.remove('open');
+  };
+  document.getElementById('statsBtn').onclick = () => {
+    document.getElementById('statsDrawer').classList.toggle('open');
+    document.getElementById('toolDrawer').classList.remove('open');
+    if(document.getElementById('statsDrawer').classList.contains('open')) loadStats();
+  };
   document.querySelectorAll('#statusSeg button').forEach(btn => {
     btn.onclick = () => {
       document.querySelectorAll('#statusSeg button').forEach(b => b.classList.remove('on'));
@@ -391,7 +251,22 @@ body.dark .console-log .c-err{color:#f29b9b}
       applyUserFilter();
     };
   });
-  document.getElementById('userSearch')?.addEventListener('input', applyUserFilter);
+  document.getElementById('userSearch').addEventListener('input', applyUserFilter);
+
+  onAuthStateChanged(auth, async (user) => {
+    if(!user){ window.location.href = 'login.html'; return; }
+    const token = await user.getIdTokenResult(true);
+    if(token.claims.role !== 'dev' || token.claims.status !== 'active'){
+      window.location.href = 'index.html';
+      return;
+    }
+    idToken = await user.getIdToken();
+    myUid = user.uid;
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+    loadAllUsers();
+    loadStats();
+  });
 
   // Missing/empty claims (role+status "None") are queue items the table can
   // approve — count and filter them as pending, not as a separate bucket.

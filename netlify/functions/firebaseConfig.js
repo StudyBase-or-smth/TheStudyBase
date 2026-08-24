@@ -1,7 +1,13 @@
 // netlify/functions/firebaseConfig.js
 //
-// Returns the Firebase web project id for the browser SDK. The value
-// comes from process.env so it is not committed in HTML/JS.
+// Returns the Firebase *web* project id used by the browser SDK.
+// Admin SDK secrets stay server-side (FIREBASE_CLIENT_EMAIL /
+// FIREBASE_PRIVATE_KEY). This endpoint exists so FIREBASE_PROJECT_ID is
+// not committed in HTML/JS — Netlify secrets scanning flags that value
+// in the repo/build output.
+//
+// Required Netlify / .env:
+//   FIREBASE_PROJECT_ID   (already used by the Admin SDK functions)
 
 const JSON_HEADERS = {
   'Content-Type': 'application/json',

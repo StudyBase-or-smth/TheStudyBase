@@ -1,9 +1,9 @@
 // firebase-config.js
 //
-// Loads the Firebase project id at runtime from /api/firebaseConfig so
-// that value is not committed. The web API key, app id, and sender id
-// are public Firebase client identifiers and live here — they are not
-// env vars.
+// Loads FIREBASE_PROJECT_ID at runtime from /api/firebaseConfig so that
+// value is not committed (Netlify secrets scanning). The web API key,
+// app id, and sender id are public Firebase client identifiers and live
+// here — they are not env vars.
 
 const PUBLIC_WEB_CONFIG = {
   apiKey: 'AIzaSyAZeyBIaTstTJ5Pr9o86MHk8dhDPAJFFCA',

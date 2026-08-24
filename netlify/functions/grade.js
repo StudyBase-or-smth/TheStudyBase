@@ -1,12 +1,20 @@
 // netlify/functions/grade.js
 //
-// Server AI keys are read from process.env (local .env / Netlify env).
-// The browser never sees them. A per-request userKey in the body, if
-// present, is used instead and is not stored.
+// This function is the ONLY place real API keys should live (as Netlify
+// environment variables, set in Site settings -> Environment variables):
 //
-// Requires a valid Firebase ID token (Authorization: Bearer <idToken>)
-// whose custom claims include status:'active'. Pending, rejected, or
-// claim-less accounts cannot spend the server keys.
+//   GEMINI_API_KEY   -> your default Gemini key
+//   CLAUDE_API_KEY   -> your default Claude (Anthropic) key
+//
+// The browser never sees these. If the user pastes their own key into the
+// optional textbox on the page, that key is sent per-request in the request
+// body and used instead -- it is NOT stored anywhere server-side either.
+//
+// SECURITY: this endpoint falls back to the server's own CLAUDE_API_KEY /
+// GEMINI_API_KEY whenever the caller doesn't supply their own. It requires a
+// valid Firebase ID token (Authorization: Bearer <idToken>) whose custom
+// claims include status:'active'. Pending, rejected, or claim-less accounts
+// cannot spend the server keys.
 
 const admin = require('firebase-admin');
 

@@ -97,13 +97,6 @@
         <button class="hdr-ghost hdr-sync" onclick="syncPull()" data-tip="Sync now" aria-label="Sync now">⟳<span id="syncCountdown"></span></button>
         <button class="hdr-ghost" id="btnFlashcards" onclick="window.location.href='flashcards.html#'" data-tip="Flashcards" aria-label="Flashcards">🃏</button>
         <button class="hdr-action" id="btnNewTopic" onclick="openModal()">+ New topic</button>
-        <div class="hdr-notify-wrap" id="hdrNotifyWrap">
-          <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications">
-            <span class="hdr-notify-bell" aria-hidden="true">🔔</span>
-            <span class="hdr-notify-badge" id="hdrNotifyBadge"></span>
-          </button>
-          <div class="hdr-notify-tip" id="hdrNotifyTip"></div>
-        </div>
         <div class="hdr-profile-wrap">
           <button class="hdr-ghost hdr-profile" id="hdrProfileBtn" onclick="window.location.href='../profile.html'" aria-label="Profile">
             <span class="hdr-profile-face">👤</span>
@@ -362,7 +355,6 @@
 <script src="../subjects.js"></script>
 <script src="../sync-config.js"></script>
 <script src="../profile-store.js"></script>
-<script src="../notifications.js"></script>
 <script src="subjectapp.js"></script>
 
 <!-- Guest overlays -->

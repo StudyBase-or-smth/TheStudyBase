@@ -1,0 +1,7 @@
+{
+  "name": "thestudybase",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm install --prefix netlify/functions --omit=dev"
+  }
+}

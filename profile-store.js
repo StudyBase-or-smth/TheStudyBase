@@ -88,27 +88,16 @@ function visibleClasses(){
 }
 
 function sbJsonpGet(url){
-  const job = () => new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const cb = '_pcb' + Date.now() + '_' + Math.random().toString(36).slice(2);
     const s = document.createElement('script');
-    let done = false;
-    const finish = (fn, val) => {
-      if(done) return;
-      done = true;
-      delete window[cb];
-      if(s.parentNode) s.remove();
-      fn(val);
-    };
-    window[cb] = data => finish(resolve, data);
-    s.onerror = () => finish(reject, new Error('JSONP error'));
+    const cleanup = () => { delete window[cb]; if(s.parentNode) s.remove(); };
+    window[cb] = data => { cleanup(); resolve(data); };
+    s.onerror = () => { cleanup(); reject(new Error('JSONP error')); };
     s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
     document.head.appendChild(s);
-    setTimeout(() => finish(reject, new Error('timeout')), 8000);
+    setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 8000);
   });
-  const prev = window.__sbJsonpChain || Promise.resolve();
-  const p = prev.catch(() => {}).then(job);
-  window.__sbJsonpChain = p.catch(() => {});
-  return p;
 }
 
 function sbSyncPush(key, data){
@@ -291,10 +280,7 @@ function updateHdrProfile(){
   if(!btn) return;
   const face = btn.querySelector('.hdr-profile-face') || btn;
   const tip = document.getElementById('hdrProfileTip');
-  const p = window.sbProfile || {};
-  const img = (typeof profilePhotoImgHtml === 'function') ? profilePhotoImgHtml(p.photoThumb || p.photoUrl) : '';
-  if(img) face.innerHTML = img;
-  else face.textContent = '👤';
+  face.textContent = '👤';
 
   const acct = window.sbAccount || {};
   const name = acct.name || localStorage.getItem('studybase_display_name') || (window.isGuest ? 'Guest' : 'Profile');
