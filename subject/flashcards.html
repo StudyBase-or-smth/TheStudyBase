@@ -255,7 +255,18 @@ function resolveSubject(){
 }
 
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function jsFc(v){ return "'" + String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'") + "'"; }
+function jsFc(v){
+  if(v == null) return 'null';
+  return "'" + String(v)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/"/g, '\\x22')
+    .replace(/</g, '\\x3c')
+    .replace(/>/g, '\\x3e')
+    .replace(/&/g, '\\x26')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r') + "'";
+}
 function stripHtml(h){ const d=document.createElement('div');d.innerHTML=h||'';return d.textContent.trim(); }
 
 const getTopics = () => normalizeTopicList(sbMemGet(ST, []));

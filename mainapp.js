@@ -307,7 +307,26 @@ function renderSidebar() {
 const DOWS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const EVENTS_KEY = 'studybase_events';
+const EVENT_TYPES = ['exam', 'assessment', 'assignment', 'reminder'];
 let editingEventId = null;
+
+function eventTypeOf(ev) {
+  const t = String((ev && ev.type) || '');
+  return EVENT_TYPES.indexOf(t) !== -1 ? t : 'reminder';
+}
+
+function jsOnclickArg(v) {
+  if (v == null) return 'null';
+  return "'" + String(v)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/"/g, '\\x22')
+    .replace(/</g, '\\x3c')
+    .replace(/>/g, '\\x3e')
+    .replace(/&/g, '\\x26')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r') + "'";
+}
 
 function getEvents() {
   const v = sbMemGet(EVENTS_KEY, []);
@@ -347,7 +366,8 @@ function renderCalendar() {
       // on hover. escapeHtml keeps quotes/HTML in either field from breaking
       // out of the title="..." attribute.
       const tip = ev.tooltip ? ev.tooltip : ev.title;
-      html += `<div class="cal-event type-${ev.type}" onclick="event.stopPropagation();openEventModal('${ev.id}',null)" title="${escapeHtml(tip)}">${escapeHtml(ev.title)}${ev.time ? ' ' + escapeHtml(ev.time) : ''}</div>`;
+      const type = eventTypeOf(ev);
+      html += `<div class="cal-event type-${type}" onclick="event.stopPropagation();openEventModal(${jsOnclickArg(ev.id)},null)" title="${escapeHtml(tip)}">${escapeHtml(ev.title)}${ev.time ? ' ' + escapeHtml(ev.time) : ''}</div>`;
     });
     if (dayEvents.length > 2) html += `<div class="cal-more">+${dayEvents.length - 2} more</div>`;
     return html + '</div>';
@@ -372,12 +392,13 @@ function renderUpcoming(events) {
       const diff = Math.round((d - today) / 864e5);
       const diffLabel = diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : `In ${diff}d`;
       const tip = ev.tooltip ? ev.tooltip : ev.title;
-      return `<div class="upcoming-item" onclick="openEventModal('${ev.id}',null)" title="${escapeHtml(tip)}">
+      const type = eventTypeOf(ev);
+      return `<div class="upcoming-item" onclick="openEventModal(${jsOnclickArg(ev.id)},null)" title="${escapeHtml(tip)}">
         <div class="upcoming-date">${abbr[d.getMonth()]}<span>${d.getDate()}</span></div>
-        <div class="upcoming-dot" style="background:${typeColors[ev.type] || '#78716c'}"></div>
+        <div class="upcoming-dot" style="background:${typeColors[type] || '#78716c'}"></div>
         <div class="upcoming-info">
           <div class="upcoming-title">${escapeHtml(ev.title)}</div>
-          <div class="upcoming-meta">${diffLabel}${ev.time ? ' · ' + escapeHtml(ev.time) : ''}${ev.subject ? ' · ' + escapeHtml(ev.subject) : ''} · ${typeLabels[ev.type] || ev.type}</div>
+          <div class="upcoming-meta">${diffLabel}${ev.time ? ' · ' + escapeHtml(ev.time) : ''}${ev.subject ? ' · ' + escapeHtml(ev.subject) : ''} · ${typeLabels[type]}</div>
         </div>
       </div>`;
     }).join('');
@@ -431,7 +452,7 @@ window.saveEvent = function () {
     title,
     date: document.getElementById('evDate').value,
     time: document.getElementById('evTime').value || '',
-    type: document.getElementById('evType').value,
+    type: eventTypeOf({ type: document.getElementById('evType').value }),
     subject: document.getElementById('evSubject').value,
     tooltip: document.getElementById('evTooltip').value.trim(),
   };

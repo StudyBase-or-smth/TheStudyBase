@@ -5,15 +5,26 @@ let SU = '';        // store key for units
 let SP = '';        // localStorage key for pinned topics
 let DEF_UNITS = []; // default units if none saved
 
+function showSubjectError(text){
+  const p = document.createElement('p');
+  p.style.cssText = 'padding:40px;font-family:sans-serif;color:#c00';
+  p.append(String(text) + ' ');
+  const a = document.createElement('a');
+  a.href = '../index.html';
+  a.textContent = 'Go back to index.';
+  p.append(a);
+  document.body.replaceChildren(p);
+}
+
 function resolveSubject(){
   const id = window.location.hash.slice(1);
   if(!id || typeof classesData === 'undefined'){
-    document.body.innerHTML = '<p style="padding:40px;font-family:sans-serif;color:#c00">No subject specified. <a href="../index.html">Go back to index.</a></p>';
+    showSubjectError('No subject specified.');
     return false;
   }
   SUBJECT = (classesData.subjects || []).find(s => s.id === id);
   if(!SUBJECT){
-    document.body.innerHTML = `<p style="padding:40px;font-family:sans-serif;color:#c00">Unknown subject "${id}". <a href="../index.html">Go back to index.</a></p>`;
+    showSubjectError('Unknown subject "' + id + '".');
     return false;
   }
   ST = SUBJECT.storageKey || (id + '_topics');
@@ -82,7 +93,7 @@ applySidebarCollapsed();
 
 // ── Rich editor helpers ──
 function getRichVal(id){ const el=document.getElementById(id); if(!el)return''; return el.contentEditable==='true'?el.innerHTML.trim():el.value.trim(); }
-function setRichVal(id,html){ const el=document.getElementById(id); if(!el)return; if(el.contentEditable==='true'){el.innerHTML=html||'';}else{el.value=html||'';} }
+function setRichVal(id,html){ const el=document.getElementById(id); if(!el)return; if(el.contentEditable==='true'){el.innerHTML=sanitizeRich(html||'');}else{el.value=html||'';} }
 function clearRich(id){ setRichVal(id,''); }
 function isDangerousUrl(val){
   const s = String(val || '').replace(/[\s\0]/g, '').toLowerCase();
@@ -122,7 +133,7 @@ function tableCellHtml(html){
   const id = newTableCellId();
   return `<td><div class="rich-editor-wrap table-cell-editor">
       <div class="rich-toolbar mini"><button type="button" class="rich-btn" onclick="richAddImage('${id}')" title="Insert image">🖼</button></div>
-      <div class="rich-content" id="${id}" contenteditable="true" data-placeholder="…">${html||''}</div>
+      <div class="rich-content" id="${id}" contenteditable="true" data-placeholder="…">${sanitizeRich(html||'')}</div>
       <input type="file" id="img_${id}" accept="image/*" style="display:none">
     </div></td>`;
 }
@@ -705,15 +716,15 @@ function blockCommentHtml(topicId, block, label, icon){
     <div class="blk-note">
       <div class="blk-note-meta">
         <span class="blk-note-author">🎓 ${esc(n.author)}</span>
-        <span class="blk-note-date">${n.date}</span>
-        ${window.isTeacher ? `<button class="blk-note-del" onclick="deleteBlockNote(${jsArg(topicId)},'${block}','${n.id}')" title="Delete">✕</button>` : ''}
+        <span class="blk-note-date">${esc(n.date)}</span>
+        ${window.isTeacher ? `<button class="blk-note-del" onclick="deleteBlockNote(${jsArg(topicId)},${jsArg(block)},${jsArg(n.id)})" title="Delete">✕</button>` : ''}
       </div>
       <p class="blk-note-text">${esc(n.text)}</p>
     </div>`).join('');
 
   const iconAction = window.isTeacher
-    ? `openCommentPopover(${jsArg(topicId)},'${block}','${esc(label).replace(/'/g,"\\'")}',this)`
-    : `toggleBlockCard('${block}')`;
+    ? `openCommentPopover(${jsArg(topicId)},${jsArg(block)},${jsArg(label)},this)`
+    : `toggleBlockCard(${jsArg(block)})`;
 
   const commentIcon = `
     <button class="blk-comment-btn${hasNotes?' has-notes':''}" onclick="${iconAction}"
@@ -725,7 +736,7 @@ function blockCommentHtml(topicId, block, label, icon){
   const isOpen = openCommentBlocks.has(block);
 
   const collapseArrow = hasNotes ? `
-    <button class="blk-collapse-btn" id="blkArrow_${block}" onclick="toggleBlockCard('${block}')" title="Toggle">${isOpen ? '‹' : '›'}</button>` : '';
+    <button class="blk-collapse-btn" id="blkArrow_${block}" onclick="toggleBlockCard(${jsArg(block)})" title="Toggle">${isOpen ? '‹' : '›'}</button>` : '';
 
   const cardBody = hasNotes ? `
     <div class="blk-card-body" id="blkCard_${block}" style="display:${isOpen ? 'block' : 'none'}">
@@ -886,7 +897,19 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 
 function jsArg(v){
   if(v == null) return 'null';
-  return "'" + String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'") + "'";
+  // Single-quoted JS literal safe inside a double-quoted HTML attribute.
+  // Escape quotes and HTML metacharacters so a stored id cannot break out of onclick="...".
+  return "'" + String(v)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/"/g, '\\x22')
+    .replace(/</g, '\\x3c')
+    .replace(/>/g, '\\x3e')
+    .replace(/&/g, '\\x26')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029') + "'";
 }
 
 function hideTopicCtxMenu(){
