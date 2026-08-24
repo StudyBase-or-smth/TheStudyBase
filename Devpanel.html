@@ -102,6 +102,15 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
 .subjects-row .sname,.activity-row .sname{font-weight:600;flex:1}
 .subjects-row .scount,.activity-row .stime{color:var(--muted2);font-size:12px}
 
+.console-log{font:12px/1.45 'JetBrains Mono',ui-monospace,monospace;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;min-height:90px;max-height:220px;overflow:auto;white-space:pre-wrap;margin-bottom:10px}
+.console-log .c-in{color:var(--muted)}
+.console-log .c-ok{color:#15803d}
+.console-log .c-err{color:#dc2626}
+body.dark .console-log .c-ok{color:#86efac}
+body.dark .console-log .c-err{color:#f29b9b}
+.console-form{display:flex;align-items:center;gap:8px}
+.console-prompt{color:var(--accent);font:700 13px 'JetBrains Mono',ui-monospace,monospace}
+.console-form input{flex:1;min-width:0;font:13px Inter,sans-serif;border:1px solid var(--border);border-radius:7px;padding:8px 10px;background:var(--card2);color:var(--text)}
 .gate{display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;flex-direction:column;gap:10px}
 .gate .spin{font-size:22px;animation:spin 1.1s linear infinite}
 @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
@@ -125,6 +134,13 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
       <h1>StudyBase</h1>
       <span class="tag" onclick="window.location.href='devbackend.html'">Dev Panel</span>
       <div class="bar-right">
+        <div class="hdr-notify-wrap" id="hdrNotifyWrap">
+          <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications">
+            <span class="hdr-notify-bell" aria-hidden="true">🔔</span>
+            <span class="hdr-notify-badge" id="hdrNotifyBadge" hidden></span>
+          </button>
+          <div class="hdr-notify-tip" id="hdrNotifyTip"></div>
+        </div>
         <button class="icon-btn" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
         <a href="index.html">← Hub</a>
       </div>
@@ -148,6 +164,7 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
       </div>
       <input class="search" id="userSearch" placeholder="Filter by name or email…">
       <button type="button" class="btn" id="statsBtn">Site stats</button>
+      <button type="button" class="btn" id="consoleBtn">Notify console</button>
       <button type="button" class="btn accent" id="toolBtn">Bootstrap role</button>
     </div>
 
@@ -159,6 +176,17 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
       <div class="subjects-table" id="subjectsTable"></div>
       <div class="sec-title">Recent activity</div>
       <div class="activity-table" id="activityTable"></div>
+    </div>
+
+    <div class="drawer" id="consoleDrawer">
+      <h3>Notify console</h3>
+      <p>notify whomever id "text"<br>notify-ask whomever id "text" "1" "2"<br>notify-remove id<br>notify-remove id whomever</p>
+      <div class="console-log" id="consoleLog">Ready. Example: notify-ask @everyone week-poll "Which day?" "Mon" "Tue"</div>
+      <form class="console-form" id="consoleForm" autocomplete="off">
+        <span class="console-prompt">&gt;</span>
+        <input id="consoleInput" placeholder='notify-ask @everyone week-poll "Which day?" "Mon" "Tue"' spellcheck="false">
+        <button type="submit" class="btn accent">Run</button>
+      </form>
     </div>
 
     <div class="drawer" id="toolDrawer">
@@ -182,6 +210,9 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
 <div id="toast-container"></div>
 
 <script src="subjects.js"></script>
+<script src="sync-config.js"></script>
+<script src="profile-store.js"></script>
+<script src="notifications.js"></script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -190,6 +221,7 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
 
   const app = initializeApp(await loadFirebaseConfig());
   const auth = getAuth(app);
+  window.__sbAuth = auth;
 
   let idToken = null;
   let myUid = null;
@@ -234,15 +266,76 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
     document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
   });
 
-  document.getElementById('toolBtn').onclick = () => {
-    document.getElementById('toolDrawer').classList.toggle('open');
-    document.getElementById('statsDrawer').classList.remove('open');
-  };
+  function closeDrawers(exceptId){
+    ['toolDrawer','statsDrawer','consoleDrawer'].forEach(id => {
+      const el = document.getElementById(id);
+      if(!el) return;
+      if(id === exceptId) el.classList.toggle('open');
+      else el.classList.remove('open');
+    });
+  }
+  document.getElementById('toolBtn').onclick = () => closeDrawers('toolDrawer');
   document.getElementById('statsBtn').onclick = () => {
-    document.getElementById('statsDrawer').classList.toggle('open');
-    document.getElementById('toolDrawer').classList.remove('open');
+    closeDrawers('statsDrawer');
     if(document.getElementById('statsDrawer').classList.contains('open')) loadStats();
   };
+  document.getElementById('consoleBtn').onclick = () => {
+    closeDrawers('consoleDrawer');
+    if(document.getElementById('consoleDrawer').classList.contains('open')){
+      document.getElementById('consoleInput')?.focus();
+    }
+  };
+
+  function consoleAppend(cls, text){
+    const log = document.getElementById('consoleLog');
+    if(!log) return;
+    const line = document.createElement('div');
+    line.className = cls;
+    line.textContent = text;
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+  }
+  let consoleTab = { key: '', i: -1 };
+  function applyConsoleTab(back){
+    const input = document.getElementById('consoleInput');
+    if(!input || typeof window.sbNotifyConsoleSuggest !== 'function') return;
+    const line = input.value || '';
+    const hint = window.sbNotifyConsoleSuggest(line, lastUsers);
+    const options = hint.options || [];
+    if(!options.length) return;
+    const key = line.slice(0, hint.replaceFrom) + '\0' + options.join('\n');
+    if(consoleTab.key !== key){ consoleTab = { key, i: -1 }; }
+    consoleTab.i = back
+      ? (consoleTab.i <= 0 ? options.length - 1 : consoleTab.i - 1)
+      : (consoleTab.i + 1) % options.length;
+    const next = line.slice(0, hint.replaceFrom) + options[consoleTab.i] + (hint.suffix || '');
+    const after = '';
+    input.value = next + after;
+    input.setSelectionRange(next.length, next.length);
+  }
+  document.getElementById('consoleInput')?.addEventListener('keydown', (ev) => {
+    if(ev.key !== 'Tab') return;
+    ev.preventDefault();
+    applyConsoleTab(ev.shiftKey);
+  });
+  document.getElementById('consoleInput')?.addEventListener('input', () => {
+    consoleTab = { key: '', i: -1 };
+  });
+  document.getElementById('consoleForm')?.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const input = document.getElementById('consoleInput');
+    const line = (input && input.value || '').trim();
+    if(!line) return;
+    consoleAppend('c-in', '> ' + line);
+    if(input) input.value = '';
+    try{
+      if(!lastUsers.length) await loadAllUsers();
+      const msg = await window.sbNotifyRunCommand(line, lastUsers);
+      consoleAppend('c-ok', msg);
+    } catch(e){
+      consoleAppend('c-err', (e && e.message) || String(e));
+    }
+  });
   document.querySelectorAll('#statusSeg button').forEach(btn => {
     btn.onclick = () => {
       document.querySelectorAll('#statusSeg button').forEach(b => b.classList.remove('on'));
@@ -262,8 +355,17 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
     }
     idToken = await user.getIdToken();
     myUid = user.uid;
+    window.userRole = 'dev';
+    window.sbAccount = {
+      name: user.displayName || (user.email || '').split('@')[0],
+      email: user.email || '',
+      role: 'dev'
+    };
     document.getElementById('gate').style.display = 'none';
     document.getElementById('panel').style.display = 'block';
+    if(typeof sbNotifyInit === 'function'){
+      try { sbNotifyInit(); } catch(e) { console.warn(e); }
+    }
     loadAllUsers();
     loadStats();
   });
