@@ -329,15 +329,7 @@ function sbNotifyUpdateUi(){
   if(!wrap || !tip) return;
   wrap.hidden = false;
   const me = sbNotifyMe();
-  if(!me){
-    wrap.classList.remove('has-unread');
-    wrap.classList.toggle('open', _sbNotifyOpen);
-    if(badge){ badge.hidden = true; badge.textContent = ''; }
-    tip.innerHTML = sbNotifyRenderList([], sbNotifyAuthPending() ? 'Checking…' : 'No notifications', null);
-    return;
-  }
-  const unread = sbNotifyUnread(_sbNotifyItems, me);
-  const shown = _sbNotifyOpen ? _sbNotifyShown : unread;
+  const unread = me ? sbNotifyUnread(_sbNotifyItems, me) : [];
   wrap.classList.toggle('has-unread', unread.length > 0);
   wrap.classList.toggle('open', _sbNotifyOpen);
   if(badge){
@@ -349,7 +341,13 @@ function sbNotifyUpdateUi(){
       badge.textContent = '';
     }
   }
-  tip.innerHTML = sbNotifyRenderList(shown, 'No notifications', me);
+  if(!_sbNotifyOpen && !unread.length){
+    tip.innerHTML = '';
+    return;
+  }
+  const shown = _sbNotifyOpen ? _sbNotifyShown : unread;
+  const empty = !me && sbNotifyAuthPending() ? 'Checking…' : 'No notifications';
+  tip.innerHTML = sbNotifyRenderList(shown, empty, me);
 }
 
 function sbNotifyMarkRead(){
