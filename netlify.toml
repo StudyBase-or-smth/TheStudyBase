@@ -4,6 +4,8 @@
 
 [functions]
   node_bundler = "esbuild"
+  # Leave firebase-admin out of the esbuild bundle; load it from node_modules.
+  external_node_modules = ["firebase-admin"]
 
 [dev]
   port = 8888

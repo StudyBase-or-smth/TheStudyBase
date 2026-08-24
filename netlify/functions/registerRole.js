@@ -15,12 +15,9 @@
 // Bearer <idToken>) for the SAME uid they are requesting a role for. Without
 // this, anyone who knew (or guessed) another account's uid could overwrite
 // that account's claims by posting a forged uid/email pair.
-//
-// Requires a Firebase service account — set as three Netlify environment
-// variables (Site settings -> Environment variables):
-//   FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
 
 const admin = require('firebase-admin');
+const nodemailer = require('nodemailer');
 
 const ALLOWED_ROLES = ['student', 'teacher']; // dev accounts are created manually, never via sign-up
 
@@ -35,6 +32,54 @@ if (!admin.apps.length) {
 }
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
+
+function htmlEscape(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+async function sendApprovalEmail({ uid, email, requestedRole, requestedAt }) {
+  const fromUser = process.env.NOTIFY_EMAIL_USER;
+  const pass = process.env.NOTIFY_EMAIL_PASS;
+  const to = process.env.ADMIN_EMAIL;
+  if (!fromUser || !pass || !to) return;
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: fromUser, pass },
+  });
+
+  await transporter.sendMail({
+    from: `"StudyBase" <${fromUser}>`,
+    to,
+    subject: `[StudyBase] Approval request — ${requestedRole} — ${email}`,
+    text: [
+      'A new account is awaiting approval.',
+      '',
+      `Email:          ${email}`,
+      `Requested role: ${requestedRole}`,
+      `UID:            ${uid}`,
+      `Requested at:   ${requestedAt}`,
+      '',
+      'Approve or reject this account in the Dev Panel.',
+    ].join('\n'),
+    html: `
+      <h2 style="font-family:sans-serif">StudyBase — Approval Request</h2>
+      <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse">
+        <tr><td style="padding:4px 12px 4px 0;color:#666">Email</td><td><strong>${htmlEscape(email)}</strong></td></tr>
+        <tr><td style="padding:4px 12px 4px 0;color:#666">Requested role</td><td><strong>${htmlEscape(requestedRole)}</strong></td></tr>
+        <tr><td style="padding:4px 12px 4px 0;color:#666">UID</td><td><code>${htmlEscape(uid)}</code></td></tr>
+        <tr><td style="padding:4px 12px 4px 0;color:#666">Requested at</td><td>${htmlEscape(requestedAt)}</td></tr>
+      </table>
+      <p style="font-family:sans-serif;margin-top:16px;color:#555">
+        Approve or reject this account in the Dev Panel.
+      </p>
+    `,
+  });
+}
 
 async function requireCaller(event) {
   const authHeader = event.headers.authorization || event.headers.Authorization || '';
@@ -91,21 +136,8 @@ exports.handler = async function (event) {
 
     await admin.auth().setCustomUserClaims(uid, claims);
 
-    // Notify via the existing Apps Script web app — fire-and-forget,
-    // a failed notification shouldn't block the sign-up itself.
-    try {
-      const SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
-      await fetch(SYNC_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          key: '_pending_approval_request_',
-          data: JSON.stringify({ uid, email, requestedRole, requestedAt: claims.requestedAt }),
-        }),
-      });
-    } catch (notifyErr) {
-      console.error('Notification failed (non-blocking):', notifyErr.message);
-    }
+    sendApprovalEmail({ uid, email, requestedRole, requestedAt: claims.requestedAt })
+      .catch(err => console.error('Approval email failed (non-blocking):', err.message));
 
     return {
       statusCode: 200,

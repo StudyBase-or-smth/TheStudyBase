@@ -8,7 +8,7 @@
 //
 // from Netlify env / local .env so existing deploys keep working.
 //
-// Unlike CLAUDE_API_KEY / GEMINI_API_KEY (see grade.js), a Desmos API key is
+// Unlike spend-authorizing AI keys (see grade.js), a Desmos API key is
 // NOT a spend-authorizing secret -- Desmos's own embed pattern puts it
 // directly in a public <script src="...?apiKey=...">, visible to anyone who
 // views the page source. So this endpoint is intentionally NOT gated behind
