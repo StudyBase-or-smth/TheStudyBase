@@ -4,5 +4,5 @@ window.BRANCH_VERSION = {
   "date": "24-8-26",
   "branch": "Ethan-Dev-3.x.x",
   "version": "7.2.0N",
-  "colour": "dev"
+  "colour": "main"
 };

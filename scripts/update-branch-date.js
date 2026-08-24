@@ -24,12 +24,6 @@ try {
   // keep existing branch label if git is unavailable
 }
 
-const name = String(data.branch || '').toLowerCase();
-if (name === 'main' || name === 'master') data.colour = 'main';
-else if (name.includes('bug')) data.colour = 'bug';
-else if (name.includes('dev')) data.colour = 'dev';
-else data.colour = 'other';
-
 fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2) + '\n');
 fs.writeFileSync(
   jsPath,
