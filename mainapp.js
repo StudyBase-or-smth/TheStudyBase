@@ -16,12 +16,6 @@
   };
 })();
 
-// ── Dark mode ──
-(function () {
-  const on = localStorage.getItem('studybase_dark') === '1';
-  if (on) document.body.classList.add('dark');
-})();
-
 // ── Branch version badge ──
 async function loadBranchVersion() {
   const badge = document.getElementById('branch-badge');

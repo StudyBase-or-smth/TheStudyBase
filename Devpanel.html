@@ -91,12 +91,15 @@ body.dark .role-badge.rejected{background:#2a1414;border-color:#5c2424;color:#f2
 .ur-actions .btn{font-size:11px;padding:4px 8px}
 .req-date{font-size:12px;color:var(--muted2);white-space:nowrap}
 
-.console-log{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;min-height:120px;max-height:240px;overflow:auto;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--text);margin-bottom:10px;white-space:pre-wrap;word-break:break-word}
+.console-log{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;min-height:120px;max-height:320px;overflow:auto;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--text);margin-bottom:10px;white-space:pre-wrap;word-break:break-word}
 .console-log .c-in{color:var(--muted)}
 .console-log .c-ok{color:#15803d}
 .console-log .c-err{color:#dc2626}
+.console-log .c-warn{color:#b45309}
+.console-log .c-log{color:var(--text)}
 body.dark .console-log .c-ok{color:#86efac}
 body.dark .console-log .c-err{color:#f29b9b}
+body.dark .console-log .c-warn{color:#fbbf24}
 .console-form{display:flex;align-items:center;gap:8px}
 .console-prompt{font:700 13px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--accent)}
 .console-form input{flex:1;min-width:0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;border:1px solid var(--border);border-radius:7px;padding:8px 10px;background:var(--card2);color:var(--text)}
@@ -180,16 +183,16 @@ body.dark .console-log .c-err{color:#f29b9b}
 
     <div class="drawer" id="consoleDrawer">
       <h3>Console</h3>
-      <p>Tab cycles the command, then the next argument.<br>
+      <p>Live output from the StudyBaseProgram window. Type here or in that CMD window.<br>
+        <code>stop</code> (twice in a row to shut down) · <code>restart</code> · <code>help</code><br>
         <code>notify whomever id "text"</code><br>
         <code>notify-ask whomever id "text" "1" "2"</code><br>
-        <code>notify-remove id</code><br>
-        <code>notify-remove id whomever</code>
+        <code>notify-remove id</code> · <code>notify-remove *</code>
       </p>
-      <div class="console-log" id="consoleLog">Ready. Example: notify-ask @everyone week-poll "Which day?" "Mon" "Tue"</div>
+      <div class="console-log" id="consoleLog">Waiting for StudyBaseProgram…</div>
       <form class="console-form" id="consoleForm" autocomplete="off">
         <span class="console-prompt">&gt;</span>
-        <input id="consoleInput" placeholder='notify-ask @everyone week-poll "Which day?" "Mon" "Tue"' spellcheck="false">
+        <input id="consoleInput" placeholder='stop  |  restart  |  notify-ask @everyone week-poll "Which day?" "Mon" "Tue"' spellcheck="false">
         <button type="submit" class="btn accent">Run</button>
       </form>
     </div>
@@ -216,6 +219,7 @@ body.dark .console-log .c-err{color:#f29b9b}
 
 <script src="subjects.js"></script>
 <script src="sync-config.js"></script>
+<script src="profile-store.js"></script>
 <script src="notifications.js"></script>
 
 <script type="module">
@@ -265,17 +269,8 @@ body.dark .console-log .c-err{color:#f29b9b}
     return data;
   }
 
-  function applyDark(){
-    const on = localStorage.getItem('studybase_dark') === '1';
-    document.body.classList.toggle('dark', on);
-    const btn = document.getElementById('darkToggle');
-    if(btn) btn.textContent = on ? '☀️' : '🌙';
-  }
-  applyDark();
   document.getElementById('darkToggle')?.addEventListener('click', () => {
-    const on = document.body.classList.toggle('dark');
-    localStorage.setItem('studybase_dark', on ? '1' : '0');
-    document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
+    if (typeof toggleDark === 'function') toggleDark();
   });
 
   function closeDrawers(exceptId){
@@ -306,6 +301,64 @@ body.dark .console-log .c-err{color:#f29b9b}
     line.textContent = text;
     log.appendChild(line);
     log.scrollTop = log.scrollHeight;
+  }
+
+  let programLogLastId = 0;
+  let programLogTimer = null;
+  let programLogRetry = false;
+
+  function programLogClass(level){
+    if(level === 'error') return 'c-err';
+    if(level === 'warn') return 'c-warn';
+    return 'c-log';
+  }
+  function formatProgramLine(entry){
+    const d = new Date(entry.ts || Date.now());
+    const t = isNaN(d) ? '' : d.toLocaleTimeString('en-AU', { hour12: false });
+    return (t ? t + '  ' : '') + (entry.text || '');
+  }
+  async function pullProgramLogs(){
+    if(!idToken) return;
+    try{
+      const dest = (typeof sbApiUrl === 'function' ? sbApiUrl('/api/programLogs') : '/api/programLogs') + '?after=' + encodeURIComponent(programLogLastId);
+      const res = await fetch(dest, { headers: { Authorization: 'Bearer ' + idToken } });
+      if(res.status === 401 && window.__sbAuth && window.__sbAuth.currentUser && !programLogRetry){
+        programLogRetry = true;
+        idToken = await window.__sbAuth.currentUser.getIdToken(true);
+        return pullProgramLogs();
+      }
+      programLogRetry = false;
+      if(!res.ok) return;
+      const data = await res.json();
+      const rows = Array.isArray(data.logs) ? data.logs : [];
+      if(!rows.length) return;
+      const log = document.getElementById('consoleLog');
+      if(log && programLogLastId === 0 && log.childNodes.length && /Waiting for StudyBaseProgram/i.test(log.textContent)){
+        log.textContent = '';
+      }
+      rows.forEach(entry => {
+        if(!entry || entry.id <= programLogLastId) return;
+        programLogLastId = entry.id;
+        if(/^\[devpanel\]/.test(String(entry.text || ''))) return;
+        consoleAppend(programLogClass(entry.level), formatProgramLine(entry));
+      });
+      if(data.lastId && data.lastId > programLogLastId) programLogLastId = data.lastId;
+    }catch(e){ programLogRetry = false; }
+  }
+  function startProgramLogPoll(){
+    if(programLogTimer) return;
+    pullProgramLogs();
+    programLogTimer = setInterval(pullProgramLogs, 1000);
+  }
+  async function echoToProgram(text, level){
+    if(!idToken || !text) return;
+    try{
+      await fetch((typeof sbApiUrl === 'function' ? sbApiUrl('/api/programLog') : '/api/programLog'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + idToken },
+        body: JSON.stringify({ text, level: level || 'log' })
+      });
+    }catch(e){}
   }
   let consoleTab = { key: '', i: -1 };
   function applyConsoleTab(reverse){
@@ -346,11 +399,25 @@ body.dark .console-log .c-err{color:#f29b9b}
     consoleAppend('c-in', '> ' + line);
     input.value = '';
     try{
+      const programCmd = /^(stop|restart|help|\?)$/i.test(line);
+      if(programCmd){
+        const data = await apiFetch('/api/programCommand', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + idToken },
+          body: JSON.stringify({ command: line })
+        });
+        consoleAppend(data.ok ? 'c-ok' : 'c-err', data.message || 'Done');
+        return;
+      }
+      echoToProgram('> ' + line);
       if(!lastUsers.length) await loadAllUsers();
       const msg = await window.sbNotifyRunCommand(line, lastUsers);
       consoleAppend('c-ok', msg);
+      echoToProgram(msg, 'log');
     } catch(e){
-      consoleAppend('c-err', e.message || String(e));
+      const err = e.message || String(e);
+      consoleAppend('c-err', err);
+      echoToProgram(err, 'error');
     }
   });
   document.querySelectorAll('#statusSeg button').forEach(btn => {
@@ -372,6 +439,10 @@ body.dark .console-log .c-err{color:#f29b9b}
     }
     idToken = await user.getIdToken();
     myUid = user.uid;
+    window.currentUid = user.uid;
+    try { localStorage.setItem('studybase_uid', user.uid); } catch (e) {}
+    if (typeof applyProfileCache === 'function') applyProfileCache(user.uid);
+    if (typeof pullProfile === 'function') pullProfile(user.uid).catch(() => {});
     window.userRole = 'dev';
     window.sbAccount = {
       name: user.displayName || (user.email || '').split('@')[0],
@@ -383,6 +454,7 @@ body.dark .console-log .c-err{color:#f29b9b}
     if(typeof sbNotifyInit === 'function') sbNotifyInit();
     loadAllUsers();
     loadStats();
+    startProgramLogPoll();
   });
 
   // Missing/empty claims (role+status "None") are queue items the table can

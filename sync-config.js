@@ -2,18 +2,21 @@
 //
 // Shared client config loaded before mainapp.js / subjectapp.js / classapp.js.
 //
-// SYNC_URL — shared JSON + file store (StudyBaseData on BaseComputer).
-// Apps Script is temporarily off: set USE_APPS_SCRIPT to true to send the
-// live Netlify site back to Google while this laptop/file:// still uses
-// BaseComputer. HTTPS Netlify pages cannot call this HTTP tailnet URL.
+// SYNC_URL — JSON + file store.
+// This laptop (file://, localhost, 127.0.0.1) talks to StudyBaseProgram on
+// http://127.0.0.1:8787, which writes StudyBaseData next to start.bat.
+// Other hosts still use BaseComputer. Apps Script is off; set
+// USE_APPS_SCRIPT to true to send the public HTTPS site back to Google.
+// Public HTTPS pages cannot call these HTTP URLs.
 //
 // DESMOS_API_KEY — Desmos Graphing Calculator key (desmos.com/my-api).
 // Desmos embeds this in a public <script src>, so it is not a spend
 // secret. Keep it here so subject/class pages work from file:// without
 // hitting /api/desmosKey. If this is empty, those pages fall back to
-// /api/desmosKey on the standalone store (or Netlify when USE_APPS_SCRIPT).
+// /api/desmosKey on the StudyBaseProgram store.
 const APPS_SCRIPT_SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
-const LOCAL_SYNC_URL = 'http://basecomputer.tail8c20e2.ts.net:8787/sync';
+const BASECOMPUTER_SYNC_URL = 'http://basecomputer.tail8c20e2.ts.net:8787/sync';
+const PROGRAM_SYNC_URL = 'http://127.0.0.1:8787/sync';
 const USE_APPS_SCRIPT = false;
 
 function isLocalDevHost(){
@@ -26,12 +29,27 @@ function isLocalDevHost(){
   }
 }
 
-const SYNC_URL = (USE_APPS_SCRIPT && !isLocalDevHost()) ? APPS_SCRIPT_SYNC_URL : LOCAL_SYNC_URL;
+function resolvedSyncUrl(){
+  if(USE_APPS_SCRIPT && !isLocalDevHost()) return APPS_SCRIPT_SYNC_URL;
+  try {
+    if(location.protocol === 'file:') return PROGRAM_SYNC_URL;
+    const h = location.hostname;
+    if(h === 'localhost' || h === '127.0.0.1'){
+      const port = String(location.port || '');
+      if(port === '8787') return location.origin + '/sync';
+      return PROGRAM_SYNC_URL;
+    }
+  } catch(e) {}
+  return BASECOMPUTER_SYNC_URL;
+}
+
+const LOCAL_SYNC_URL = PROGRAM_SYNC_URL;
+const SYNC_URL = resolvedSyncUrl();
 const DESMOS_API_KEY = '7339116aaed4438899621e81f10dd250';
 
 function sbApiOrigin(){
   if(USE_APPS_SCRIPT && !isLocalDevHost()) return '';
-  try { return new URL(LOCAL_SYNC_URL).origin; } catch(e) { return ''; }
+  try { return new URL(SYNC_URL).origin; } catch(e) { return ''; }
 }
 function sbApiUrl(path){
   const p = (path && path.charAt(0) === '/') ? path : '/' + (path || '');

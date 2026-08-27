@@ -945,7 +945,7 @@ body.subject-page .data-table td img{max-width:100%;height:auto;border-radius:4p
    itself to fill its container, so both containers below need an
    explicit height. desmosEditorUnavailable/desmosViewUnavailable only
    ever show when DESMOS_API_KEY isn't configured yet (see
-   netlify/functions/desmosKey.js) — styled as an actionable notice
+   standalone/api.js) — styled as an actionable notice
    rather than a plain empty-note, since it's aimed at whoever runs the
    site, not the student reading the topic.
    ══════════════════════════════════════════════ */

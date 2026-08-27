@@ -4,10 +4,6 @@
 .env.*.local
 standalone/secrets.json
 
-# Netlify
-.netlify/
-scripts/
-
 # Node
 node_modules/
 

@@ -24,6 +24,7 @@ const path = require('path');
 const { spawn, spawnSync } = require('child_process');
 const { URL } = require('url');
 const querystring = require('querystring');
+const { runProgramCommand, RESTART_EXIT } = require('./program-commands');
 
 const PORT = parseInt(process.env.PORT || '8787', 10);
 const DATA_DIR = process.env.STUDYBASE_DATA_DIR || __dirname;
@@ -35,7 +36,7 @@ const WEBSITE_CONFIG = path.join(DATA_DIR, 'website.json');
 const WEB_BLOCK_DIRS = new Set(['.git', 'node_modules']);
 const WEB_BLOCK_FILES = new Set(['secrets.json', '.env', 'website.json']);
 const PHOTO_NAMES = ['photo.jpg', 'photo.jpeg', 'photo.png', 'photo.webp', 'photo.gif', 'photo.bmp'];
-const MAX_BODY = 12 * 1024 * 1024;
+const MAX_BODY = 28 * 1024 * 1024;
 const MAX_FILE = 8 * 1024 * 1024;
 const KEY_RE = /^[A-Za-z0-9._-]{1,120}$/;
 const CB_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
@@ -786,6 +787,7 @@ if (!websiteReady() && process.env.STUDYBASE_PICK_WEBSITE === '1') {
 }
 
 const server = http.createServer(async (req, res) => {
+  try {
   const url = new URL(req.url || '/', 'http://' + (req.headers.host || '127.0.0.1'));
   const pathname = url.pathname.replace(/\/+$/, '') || '/';
 
@@ -851,7 +853,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(503, { 'Content-Type': 'application/json; charset=utf-8' });
       return res.end(JSON.stringify({ error: 'Standalone API module is missing (api.js)' }));
     }
-    return handleStandaloneApi(req, res, url, { dataDir: DATA_DIR, readBody });
+    return await handleStandaloneApi(req, res, url, { dataDir: DATA_DIR, readBody });
   }
 
   if (req.method === 'GET' && pathname === '/' && url.searchParams.has('key')) {
@@ -890,7 +892,58 @@ const server = http.createServer(async (req, res) => {
   }
 
   send(res, 404, 'text/plain', 'not found');
+  } catch (err) {
+    const status = (err && err.statusCode) || 500;
+    const message = (err && err.message) || 'Unexpected server error';
+    console.error('Request failed:', message);
+    if (!res.headersSent) {
+      cors(res);
+      res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ error: message }));
+    }
+  }
 });
+
+process.on('unhandledRejection', (reason) => {
+  const message = reason && reason.message ? reason.message : String(reason);
+  console.error('Unhandled promise rejection:', message);
+});
+
+function applyProgramAction(result) {
+  if (!result || (result.action !== 'stop' && result.action !== 'restart')) return;
+  const code = result.action === 'restart' ? RESTART_EXIT : 0;
+  setTimeout(() => {
+    try { server.close(() => process.exit(code)); } catch (e) { process.exit(code); }
+    setTimeout(() => process.exit(code), 1500);
+  }, 200);
+}
+
+if (standaloneApi && typeof standaloneApi.setProgramActionHandler === 'function') {
+  standaloneApi.setProgramActionHandler(applyProgramAction);
+}
+
+function attachProgramStdin() {
+  if (!process.stdin || typeof process.stdin.on !== 'function') return;
+  process.stdin.setEncoding('utf8');
+  let buf = '';
+  process.stdin.on('data', chunk => {
+    buf += String(chunk);
+    let nl;
+    while ((nl = buf.search(/\r?\n/)) !== -1) {
+      const line = buf.slice(0, nl).replace(/\r$/, '');
+      buf = buf.slice(nl + (buf[nl] === '\r' ? 2 : 1));
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      if (standaloneApi && typeof standaloneApi.pushProgramLog === 'function') {
+        standaloneApi.pushProgramLog('log', '> ' + trimmed);
+      }
+      const result = runProgramCommand(trimmed);
+      console.log(result.message);
+      applyProgramAction(result);
+    }
+  });
+  try { process.stdin.resume(); } catch (e) {}
+}
 
 server.listen(PORT, '0.0.0.0', () => {
   const origin = 'http://127.0.0.1:' + PORT;
@@ -903,6 +956,8 @@ server.listen(PORT, '0.0.0.0', () => {
   } else {
     console.log('  website: (none — open ' + origin + '/_status to choose a folder)');
   }
+  console.log('  commands: stop (twice to exit), restart  — type in this window');
+  attachProgramStdin();
   if (process.env.STUDYBASE_OPEN_BROWSER === '1') {
     openBrowser(origin + (websiteReady() ? '/' : '/_status'));
   }

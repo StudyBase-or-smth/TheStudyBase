@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="mainstyle.css">
 <script src="sync-config.js"></script>
+<script src="profile-store.js"></script>
 </head>
 <body class="auth-page">
 
@@ -130,20 +131,13 @@
 
     // Everyone else (active student, teacher, dev) goes straight in
     sessionStorage.removeItem('studybase_guest');
+    window.currentUid = user.uid;
+    try { localStorage.setItem('studybase_uid', user.uid); } catch (e) {}
     window.location.href = 'index.html';
   });
 
-  // ── Dark mode ──
-  function applyDark() {
-    const on = localStorage.getItem('studybase_dark') === '1';
-    document.body.classList.toggle('dark', on);
-    document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
-  }
-  applyDark();
   document.getElementById('darkToggle').addEventListener('click', () => {
-    const on = document.body.classList.toggle('dark');
-    localStorage.setItem('studybase_dark', on ? '1' : '0');
-    document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
+    if (typeof toggleDark === 'function') toggleDark();
   });
 
   // ── Tabs ──

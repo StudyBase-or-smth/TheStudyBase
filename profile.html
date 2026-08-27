@@ -148,19 +148,6 @@
 <script src="profile-store.js"></script>
 <script src="notifications.js"></script>
 <script>
-// ── Dark mode ──
-(function(){
-  const on = localStorage.getItem('studybase_dark') === '1';
-  if (on) document.body.classList.add('dark');
-  const btn = document.getElementById('darkToggle');
-  if (btn) btn.textContent = on ? '☀️' : '🌙';
-})();
-function toggleDark(){
-  const on = document.body.classList.toggle('dark');
-  localStorage.setItem('studybase_dark', on ? '1' : '0');
-  document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
-}
-
 function getInitials(name){
   return name.split(' ').map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
 }

@@ -78,13 +78,7 @@ function applySubjectTheme(){
   document.getElementById('stU').style.color = c;
 }
 
-// ── Dark mode ──
-(function(){
-  const on = localStorage.getItem('studybase_dark') === '1';
-  if(on) document.body.classList.add('dark');
-  const btn = document.getElementById('darkToggle');
-  if(btn) btn.textContent = on ? '☀️' : '🌙';
-})();
+// ── Dark mode (Desmos follows body.dark via profile-store.js) ──
 window.onDarkModeChange = function(){
   if(typeof desmosEditorCalc !== 'undefined' && desmosEditorCalc) desmosEditorCalc.updateSettings(desmosThemeOpts());
   if(typeof desmosViewCalc !== 'undefined' && desmosViewCalc) desmosViewCalc.updateSettings(desmosThemeOpts());
@@ -289,7 +283,7 @@ function toggleImgInvert(el){
 // ── Desmos graphing (math layout only) ──
 // The API key lives in ../sync-config.js (DESMOS_API_KEY), loaded before
 // this file. If that constant is empty, loadDesmosScript() falls back to
-// /api/desmosKey (Netlify env). Two independent live
+// /api/desmosKey on the StudyBaseProgram store. Two independent live
 // Desmos.GraphingCalculator instances can exist at once: desmosEditorCalc
 // (the New/Edit topic modal) and desmosViewCalc (the detail panel). Both
 // must be .destroy()ed before their container is removed — Desmos holds a

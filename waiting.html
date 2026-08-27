@@ -8,6 +8,8 @@
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="mainstyle.css">
+<script src="sync-config.js"></script>
+<script src="profile-store.js"></script>
 </head>
 <body class="auth-page">
 
@@ -129,6 +131,10 @@
       return;
     }
     currentUser = user;
+    window.currentUid = user.uid;
+    try { localStorage.setItem('studybase_uid', user.uid); } catch (e) {}
+    if (typeof applyProfileCache === 'function') applyProfileCache(user.uid);
+    if (typeof pullProfile === 'function') pullProfile(user.uid).catch(() => {});
     try {
       // Force-refresh here too — a just-created account's very first cached
       // token can predate the pending claim actually being set server-side.
@@ -168,17 +174,8 @@
     signOut(auth).then(() => window.location.href = 'login.html');
   };
 
-  // ── Dark mode ──
-  function applyDark() {
-    const on = localStorage.getItem('studybase_dark') === '1';
-    document.body.classList.toggle('dark', on);
-    document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
-  }
-  applyDark();
   document.getElementById('darkToggle').addEventListener('click', () => {
-    const on = document.body.classList.toggle('dark');
-    localStorage.setItem('studybase_dark', on ? '1' : '0');
-    document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
+    if (typeof toggleDark === 'function') toggleDark();
   });
 </script>
 </body>

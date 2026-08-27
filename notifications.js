@@ -509,12 +509,18 @@ function sbNotifyParseCommand(line){
   const cmd = (parts && parts[1] ? parts[1] : '').toLowerCase();
   const rest = parts && parts[2] ? parts[2] : '';
   if(cmd === 'notify-remove'){
-    const usage = 'Usage: notify-remove id  or  notify-remove id whomever';
+    const usage = 'Usage: notify-remove id  |  notify-remove *  |  notify-remove id whomever';
     const taken = sbNotifyTakeFirst(rest);
-    const parsedId = sbNotifyParseId(taken.first);
-    if(parsedId.error) return { error: parsedId.error + '. ' + usage };
+    let id = '';
+    if(taken.first === '*'){
+      id = '*';
+    } else {
+      const parsedId = sbNotifyParseId(taken.first);
+      if(parsedId.error) return { error: parsedId.error + '. ' + usage };
+      id = parsedId.id;
+    }
     const who = sbNotifyTakeFirst(taken.rest);
-    return { cmd: 'notify-remove', id: parsedId.id, target: who.first || '' };
+    return { cmd: 'notify-remove', id, target: who.first || '' };
   }
   if(cmd === 'notify-ask'){
     const usage = 'Usage: notify-ask whomever id "text" "1" "2"';
@@ -634,8 +640,12 @@ function sbNotifyStripUser(item, uids){
 }
 
 function sbNotifyRemove(id, targetSpec, users){
-  const parsedId = sbNotifyParseId(id);
-  if(parsedId.error) return Promise.reject(new Error(parsedId.error));
+  const all = id === '*';
+  if(!all){
+    const parsedId = sbNotifyParseId(id);
+    if(parsedId.error) return Promise.reject(new Error(parsedId.error));
+    id = parsedId.id;
+  }
   let removeUids = null;
   if(targetSpec){
     const resolved = sbNotifyResolveTarget(targetSpec, users);
@@ -643,23 +653,41 @@ function sbNotifyRemove(id, targetSpec, users){
     removeUids = resolved.audience;
   }
   return sbNotifyLoad().then(items => {
-    const hit = items.find(n => n.id === parsedId.id);
-    if(!hit) throw new Error('No notification with id ' + parsedId.id);
+    const hits = all
+      ? items.slice()
+      : items.filter(n => n.id === id || n.sourceAskId === id);
+    if(!hits.length) throw new Error(all ? 'No notifications to remove' : 'No notification with id ' + id);
     let next;
     if(!removeUids){
-      next = items.filter(n => n.id !== parsedId.id && n.sourceAskId !== parsedId.id);
-      _sbNotifyShown = _sbNotifyShown.filter(n => n.id !== parsedId.id && n.sourceAskId !== parsedId.id);
-      return sbNotifySave(next).then(() => ({ id: parsedId.id, count: (hit.audience || []).length || 1, partial: false }));
+      if(all){
+        _sbNotifyShown = [];
+        return sbNotifySave([]).then(() => ({ id: '*', count: hits.length, partial: false, all: true }));
+      }
+      next = items.filter(n => n.id !== id && n.sourceAskId !== id);
+      _sbNotifyShown = _sbNotifyShown.filter(n => n.id !== id && n.sourceAskId !== id);
+      const hit = hits[0];
+      return sbNotifySave(next).then(() => ({ id, count: (hit.audience || []).length || 1, partial: false }));
     }
-    const stripped = sbNotifyStripUser(hit, removeUids);
-    if(!stripped.audience.length){
-      next = items.filter(n => n.id !== parsedId.id && n.sourceAskId !== parsedId.id);
-      _sbNotifyShown = _sbNotifyShown.filter(n => n.id !== parsedId.id && n.sourceAskId !== parsedId.id);
-    } else {
-      next = items.map(n => n.id === parsedId.id ? stripped : n);
-      _sbNotifyShown = _sbNotifyShown.map(n => n.id === parsedId.id ? stripped : n);
-    }
-    return sbNotifySave(next).then(() => ({ id: parsedId.id, count: removeUids.length, partial: true }));
+    const stripSet = new Set(hits.map(n => n.id));
+    next = [];
+    items.forEach(n => {
+      if(!stripSet.has(n.id)){
+        next.push(n);
+        return;
+      }
+      const stripped = sbNotifyStripUser(n, removeUids);
+      if(stripped.audience.length) next.push(stripped);
+    });
+    const keepIds = new Set(next.map(n => n.id));
+    _sbNotifyShown = _sbNotifyShown
+      .map(n => next.find(x => x.id === n.id) || n)
+      .filter(n => keepIds.has(n.id));
+    return sbNotifySave(next).then(() => ({
+      id: all ? '*' : id,
+      count: removeUids.length,
+      partial: true,
+      all
+    }));
   }).then(info => {
     sbNotifyUpdateUi();
     return info;
@@ -711,6 +739,8 @@ function sbNotifyRunCommand(line, users){
   }
   if(parsed.cmd === 'notify-remove'){
     return sbNotifyRemove(parsed.id, parsed.target, users).then(info => {
+      if(info.all && info.partial) return 'Removed all notifications for ' + info.count + ' user' + (info.count === 1 ? '' : 's');
+      if(info.all) return 'Removed all notifications (' + info.count + ')';
       if(info.partial) return 'Removed ' + info.id + ' for ' + info.count + ' user' + (info.count === 1 ? '' : 's');
       return 'Removed ' + info.id;
     });
@@ -752,7 +782,7 @@ function sbNotifyConsoleSuggest(line, users){
   if(cmd === 'notify-remove'){
     if(!firstDone){
       const prefix = rest.trim().toLowerCase();
-      const ids = (_sbNotifyItems || []).map(n => n.id).filter(Boolean);
+      const ids = ['*'].concat((_sbNotifyItems || []).map(n => n.id).filter(Boolean));
       const options = ids.filter(id => !prefix || id.toLowerCase().startsWith(prefix));
       return { replaceFrom: sp + 1 + lead, options: options.length ? options : ids, suffix: ' ' };
     }

@@ -390,12 +390,6 @@
 <script src="../sync-config.js"></script>
 <script src="../profile-store.js"></script>
 <script src="../notifications.js"></script>
-<script>
-(function(){
-  const on = localStorage.getItem('studybase_dark') === '1';
-  if(on) document.body.classList.add('dark');
-})();
-</script>
 
 <!-- ── Quiz engine ──
      Picks a random quiz JSON from ./storage (via storage/manifest.json, since a static
@@ -956,14 +950,14 @@ function submitMathAnswer() {
    of a correct answer genuinely varies. q.answer holds the marking guidance
    (what a full-marks response should cover, not a literal string to match),
    q.marks is the total for the sub-part. Reuses the app's existing /api/grade
-   Netlify function (same one analyser.html's marker already calls) so no
-   API key ever reaches the browser — see netlify/functions/grade.js. */
+   endpoint (same one analyser.html's marker already calls) so no
+   API key ever reaches the browser — see standalone/api.js. */
 
 // Same proxy-first-then-direct-fallback pattern as analyser.html's callAI(),
 // trimmed to the one provider this page needs. The direct-call fallback only
 // works if a userKey is supplied (there's no customApiKey box on this page),
 // so in practice it just produces a clear "no proxy" error when /api/grade
-// isn't reachable (e.g. testing without `netlify dev`) rather than a silent
+// isn't reachable (StudyBaseProgram not running) rather than a silent
 // hang or a confusing generic network error.
 async function callGeminiDirect(prompt, userKey) {
   if (!userKey) throw new Error('AI marking needs the live site (no local proxy available here).');
@@ -991,7 +985,7 @@ async function callAI(provider, prompt, userKey) {
       headers,
       body: JSON.stringify({ provider, prompt, userKey })
     });
-    // A missing proxy (e.g. a plain static file server, not `netlify dev`)
+    // A missing proxy (e.g. a plain static file server, not StudyBaseProgram)
     // returns an HTML 404 page, not JSON — detect that and fall back.
     const contentType = res.headers.get('content-type') || '';
     if (res.status === 404 || res.status === 405 || !contentType.includes('application/json')) {

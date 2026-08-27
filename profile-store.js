@@ -1,6 +1,6 @@
 // profile-store.js
 //
-// Per-user profile (photo + enabled subjects/classes + flashcard stats)
+// Per-user profile (photo + enabled subjects/classes + flashcard stats + theme)
 // stored via SYNC_URL under `_profile_<uid>`. The local store maps that
 // key to StudyBaseData/users/<uid>/profile.json. Cached in localStorage
 // for the hub. Loaded after sync-config.js (needs SYNC_URL).
@@ -46,6 +46,7 @@ function normalizeProfile(raw, uid){
     knownSubjectIds: allS.slice(),
     knownClassIds: allC.slice(),
     stats: { flashcards: normalizeFcStats(p.stats && p.stats.flashcards) },
+    theme: normalizeTheme(p.theme) || readLocalTheme(),
     updatedAt: p.updatedAt || ''
   };
 }
@@ -117,6 +118,7 @@ function writeCachedProfile(uid, profile){
 
 function applyProfileCache(uid){
   window.sbProfile = readCachedProfile(uid);
+  if(window.sbProfile && window.sbProfile.theme) applyTheme(window.sbProfile.theme);
   return window.sbProfile;
 }
 
@@ -158,14 +160,18 @@ async function pullProfile(uid){
       );
       const p = writeCachedProfile(uid, remote);
       writeLocalFcStats(uid, p.stats.flashcards);
-      if(p.stats.flashcards.total > normalizeFcStats(res.data.stats && res.data.stats.flashcards).total){
+      const remoteHadTheme = res.data.theme === 'dark' || res.data.theme === 'light';
+      const fcNewer = p.stats.flashcards.total > normalizeFcStats(res.data.stats && res.data.stats.flashcards).total;
+      if(fcNewer || !remoteHadTheme){
         sbSyncPush(profileSyncKey(uid), p);
       }
+      applyTheme(p.theme);
       return p;
     }
   } catch(e) { /* keep cache */ }
   const cached = readCachedProfile(uid);
   writeLocalFcStats(uid, pickNewerFcStats(cached.stats && cached.stats.flashcards, readLocalFcStats(uid)));
+  applyTheme(cached.theme);
   return cached;
 }
 
@@ -336,12 +342,65 @@ function uploadProfilePhoto(file){
   );
 }
 
+function normalizeTheme(raw){
+  return raw === 'dark' || raw === 'light' ? raw : '';
+}
+
+function readLocalTheme(){
+  try {
+    const v = localStorage.getItem('studybase_dark');
+    if(v === '0') return 'light';
+    if(v === '1') return 'dark';
+  } catch(e) {}
+  return 'light';
+}
+
+function writeLocalTheme(theme){
+  try { localStorage.setItem('studybase_dark', theme === 'dark' ? '1' : '0'); } catch(e) {}
+}
+
+function applyTheme(theme){
+  const t = normalizeTheme(theme) || readLocalTheme();
+  const dark = t === 'dark';
+  if(!document.body){
+    document.addEventListener('DOMContentLoaded', function(){ applyTheme(t); });
+    return t;
+  }
+  document.body.classList.toggle('dark', dark);
+  document.body.classList.toggle('light', !dark);
+  writeLocalTheme(t);
+  syncDarkButtons();
+  if(typeof window.onDarkModeChange === 'function') window.onDarkModeChange(dark);
+  return t;
+}
+
+function persistTheme(theme){
+  const t = applyTheme(theme);
+  if(window.isGuest) return t;
+  let uid = window.currentUid || '';
+  if(!uid && typeof sbCurrentUser === 'function'){
+    const user = sbCurrentUser();
+    if(user && user.uid) uid = user.uid;
+  }
+  if(!uid || uid === 'guest') return t;
+  const p = readCachedProfile(uid);
+  if(p.theme === t) return t;
+  p.theme = t;
+  pushProfile(uid, p);
+  return t;
+}
+
+function applyStoredTheme(){
+  applyTheme(readLocalTheme());
+}
+
 function currentDarkIcon(){
   if(typeof window.getHdrDarkIcon === 'function') return window.getHdrDarkIcon();
   return document.body.classList.contains('dark') ? '☀️' : '🌙';
 }
 
 function syncDarkButtons(){
+  if(!document.body) return;
   const icon = currentDarkIcon();
   document.querySelectorAll('.pt-dark').forEach(b => { b.textContent = icon; });
   const legacy = document.getElementById('darkToggle');
@@ -349,12 +408,11 @@ function syncDarkButtons(){
 }
 
 function toggleDark(){
-  const on = document.body.classList.toggle('dark');
-  localStorage.setItem('studybase_dark', on ? '1' : '0');
-  syncDarkButtons();
-  if(typeof window.onDarkModeChange === 'function') window.onDarkModeChange(on);
+  persistTheme(document.body.classList.contains('dark') ? 'light' : 'dark');
 }
 window.toggleDark = toggleDark;
+window.applyTheme = applyTheme;
+window.applyStoredTheme = applyStoredTheme;
 
 function updateHdrProfile(){
   const btn = document.getElementById('hdrProfileBtn');
@@ -392,6 +450,8 @@ function bootHdrProfile(user, role){
   const r = role || (isUser ? (window.userRole || 'student') : 'guest');
   window.sbAccount = { name: displayName, email: isUser ? (user.email || '') : '', role: r };
   if(isUser){
+    window.currentUid = user.uid;
+    localStorage.setItem('studybase_uid', user.uid);
     localStorage.setItem('studybase_display_name', displayName);
     localStorage.setItem('studybase_email', user.email || '');
     applyProfileCache(user.uid);
@@ -402,3 +462,5 @@ function bootHdrProfile(user, role){
     updateHdrProfile();
   }
 }
+
+applyStoredTheme();

@@ -7,8 +7,11 @@
   <link rel="icon" href="icon.png" type="image/png">
   <link rel="apple-touch-icon" href="icon.png">
   <link rel="stylesheet" href="fonts.css">
+  <script src="sync-config.js"></script>
+  <script src="profile-store.js"></script>
   <script src="vendor/pdfjs/pdf.min.js"></script>
   <script src="vendor/mammoth/mammoth.browser.min.js"></script>
+  <script src="vendor/simple-pdf.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     *::-webkit-scrollbar{display:none}
@@ -171,10 +174,14 @@
     .file-drop-wrap{position:relative}
     .file-upload{border:2px dashed var(--border2);border-radius:7px;padding:18px;text-align:center;cursor:pointer;transition:all .2s;color:var(--muted)}
     .file-upload:hover{border-color:var(--amber);color:var(--text)}
-    .file-upload.drag-over{border-color:var(--amber);background:rgba(245,158,11,.05)}
+    .file-upload.drag-over,.section-block.drag-over{
+      border-color:var(--amber);background:rgba(245,158,11,.05)
+    }
+    .section-block.drag-over{outline:2px dashed var(--amber);outline-offset:3px;border-radius:8px}
     .file-upload p{font-size:12px}
     .file-upload p+p{font-size:11px;color:var(--muted2);margin-top:3px}
     .file-preview{margin-top:7px;font-size:11px;color:var(--muted);position:relative;z-index:1;pointer-events:none}
+    .file-upload input[type=file]{display:none;pointer-events:none}
     .file-drop-wrap.has-file .file-upload{
       position:absolute;inset:0;border-color:transparent;background:transparent;padding:0;margin:0;z-index:2;
     }
@@ -594,46 +601,34 @@ loadBranchVersion();
     <div class="access-banner" id="accessBanner"></div>
 
     <!-- Assignment -->
-    <div class="section-block">
+    <div class="section-block" id="asgSection">
       <div class="panel-label">1. Assignment</div>
       <div class="tabs">
         <div class="tab active" id="asgTabText">Paste</div>
-        <div class="tab" id="asgTabDocx">Word doc</div>
-        <div class="tab" id="asgTabPdf">PDF</div>
+        <div class="tab" id="asgTabUpload">Upload</div>
       </div>
       <div id="asgTextMode">
         <textarea id="studentText" placeholder="Paste your full assignment here…"></textarea>
       </div>
-      <div id="asgDocxMode" style="display:none">
+      <div id="asgFileMode" style="display:none">
         <div class="file-drop-wrap">
           <div class="file-upload" id="asgUpload">
-            <p style="font-weight:600">Upload Assignment (.docx)</p>
-            <p>Drag &amp; drop or click to browse</p>
-            <input type="file" id="asgFile" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none">
+            <p style="font-weight:600">Upload assignment</p>
+            <p>PDF or Word (.docx)</p>
+            <input type="file" id="asgFile" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
           </div>
           <div class="file-preview" id="asgPreview"></div>
         </div>
-      </div>
-      <div id="asgPdfMode" style="display:none">
-        <div class="file-drop-wrap">
-          <div class="file-upload" id="asgPdfUpload">
-            <p style="font-weight:600">Upload Assignment PDF</p>
-            <p>Drag &amp; drop or click to browse</p>
-            <input type="file" id="asgPdfFile" accept="application/pdf" style="display:none">
-          </div>
-          <div class="file-preview" id="asgPdfPreview"></div>
-        </div>
-        <div class="scan-warn" id="asgScanWarn">This PDF looks scanned or image-based. Handwritten and scanned PDFs can’t be read — paste the assignment as text or upload a text-based PDF/Word doc.</div>
+        <div class="scan-warn" id="asgScanWarn">This PDF looks scanned or image-based. Gemini can still read the pages as images if they are in the PDF.</div>
       </div>
     </div>
 
     <!-- Marking Criteria -->
-    <div class="section-block">
+    <div class="section-block" id="criteriaSection">
       <div class="panel-label">2. Marking Criteria</div>
       <div class="tabs criteria-tabs">
         <div class="tab active" id="tabText">Paste</div>
-        <div class="tab" id="tabPDF">PDF</div>
-        <div class="tab" id="tabDocx">Word doc</div>
+        <div class="tab" id="tabUpload">Upload</div>
         <div class="pdf-method-wrap" id="pdfMethodWrap">
           <select id="pdfMethodSelect" class="pdf-method-select" aria-label="PDF extraction mode">
             <option value="select">Select pages</option>
@@ -644,28 +639,18 @@ loadBranchVersion();
       <div id="textMode">
         <textarea id="criteriaText" placeholder="Paste the marking criteria / rubric here…"></textarea>
       </div>
-      <div id="pdfMode" style="display:none">
+      <div id="fileMode" style="display:none">
         <div class="file-drop-wrap">
           <div class="file-upload" id="criteriaUpload">
-            <p style="font-weight:600">Upload Marking Criteria PDF</p>
-            <p>Drag &amp; drop or click to browse</p>
-            <input type="file" id="criteriaFile" accept="application/pdf" style="display:none">
+            <p style="font-weight:600">Upload marking criteria</p>
+            <p>PDF or Word (.docx)</p>
+            <input type="file" id="criteriaFile" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
           </div>
           <div class="file-preview" id="criteriaPreview"></div>
         </div>
-        <div class="scan-warn" id="criteriaScanWarn">This PDF looks scanned or image-based. Handwritten and scanned PDFs can’t be read — paste the criteria as text or upload a text-based PDF/Word doc.</div>
+        <div class="scan-warn" id="criteriaScanWarn">This PDF looks scanned or image-based. Gemini can still read the pages as images if they are in the PDF.</div>
         <div class="page-picker" id="pagePicker"></div>
         <div class="page-picker-note" id="pdfGuessNote" style="display:none"></div>
-      </div>
-      <div id="criteriaDocxMode" style="display:none">
-        <div class="file-drop-wrap">
-          <div class="file-upload" id="criteriaDocxUpload">
-            <p style="font-weight:600">Upload Marking Criteria (.docx)</p>
-            <p>Drag &amp; drop or click to browse</p>
-            <input type="file" id="criteriaDocxFile" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none">
-          </div>
-          <div class="file-preview" id="criteriaDocxPreview"></div>
-        </div>
       </div>
     </div>
 
@@ -760,8 +745,8 @@ loadBranchVersion();
     norole: 'Your account doesn\'t have Analyser access. Ask a teacher or dev to check your account\'s role, or <a href="login.html">sign out and sign in</a> with a student, teacher, or dev account.'
   };
 
-  const LOCK_TARGET_IDS = ['studentText','asgFile','asgPdfFile','criteriaText','criteriaFile','criteriaDocxFile','taskSelect','pdfMethodSelect'];
-  const LOCK_ZONE_IDS   = ['studentText','asgUpload','asgPdfUpload','criteriaText','criteriaUpload','criteriaDocxUpload','taskSelect','pdfMethodWrap','pagePicker'];
+  const LOCK_TARGET_IDS = ['studentText','asgFile','criteriaText','criteriaFile','taskSelect','pdfMethodSelect'];
+  const LOCK_ZONE_IDS   = ['studentText','asgUpload','criteriaText','criteriaUpload','taskSelect','pdfMethodWrap','pagePicker'];
   const CHECKING_DELAY_MS = 1500;
   let checkingTimer = null;
   let analyserLocked = true;
@@ -876,19 +861,6 @@ loadBranchVersion();
     }
   })();
 
-  (function(){
-    const dark=localStorage.getItem('studybase_dark')!=='0';
-    if(!dark) document.body.classList.add('light');
-  })();
-  window.getHdrDarkIcon = function(){
-    return document.body.classList.contains('light') ? '🌙' : '☀️';
-  };
-  window.toggleDark = function(){
-    const isLight=document.body.classList.toggle('light');
-    localStorage.setItem('studybase_dark',isLight?'0':'1');
-    document.querySelectorAll('.pt-dark').forEach(b => { b.textContent = isLight ? '🌙' : '☀️'; });
-  };
-
   document.getElementById('todayDate').textContent=
     new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
 
@@ -958,10 +930,11 @@ loadBranchVersion();
   let extractedAssignment='';
   let extractedCriteria='';
   let asgFileName='';
-  let asgPdfFileName='';
-  let criteriaPdfFileName='';
-  let criteriaDocxFileName='';
+  let criteriaFileName='';
+  let assignmentPdfBytes=null;
+  let criteriaPdfBytes=null;
   let pdfPages=[];
+  const MAX_UPLOAD_PDF=8*1024*1024;
   let pdfMethod = localStorage.getItem('studybase_analyser_pdf_method') || 'select';
   if(pdfMethod!=='guess') pdfMethod='select';
   let viewingHistoryIndex=null;
@@ -1022,7 +995,12 @@ loadBranchVersion();
     const total=countTokens(asg)+countTokens(getActiveCriteriaText());
     const pct=Math.min(100,(total/MAX_TOKENS)*100);
     const el=document.getElementById('tokenCount');
-    el.textContent=`~${total.toLocaleString()} / ${MAX_TOKENS.toLocaleString()} est.`;
+    const attached=[];
+    if(assignmentMode==='file' && assignmentPdfBytes) attached.push('assignment PDF');
+    if(criteriaMode==='file' && criteriaPdfBytes) attached.push('criteria PDF');
+    el.textContent=attached.length
+      ? `${attached.join(' + ')} attached · ~${total.toLocaleString()} text tokens`
+      : `~${total.toLocaleString()} / ${MAX_TOKENS.toLocaleString()} est.`;
     el.className='token-count estimated';
     const fill=document.getElementById('tokenBar');
     fill.style.width=pct+'%';
@@ -1032,37 +1010,36 @@ loadBranchVersion();
   document.getElementById('studentText').addEventListener('input',()=>{updateTokens();scheduleDraftSave();});
   document.getElementById('criteriaText').addEventListener('input',()=>{updateTokens();scheduleDraftSave();});
 
+  function normalizeUploadMode(mode){
+    if(mode==='docx'||mode==='pdf'||mode==='file') return 'file';
+    return 'text';
+  }
+
   function switchAsgMode(mode){
-    assignmentMode=mode;
-    document.getElementById('asgTabText').classList.toggle('active',mode==='text');
-    document.getElementById('asgTabDocx').classList.toggle('active',mode==='docx');
-    document.getElementById('asgTabPdf').classList.toggle('active',mode==='pdf');
-    document.getElementById('asgTextMode').style.display=mode==='text'?'block':'none';
-    document.getElementById('asgDocxMode').style.display=mode==='docx'?'block':'none';
-    document.getElementById('asgPdfMode').style.display=mode==='pdf'?'block':'none';
+    assignmentMode=normalizeUploadMode(mode);
+    document.getElementById('asgTabText').classList.toggle('active',assignmentMode==='text');
+    document.getElementById('asgTabUpload').classList.toggle('active',assignmentMode==='file');
+    document.getElementById('asgTextMode').style.display=assignmentMode==='text'?'block':'none';
+    document.getElementById('asgFileMode').style.display=assignmentMode==='file'?'block':'none';
     updateTokens();
     if(!restoringDraft) scheduleDraftSave();
   }
   document.getElementById('asgTabText').addEventListener('click',()=>switchAsgMode('text'));
-  document.getElementById('asgTabDocx').addEventListener('click',()=>switchAsgMode('docx'));
-  document.getElementById('asgTabPdf').addEventListener('click',()=>switchAsgMode('pdf'));
+  document.getElementById('asgTabUpload').addEventListener('click',()=>switchAsgMode('file'));
 
   function switchCriteriaMode(mode){
-    criteriaMode=mode;
-    document.getElementById('tabText').classList.toggle('active',mode==='text');
-    document.getElementById('tabPDF').classList.toggle('active',mode==='pdf');
-    document.getElementById('tabDocx').classList.toggle('active',mode==='docx');
-    document.getElementById('textMode').style.display=mode==='text'?'block':'none';
-    document.getElementById('pdfMode').style.display=mode==='pdf'?'block':'none';
-    document.getElementById('criteriaDocxMode').style.display=mode==='docx'?'block':'none';
-    document.getElementById('pdfMethodWrap').classList.toggle('show', mode==='pdf');
-    if(mode==='pdf') applyPdfMethodUI();
+    criteriaMode=normalizeUploadMode(mode);
+    document.getElementById('tabText').classList.toggle('active',criteriaMode==='text');
+    document.getElementById('tabUpload').classList.toggle('active',criteriaMode==='file');
+    document.getElementById('textMode').style.display=criteriaMode==='text'?'block':'none';
+    document.getElementById('fileMode').style.display=criteriaMode==='file'?'block':'none';
+    document.getElementById('pdfMethodWrap').classList.toggle('show', criteriaMode==='file');
+    if(criteriaMode==='file') applyPdfMethodUI();
     updateTokens();
     if(!restoringDraft) scheduleDraftSave();
   }
   document.getElementById('tabText').addEventListener('click',()=>switchCriteriaMode('text'));
-  document.getElementById('tabPDF').addEventListener('click',()=>switchCriteriaMode('pdf'));
-  document.getElementById('tabDocx').addEventListener('click',()=>switchCriteriaMode('docx'));
+  document.getElementById('tabUpload').addEventListener('click',()=>switchCriteriaMode('file'));
 
   function applyPdfMethodUI(){
     const sel=document.getElementById('pdfMethodSelect');
@@ -1106,11 +1083,55 @@ loadBranchVersion();
   }
   document.getElementById('pdfMethodSelect').addEventListener('change',e=>setPdfMethod(e.target.value, true));
 
+  function hasDragFiles(e){
+    const types=e.dataTransfer && e.dataTransfer.types;
+    if(!types) return false;
+    if(typeof types.contains==='function') return types.contains('Files');
+    return Array.prototype.indexOf.call(types,'Files')!==-1;
+  }
+
   function makeDraggable(zoneId,onFile){
     const zone=document.getElementById(zoneId);
-    zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
-    zone.addEventListener('dragleave',e=>{if(!zone.contains(e.relatedTarget))zone.classList.remove('drag-over');});
-    zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)onFile(f);});
+    if(!zone) return;
+    function highlight(on){ zone.classList.toggle('drag-over', !!on); }
+    zone.addEventListener('dragenter',e=>{
+      if(!hasDragFiles(e)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      highlight(true);
+    });
+    zone.addEventListener('dragover',e=>{
+      if(!hasDragFiles(e)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.dataTransfer) e.dataTransfer.dropEffect='copy';
+      highlight(true);
+    });
+    zone.addEventListener('dragleave',e=>{
+      if(e.relatedTarget && zone.contains(e.relatedTarget)) return;
+      highlight(false);
+    });
+    zone.addEventListener('drop',e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      highlight(false);
+      const f=e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if(f) onFile(f);
+    });
+  }
+
+  function acceptUploadDrop(kind, file){
+    if(analyserLocked){
+      showToast('Sign in with an approved role to upload','warning');
+      return;
+    }
+    if(!isPdfFile(file) && !isDocxFile(file)){
+      showToast('Upload a PDF or Word (.docx) file','error');
+      return;
+    }
+    if(kind==='criteria') switchCriteriaMode('file');
+    else switchAsgMode('file');
+    processUploadFile(file, kind);
   }
 
   function isPdfFile(f){ return f && (f.type==='application/pdf' || /\.pdf$/i.test(f.name)); }
@@ -1125,53 +1146,204 @@ loadBranchVersion();
     wrap.classList.toggle('has-file', !!filled);
   }
 
-  async function processDocxFile(file, kind){
-    const uploadId = kind==='criteria' ? 'criteriaDocxUpload' : 'asgUpload';
-    const previewId = kind==='criteria' ? 'criteriaDocxPreview' : 'asgPreview';
+  function bytesToBase64(u8){
+    const bytes=u8 instanceof Uint8Array ? u8 : new Uint8Array(u8);
+    let s='';
+    const chunk=0x8000;
+    for(let i=0;i<bytes.length;i+=chunk){
+      s += String.fromCharCode.apply(null, bytes.subarray(i, i+chunk));
+    }
+    return btoa(s);
+  }
+
+  async function dataUrlToJpeg(dataUrl){
+    const m=String(dataUrl||'').match(/^data:([^;]+);base64,([\s\S]+)$/);
+    if(!m) throw new Error('Bad image');
+    const mime=m[1].toLowerCase();
+    if(mime==='image/jpeg' || mime==='image/jpg'){
+      const bin=atob(m[2]);
+      const u=new Uint8Array(bin.length);
+      for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+      return u;
+    }
+    return new Promise((resolve,reject)=>{
+      const img=new Image();
+      img.onload=()=>{
+        let w=img.naturalWidth||img.width;
+        let h=img.naturalHeight||img.height;
+        if(!w||!h){ reject(new Error('Empty image')); return; }
+        const max=1600;
+        if(w>max||h>max){
+          const s=Math.min(max/w, max/h);
+          w=Math.round(w*s);
+          h=Math.round(h*s);
+        }
+        const canvas=document.createElement('canvas');
+        canvas.width=w;
+        canvas.height=h;
+        const ctx=canvas.getContext('2d');
+        ctx.fillStyle='#fff';
+        ctx.fillRect(0,0,w,h);
+        ctx.drawImage(img,0,0,w,h);
+        canvas.toBlob(blob=>{
+          if(!blob){ reject(new Error('JPEG convert failed')); return; }
+          blob.arrayBuffer().then(buf=>resolve(new Uint8Array(buf))).catch(reject);
+        },'image/jpeg',0.85);
+      };
+      img.onerror=()=>reject(new Error('Could not load image'));
+      img.src=dataUrl;
+    });
+  }
+
+  async function htmlToPdfBytes(html){
+    if(typeof SimplePdf!=='function') throw new Error('PDF builder missing');
+    const pdf=new SimplePdf();
+    const doc=new DOMParser().parseFromString('<div>'+html+'</div>','text/html');
+    async function addImg(el){
+      const src=el.getAttribute('src')||'';
+      if(!src) return;
+      try{ pdf.addJpeg(await dataUrlToJpeg(src)); }
+      catch(e){ /* skip broken pictures */ }
+    }
+    async function walk(node){
+      if(node.nodeType!==1) return;
+      const tag=node.tagName.toLowerCase();
+      if(tag==='img'){ await addImg(node); return; }
+      if(tag==='table'){
+        for(const img of node.querySelectorAll('img')) await addImg(img);
+        Array.from(node.querySelectorAll('tr')).forEach(tr=>{
+          const t=(tr.textContent||'').replace(/\s+/g,' ').trim();
+          if(t) pdf.addText(t, 10);
+        });
+        return;
+      }
+      const sizes={h1:16,h2:14,h3:13,h4:12};
+      if(sizes[tag] || tag==='p' || tag==='li' || tag==='blockquote' || tag==='pre'){
+        const clone=node.cloneNode(true);
+        clone.querySelectorAll('img').forEach(img=>img.remove());
+        pdf.addText(clone.textContent||'', sizes[tag]||11);
+        for(const img of node.querySelectorAll('img')) await addImg(img);
+        return;
+      }
+      for(const child of Array.from(node.childNodes)) await walk(child);
+    }
+    const root=doc.body||doc.documentElement;
+    for(const child of Array.from(root.childNodes)) await walk(child);
+    return { bytes: pdf.build(), imageCount: pdf.imageCount||0 };
+  }
+
+  async function docxToPdf(file){
+    const buf=await file.arrayBuffer();
+    let rawText='';
+    try{
+      const raw=await mammoth.extractRawText({arrayBuffer:buf.slice(0)});
+      rawText=(raw.value||'').trim();
+    }catch(e){ rawText=''; }
+    const convertImage=(mammoth.images && mammoth.images.imgElement)
+      ? mammoth.images.imgElement(image=>image.read('base64').then(b64=>({src:'data:'+image.contentType+';base64,'+b64})))
+      : undefined;
+    const htmlResult=await mammoth.convertToHtml({arrayBuffer:buf}, convertImage?{convertImage}:undefined);
+    const html=htmlResult.value||'';
+    const fallback=rawText
+      ? '<p>'+esc(rawText).replace(/\n+/g,'</p><p>')+'</p>'
+      : '<p>(empty document)</p>';
+    const built=await htmlToPdfBytes(html || fallback);
+    return { text: rawText, pdfBytes: built.bytes, imageCount: built.imageCount };
+  }
+
+  function setUploadPreview(kind, fileName, bits, scanned){
+    const p=document.getElementById(kind==='criteria'?'criteriaPreview':'asgPreview');
+    const extra=bits.filter(Boolean).join(', ');
+    p.innerHTML=`${scanned?'⚠':'✅'} <strong>${esc(fileName)}</strong>${extra?' — '+extra:''}`;
+  }
+
+  async function processUploadFile(file, kind){
+    const uploadId=kind==='criteria'?'criteriaUpload':'asgUpload';
+    const previewId=kind==='criteria'?'criteriaPreview':'asgPreview';
+    const warnId=kind==='criteria'?'criteriaScanWarn':'asgScanWarn';
     const p=document.getElementById(previewId);
     p.textContent=`Processing: ${file.name}…`;
     setZoneFilled(uploadId, true);
+    showScanWarn(warnId, false);
     try{
-      const buf=await file.arrayBuffer();
-      const result=await mammoth.extractRawText({arrayBuffer:buf});
-      const text=result.value.trim();
-      if(!text) throw new Error('No text found');
-      if(kind==='criteria'){
-        extractedCriteria=text;
-        criteriaContent=text;
-        criteriaDocxFileName=file.name;
+      let pdfBytes=null;
+      let text='';
+      let imageCount=0;
+      let fromWord=false;
+      let pages=[];
+      if(isDocxFile(file)){
+        fromWord=true;
+        const converted=await docxToPdf(file);
+        pdfBytes=converted.pdfBytes;
+        text=converted.text;
+        imageCount=converted.imageCount;
+        if(!pdfBytes || !pdfBytes.length) throw new Error('Could not rebuild this Word file as a PDF');
+        if(pdfBytes.length>MAX_UPLOAD_PDF) throw new Error('Converted PDF is too large (max 8 MB)');
+        pages=await extractPdfPagesFromBytes(pdfBytes);
+      } else if(isPdfFile(file)){
+        if(file.size>MAX_UPLOAD_PDF) throw new Error('PDF is too large (max 8 MB)');
+        const buf=await file.arrayBuffer();
+        pdfBytes=new Uint8Array(buf);
+        pages=await extractPdfPagesFromBytes(pdfBytes);
+        text=pages.map(pg=>`\n--- Page ${pg.num} ---\n${pg.text}\n`).join('').trim();
+      } else if(/\.doc$/i.test(file.name||'')){
+        throw new Error('Old .doc files are not supported — save as .docx');
       } else {
-        extractedAssignment=text;
-        asgFileName=file.name;
+        throw new Error('Upload a PDF or Word (.docx) file');
       }
-      p.innerHTML=`✅ <strong>${esc(file.name)}</strong> — ${countWords(text).toLocaleString()} words`;
-      showToast('Word doc loaded','success');
+
+      const scanned=!fromWord && isLikelyScanned(pages);
+      showScanWarn(warnId, scanned);
+
+      if(kind==='criteria'){
+        criteriaPdfBytes=pdfBytes;
+        criteriaFileName=file.name;
+        pdfPages=pages;
+        applyDefaultPageSelection();
+        rebuildCriteriaFromPages();
+        if(!extractedCriteria && text) extractedCriteria=text;
+        criteriaContent=extractedCriteria;
+        renderPagePicker();
+      } else {
+        assignmentPdfBytes=pdfBytes;
+        asgFileName=file.name;
+        extractedAssignment=text;
+      }
+
+      const bits=[];
+      if(fromWord) bits.push('converted to PDF');
+      if(imageCount) bits.push(imageCount+' image'+(imageCount===1?'':'s'));
+      if(kind==='criteria'){
+        const kept=pdfPages.filter(x=>x.selected).length;
+        bits.push(pdfPages.length+' page'+(pdfPages.length===1?'':'s'));
+        if(pdfPages.length) bits.push(kept+' selected');
+      } else if(countWords(text)){
+        bits.push(countWords(text).toLocaleString()+' words');
+      }
+      if(scanned) bits.push('little text extracted — Gemini will read the pages as images');
+      setUploadPreview(kind, file.name, bits, scanned);
+      showToast(kind==='criteria'?'Criteria loaded':'Assignment loaded', scanned?'warning':'success', scanned?4000:2000);
       updateTokens();
       scheduleDraftSave();
     }catch(err){
       p.innerHTML=`<span style="color:#f87171">Error: ${esc(err.message)}</span>`;
-      showToast('Failed to read Word doc','error');
+      showToast(err.message||'Upload failed','error');
       setZoneFilled(uploadId, false);
-      if(kind==='criteria'){ extractedCriteria=''; criteriaContent=''; criteriaDocxFileName=''; }
-      else { extractedAssignment=''; asgFileName=''; }
+      if(kind==='criteria'){
+        extractedCriteria=''; criteriaContent=''; criteriaFileName=''; criteriaPdfBytes=null; pdfPages=[];
+        renderPagePicker();
+      } else {
+        extractedAssignment=''; asgFileName=''; assignmentPdfBytes=null;
+      }
       updateTokens();
       scheduleDraftSave();
     }
   }
 
   document.getElementById('asgUpload').addEventListener('click',()=>document.getElementById('asgFile').click());
-  document.getElementById('asgFile').addEventListener('change',e=>{if(e.target.files[0])processDocxFile(e.target.files[0],'assignment');});
-  makeDraggable('asgUpload',f=>{
-    if(!isDocxFile(f)){showToast('Please upload a .docx file','error');return;}
-    processDocxFile(f,'assignment');
-  });
-
-  document.getElementById('criteriaDocxUpload').addEventListener('click',()=>document.getElementById('criteriaDocxFile').click());
-  document.getElementById('criteriaDocxFile').addEventListener('change',e=>{if(e.target.files[0])processDocxFile(e.target.files[0],'criteria');});
-  makeDraggable('criteriaDocxUpload',f=>{
-    if(!isDocxFile(f)){showToast('Please upload a .docx file','error');return;}
-    processDocxFile(f,'criteria');
-  });
+  document.getElementById('asgFile').addEventListener('change',e=>{if(e.target.files[0])processUploadFile(e.target.files[0],'assignment');});
+  makeDraggable('asgUpload',f=>acceptUploadDrop('assignment',f));
+  makeDraggable('asgSection',f=>acceptUploadDrop('assignment',f));
 
   function pageHasText(text){ return (text||'').trim().length >= 20; }
 
@@ -1187,9 +1359,9 @@ loadBranchVersion();
     document.getElementById(id).classList.toggle('show', !!show);
   }
 
-  async function extractPdfPages(file){
-    const buf=await file.arrayBuffer();
-    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+  async function extractPdfPagesFromBytes(bytes){
+    const data=bytes instanceof Uint8Array ? bytes.slice() : new Uint8Array(bytes);
+    const pdf=await pdfjsLib.getDocument({data}).promise;
     const pages=[];
     for(let i=1;i<=pdf.numPages;i++){
       const page=await pdf.getPage(i);
@@ -1198,6 +1370,10 @@ loadBranchVersion();
       pages.push({ num:i, text, hasText: pageHasText(text), selected:false });
     }
     return pages;
+  }
+
+  async function extractPdfPages(file){
+    return extractPdfPagesFromBytes(new Uint8Array(await file.arrayBuffer()));
   }
 
   function pageMatchesGuess(text){
@@ -1251,83 +1427,10 @@ loadBranchVersion();
     applyPdfMethodUI();
   }
 
-  async function processCriteriaPDF(file){
-    const p=document.getElementById('criteriaPreview');
-    p.textContent=`Processing: ${file.name}…`;
-    setZoneFilled('criteriaUpload', true);
-    showScanWarn('criteriaScanWarn', false);
-    try{
-      pdfPages=await extractPdfPages(file);
-      criteriaPdfFileName=file.name;
-      applyDefaultPageSelection();
-      rebuildCriteriaFromPages();
-      renderPagePicker();
-      const scanned=isLikelyScanned(pdfPages);
-      showScanWarn('criteriaScanWarn', scanned);
-      if(scanned){
-        p.innerHTML=`⚠ <strong>${esc(file.name)}</strong> — little text extracted`;
-        showToast('This PDF looks scanned and may not be readable','warning',4000);
-      } else {
-        const kept=pdfPages.filter(x=>x.selected).length;
-        p.innerHTML=`✅ Extracted from <strong>${esc(file.name)}</strong> — ${pdfPages.length} page${pdfPages.length===1?'':'s'}, ${kept} selected`;
-        showToast('PDF extracted','success');
-      }
-      updateTokens();
-      scheduleDraftSave();
-    }catch(err){
-      p.innerHTML=`<span style="color:#f87171">Error: ${esc(err.message)}</span>`;
-      showToast('PDF extraction failed','error');
-      setZoneFilled('criteriaUpload', false);
-      pdfPages=[];
-      extractedCriteria='';
-      criteriaContent='';
-      renderPagePicker();
-    }
-  }
-
-  async function processAssignmentPDF(file){
-    const p=document.getElementById('asgPdfPreview');
-    p.textContent=`Processing: ${file.name}…`;
-    setZoneFilled('asgPdfUpload', true);
-    showScanWarn('asgScanWarn', false);
-    try{
-      const pages=await extractPdfPages(file);
-      asgPdfFileName=file.name;
-      extractedAssignment=pages.map(pg=>`\n--- Page ${pg.num} ---\n${pg.text}\n`).join('').trim();
-      const scanned=!extractedAssignment || isLikelyScanned(pages);
-      showScanWarn('asgScanWarn', scanned);
-      if(scanned){
-        p.innerHTML=`⚠ <strong>${esc(file.name)}</strong> — little or no text extracted`;
-        showToast('This PDF looks scanned and may not be readable','warning',4000);
-      } else {
-        p.innerHTML=`✅ <strong>${esc(file.name)}</strong> — ${countWords(extractedAssignment).toLocaleString()} words`;
-        showToast('PDF extracted','success');
-      }
-      updateTokens();
-      scheduleDraftSave();
-    }catch(err){
-      p.innerHTML=`<span style="color:#f87171">Error: ${esc(err.message)}</span>`;
-      showToast('PDF extraction failed','error');
-      setZoneFilled('asgPdfUpload', false);
-      extractedAssignment='';
-      asgPdfFileName='';
-      updateTokens();
-    }
-  }
-
   document.getElementById('criteriaUpload').addEventListener('click',()=>document.getElementById('criteriaFile').click());
-  document.getElementById('criteriaFile').addEventListener('change',e=>{if(e.target.files[0])processCriteriaPDF(e.target.files[0]);});
-  makeDraggable('criteriaUpload',f=>{
-    if(!isPdfFile(f)){showToast('Please upload a PDF','error');return;}
-    processCriteriaPDF(f);
-  });
-
-  document.getElementById('asgPdfUpload').addEventListener('click',()=>document.getElementById('asgPdfFile').click());
-  document.getElementById('asgPdfFile').addEventListener('change',e=>{if(e.target.files[0])processAssignmentPDF(e.target.files[0]);});
-  makeDraggable('asgPdfUpload',f=>{
-    if(!isPdfFile(f)){showToast('Please upload a PDF','error');return;}
-    processAssignmentPDF(f);
-  });
+  document.getElementById('criteriaFile').addEventListener('change',e=>{if(e.target.files[0])processUploadFile(e.target.files[0],'criteria');});
+  makeDraggable('criteriaUpload',f=>acceptUploadDrop('criteria',f));
+  makeDraggable('criteriaSection',f=>acceptUploadDrop('criteria',f));
 
   function fingerprint(text){
     const s=String(text||'').replace(/\s+/g,' ').trim().toLowerCase();
@@ -1516,9 +1619,9 @@ loadBranchVersion();
     return {
       taskName: getTaskName(),
       assignmentMode, studentText: document.getElementById('studentText').value,
-      extractedAssignment, asgFileName, asgPdfFileName,
+      extractedAssignment, asgFileName,
       criteriaMode, criteriaText: document.getElementById('criteriaText').value,
-      extractedCriteria, criteriaPdfFileName, criteriaDocxFileName,
+      extractedCriteria, criteriaFileName,
       pdfMethod, pdfPages: pdfPages.map(p=>({num:p.num,text:p.text,hasText:p.hasText,selected:p.selected}))
     };
   }
@@ -1531,32 +1634,27 @@ loadBranchVersion();
     extractedAssignment=d.extractedAssignment||'';
     extractedCriteria=d.extractedCriteria||'';
     criteriaContent=extractedCriteria;
-    asgFileName=d.asgFileName||'';
-    asgPdfFileName=d.asgPdfFileName||'';
-    criteriaPdfFileName=d.criteriaPdfFileName||'';
-    criteriaDocxFileName=d.criteriaDocxFileName||'';
+    asgFileName=d.asgFileName||d.asgPdfFileName||'';
+    criteriaFileName=d.criteriaFileName||d.criteriaPdfFileName||d.criteriaDocxFileName||'';
+    assignmentPdfBytes=null;
+    criteriaPdfBytes=null;
     pdfMethod = d.pdfMethod==='guess' ? 'guess' : 'select';
     localStorage.setItem('studybase_analyser_pdf_method', pdfMethod);
     pdfPages=Array.isArray(d.pdfPages)?d.pdfPages.map(p=>({
       num:p.num, text:p.text||'', hasText:!!p.hasText, selected:!!p.selected
     })):[];
-    switchAsgMode(d.assignmentMode||'text');
-    switchCriteriaMode(d.criteriaMode||'text');
-    if(asgFileName) setPreview('asgPreview', `✅ <strong>${esc(asgFileName)}</strong> — ${countWords(extractedAssignment).toLocaleString()} words`);
-    if(asgPdfFileName){
-      setPreview('asgPdfPreview', `✅ <strong>${esc(asgPdfFileName)}</strong> — ${countWords(extractedAssignment).toLocaleString()} words`);
-      showScanWarn('asgScanWarn', !extractedAssignment);
+    switchAsgMode(normalizeUploadMode(d.assignmentMode||'text'));
+    switchCriteriaMode(normalizeUploadMode(d.criteriaMode||'text'));
+    if(asgFileName){
+      setPreview('asgPreview', `✅ <strong>${esc(asgFileName)}</strong> — re-upload to send diagrams to Gemini`);
     }
-    if(criteriaPdfFileName){
-      setPreview('criteriaPreview', `✅ Extracted from <strong>${esc(criteriaPdfFileName)}</strong>`);
+    if(criteriaFileName){
+      setPreview('criteriaPreview', `✅ <strong>${esc(criteriaFileName)}</strong> — re-upload to send diagrams to Gemini`);
       renderPagePicker();
       showScanWarn('criteriaScanWarn', isLikelyScanned(pdfPages));
     }
-    if(criteriaDocxFileName) setPreview('criteriaDocxPreview', `✅ <strong>${esc(criteriaDocxFileName)}</strong> — ${countWords(extractedCriteria).toLocaleString()} words`);
     setZoneFilled('asgUpload', !!asgFileName);
-    setZoneFilled('asgPdfUpload', !!asgPdfFileName);
-    setZoneFilled('criteriaUpload', !!criteriaPdfFileName);
-    setZoneFilled('criteriaDocxUpload', !!criteriaDocxFileName);
+    setZoneFilled('criteriaUpload', !!criteriaFileName);
     applyPdfMethodUI();
     restoringDraft=false;
     updateTokens();
@@ -1930,11 +2028,13 @@ loadBranchVersion();
     URL.revokeObjectURL(a.href);
   };
 
-  async function callGeminiDirect(prompt, userKey, signal){
+  async function callGeminiDirect(prompt, userKey, signal, documents){
     if(!userKey) throw new Error('No proxy available (dev/GitHub Pages mode) — paste your own Gemini API key to test directly.');
+    const parts=(documents||[]).map(d=>({inline_data:{mime_type:d.mime||'application/pdf', data:d.data}}));
+    parts.push({text:prompt});
     const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${userKey}`,{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({contents:[{parts:[{text:prompt}]}]}),
+      body:JSON.stringify({contents:[{parts}]}),
       signal
     });
     const data=await res.json();
@@ -1942,17 +2042,24 @@ loadBranchVersion();
     return { text: data.candidates?.[0]?.content?.parts?.[0]?.text || '', usage: null };
   }
 
-  async function callClaudeDirect(prompt, userKey, signal){
+  async function callClaudeDirect(prompt, userKey, signal, documents){
     if(!userKey) throw new Error('No proxy available (dev/GitHub Pages mode) — paste your own Claude API key to test directly.');
+    const content=[];
+    (documents||[]).forEach(d=>{
+      content.push({type:'document', source:{type:'base64', media_type:d.mime||'application/pdf', data:d.data}});
+    });
+    content.push({type:'text', text:prompt});
+    const headers={
+      'Content-Type':'application/json',
+      'x-api-key':userKey,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    };
+    if(documents && documents.length) headers['anthropic-beta']='pdfs-2024-09-25';
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':userKey,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4096,messages:[{role:'user',content:prompt}]}),
+      headers,
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4096,messages:[{role:'user',content: documents && documents.length ? content : prompt}]}),
       signal
     });
     const data=await res.json();
@@ -1963,17 +2070,19 @@ loadBranchVersion();
     };
   }
 
-  async function callAI(provider, prompt, userKey, signal){
+  async function callAI(provider, prompt, userKey, signal, documents){
     try{
       const headers = {'Content-Type':'application/json'};
       const currentUser = window.__sbAuth && window.__sbAuth.currentUser;
       if(currentUser){
         headers['Authorization'] = 'Bearer ' + await currentUser.getIdToken();
       }
+      const payload={provider,prompt,userKey};
+      if(documents && documents.length) payload.documents=documents;
       const res=await fetch((typeof sbApiUrl==='function'?sbApiUrl('/api/grade'):'/api/grade'),{
         method:'POST',
         headers,
-        body:JSON.stringify({provider,prompt,userKey}),
+        body:JSON.stringify(payload),
         signal
       });
       const contentType=res.headers.get('content-type')||'';
@@ -1989,11 +2098,27 @@ loadBranchVersion();
         if(err.name!=='TypeError') throw err;
       }
       showToast('Proxy unavailable — calling API directly from browser (dev mode)','warning',2500);
-      return provider==='claude' ? callClaudeDirect(prompt,userKey,signal) : callGeminiDirect(prompt,userKey,signal);
+      return provider==='claude'
+        ? callClaudeDirect(prompt,userKey,signal,documents)
+        : callGeminiDirect(prompt,userKey,signal,documents);
     }
   }
 
-  function buildGradePrompt(studentText, criteria){
+  function buildGradePrompt(studentText, criteria, opts){
+    opts=opts||{};
+    const asgBlock=opts.assignmentPdf
+      ? `STUDENT ASSIGNMENT:
+Attached as a PDF named "${opts.assignmentName||'assignment.pdf'}". Read every page, including figures, diagrams, tables, graphs, photos, and scanned or handwritten content. Treat images as part of the work.`
+      : `STUDENT ASSIGNMENT:
+${studentText}`;
+    const pageHint=(opts.criteriaPages && opts.criteriaPages.length)
+      ? ` Focus on these page numbers: ${opts.criteriaPages.join(', ')}.`
+      : '';
+    const critBlock=opts.criteriaPdf
+      ? `MARKING CRITERIA:
+Attached as a PDF named "${opts.criteriaName||'criteria.pdf'}".${pageHint} Read figures and diagrams in the rubric too.`
+      : `MARKING CRITERIA:
+${criteria}`;
     return `You are marking a student assignment strictly against the provided marking criteria.
 
 Respond with JSON only. No markdown fences, no commentary outside JSON.
@@ -2022,11 +2147,9 @@ Rules:
 - "score" is an integer 0–100.
 - "grade" is A–E (with optional +/−) if the rubric uses bands; otherwise "".
 
-STUDENT ASSIGNMENT:
-${studentText}
+${asgBlock}
 
-MARKING CRITERIA:
-${criteria}
+${critBlock}
 `;
   }
 
@@ -2043,12 +2166,40 @@ ${criteria}
     }
     if(analysing) return;
     const studentText=getActiveAssignmentText().trim();
-    if(criteriaMode==='text') criteriaContent=document.getElementById('criteriaText').value.trim();
-    else if(criteriaMode==='pdf') rebuildCriteriaFromPages();
-    else criteriaContent=(extractedCriteria||'').trim();
+    if(criteriaMode==='file') rebuildCriteriaFromPages();
+    else criteriaContent=document.getElementById('criteriaText').value.trim();
 
-    if(!studentText){showToast('Please provide your assignment first','warning');return;}
-    if(!criteriaContent){showToast('Please provide marking criteria','warning');return;}
+    const asgPdf=assignmentMode==='file' && assignmentPdfBytes;
+    const critPdf=criteriaMode==='file' && criteriaPdfBytes;
+    if(assignmentMode==='file' && !assignmentPdfBytes && !studentText){
+      showToast('Re-upload the assignment PDF or Word file','warning');
+      return;
+    }
+    if(criteriaMode==='file' && !criteriaPdfBytes && !(criteriaContent||'').trim()){
+      showToast('Re-upload the criteria PDF or Word file','warning');
+      return;
+    }
+    if(asgPdf && assignmentPdfBytes.length>MAX_UPLOAD_PDF){
+      showToast('Assignment PDF is too large (max 8 MB)','error');
+      return;
+    }
+    if(critPdf && criteriaPdfBytes.length>MAX_UPLOAD_PDF){
+      showToast('Criteria PDF is too large (max 8 MB)','error');
+      return;
+    }
+    if(!asgPdf && !studentText){showToast('Please provide your assignment first','warning');return;}
+    if(!critPdf && !(criteriaContent||'').trim()){showToast('Please provide marking criteria','warning');return;}
+    if(assignmentMode==='file' && !assignmentPdfBytes && studentText){
+      showToast('Draft restored as text only — re-upload to include diagrams','warning',3500);
+    }
+    if(criteriaMode==='file' && !criteriaPdfBytes && (criteriaContent||'').trim()){
+      showToast('Criteria draft is text only — re-upload to include diagrams','warning',3500);
+    }
+
+    const documents=[];
+    if(asgPdf) documents.push({name: asgFileName||'assignment.pdf', mime:'application/pdf', data: bytesToBase64(assignmentPdfBytes)});
+    if(critPdf) documents.push({name: criteriaFileName||'criteria.pdf', mime:'application/pdf', data: bytesToBase64(criteriaPdfBytes)});
+    const selectedPages=critPdf ? pdfPages.filter(p=>p.selected).map(p=>p.num) : [];
 
     viewingHistoryIndex=null;
     compareMode=false;
@@ -2063,13 +2214,19 @@ ${criteria}
     area.innerHTML=`<div class="loading-card"><div class="loading-star">✦</div><div style="font-family:var(--font-serif);font-size:14px;font-weight:600;margin-top:10px">Analyzing with AI…</div><div style="font-size:11px;margin-top:5px;color:var(--muted)">This may take a few seconds</div></div>`;
     showToast('Sending to AI…','info',2000);
 
-    const prompt=buildGradePrompt(studentText, criteriaContent);
+    const prompt=buildGradePrompt(studentText, criteriaContent, {
+      assignmentPdf: !!asgPdf,
+      assignmentName: asgFileName,
+      criteriaPdf: !!critPdf,
+      criteriaName: criteriaFileName,
+      criteriaPages: selectedPages
+    });
     const userKey=document.getElementById('customApiKey').value.trim();
 
     try{
       let responseText = '';
       let responseUsage = null;
-      const aiResult = await callAI(aiProvider, prompt, userKey, abortController.signal);
+      const aiResult = await callAI(aiProvider, prompt, userKey, abortController.signal, documents);
       if(typeof aiResult === 'object' && aiResult !== null && 'text' in aiResult){
         responseText = aiResult.text;
         responseUsage = aiResult.usage;
@@ -2287,16 +2444,13 @@ ${criteria}
     document.getElementById('studentText').value='';
     document.getElementById('criteriaText').value='';
     extractedAssignment=''; extractedCriteria=''; criteriaContent='';
-    asgFileName=''; asgPdfFileName=''; criteriaPdfFileName=''; criteriaDocxFileName='';
+    asgFileName=''; criteriaFileName='';
+    assignmentPdfBytes=null; criteriaPdfBytes=null;
     pdfPages=[];
     setPreview('asgPreview','');
-    setPreview('asgPdfPreview','');
     setPreview('criteriaPreview','');
-    setPreview('criteriaDocxPreview','');
     setZoneFilled('asgUpload', false);
-    setZoneFilled('asgPdfUpload', false);
     setZoneFilled('criteriaUpload', false);
-    setZoneFilled('criteriaDocxUpload', false);
     showScanWarn('asgScanWarn', false);
     showScanWarn('criteriaScanWarn', false);
     switchAsgMode('text');
@@ -2578,18 +2732,8 @@ ${criteria}
     }
   }
 </script>
-<script src="sync-config.js"></script>
-<script src="profile-store.js"></script>
 <script src="notifications.js"></script>
 <script>
-  window.getHdrDarkIcon = function(){
-    return document.body.classList.contains('light') ? '🌙' : '☀️';
-  };
-  window.toggleDark = function(){
-    const isLight=document.body.classList.toggle('light');
-    localStorage.setItem('studybase_dark',isLight?'0':'1');
-    document.querySelectorAll('.pt-dark').forEach(b => { b.textContent = isLight ? '🌙' : '☀️'; });
-  };
   if(typeof updateHdrProfile === 'function') updateHdrProfile();
   migrateHistoryIfNeeded();
   restoreDraft();
