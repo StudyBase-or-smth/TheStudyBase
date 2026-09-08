@@ -293,6 +293,7 @@ function renderSidebar() {
       <div class="tools-list">
         <a href="analyser.html" class="tool-btn">📍 Analyser Tool</a>
         <a href="HSC/HSC.html" class="tool-btn">🎓 HSC Quiz Tool</a>
+        <a href="KnowledgeCompetition/KnowledgeCompetition.html" class="tool-btn">🏆 Knowledge Competition</a>
       </div>`;
   }
 }
