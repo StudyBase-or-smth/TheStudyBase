@@ -147,7 +147,6 @@ function init() {
   renderCalendar();
   calSync();
   syncAllSubjectsAndUnits();
-  startSyncCountdown();
 
   document.getElementById('todayDate').textContent =
     TODAY.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -278,7 +277,7 @@ function renderSidebar() {
       </a>`).join('');
 
   // Units overview — each entry links into that subject's Units search panel,
-  // pre-filled with this unit (see applyUnitLinkFromUrl() in subjectapp.js).
+  // pre-filled with this unit (see applyUnitLinkFromUrl() in topicapp.js).
   let unitsHtml = '';
   subjects.forEach(s => {
     const units = getUnits(s), topics = getTopics(s);
@@ -474,7 +473,6 @@ document.addEventListener('keydown', e => {
 
 // ── Sync ──
 // SYNC_URL is now defined once in sync-config.js (loaded via <script> before this file).
-let _nextSync = Date.now() + 60000;
 
 function syncPushEvents(events) {
   try {
@@ -503,7 +501,6 @@ async function calSync() {
       renderCalendar();
     }
   } catch (e) { console.warn('Sync pull failed', e); }
-  _nextSync = Date.now() + 60000;
 }
 setInterval(calSync, 60000);
 
@@ -573,17 +570,6 @@ async function syncAllSubjectsAndUnits() {
   } catch (e) { console.warn('Subject/unit sync failed', e); }
 }
 setInterval(syncAllSubjectsAndUnits, 60000);
-
-function startSyncCountdown() {
-  const el = document.getElementById('syncCountdown');
-  if (!el) return;
-  setInterval(() => {
-    const secs = Math.max(0, Math.round((_nextSync - Date.now()) / 1000));
-    el.textContent = secs > 0 ? secs + 's' : '';
-  }, 1000);
-}
-
-window.manualSync = function () { calSync(); renderSidebar(); showToast('Syncing…', 'info', 1500); };
 
 // ── Boot ──
 document.addEventListener('DOMContentLoaded', init);

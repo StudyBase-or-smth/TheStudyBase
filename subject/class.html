@@ -341,7 +341,7 @@
      the Desmos Graph / Main Text / PDF/Image Document sections. The actual
      content node is moved into #enlargeSlot on open and moved back to its
      original spot on close — see expandEnlarge()/closeEnlarge() in
-     classapp.js. -->
+     topicapp.js. -->
 <div class="enlarge-overlay" id="enlargeOverlay" onclick="if(event.target===this) closeEnlarge()">
   <div class="enlarge-box">
     <div class="enlarge-actions">
@@ -389,7 +389,8 @@
 <script src="../suggestions.js"></script>
 <script src="../profile-store.js"></script>
 <script src="../notifications.js"></script>
-<script src="classapp.js"></script>
+<script>window.TOPIC_APP_MODE = 'class';</script>
+<script src="topicapp.js"></script>
 
 <!-- Guest overlays -->
 <div id="guest-border"></div>

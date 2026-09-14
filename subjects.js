@@ -17,7 +17,7 @@ const subjectsData = {
 // A class's own content (topics/units) is always stored separately, under
 // the class's own storageKey/unitsKey — subjectId only tells the matching
 // Subject page to also pull in and display that class's content alongside
-// its own (see subject/subjectapp.js: LINKED_CLASSES / renderClassSections).
+// its own (see subject/topicapp.js: LINKED_CLASSES / renderClassSections).
 const classesData = {
   subjects: [
     { id: "2026-12A-mth",  subjectId: "mth",  name: "Maths", teacher: "H.Aldous", class: "A", emoji: "📐", colour: "rgb(89, 152, 215)", storageKey: "2026-12A-mth_topics",  unitsKey: "2026-12A-mth_units"  },

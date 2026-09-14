@@ -113,7 +113,6 @@
         <div id="branch-badge" style="font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;">Loading…</div>
         <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
           <span class="hdr-date-pill">Today — <strong id="todayDate"></strong></span>
-          <button class="hdr-ghost hdr-sync" onclick="manualSync()" data-tip="Sync now" aria-label="Sync now">⟳<span id="syncCountdown"></span></button>
           <button class="hdr-ghost" onclick="openSuggestions()" data-tip="Suggestions" aria-label="Suggestions">📝</button>
           <div class="hdr-notify-wrap" id="hdrNotifyWrap">
             <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications">
@@ -299,6 +298,7 @@
   <!-- subjects.js, sync-config.js and BranchVersion.js must load before mainapp.js -->
   <script src="subjects.js"></script>
   <script src="sync-config.js"></script>
+  <script src="suggestions.js"></script>
   <script src="profile-store.js"></script>
   <script src="notifications.js"></script>
   <script src="BranchVersion.js"></script>

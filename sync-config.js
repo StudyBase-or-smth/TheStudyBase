@@ -1,6 +1,6 @@
 // sync-config.js
 //
-// Shared client config loaded before mainapp.js / subjectapp.js / classapp.js.
+// Shared client config loaded before mainapp.js / topicapp.js.
 //
 // SYNC_URL — Google Apps Script sync endpoint. registerRole.js runs
 // server-side and keeps its own copy.
