@@ -1,0 +1,21 @@
+{
+	"dbConnectionString": "postgres://localhost:55204/postgres",
+	"geolocation": {
+		"data": {
+			"city": "Sydney",
+			"country": {
+				"code": "AU",
+				"name": "Australia"
+			},
+			"subdivision": {
+				"code": "NSW",
+				"name": "New South Wales"
+			},
+			"timezone": "Australia/Sydney",
+			"latitude": -33.8914,
+			"longitude": 151.1654,
+			"postalCode": "2048"
+		},
+		"timestamp": 1789371760919
+	}
+}
