@@ -6,7 +6,7 @@
 <title>Flashcards — StudyBase</title>
 <link rel="icon" href="../icon.png" type="image/png">
 <link rel="apple-touch-icon" href="../icon.png">
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../fonts.css">
 <link rel="stylesheet" href="../mainstyle.css">
 <style>
 .fc-wrap{width:100%;max-width:600px;display:flex;flex-direction:column;gap:24px}
@@ -31,13 +31,13 @@
 
 /* Front content */
 .fc-unit-badge{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);font-weight:700;background:var(--ac-l);border:1px solid var(--ac-b);border-radius:4px;padding:2px 8px;margin-bottom:12px;display:inline-block}
-.fc-term{font-family:'Lora',serif;font-size:28px;font-weight:700;color:var(--text);line-height:1.2;margin-bottom:10px}
+.fc-term{font-family:'Source Serif 4',serif;font-size:28px;font-weight:700;color:var(--text);line-height:1.2;margin-bottom:10px}
 .fc-hint{font-size:12px;color:var(--muted2);margin-top:4px}
 
 /* Back content */
 .fc-section-label{font-size:9px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted2);font-weight:700;margin-bottom:4px;margin-top:10px}
 .fc-section-label:first-child{margin-top:0}
-.fc-def{font-family:'Lora',serif;font-size:15px;font-style:italic;color:var(--text);line-height:1.65}
+.fc-def{font-family:'Source Serif 4',serif;font-size:15px;font-style:italic;color:var(--text);line-height:1.65}
 .fc-kp-list{list-style:none;display:flex;flex-direction:column;gap:5px}
 .fc-kp{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--muted);line-height:1.5}
 .fc-kp-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:6px}
@@ -293,7 +293,7 @@ function render(){
   if(!fcCards.length){
     wrap.innerHTML = `<div class="fc-empty">
       <div class="fc-empty-icon">${SUBJECT.emoji || '📚'}</div>
-      <div style="font-size:16px;font-family:'Lora',serif;font-weight:600;color:var(--text);margin-bottom:6px">No topics yet</div>
+      <div style="font-size:16px;font-family:'Source Serif 4',serif;font-weight:600;color:var(--text);margin-bottom:6px">No topics yet</div>
       <div>Add topics in <a href="subject.html#${SUBJECT.id}" style="color:var(--accent)">the ${esc(SUBJECT.name)} page</a> to start using flashcards.</div>
     </div>`;
     return;
