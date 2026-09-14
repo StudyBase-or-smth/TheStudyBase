@@ -1,0 +1,50 @@
+{
+  "questions": [
+    {
+      "id": "df1",
+      "name": "Question 1",
+      "question": "Which numbered formula on the sheet gives kinetic energy?",
+      "dictionary": "engineering-formulae",
+      "answers": [
+        { "text": "5", "correct": true }
+      ]
+    },
+    {
+      "id": "df2",
+      "name": "Question 2",
+      "question": "Which formula is used for hydrostatic pressure?",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "10", "correct": false },
+        { "text": "11", "correct": true },
+        { "text": "12", "correct": false },
+        { "text": "15", "correct": false }
+      ]
+    },
+    {
+      "id": "df3",
+      "name": "Question 3",
+      "question": "Which logic-gate symbol on the sheet is NAND?",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        { "text": "21", "correct": false },
+        { "text": "22", "correct": true },
+        { "text": "23", "correct": false },
+        { "text": "24", "correct": false }
+      ]
+    },
+    {
+      "id": "df4",
+      "name": "Question 4",
+      "question": "Which numbered formula is Ohm's law?",
+      "dictionary": "engineering-formulae",
+      "answers": [
+        { "text": "25", "correct": true }
+      ]
+    }
+  ]
+}

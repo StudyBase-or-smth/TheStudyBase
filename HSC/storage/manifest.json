@@ -1,8 +1,50 @@
 [
-  { "file": "MathS-S1.json", "name": "Section 1" },
-  { "file": "MathS-S2.json", "name": "Section 2" },
-  { "file": "EngineeringS-S1.json", "name": "Engineering Section 1" },
-  { "file": "EngineeringS-S2.json", "name": "Engineering Section 2" },
-  { "file": "MathSTD-Practice.json", "name": "MathSTD-Practice" },
-  { "file": "Electro1Practice.json", "name": "Electro1Practice" }
+  {
+    "file": "EngineeringS-S1.json",
+    "name": "2025 HSC Engineering Studies",
+    "subject": "Engineering",
+    "section": "Section I"
+  },
+  {
+    "file": "EngineeringS-S2.json",
+    "name": "2025 HSC Engineering Studies",
+    "subject": "Engineering",
+    "section": "Section II"
+  },
+  {
+    "file": "EngineeringWhichFormula.json",
+    "name": "Which Formula?",
+    "subject": "Engineering",
+    "section": "Practice"
+  },
+  {
+    "file": "EngineeringFormulae.json",
+    "name": "Formulae Sheet",
+    "subject": "Engineering",
+    "section": "Practice"
+  },
+  {
+    "file": "MathS-S1.json",
+    "name": "Mathematics Standard",
+    "subject": "Maths",
+    "section": "Section I"
+  },
+  {
+    "file": "MathS-S2.json",
+    "name": "Mathematics Standard",
+    "subject": "Maths",
+    "section": "Section II"
+  },
+  {
+    "file": "MathSTD-Practice.json",
+    "name": "Mathematics Standard Practice",
+    "subject": "Maths",
+    "section": "Practice"
+  },
+  {
+    "file": "Electro1Practice.json",
+    "name": "Electrotechnology Practice",
+    "subject": "Electrotechnology",
+    "section": "Practice"
+  }
 ]

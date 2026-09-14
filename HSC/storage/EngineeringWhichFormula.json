@@ -1,0 +1,426 @@
+{
+  "questions": [
+    {
+      "id": "wf15",
+      "name": "Question 1",
+      "question": "A simply supported timber beam carries a known bending moment. The second moment of area of the cross-section and the distance from the neutral axis to the outer fibre are given. Which formula would you use to find the bending stress?",
+      "image": "q16-beam.png",
+      "dictionary": "engineering-formulae",
+      "answers": [
+        { "text": "15", "correct": true }
+      ]
+    },
+    {
+      "id": "hsc25-q18",
+      "name": "Question 2",
+      "question": "A 9 V battery powers a simple series circuit with one 2.1 V LED. The LED has a maximum allowable current of 50 mA. Which formula would you use to find the series resistance needed so the LED operates at maximum brightness without failure?",
+      "image": "wf-hsc25-led.svg",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "8", "correct": false },
+        { "text": "25", "correct": true },
+        { "text": "26", "correct": false },
+        { "text": "27", "correct": false }
+      ]
+    },
+    {
+      "id": "wf3",
+      "name": "Question 3",
+      "question": "A crate rests on a warehouse floor. The normal reaction is known, and the coefficient of friction between crate and floor is given. Which formula would you use to find the friction force that must be overcome to start the crate sliding?",
+      "image": "wf3-crate.svg",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "1", "correct": false },
+        { "text": "3", "correct": true },
+        { "text": "4", "correct": false },
+        { "text": "10", "correct": false }
+      ]
+    },
+    {
+      "id": "wf21",
+      "name": "Question 4",
+      "question": "A safety interlock should output HIGH only when two independent switches are both closed. Which logic gate from the sheet would you use?",
+      "image": "wf21-interlock.svg",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "21", "correct": true },
+        { "text": "22", "correct": false },
+        { "text": "23", "correct": false },
+        { "text": "24", "correct": false }
+      ]
+    },
+    {
+      "id": "wf8",
+      "name": "Question 5",
+      "question": "An electric motor does 4.8 kJ of work in 16 s while raising a load. Which formula would you use to find the average power of the motor?",
+      "dictionary": "engineering-formulae",
+      "answers": [
+        { "text": "8", "correct": true }
+      ]
+    },
+    {
+      "id": "hsc25-q12",
+      "name": "Question 6",
+      "question": "A screw jack has a pitch of 8 mm. The force on the tommy bar is applied 400 mm from the axis of the screw. Which formula would you use to find the velocity ratio of the screw jack?",
+      "image": "q12-screw-jack.png",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "18", "correct": false },
+        { "text": "19", "correct": true },
+        { "text": "20", "correct": false },
+        { "text": "2", "correct": false }
+      ]
+    },
+    {
+      "id": "wf11",
+      "name": "Question 7",
+      "question": "A diver is 12 m below the surface of a freshwater lake. Atmospheric pressure at the surface is known. Which formula would you use to find the total pressure on the diver?",
+      "image": "wf11-diver.svg",
+      "dictionary": "engineering-formulae",
+      "answers": [
+        { "text": "11", "correct": true }
+      ]
+    },
+    {
+      "id": "wf24",
+      "name": "Question 8",
+      "question": "A heating element has a known current and a known resistance. Which formula would you use to find the electrical power dissipated as heat?",
+      "image": "wf24-heater.svg",
+      "dictionary": "engineering-formulae",
+      "answers": [
+        { "text": "26", "correct": true }
+      ]
+    },
+    {
+      "id": "hsc25-q22cii",
+      "name": "Question 9",
+      "question": "The connecting bolts in a steel bracket have a shear strength of 250 MPa. The support structure must have a factor of safety of 2.5. Which formula would you use to find the allowable stress in these ductile bolts?",
+      "image": "q22c-bracket.png",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "12", "correct": false },
+        { "text": "16", "correct": true },
+        { "text": "17", "correct": false },
+        { "text": "14", "correct": false }
+      ]
+    },
+    {
+      "id": "wf5",
+      "name": "Question 10",
+      "question": "A 0.8 kg flywheel is spinning at 12 m s⁻¹ at its rim. Which formula would you use to find the kinetic energy stored in the flywheel?",
+      "image": "wf5-flywheel.svg",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "5", "correct": true },
+        { "text": "6", "correct": false },
+        { "text": "7", "correct": false },
+        { "text": "8", "correct": false }
+      ]
+    },
+    {
+      "id": "wf22",
+      "name": "Question 11",
+      "question": "An alarm should sound if either a temperature sensor OR a pressure sensor goes HIGH. Which logic gate from the sheet would you use?",
+      "image": "wf22-alarm.svg",
+      "dictionary": "engineering-formulae",
+      "answers": [
+        { "text": "23", "correct": true }
+      ]
+    },
+    {
+      "id": "hsc25-q6",
+      "name": "Question 12",
+      "question": "A 100 kg crate is pulled 10 m along level ground. The tension in the tow rope is 600 N and the rope is inclined at 60° to the ground. The surface is frictionless. Which formula would you use to find the work done on the crate?",
+      "image": "q6-crate.png",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "5", "correct": false },
+        { "text": "6", "correct": false },
+        { "text": "7", "correct": true },
+        { "text": "1", "correct": false }
+      ]
+    },
+    {
+      "id": "wf16",
+      "name": "Question 13",
+      "question": "A mild-steel (ductile) member has a known yield stress. The design requires a factor of safety. Which formula would you use to find the allowable stress?",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "14", "correct": false },
+        { "text": "16", "correct": true },
+        { "text": "17", "correct": false },
+        { "text": "12", "correct": false }
+      ]
+    },
+    {
+      "id": "wf2",
+      "name": "Question 14",
+      "question": "A mechanic applies a force at the end of a 400 mm spanner to tighten a wheel nut. Which formula would you use to find the turning moment on the nut?",
+      "image": "wf2-spanner.svg",
+      "dictionary": "engineering-formulae",
+      "answers": [
+        { "text": "2", "correct": true }
+      ]
+    },
+    {
+      "id": "hsc25-q17",
+      "name": "Question 15",
+      "question": "An aircraft is flying at a cruising altitude where the external atmospheric pressure is 20 kPa. Inside the fuel tank, a 1.5 m column of aviation fuel has a density of 800 kg m⁻³. Which formula would you use to find the pressure at the bottom of the fuel column?",
+      "image": "wf-hsc25-fuel.svg",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "10", "correct": false },
+        { "text": "11", "correct": true },
+        { "text": "12", "correct": false },
+        { "text": "6", "correct": false }
+      ]
+    },
+    {
+      "id": "wf19",
+      "name": "Question 16",
+      "question": "On a simple machine, the distance moved by the effort and the distance moved by the load in the same time are measured. Which formula would you use to find the velocity ratio?",
+      "image": "wf19-machine.svg",
+      "dictionary": "engineering-formulae",
+      "answers": [
+        { "text": "19", "correct": true }
+      ]
+    },
+    {
+      "id": "wf12",
+      "name": "Question 17",
+      "question": "A vertical 12 mm steel member is connected to a horizontal member with three M16 bolts. A 30 kN tensile load is shared evenly across the bolts. Which formula would you use to find the shear stress on each bolt?",
+      "image": "q22c-bracket.png",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "10", "correct": false },
+        { "text": "12", "correct": true },
+        { "text": "13", "correct": false },
+        { "text": "15", "correct": false }
+      ]
+    },
+    {
+      "id": "wf26",
+      "name": "Question 18",
+      "question": "Three resistors are connected across the same two nodes so that the supply voltage appears across each resistor. Which formula would you use to find the total resistance?",
+      "image": "wf26-parallel.svg",
+      "dictionary": "engineering-formulae",
+      "answers": [
+        { "text": "28", "correct": true }
+      ]
+    },
+    {
+      "id": "hsc25-q23ci",
+      "name": "Question 19",
+      "question": "A 1.2-tonne boat is being pulled up a slipway. The coefficient of friction between the boat and the slipway is 0.4. Which formula would you use to find the friction force that opposes motion up the slipway?",
+      "image": "q23c-boat-winch.png",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "1", "correct": false },
+        { "text": "3", "correct": true },
+        { "text": "4", "correct": false },
+        { "text": "7", "correct": false }
+      ]
+    },
+    {
+      "id": "wf7",
+      "name": "Question 20",
+      "question": "A tow rope pulls a boat 18 m along a slipway. The component of tension along the slipway is known. Which formula would you use to find the work done on the boat?",
+      "image": "q23c-boat-winch.png",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "5", "correct": false },
+        { "text": "6", "correct": false },
+        { "text": "7", "correct": true },
+        { "text": "9", "correct": false }
+      ]
+    },
+    {
+      "id": "wf1",
+      "name": "Question 21",
+      "question": "A 1400 kg vehicle accelerates at 2.2 m s⁻² along a level road. Which formula from the sheet would you use to find the driving force?",
+      "image": "wf1-vehicle.svg",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "1", "correct": true },
+        { "text": "2", "correct": false },
+        { "text": "3", "correct": false },
+        { "text": "10", "correct": false }
+      ]
+    },
+    {
+      "id": "wf14",
+      "name": "Question 22",
+      "question": "A tensile test gives the stress and the corresponding strain in the elastic region for an aluminium specimen. Which formula would you use to find Young's modulus?",
+      "image": "wf14-tensile.svg",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "12", "correct": false },
+        { "text": "13", "correct": false },
+        { "text": "14", "correct": true },
+        { "text": "15", "correct": false }
+      ]
+    },
+    {
+      "id": "wf10",
+      "name": "Question 23",
+      "question": "A hydraulic ram has a piston of known area. The force on the piston is given. Which formula would you use to find the fluid pressure on the piston face?",
+      "image": "wf10-ram.svg",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "10", "correct": true },
+        { "text": "11", "correct": false },
+        { "text": "12", "correct": false },
+        { "text": "1", "correct": false }
+      ]
+    },
+    {
+      "id": "hsc25-q20",
+      "name": "Question 24",
+      "question": "A cable of initial length 15 m and cross-sectional area 300 × 10⁻⁶ m² is subjected to a tensile force of 75 000 N. It elongates by 0.01 m within the elastic region. Which formula would you use to find Young's modulus of the cable?",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "12", "correct": false },
+        { "text": "13", "correct": false },
+        { "text": "14", "correct": true },
+        { "text": "15", "correct": false }
+      ]
+    },
+    {
+      "id": "wf4",
+      "name": "Question 25",
+      "question": "A block is placed on a slope that is slowly steepened until the block is just about to slide. Which formula relates the coefficient of friction to that angle of friction?",
+      "image": "wf4-slope.svg",
+      "dictionary": "engineering-formulae",
+      "answers": [
+        { "text": "4", "correct": true }
+      ]
+    },
+    {
+      "id": "wf23",
+      "name": "Question 26",
+      "question": "A resistor in a control circuit has a known current through it and a known resistance. Which formula would you use to find the voltage drop across the resistor?",
+      "image": "wf23-resistor.svg",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "8", "correct": false },
+        { "text": "25", "correct": true },
+        { "text": "26", "correct": false },
+        { "text": "27", "correct": false }
+      ]
+    },
+    {
+      "id": "wf18",
+      "name": "Question 27",
+      "question": "A winch raises a boat. The load on the cable and the effort applied at the handle are known. Which formula would you use to find the mechanical advantage of the winch?",
+      "image": "q23c-boat-winch.png",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "18", "correct": true },
+        { "text": "19", "correct": false },
+        { "text": "20", "correct": false },
+        { "text": "2", "correct": false }
+      ]
+    },
+    {
+      "id": "wf6",
+      "name": "Question 28",
+      "question": "A crane lifts a 250 kg prefabricated panel a vertical distance of 6 m at constant speed. Which formula would you use to find the gain in gravitational potential energy?",
+      "image": "wf6-crane.svg",
+      "dictionary": "engineering-formulae",
+      "answers": [
+        { "text": "6", "correct": true }
+      ]
+    },
+    {
+      "id": "hsc25-q23cii",
+      "name": "Question 29",
+      "question": "A winch pulling a boat up a slipway has a velocity ratio of 2. The load on the cable and the effort at the handle are known. Which formula would you use to find the efficiency of the winch?",
+      "image": "q23c-boat-winch.png",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "18", "correct": false },
+        { "text": "19", "correct": false },
+        { "text": "20", "correct": true },
+        { "text": "8", "correct": false }
+      ]
+    },
+    {
+      "id": "wf13",
+      "name": "Question 30",
+      "question": "A 2.4 m steel tie rod extends by 1.8 mm under load. Which formula would you use to find the strain in the rod?",
+      "image": "wf13-tierod.svg",
+      "dictionary": "engineering-formulae",
+      "answers": [
+        { "text": "13", "correct": true }
+      ]
+    },
+    {
+      "id": "wf25",
+      "name": "Question 31",
+      "question": "Four resistors are connected end to end in a single path between two terminals of a power supply. Which formula would you use to find the total resistance?",
+      "image": "wf25-series.svg",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "25", "correct": false },
+        { "text": "26", "correct": false },
+        { "text": "27", "correct": true },
+        { "text": "28", "correct": false }
+      ]
+    },
+    {
+      "id": "wf9",
+      "name": "Question 32",
+      "question": "A winch applies a constant force while pulling a trailer a known distance in a known time. Which formula would you use to find the power delivered, using force, distance and time?",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "7", "correct": false },
+        { "text": "8", "correct": false },
+        { "text": "9", "correct": true },
+        { "text": "26", "correct": false }
+      ]
+    },
+    {
+      "id": "wf17",
+      "name": "Question 33",
+      "question": "A cast-iron (brittle) machine base has a known ultimate tensile strength. A factor of safety is specified. Which formula would you use to find the allowable stress?",
+      "dictionary": "engineering-formulae",
+      "answers": [
+        { "text": "17", "correct": true }
+      ]
+    },
+    {
+      "id": "wf20",
+      "name": "Question 34",
+      "question": "A gear train has a known mechanical advantage and a known velocity ratio. Which formula would you use to find the efficiency of the machine?",
+      "dictionary": "engineering-formulae",
+      "isMultipleChoice": true,
+      "answers": [
+        { "text": "18", "correct": false },
+        { "text": "19", "correct": false },
+        { "text": "20", "correct": true },
+        { "text": "8", "correct": false }
+      ]
+    }
+  ]
+}

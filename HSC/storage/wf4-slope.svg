@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 340" role="img" aria-label="Block on a slope at the angle of friction">
+  <rect width="560" height="340" fill="#fff"/>
+  <defs>
+    <pattern id="gnd" width="8" height="8" patternUnits="userSpaceOnUse">
+      <path d="M-1,9 L9,-1" stroke="#222" stroke-width="0.8"/>
+    </pattern>
+  </defs>
+  <polygon points="70,270 470,270 470,118" fill="url(#gnd)" stroke="#111" stroke-width="2"/>
+  <g transform="rotate(-23.5 250 194)">
+    <rect x="188" y="148" width="124" height="72" fill="#fff" stroke="#111" stroke-width="2"/>
+    <text x="250" y="192" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16">block</text>
+  </g>
+  <path d="M140,270 A70,70 0 0 0 204,246" fill="none" stroke="#111" stroke-width="1.5"/>
+  <text x="156" y="262" font-family="Times New Roman, Times, serif" font-size="18" font-style="italic">phi</text>
+  <text x="280" y="310" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="15">just about to slide</text>
+</svg>

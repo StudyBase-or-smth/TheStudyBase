@@ -377,7 +377,14 @@ function renderUpcoming(events) {
     : '<div class="sec-title" style="margin-bottom:10px">Upcoming</div>' + soon.map(ev => {
       const d = new Date(ev.date + 'T00:00:00');
       const diff = Math.round((d - today) / 864e5);
-      const diffLabel = diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : `In ${diff}d`;
+      let diffLabel;
+      if (diff === 0) diffLabel = 'Today';
+      else if (diff === 1) diffLabel = 'Tomorrow';
+      else if (diff < 7) diffLabel = `In ${diff} days`;
+      else {
+        const weeks = Math.floor(diff / 7);
+        diffLabel = weeks === 1 ? 'In 1 week' : `In ${weeks} weeks`;
+      }
       const tip = ev.tooltip ? ev.tooltip : ev.title;
       return `<div class="upcoming-item" onclick="openEventModal('${ev.id}',null)" title="${escapeHtml(tip)}">
         <div class="upcoming-date">${abbr[d.getMonth()]}<span>${d.getDate()}</span></div>
@@ -468,18 +475,6 @@ document.addEventListener('keydown', e => {
 // ── Sync ──
 // SYNC_URL is now defined once in sync-config.js (loaded via <script> before this file).
 let _nextSync = Date.now() + 60000;
-
-function jsonpGet(url) {
-  return new Promise((res, rej) => {
-    const cb = '_jcb' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const s = document.createElement('script');
-    window[cb] = r => { delete window[cb]; s.remove(); res(r); };
-    s.onerror = () => { delete window[cb]; s.remove(); rej(new Error('JSONP error')); };
-    s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
-    document.head.appendChild(s);
-    setTimeout(() => { delete window[cb]; s.remove(); rej(new Error('timeout')); }, 8000);
-  });
-}
 
 function syncPushEvents(events) {
   try {
@@ -589,159 +584,6 @@ function startSyncCountdown() {
 }
 
 window.manualSync = function () { calSync(); renderSidebar(); showToast('Syncing…', 'info', 1500); };
-
-// ── Suggestions ──
-const SUG_KEY='studybase_suggestions';
-let _sugCache=[];
-
-// Suggestions are pulled from a shared, publicly-writable store (Google Apps
-// Script), so every field on a suggestion object — including id/tag, not
-// just its text — must be treated as untrusted and HTML-escaped before it
-// ever touches innerHTML. Never re-introduce raw template interpolation of
-// suggestion fields into HTML/attribute strings without going through this.
-function escapeHtml(str){
-  return String(str==null?'':str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#39;');
-}
-
-// Single delegated click handler for the suggestions list — avoids ever
-// building inline onclick="...('${untrustedValue}')" strings, which is what
-// let attacker-controlled id/tag values break out of an HTML attribute.
-document.addEventListener('click', function (e) {
-  const delBtn = e.target.closest('[data-sug-delete]');
-  if (delBtn) { deleteSuggestion(delBtn.getAttribute('data-sug-delete')); return; }
-  const toggleBtn = e.target.closest('[data-sug-toggle]');
-  if (toggleBtn) { toggleSuggestion(toggleBtn.getAttribute('data-sug-toggle')); return; }
-});
-
-
-function openSuggestions(){
-  document.getElementById('sugOverlay').classList.add('open');
-  document.body.style.overflow='hidden';
-  loadSuggestions();
-}
-function closeSuggestions(){
-  document.getElementById('sugOverlay').classList.remove('open');
-  document.body.style.overflow='';
-}
-
-
-window.closeSuggestions = function () {
-  document.getElementById('sugOverlay').classList.remove('open');
-  document.body.style.overflow = '';
-};
-
-async function loadSuggestions(){
-  const list=document.getElementById('sugList');
-  list.innerHTML='<div class="sug-empty">Loading…</div>';
-  try{
-    const res=await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(SUG_KEY));
-    _sugCache=(res&&Array.isArray(res.data))?res.data:[];
-    renderSugList();
-  }catch(e){list.innerHTML='<div class="sug-empty">Could not load — check your connection.</div>';}
-}
-let _sugFilter='open';
-
-function setSugFilter(f,btn){
-  _sugFilter=f;
-  document.querySelectorAll('.sug-filter').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderSugList();
-}
-
-function toggleSuggestion(id){
-  const s=_sugCache.find(x=>x.id===id);
-  if(!s) return;
-  s.status=s.status==='closed'?'open':'closed';
-  renderSugList();
-  pushSuggestions();
-}
-
-// Rapid clicking (e.g. toggling a few suggestions quickly) used to fire an
-// overlapping push per click, each carrying its own snapshot of _sugCache —
-// whichever request's response the browser processed last would silently win
-// and could stomp a more recent change. Debounce so only one push goes out
-// per short burst, always carrying the latest _sugCache at send time.
-let _pushSuggestionsTimer = null;
-function pushSuggestions(){
-  if(_pushSuggestionsTimer) clearTimeout(_pushSuggestionsTimer);
-  _pushSuggestionsTimer = setTimeout(_doPushSuggestions, 300);
-}
-function _doPushSuggestions(){
-  _pushSuggestionsTimer = null;
-  const iframe=document.createElement('iframe');
-  const fid='spush'+Date.now(); iframe.name=fid; iframe.style.cssText='display:none;width:0;height:0;border:0';
-  const form=document.createElement('form');
-  form.method='POST'; form.action=SYNC_URL; form.target=fid; form.style.display='none';
-  [['key',SUG_KEY],['data',JSON.stringify(_sugCache)]].forEach(([n,v])=>{
-    const inp=document.createElement('input');inp.type='hidden';inp.name=n;inp.value=v;form.appendChild(inp);
-  });
-  document.body.appendChild(iframe); document.body.appendChild(form);
-  form.submit();
-  setTimeout(()=>{iframe.remove();form.remove();},5000);
-}
-
-function renderSugList(){
-  const list=document.getElementById('sugList');
-  const filtered=_sugFilter==='all'?_sugCache:_sugCache.filter(s=>(_sugFilter==='closed'?s.status==='closed':s.status!=='closed'));
-  // Update filter counts
-  const openCount=_sugCache.filter(s=>s.status!=='closed').length;
-  const closedCount=_sugCache.filter(s=>s.status==='closed').length;
-  const btns=document.querySelectorAll('.sug-filter');
-  if(btns[0]) btns[0].textContent='🟢 Open ('+openCount+')';
-  if(btns[1]) btns[1].textContent='🟣 Closed ('+closedCount+')';
-  if(btns[2]) btns[2].textContent='All ('+_sugCache.length+')';
-  if(!filtered.length){
-    list.innerHTML='<div class="sug-empty">'+(_sugCache.length?'No '+_sugFilter+' suggestions.':'No suggestions yet — be the first!')+'</div>';
-    return;
-  }
-  list.innerHTML=[...filtered].reverse().map(s=>{
-    const isClosed=s.status==='closed';
-    const safeId=escapeHtml(s.id);
-    const safeTag=escapeHtml(s.tag||'');
-    const tagHtml=s.tag?`<span class="sug-tag ${safeTag}">${safeTag}</span> `:'';
-    const statusHtml=`<span class="sug-status ${isClosed?'closed':'open'}">${isClosed?'🟣 Closed':'🟢 Open'}</span>`;
-    return `<div class="sug-item${isClosed?' closed':''}">
-      <button data-sug-delete="${safeId}" title="Delete" style="position:absolute;top:6px;right:6px;background:none;border:none;cursor:pointer;font-size:14px;line-height:1;color:var(--muted2);padding:2px 4px;border-radius:4px" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--muted2)'">×</button>
-      ${statusHtml} ${tagHtml}<div class="sug-text">${escapeHtml(s.text)}</div>
-      <div class="sug-meta">${escapeHtml(s.date)}${s.time?' · '+escapeHtml(s.time):''}</div>
-      <button class="sug-toggle-btn" data-sug-toggle="${safeId}">${isClosed?'↩ Reopen':'✓ Close'}</button>
-    </div>`;
-  }).join('');
-}
-function deleteSuggestion(id){
-  _sugCache=_sugCache.filter(s=>s.id!==id);
-  renderSugList();
-  showToast('Suggestion removed','warning');
-  pushSuggestions();
-}
-function selectSugTag(btn){
-  const wasActive=btn.classList.contains('active');
-  document.querySelectorAll('.sug-tag-btn').forEach(b=>b.classList.remove('active'));
-  if(!wasActive) btn.classList.add('active');
-}
-function sendSuggestion(){
-  const input=document.getElementById('sugInput');
-  const text=input.value.trim();
-  if(!text){input.focus();return;}
-  const now=new Date();
-  const date=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-  const time=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-  const activeTag=document.querySelector('.sug-tag-btn.active');
-  const newSug={id:String(Date.now()),text,tag:activeTag?activeTag.dataset.tag:'',date,time};
-  newSug.status='open';
-  _sugCache.push(newSug); renderSugList();
-  input.value='';
-  document.querySelectorAll('.sug-tag-btn').forEach(b=>b.classList.remove('active'));
-  showToast('Suggestion sent!','success');
-  pushSuggestions();
-}
-document.getElementById('sugOverlay').addEventListener('click',function(e){if(e.target===this)closeSuggestions();});
-
 
 // ── Boot ──
 document.addEventListener('DOMContentLoaded', init);

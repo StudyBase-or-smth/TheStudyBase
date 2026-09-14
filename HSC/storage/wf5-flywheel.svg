@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 340" role="img" aria-label="Spinning flywheel with rim speed labelled">
+  <rect width="520" height="340" fill="#fff"/>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#111"/>
+    </marker>
+  </defs>
+  <circle cx="240" cy="170" r="110" fill="#fff" stroke="#111" stroke-width="3"/>
+  <circle cx="240" cy="170" r="88" fill="#fff" stroke="#111" stroke-width="1.5"/>
+  <circle cx="240" cy="170" r="18" fill="#fff" stroke="#111" stroke-width="2"/>
+  <line x1="240" y1="170" x2="240" y2="60" stroke="#111" stroke-width="1.5"/>
+  <text x="252" y="120" font-family="Times New Roman, Times, serif" font-size="16" font-style="italic">r</text>
+  <path d="M240,60 A110,110 0 0 1 348,88" fill="none" stroke="#111" stroke-width="2" marker-end="url(#ah)"/>
+  <text x="360" y="78" font-family="Times New Roman, Times, serif" font-size="18" font-style="italic">v</text>
+  <text x="360" y="100" font-family="Times New Roman, Times, serif" font-size="16">12 m/s</text>
+  <text x="240" y="312" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16">m = 0.8 kg</text>
+</svg>

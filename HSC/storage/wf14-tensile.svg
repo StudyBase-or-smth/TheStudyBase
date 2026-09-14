@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 240" role="img" aria-label="Tensile test specimen">
+  <rect width="560" height="240" fill="#fff"/>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#111"/>
+    </marker>
+  </defs>
+  <rect x="130" y="70" width="56" height="100" fill="#fff" stroke="#111" stroke-width="2"/>
+  <rect x="374" y="70" width="56" height="100" fill="#fff" stroke="#111" stroke-width="2"/>
+  <path d="M186,100 L220,112 L340,112 L374,100 L374,140 L340,128 L220,128 L186,140 Z" fill="#fff" stroke="#111" stroke-width="2"/>
+  <line x1="40" y1="120" x2="130" y2="120" stroke="#111" stroke-width="2.5" marker-end="url(#ah)"/>
+  <line x1="520" y1="120" x2="430" y2="120" stroke="#111" stroke-width="2.5" marker-end="url(#ah)"/>
+  <text x="70" y="108" font-family="Times New Roman, Times, serif" font-size="18" font-style="italic">F</text>
+  <text x="478" y="108" font-family="Times New Roman, Times, serif" font-size="18" font-style="italic">F</text>
+  <text x="280" y="200" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16">aluminium specimen</text>
+</svg>

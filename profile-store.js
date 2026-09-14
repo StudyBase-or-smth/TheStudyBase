@@ -87,18 +87,7 @@ function visibleClasses(){
   return all.filter(s => on.has(s.id));
 }
 
-function sbJsonpGet(url){
-  return new Promise((resolve, reject) => {
-    const cb = '_pcb' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const s = document.createElement('script');
-    const cleanup = () => { delete window[cb]; if(s.parentNode) s.remove(); };
-    window[cb] = data => { cleanup(); resolve(data); };
-    s.onerror = () => { cleanup(); reject(new Error('JSONP error')); };
-    s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
-    document.head.appendChild(s);
-    setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 8000);
-  });
-}
+function sbJsonpGet(url){ return jsonpGet(url); }
 
 function sbSyncPush(key, data){
   const id = 'pf' + Date.now();

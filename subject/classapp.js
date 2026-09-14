@@ -206,7 +206,12 @@ function readTableData(){
 
 function hasFieldContent(val){
   if(val == null) return false;
-  const s = String(val)
+  const str = String(val).trim();
+  if(!str) return false;
+  const probe = document.createElement('div');
+  probe.innerHTML = str;
+  if(probe.querySelector('img, video, iframe, svg')) return true;
+  const s = str
     .replace(/<[^>]*>/g, '')
     .replace(/&nbsp;/gi, ' ')
     .trim();
@@ -262,6 +267,7 @@ const DESMOS_API_VERSION = 'v1.12';
 let _desmosLoadPromise = null;
 let desmosEditorCalc = null;
 let desmosViewCalc = null;
+let editDesmosTouched = false;
 
 // Desmos doesn't auto-detect page theme, so we hand it explicit colors that
 // track StudyBase's dark-mode class and the active subject's accent color
@@ -321,7 +327,15 @@ async function mountDesmosEditor(state){
   container.style.display = '';
   if(unavailable) unavailable.style.display = 'none';
   desmosEditorCalc = Desmos.GraphingCalculator(container, desmosThemeOpts());
+  let desmosReady = false;
+  editDesmosTouched = false;
+  desmosEditorCalc.observeEvent('change', () => {
+    if(!desmosReady) return;
+    editDesmosTouched = true;
+    if(editSurface === 'inline') updateEditBatchButtons();
+  });
   if(state){ try{ desmosEditorCalc.setState(state); }catch(e){ desmosEditorCalc.setBlank(); } }
+  setTimeout(() => { desmosReady = true; editDesmosTouched = false; }, 0);
 }
 
 function readDesmosState(){
@@ -396,6 +410,14 @@ const savePinned = p => {
 // ── Layouts ──
 const LAYOUTS = ['basic','overview','math','text','pdf','table'];
 const LAYOUT_LABELS = { basic:'Basic', overview:'Overview', math:'Math', text:'Text', pdf:'PDF/Image', table:'Table' };
+function subjectDefaultLayout(){
+  const subjectId = SUBJECT && SUBJECT.subjectId;
+  const meta = subjectId && typeof subjectsData !== 'undefined'
+    ? (subjectsData.subjects || []).find(s => s.id === subjectId)
+    : null;
+  const d = (meta && meta.default) || (SUBJECT && SUBJECT.default);
+  return LAYOUTS.includes(d) ? d : 'basic';
+}
 let currentLayout = 'basic';
 
 // ── PDF/Image topic type ──
@@ -462,6 +484,20 @@ function compressImageFile(file){
   }));
 }
 
+function asDriveUploadDataUrl(dataUrl, isPdf){
+  if(!isPdf) return dataUrl;
+  if(/^data:application\/pdf;base64,/i.test(dataUrl)) return dataUrl;
+  const comma = dataUrl.indexOf(',');
+  const b64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
+  return 'data:application/pdf;base64,' + b64;
+}
+
+function driveUploadError(res){
+  const err = res && res.data && res.data.error;
+  if(err === 'bad_format') return 'Drive rejected this file type — update Apps Script from apps-script/Code.gs and deploy a new version.';
+  return err || 'Drive upload failed';
+}
+
 function uploadDataUrlToDrive(dataUrl, filename){
   return new Promise((resolve, reject) => {
     const uid = Date.now() + '' + Math.random().toString(36).slice(2, 6);
@@ -474,7 +510,7 @@ function uploadDataUrlToDrive(dataUrl, filename){
         if(res && res.data){
           clearInterval(poll);
           if(res.data.ok && res.data.url) resolve(res.data.url);
-          else reject(new Error('Drive upload failed'));
+          else reject(new Error(driveUploadError(res)));
         }
       } catch(e) {}
       if(tries >= 30){ clearInterval(poll); reject(new Error('Drive upload timed out')); }
@@ -499,7 +535,7 @@ async function onPdfFileSelected(input){
   pendingPdfName = file.name;
   renderPdfPreview();
   try{
-    const dataUrl = isImage ? await compressImageFile(file) : await fileToDataUrl(file);
+    const dataUrl = isImage ? await compressImageFile(file) : asDriveUploadDataUrl(await fileToDataUrl(file), true);
     const filename = isImage ? ('sb_' + Date.now() + '.jpg') : file.name;
     pendingPdfData = await uploadDataUrlToDrive(dataUrl, filename);
     pendingPdfName = file.name;
@@ -541,16 +577,85 @@ function cycleLayout(dir){
   let idx = LAYOUTS.indexOf(currentLayout);
   idx = (idx + dir + LAYOUTS.length) % LAYOUTS.length;
   currentLayout = LAYOUTS[idx];
+  closeLayoutMenu();
   applyLayoutUI();
 }
 
+function selectLayout(id){
+  if(!LAYOUTS.includes(id)) return;
+  currentLayout = id;
+  closeLayoutMenu();
+  applyLayoutUI();
+}
+
+function layoutMenuHtml(){
+  return LAYOUTS.map(id =>
+    `<button type="button" class="layout-menu-item${id === currentLayout ? ' active' : ''}" onclick="selectLayout('${id}')">${esc(LAYOUT_LABELS[id] || id)}</button>`
+  ).join('');
+}
+
+function toggleLayoutMenu(e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  const menu = document.getElementById('layoutMenu');
+  if(!menu) return;
+  const open = !menu.classList.contains('open');
+  if(open){
+    menu.innerHTML = layoutMenuHtml();
+    menu.classList.add('open');
+    menu.hidden = false;
+  } else {
+    closeLayoutMenu();
+  }
+}
+
+function closeLayoutMenu(){
+  const menu = document.getElementById('layoutMenu');
+  if(!menu) return;
+  menu.classList.remove('open');
+  menu.hidden = true;
+  menu.innerHTML = '';
+}
+
+function layoutSwitcherHtml(){
+  return `<div class="layout-switcher">
+    <button type="button" class="layout-arrow" onclick="cycleLayout(-1)" title="Previous type">‹</button>
+    <button type="button" class="layout-name" id="layoutName" onclick="toggleLayoutMenu(event)" title="Choose type">${esc(LAYOUT_LABELS[currentLayout] || 'Basic')}</button>
+    <button type="button" class="layout-arrow" onclick="cycleLayout(1)" title="Next type">›</button>
+    <div class="layout-menu" id="layoutMenu" hidden></div>
+  </div>`;
+}
+
+function placeEditSubtopicsSection(){
+  const root = document.getElementById('detailContent');
+  if(!root) return;
+  const sec = root.querySelector('[data-block="subtopics"]');
+  const moreBody = root.querySelector('.edit-more-body');
+  const morePanel = root.querySelector('.edit-more-panel');
+  if(!sec || !moreBody || !morePanel) return;
+  // Overview/Text treat subtopics as a primary field; other types keep them in More.
+  if(currentLayout === 'overview' || currentLayout === 'text'){
+    morePanel.parentNode.insertBefore(sec, morePanel);
+  } else {
+    moreBody.insertBefore(sec, moreBody.firstChild);
+  }
+}
+
 function applyLayoutUI(){
-  const nameEl = document.getElementById('layoutName');
-  if(nameEl) nameEl.textContent = LAYOUT_LABELS[currentLayout] || 'Basic';
+  document.querySelectorAll('.layout-name').forEach(el => {
+    el.textContent = LAYOUT_LABELS[currentLayout] || 'Basic';
+  });
   document.querySelectorAll('[data-layout-group]').forEach(el => {
-    const groups = el.dataset.layoutGroup.split(' ');
+    const groups = el.dataset.layoutGroup.split(/\s+/).filter(Boolean);
     el.style.display = groups.includes(currentLayout) ? '' : 'none';
   });
+  placeEditSubtopicsSection();
+  document.querySelectorAll('.edit-more-panel').forEach(panel => {
+    const kids = panel.querySelectorAll('.edit-more-body > [data-layout-group]');
+    const anyVisible = [...kids].some(el => el.style.display !== 'none');
+    panel.style.display = anyVisible ? '' : 'none';
+  });
+  const menu = document.getElementById('layoutMenu');
+  if(menu && menu.classList.contains('open')) menu.innerHTML = layoutMenuHtml();
   const kpLabel = document.getElementById('kpFieldLabel');
   if(kpLabel) kpLabel.textContent = currentLayout === 'text' ? 'Points of Interest' : 'Key Points';
   const bodyLabel = document.getElementById('bodyTextLabel');
@@ -560,6 +665,13 @@ function applyLayoutUI(){
     else { bodyLabel.textContent = 'Overview'; bodyEl.style.minHeight = '120px'; }
   }
 }
+
+document.addEventListener('click', e => {
+  if(!e.target.closest('.layout-switcher')) closeLayoutMenu();
+});
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') closeLayoutMenu();
+});
 
 // ── Teacher notes (per block) ──
 const TN_KEY = () => 'tnotes_' + (SUBJECT ? SUBJECT.id : 'default');
@@ -616,6 +728,85 @@ function sectionHtml(topicId, icon, label, block, bodyHtml, headerExtra){
   </div>`;
 }
 
+function inlineEditSection(groups, block, icon, labelHtml, bodyHtml){
+  return `<div class="section" data-layout-group="${groups}" data-block="${block}">
+    <div class="section-header"><span class="sh-label-wrap"><span class="sh-icon">${icon}</span>${labelHtml}</span></div>
+    <div class="section-body">${bodyHtml}</div>
+  </div>`;
+}
+
+function inlineRichField(id, placeholder, minH, opts){
+  opts = opts || {};
+  const monoCls = opts.mono ? ' mono' : '';
+  let toolbar = '<div class="rich-toolbar mini">';
+  if(id === 'fBodyText' && editId){
+    toolbar += `<button type="button" class="rich-btn" onclick="expandEnlarge('fBodyText', ${editId}, 'bodyText')" title="Pop out">⤢</button>`;
+  }
+  if(opts.symbols){
+    toolbar += `<div class="symbol-picker-wrap"><button type="button" class="rich-btn" onmousedown="event.preventDefault()" onclick="toggleSymbolPicker(this)">Ω</button>
+      <div class="symbol-picker-panel" id="symPicker_fFormula" data-target="fFormula"></div></div>`;
+  }
+  toolbar += `<button type="button" class="rich-btn" onclick="richAddImage('${id}')">🖼</button>
+    <input type="file" id="img_${id}" accept="image/*" style="display:none"></div>`;
+  return `<div class="rich-editor-wrap">${toolbar}
+    <div class="rich-content${monoCls}" id="${id}" contenteditable="true" data-placeholder="${esc(placeholder)}" style="min-height:${minH}px"></div>
+  </div>`;
+}
+
+function buildInlineEditHtml(){
+  return `
+    <div class="dh dh-editing">
+      <div class="dh-edit-row dh-edit-row-name">
+        <input type="text" class="dh-name-input" id="fName" placeholder="Topic name…" autocomplete="off">
+        <div class="dh-edit-side">
+          <div class="dh-actions-btns">
+            <button type="button" class="btn-act" onclick="closeInlineEdit()">Cancel</button>
+            <button type="button" class="btn-save dh-save-btn" onclick="saveTopic()">Save</button>
+          </div>
+        </div>
+      </div>
+      <div class="dh-edit-row dh-edit-row-meta">
+        <div class="dh-unit-slot">
+          <select class="form-sel dh-unit-select" id="fUnit" onchange="onUnitSelectChange()"></select>
+          <div id="unitInputRow" class="dh-unit-add" style="display:none">
+            <input type="text" class="form-i" id="newUnitInput" placeholder="Unit name…"
+              onkeydown="if(event.key==='Enter')confirmAddUnit();if(event.key==='Escape')hideUnitInput()">
+            <button type="button" class="btn-save" onclick="confirmAddUnit()">Add</button>
+            <button type="button" class="btn-cancel" onclick="hideUnitInput()">✕</button>
+          </div>
+        </div>
+        <div class="dh-edit-side dh-edit-side-layout">
+          ${layoutSwitcherHtml()}
+        </div>
+      </div>
+    </div>
+    ${inlineEditSection('basic', 'definition', '📝', 'Definition', `<textarea class="form-ta" id="fDefinition" rows="3" placeholder="A clear, concise definition…"></textarea>`)}
+    ${inlineEditSection('overview text', 'bodyText', '📄', '<span id="bodyTextLabel">Overview</span>', inlineRichField('fBodyText', 'Write the overview or main text here…', 160))}
+    ${inlineEditSection('basic overview text', 'keyPoints', '✦', '<span id="kpFieldLabel">Key Points</span>', `<div class="kp-list" id="kpList"></div><button type="button" class="btn-add-kp" onclick="addKpRow()">+ Add key point</button>`)}
+    ${inlineEditSection('basic math', 'formula', '∑', 'Formula / Equation', inlineRichField('fFormula', 'e.g. σ = F/A', 88, { mono: true, symbols: true }))}
+    ${inlineEditSection('math', 'desmos', '📐', 'Desmos Graph', `<div class="desmos-editor-wrap">
+      <div class="desmos-calculator" id="desmosEditorCalc"></div>
+      <div class="desmos-loading" id="desmosEditorLoading" style="height:360px"><span class="desmos-spinner"></span>Loading graphing calculator…</div>
+      <p class="desmos-unavailable" id="desmosEditorUnavailable" style="display:none">Desmos graphing isn't configured yet — set DESMOS_API_KEY in sync-config.js.</p>
+    </div>`)}
+    ${inlineEditSection('pdf', 'pdfDoc', '📄', 'PDF / Image Document', `<input type="file" id="fPdfFile" accept="application/pdf,image/*" style="display:none" onchange="onPdfFileSelected(this)"><div id="pdfPreviewArea"></div>`)}
+    ${inlineEditSection('table', 'tableData', '▦', 'Table', `<div class="table-editor-wrap"><table class="table-editor" id="tableEditorGrid"><thead><tr id="tableEditorHeadRow"></tr></thead><tbody id="tableEditorBody"></tbody></table></div>
+      <div class="table-editor-actions"><button type="button" class="btn-small" onclick="addTableColumn()">+ Add column</button><button type="button" class="btn-small" onclick="addTableRow()">+ Add row</button></div>`)}
+    ${inlineEditSection('basic', 'materials', '📋', 'Extra Notes', inlineRichField('fMaterials', 'Any additional notes…', 52))}
+    ${inlineEditSection('basic', 'process', '⚙', 'Process / Method', inlineRichField('fProcess', 'How does it work? Step-by-step if applicable…', 66))}
+    ${inlineEditSection('basic', 'safety', '⚠', 'Safety / Warnings', inlineRichField('fSafety', 'Hazards, warnings, failure modes…', 52))}
+    ${inlineEditSection('basic', 'examTip', '⚡', 'Exam Tip', inlineRichField('fExamTip', 'Common mistakes, how to pick up marks…', 52))}
+    ${inlineEditSection('basic overview text math pdf table', 'subtopics', '🧩', 'Subtopics', `<div class="subtopic-editor-list" id="subtopicEditorList"></div><button type="button" class="btn-add-kp" onclick="addSubtopicRow()">+ Add subtopic</button>`)}
+    <details class="edit-more-panel">
+      <summary class="edit-more-summary">More</summary>
+      <div class="edit-more-body">
+        ${inlineEditSection('basic math', 'flashcardQA', '🎴', 'Flashcard Questions', `<div class="fqa-list" id="fqaList"></div><button type="button" class="btn-add-kp" onclick="addFqaRow()">+ Add question</button>`)}
+        ${inlineEditSection('basic overview text math pdf table', 'relatedTerms', '🔗', 'Related Terms', `<div class="tags-wrap" id="tagsWrap" onclick="document.getElementById('tagsInput').focus()"><input type="text" class="tags-i" id="tagsInput" placeholder="Type a topic… Tab to autofill" autocomplete="off"></div>`)}
+      </div>
+    </details>
+  `;
+}
+
 // ── Expand controls (fullscreen / ~80%-enlarge) for select detail sections ──
 // Used by Desmos Graph, Main Text (text layout), and PDF/Image Document. The
 // "enlarge" mode MOVES the actual content node into a shared overlay
@@ -627,7 +818,11 @@ function sectionHtml(topicId, icon, label, block, bodyHtml, headerExtra){
 function expandBtnsHtml(targetId, opts){
   opts = opts || {};
   let html = '<span class="sh-expand-btns">';
-  if(opts.enlarge)    html += `<button type="button" class="sh-expand-btn" onclick="expandEnlarge('${targetId}')" title="Enlarge">⤢</button>`;
+  if(opts.enlarge){
+    const extra = (opts.topicId != null && opts.enlargeField)
+      ? `, ${Number(opts.topicId)}, '${opts.enlargeField}'` : '';
+    html += `<button type="button" class="sh-expand-btn" onclick="expandEnlarge('${targetId}'${extra})" title="Pop out">⤢</button>`;
+  }
   if(opts.fullscreen) html += `<button type="button" class="sh-expand-btn" onclick="expandFullscreen('${targetId}')" title="Fullscreen">⛶</button>`;
   html += '</span>';
   return html;
@@ -640,21 +835,122 @@ function expandFullscreen(id){
   if(req) req.call(el);
 }
 
-let _enlargeOrigin = null; // { el, parent, next }
-function expandEnlarge(id){
+let _enlargeOrigin = null;
+let _enlargeMeta = null;
+
+function updateEnlargeToolbar(){
+  const editBtn = document.getElementById('enlargeEditBtn');
+  const saveBtn = document.getElementById('enlargeSaveBtn');
+  const cancelBtn = document.getElementById('enlargeCancelBtn');
+  if(!editBtn) return;
+  const showEdit = _enlargeMeta && canEditTopic(_enlargeMeta.topicId) && !_enlargeMeta.editing
+    && (_enlargeMeta.field === 'bodyText' || _enlargeMeta.field === 'desmos');
+  editBtn.style.display = showEdit ? '' : 'none';
+  const editing = !!(_enlargeMeta && _enlargeMeta.editing);
+  if(saveBtn) saveBtn.style.display = editing ? '' : 'none';
+  if(cancelBtn) cancelBtn.style.display = editing ? '' : 'none';
+}
+
+function expandEnlarge(id, topicId, field){
   const el = document.getElementById(id);
   const overlay = document.getElementById('enlargeOverlay');
   const slot = document.getElementById('enlargeSlot');
   if(!el || !overlay || !slot) return;
-  closeEnlarge(); // in case something was already enlarged
+  closeEnlarge();
   _enlargeOrigin = { el, parent: el.parentNode, next: el.nextSibling };
+  _enlargeMeta = (topicId && field) ? { topicId: Number(topicId), field, viewId: id, editing: false, snapshot: null } : null;
   slot.appendChild(el);
   el.classList.add('enlarged-active');
   overlay.classList.add('open');
+  updateEnlargeToolbar();
   document.addEventListener('keydown', _enlargeEscHandler);
 }
-function _enlargeEscHandler(e){ if(e.key === 'Escape') closeEnlarge(); }
-function closeEnlarge(){
+
+function enlargeToggleEdit(){
+  if(!_enlargeMeta || !canEditTopic(_enlargeMeta.topicId)) return;
+  if(_enlargeMeta.field === 'bodyText'){
+    const el = document.getElementById(_enlargeMeta.viewId);
+    if(!el) return;
+    _enlargeMeta.snapshot = el.innerHTML;
+    _enlargeMeta.editing = true;
+    el.contentEditable = 'true';
+    el.classList.add('plain-text-editing');
+    el.focus();
+    updateEnlargeToolbar();
+    return;
+  }
+  if(_enlargeMeta.field === 'desmos'){
+    const state = desmosViewCalc ? desmosViewCalc.getState() : null;
+    destroyDesmosView();
+    _enlargeOrigin = null;
+    const slot = document.getElementById('enlargeSlot');
+    slot.innerHTML = `<div class="desmos-editor-wrap" style="width:100%;height:100%">
+      <div class="desmos-calculator" id="desmosEditorCalc" style="width:100%;height:100%"></div>
+      <div class="desmos-loading" id="desmosEditorLoading" style="display:none"></div>
+    </div>`;
+    _enlargeMeta.editing = true;
+    mountDesmosEditor(state);
+    updateEnlargeToolbar();
+  }
+}
+
+function enlargeCancelEdit(){
+  if(!_enlargeMeta || !_enlargeMeta.editing) return;
+  if(_enlargeMeta.field === 'bodyText'){
+    const el = document.getElementById(_enlargeMeta.viewId);
+    if(el){
+      el.innerHTML = _enlargeMeta.snapshot || '';
+      el.contentEditable = 'false';
+      el.classList.remove('plain-text-editing');
+    }
+    _enlargeMeta.editing = false;
+    updateEnlargeToolbar();
+    return;
+  }
+  if(_enlargeMeta.field === 'desmos'){
+    destroyDesmosEditor();
+    _enlargeMeta = null;
+    closeEnlarge(true);
+    if(activeId) viewTopic(activeId);
+  }
+}
+
+function enlargeSaveEdit(){
+  if(!_enlargeMeta || !_enlargeMeta.editing) return;
+  const t = getTopics().find(x => x.id === _enlargeMeta.topicId);
+  if(!t) return;
+  if(_enlargeMeta.field === 'bodyText'){
+    const el = document.getElementById(_enlargeMeta.viewId);
+    if(!el) return;
+    const bodyText = el.innerHTML.trim();
+    saveTopics(getTopics().map(x => x.id === t.id ? { ...x, bodyText, updatedAt: new Date().toISOString() } : x));
+    el.contentEditable = 'false';
+    el.classList.remove('plain-text-editing');
+    _enlargeMeta.editing = false;
+    updateEnlargeToolbar();
+    renderList();
+    return;
+  }
+  if(_enlargeMeta.field === 'desmos'){
+    const desmosState = readDesmosState();
+    destroyDesmosEditor();
+    saveTopics(getTopics().map(x => x.id === t.id ? { ...x, desmosState, updatedAt: new Date().toISOString() } : x));
+    _enlargeMeta = null;
+    closeEnlarge(true);
+    viewTopic(t.id);
+    renderList();
+  }
+}
+
+function _enlargeEscHandler(e){
+  if(e.key === 'Escape'){
+    if(_enlargeMeta && _enlargeMeta.editing) enlargeCancelEdit();
+    else closeEnlarge();
+  }
+}
+
+function closeEnlarge(forceRefresh){
+  if(_enlargeMeta && _enlargeMeta.editing && !forceRefresh) enlargeCancelEdit();
   const overlay = document.getElementById('enlargeOverlay');
   if(overlay) overlay.classList.remove('open');
   document.removeEventListener('keydown', _enlargeEscHandler);
@@ -667,6 +963,8 @@ function closeEnlarge(){
     }
     _enlargeOrigin = null;
   }
+  _enlargeMeta = null;
+  updateEnlargeToolbar();
 }
 
 // ── Right-hand comments sidebar ──
@@ -864,19 +1162,45 @@ function getDescendantIds(id, topics){
 }
 
 // ── State ──
-let activeId = null, editId = null, activeUnits = new Set(), tempTags = [], pendingAction = null;
+let activeId = null, editId = null, editSurface = null, editBatchDrafts = null, activeUnits = new Set(), tempTags = [], pendingAction = null;
 let _lastRenderedTopicKey = null;
 let openCommentBlocks = new Set();
 let expandedTopics = new Set();
 
 // ── Sidebar list ──
 
-function renderSubtree(c, topics){
-  const kids = topics.filter(k => k.parentId === c.id);
+function resolveTopicUnit(t, topics){
+  let cur = t, guard = 0;
+  while(cur && guard++ < 40){
+    if(cur.unit) return cur.unit;
+    if(cur.parentId == null || cur.parentId === '') break;
+    cur = findTopicById(topics, cur.parentId);
+  }
+  return '';
+}
+
+function topicSelfMatchesFilter(t, topics, q){
+  const unit = resolveTopicUnit(t, topics);
+  const mu = activeUnits.size === 0 || (unit && activeUnits.has(unit));
+  const mq = !q || t.name.toLowerCase().includes(q) ||
+    (t.definition||'').toLowerCase().includes(q) ||
+    (unit||'').toLowerCase().includes(q) ||
+    (t.relatedTerms||[]).some(r => r.toLowerCase().includes(q));
+  return mu && mq;
+}
+
+function topicVisibleInListFilter(t, topics, q){
+  if(topicSelfMatchesFilter(t, topics, q)) return true;
+  return topics.filter(c => c.parentId === t.id).some(c => topicVisibleInListFilter(c, topics, q));
+}
+
+function renderSubtree(c, topics, q){
+  const kids = topics.filter(k => k.parentId === c.id && topicVisibleInListFilter(k, topics, q));
   const hasKids = kids.length > 0;
-  const isExpanded = hasKids && expandedTopics.has(c.id);
+  const forceExpand = activeUnits.size > 0 && topics.filter(k => k.parentId === c.id).some(k => topicVisibleInListFilter(k, topics, q));
+  const isExpanded = hasKids && (expandedTopics.has(c.id) || forceExpand);
   const childrenHtml = isExpanded
-    ? `<div class="subtopic-sidebar-list">` + kids.map(k => renderSubtree(k, topics)).join('') + `</div>`
+    ? `<div class="subtopic-sidebar-list">` + kids.map(k => renderSubtree(k, topics, q)).join('') + `</div>`
     : '';
   return `
     <div class="tree-node">
@@ -894,15 +1218,7 @@ function renderList(){
   const q = document.getElementById('searchInput').value.toLowerCase();
   const topics = getTopics();
   const pinned = getPinned();
-  const matches = t => {
-    const mu = activeUnits.size === 0 || (t.unit && activeUnits.has(t.unit));
-    const mq = !q || t.name.toLowerCase().includes(q) ||
-      (t.definition||'').toLowerCase().includes(q) ||
-      (t.unit||'').toLowerCase().includes(q) ||
-      (t.relatedTerms||[]).some(r => r.toLowerCase().includes(q));
-    return mu && mq;
-  };
-  const topLevel = topics.filter(t => !t.parentId && matches(t)).sort((a,b) => {
+  const topLevel = topics.filter(t => !t.parentId && topicVisibleInListFilter(t, topics, q)).sort((a,b) => {
     const ap = pinned.includes(a.id), bp = pinned.includes(b.id);
     if(ap && !bp) return -1;
     if(!ap && bp) return 1;
@@ -913,11 +1229,12 @@ function renderList(){
     ? `<div class="sidebar-empty">${q ? 'No results for "'+esc(q)+'"' : 'No topics yet.<br>Click <strong>+ New topic</strong> to begin.'}</div>`
     : topLevel.map(t => {
         const isPinned = pinned.includes(t.id);
-        const children = topics.filter(c => c.parentId === t.id);
+        const children = topics.filter(c => c.parentId === t.id && topicVisibleInListFilter(c, topics, q));
         const hasSubs = children.length > 0;
-        const isExpanded = hasSubs && expandedTopics.has(t.id);
+        const forceExpand = activeUnits.size > 0 && topics.filter(c => c.parentId === t.id).some(c => topicVisibleInListFilter(c, topics, q));
+        const isExpanded = hasSubs && (expandedTopics.has(t.id) || forceExpand);
         const subListHtml = isExpanded
-          ? `<div class="subtopic-sidebar-list">` + children.map(c => renderSubtree(c, topics)).join('') + `</div>`
+          ? `<div class="subtopic-sidebar-list">` + children.map(c => renderSubtree(c, topics, q)).join('') + `</div>`
           : '';
         return `
         <div class="topic-item-wrap">
@@ -1050,13 +1367,39 @@ function qaRowsHtml(t){
 }
 
 function viewTopic(id){
-  activeId = id;
   const t = getTopics().find(x => x.id == id);
   if(!t) return;
+
+  if(editSurface === 'inline'){
+    if(editId == id){ activeId = id; return; }
+    if(!canEditTopic(id)){
+      showToast('Only teachers can edit class topics', 'info');
+      return;
+    }
+    stashCurrentEditDraft();
+    activeId = id;
+    const allTopics = getTopics();
+    // Keep previously expanded groups open while editing so parent/subtopic
+    // trees stay available when switching between drafts.
+    let cur = t;
+    while(cur && cur.parentId != null && cur.parentId !== ''){
+      const parent = findTopicById(allTopics, cur.parentId);
+      if(!parent) break;
+      expandedTopics.add(parent.id);
+      cur = parent;
+    }
+    if(allTopics.some(c => c.parentId === t.id)) expandedTopics.add(Number(id));
+    if(location.protocol !== 'file:') history.replaceState(null,'', '#' + SUBJECT.id);
+    renderList();
+    startInlineEdit(id, { fromSwitch: true });
+    updateTopicBreadcrumb(t, allTopics);
+    return;
+  }
+
+  activeId = id;
   const renderKey = String(id);
   const isTopicSwitch = renderKey !== _lastRenderedTopicKey;
   if(isTopicSwitch) openCommentBlocks = new Set();
-  // Collapse everything except the path down to the newly selected topic
   const allTopics = getTopics();
   expandedTopics = new Set();
   let cur = t;
@@ -1097,7 +1440,6 @@ function viewTopic(id){
   const editedStr = t.updatedAt && t.updatedAt !== t.createdAt
     ? '<span class="dh-date">· Edited '+new Date(t.updatedAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})+'</span>' : '';
 
-  // visibleBlocks tracks each section for sidebar alignment
   const visibleBlocks = [];
   const sec = (block, label, icon, bodyHtml, headerExtra) => {
     if(bodyHtml == null || bodyHtml === '') return '';
@@ -1121,20 +1463,20 @@ function viewTopic(id){
         `<div class="formula-box">${sanitizeRich(t.formula)}</div>`);
     }
     if((t.flashcardQA||[]).length){
-      bodyHtml += sec('flashcardQA', 'Flashcard Questions', '🃏', qaRowsHtml(t));
+      bodyHtml += sec('flashcardQA', 'Flashcard Questions', '🎴', qaRowsHtml(t));
     }
     if(t.desmosState){
       bodyHtml += sec('desmos', 'Desmos Graph', '📐', `<div class="desmos-view-wrap">
         <div class="desmos-view-calc" id="desmosViewCalc" style="display:none"></div>
         <div class="desmos-loading" id="desmosViewLoading" style="display:none;height:420px"><span class="desmos-spinner"></span>Loading graph…</div>
         <p class="desmos-unavailable" id="desmosViewUnavailable" style="display:none">Desmos graphing isn't configured yet — set DESMOS_API_KEY in sync-config.js.</p>
-      </div>`, expandBtnsHtml('desmosViewCalc', {enlarge:true, fullscreen:true}));
+      </div>`, expandBtnsHtml('desmosViewCalc', {enlarge:true, fullscreen:true, topicId: t.id, enlargeField: 'desmos'}));
     }
   } else if(layout === 'text'){
     if(hasFieldContent(t.bodyText)){
       bodyHtml += sec('bodyText', 'Main Text', '📄',
         `<div class="plain-text" id="mainTextView">${sanitizeRich(t.bodyText)}</div>`,
-        expandBtnsHtml('mainTextView', {enlarge:true, fullscreen:true}));
+        expandBtnsHtml('mainTextView', {enlarge:true, fullscreen:true, topicId: t.id, enlargeField: 'bodyText'}));
     }
     if(kpHtml) bodyHtml += sec('keyPoints', 'Points of Interest', '✦', kpHtml);
   } else if(layout === 'pdf'){
@@ -1146,7 +1488,7 @@ function viewTopic(id){
   } else if(layout === 'table'){
     const tableHtml = tableViewHtml(t);
     if(tableHtml) bodyHtml += sec('tableData', 'Table', '▦', tableHtml);
-  } else { // basic
+  } else {
     if(hasFieldContent(t.definition)){
       bodyHtml += sec('definition', 'Definition', '📝',
         `<p class="def-text">${esc(t.definition)}</p>`);
@@ -1157,14 +1499,14 @@ function viewTopic(id){
     if(hasFieldContent(t.process))     bodyHtml += sec('process',     'Process / Method',   '⚙',  `<div class="formula-box">${sanitizeRich(t.process)}</div>`);
     if(hasFieldContent(t.safety))      bodyHtml += sec('safety',      'Safety / Warnings',  '⚠',  `<div class="warning-box">${sanitizeRich(t.safety)}</div>`);
     if(hasFieldContent(t.examTip))     bodyHtml += sec('examTip',     'Exam Tip',           '⚡', `<div class="exam-tip">${sanitizeRich(t.examTip)}</div>`);
-    if((t.flashcardQA||[]).length)     bodyHtml += sec('flashcardQA', 'Flashcard Questions','🃏', qaRowsHtml(t));
+    if((t.flashcardQA||[]).length)     bodyHtml += sec('flashcardQA', 'Flashcard Questions','🎴', qaRowsHtml(t));
   }
 
   if(subtopicsHtml) bodyHtml += sec('subtopics', 'Subtopics', '🧩', subtopicsHtml);
   if(relHtml)       bodyHtml += sec('relatedTerms', 'Related Terms', '🔗', relHtml);
 
-  destroyDesmosView(); // the old container (if any) is about to be replaced below
-  closeEnlarge(); // any enlarged content belongs to the topic being replaced
+  destroyDesmosView();
+  closeEnlarge();
   el.innerHTML = `
       <div class="dh">
         <div>
@@ -1175,7 +1517,7 @@ function viewTopic(id){
           </div>
         </div>
         <div class="dh-actions">
-          ${(window.isGuest || !window.isTeacher) ? '' : `<button class="btn-act" onclick="openModal(${t.id})">Edit</button>
+          ${(window.isGuest || !window.isTeacher) ? '' : `<button class="btn-act" onclick="startInlineEdit(${t.id})">Edit</button>
           <button class="btn-act danger" onclick="confirmDeleteTopic(${t.id})">Delete</button>`}
         </div>
       </div>
@@ -1190,26 +1532,172 @@ function viewTopic(id){
   _lastRenderedTopicKey = renderKey;
   buildTeacherPanel(t.id, visibleBlocks);
   mountDesmosView(t);
-
-  // Breadcrumb: Index / Class / [parent…] / Topic
+  wireRichImages(el);
   updateTopicBreadcrumb(t, allTopics);
 }
 function canEditClassTopics(){
   return !window.isGuest && !!window.isTeacher;
 }
 
-function openModal(id){
-  if(window.isGuest){ showToast('Sign in to add or edit topics','info'); return; }
-  if(!window.isTeacher){ showToast('Only teachers can add or edit class topics','info'); return; }
+function canEditTopic(id){
+  if(window.isGuest || !window.isTeacher) return false;
+  return true;
+}
+
+function assertCanEditTopic(id){
+  if(window.isGuest){ showToast('Sign in to add or edit topics','info'); return false; }
+  if(!window.isTeacher){ showToast('Only teachers can add or edit class topics','info'); return false; }
+  return true;
+}
+
+function beginEditSession(id){
   editId = id || null;
+  editDesmosTouched = false;
+}
+
+function editDraftKey(id){
+  return String(id);
+}
+
+function draftIsDirty(draft){
+  if(!draft || draft.id == null) return false;
+  const topics = getTopics();
+  const ex = topics.find(t => t.id === draft.id);
+  if(!ex) return true;
+  const same = (a, b) => {
+    try { return JSON.stringify(a ?? null) === JSON.stringify(b ?? null); }
+    catch(e){ return false; }
+  };
+  const str = (v) => (v == null ? '' : String(v));
+  if(str(draft.name).trim() !== str(ex.name).trim()) return true;
+  if(str(draft.unit) !== str(ex.unit || '')) return true;
+  if(str(draft.definition) !== str(ex.definition || '')) return true;
+  if(!same(draft.keyPoints || [], ex.keyPoints || [])) return true;
+  if(str(draft.formula) !== str(ex.formula || '')) return true;
+  if(str(draft.materials) !== str(ex.materials || '')) return true;
+  if(str(draft.process) !== str(ex.process || '')) return true;
+  if(str(draft.safety) !== str(ex.safety || '')) return true;
+  if(str(draft.examTip) !== str(ex.examTip || '')) return true;
+  if(str(draft.bodyText) !== str(ex.bodyText || '')) return true;
+  if(str(draft.pdfData) !== str(ex.pdfData || '') || str(draft.pdfName) !== str(ex.pdfName || '')) return true;
+  const draftTable = draft.tableData || { columns: [], rows: [] };
+  const exTable = ex.tableData || { columns: [], rows: [] };
+  if(!same(draftTable, exTable)) return true;
+  if(!same(draft.desmosState || null, ex.desmosState || null)) return true;
+  const draftLayout = LAYOUTS.includes(draft.layout) ? draft.layout : subjectDefaultLayout();
+  const exLayout = LAYOUTS.includes(ex.layout) ? ex.layout : subjectDefaultLayout();
+  if(draftLayout !== exLayout) return true;
+  if(!same(draft.relatedTerms || [], ex.relatedTerms || [])) return true;
+  if(!same(draft.flashcardQA || [], ex.flashcardQA || [])) return true;
+  const origSubs = topics.filter(c => c.parentId === draft.id).map(c => ({ id: Number(c.id), name: c.name }));
+  const draftSubs = (draft.subtopicRows || []).map(r => ({ id: r.id == null || r.id === '' ? null : Number(r.id), name: r.name }));
+  if(!same(draftSubs, origSubs)) return true;
+  return false;
+}
+
+function captureEditDraft(){
+  if(!editId || editSurface !== 'inline') return null;
+  if(!document.getElementById('fName')) return null;
+  const ex = getTopics().find(t => t.id === editId) || {};
+  const unitVal = document.getElementById('fUnit')?.value;
+  return {
+    id: editId,
+    name: document.getElementById('fName').value,
+    unit: unitVal === '__add_unit__' ? '' : (unitVal || ''),
+    definition: document.getElementById('fDefinition')?.value.trim() || '',
+    keyPoints: Array.from(document.getElementById('kpList').querySelectorAll('.kp-row input'))
+      .map(i => i.value.trim()).filter(Boolean),
+    formula: getRichVal('fFormula'),
+    materials: getRichVal('fMaterials'),
+    process: getRichVal('fProcess'),
+    safety: getRichVal('fSafety'),
+    examTip: getRichVal('fExamTip'),
+    bodyText: getRichVal('fBodyText'),
+    pdfData: pendingPdfData !== null ? pendingPdfData : (ex.pdfData || ''),
+    pdfName: pendingPdfData !== null ? pendingPdfName : (ex.pdfName || ''),
+    pendingPdfData: pendingPdfData,
+    pendingPdfName: pendingPdfName,
+    tableData: (typeof readTableData === 'function' && document.getElementById('tableEditorBody'))
+      ? readTableData() : (ex.tableData || null),
+    desmosState: (() => {
+      if(!editDesmosTouched) return ex.desmosState || null;
+      const ds = readDesmosState();
+      return ds !== null ? ds : (ex.desmosState || null);
+    })(),
+    layout: currentLayout,
+    relatedTerms: (() => {
+      const terms = [...tempTags];
+      const ti = document.getElementById('tagsInput')?.value.trim();
+      if(ti) terms.push(ti);
+      return terms;
+    })(),
+    flashcardQA: Array.from(document.getElementById('fqaList')?.querySelectorAll('.fqa-row') || []).map(row => {
+      const inputs = row.querySelectorAll('.fqa-input');
+      return { q: (inputs[0]?.value||'').trim(), a: (inputs[1]?.value||'').trim() };
+    }).filter(qa => qa.q),
+    subtopicRows: Array.from(document.getElementById('subtopicEditorList')?.children || []).map(row => {
+      const name = row.querySelector('.subtopic-name-i')?.value.trim();
+      const childId = row.dataset.childId ? Number(row.dataset.childId) : null;
+      return name ? { id: childId, name } : null;
+    }).filter(Boolean),
+    parentId: ex.parentId || null,
+    addedBy: ex.addedBy || window.currentUid || null,
+    createdAt: ex.createdAt || new Date().toISOString()
+  };
+}
+
+function stashCurrentEditDraft(){
+  if(editSurface !== 'inline' || !editId) return;
+  if(!editBatchDrafts) editBatchDrafts = {};
+  const draft = captureEditDraft();
+  if(!draft) return;
+  const key = editDraftKey(editId);
+  if(draftIsDirty(draft)) editBatchDrafts[key] = draft;
+  else delete editBatchDrafts[key];
+  updateEditBatchButtons();
+}
+
+function collectDirtyEditDrafts(){
+  const map = Object.assign({}, editBatchDrafts || {});
+  if(editSurface === 'inline' && editId){
+    const draft = captureEditDraft();
+    if(draft){
+      const key = editDraftKey(editId);
+      if(draftIsDirty(draft)) map[key] = draft;
+      else delete map[key];
+    }
+  }
+  return Object.values(map).filter(draftIsDirty);
+}
+
+function updateEditBatchButtons(){
+  const count = collectDirtyEditDrafts().length;
+  const saveBtn = document.querySelector('.dh-save-btn');
+  const cancelBtn = document.querySelector('.dh-actions-btns .btn-act');
+  if(saveBtn) saveBtn.textContent = count > 1 ? `Save (${count})` : 'Save';
+  if(cancelBtn) cancelBtn.textContent = 'Cancel';
+}
+
+function wireEditDirtyTracking(){
+  const el = document.getElementById('detailContent');
+  if(!el || el.dataset.dirtyTrack === '1') return;
+  el.dataset.dirtyTrack = '1';
+  const bump = () => { if(editSurface === 'inline') updateEditBatchButtons(); };
+  el.addEventListener('input', bump);
+  el.addEventListener('change', bump);
+}
+
+function populateTopicForm(id, draft){
   tempTags = [];
   document.getElementById('kpList').innerHTML = '';
   document.getElementById('subtopicEditorList').innerHTML = '';
   document.getElementById('tagsWrap').querySelectorAll('.tag-chip').forEach(e => e.remove());
   populateSel();
+  let desmosState = null;
   if(id){
-    const t = getTopics().find(x => x.id == id);
-    document.getElementById('modalTitle').textContent = 'Edit topic';
+    const t = draft || getTopics().find(x => x.id == id) || {};
+    const titleEl = document.getElementById('modalTitle');
+    if(titleEl) titleEl.textContent = 'Edit topic';
     document.getElementById('fName').value = t.name || '';
     document.getElementById('fUnit').value = t.unit || '';
     document.getElementById('fDefinition').value = t.definition || '';
@@ -1221,38 +1709,176 @@ function openModal(id){
     setRichVal('fBodyText', t.bodyText || '');
     (t.keyPoints||[]).forEach(k => addKpRow(k));
     (t.relatedTerms||[]).forEach(addTag);
-    getTopics().filter(c => c.parentId === t.id).forEach(c => addSubtopicRow(c));
+    if(draft && Array.isArray(draft.subtopicRows)){
+      draft.subtopicRows.forEach(c => addSubtopicRow(c));
+    } else {
+      getTopics().filter(c => c.parentId === t.id).forEach(c => addSubtopicRow(c));
+    }
     document.getElementById('fqaList').innerHTML = '';
     (t.flashcardQA||[]).forEach(qa => addFqaRow(qa.q, qa.a));
     buildTableEditor(t.tableData);
-    mountDesmosEditor(t.desmosState || null);
-    currentLayout = LAYOUTS.includes(t.layout) ? t.layout : 'basic';
-    pendingPdfData = null; pendingPdfName = null; pendingPdfUploading = false;
+    desmosState = t.desmosState || null;
+    currentLayout = LAYOUTS.includes(t.layout) ? t.layout : subjectDefaultLayout();
+    if(draft && 'pendingPdfData' in draft){
+      pendingPdfData = draft.pendingPdfData;
+      pendingPdfName = draft.pendingPdfName;
+      pendingPdfUploading = false;
+    } else {
+      pendingPdfData = null; pendingPdfName = null; pendingPdfUploading = false;
+    }
   } else {
-    document.getElementById('modalTitle').textContent = 'New topic';
+    const titleEl = document.getElementById('modalTitle');
+    if(titleEl) titleEl.textContent = 'New topic';
     ['fName','fDefinition'].forEach(i => document.getElementById(i).value = '');
     ['fFormula','fMaterials','fProcess','fSafety','fExamTip','fBodyText'].forEach(clearRich);
     document.getElementById('fUnit').value = '';
     document.getElementById('fqaList').innerHTML = '';
     buildTableEditor(null);
-    mountDesmosEditor(null);
-    currentLayout = 'basic';
+    currentLayout = subjectDefaultLayout();
     pendingPdfData = null; pendingPdfName = null; pendingPdfUploading = false;
   }
   renderPdfPreview();
   applyLayoutUI();
+  return desmosState;
+}
+
+function parkEditPanel(){
+  const panel = document.getElementById('topicEditPanel');
+  const overlay = document.getElementById('modalOverlay');
+  if(panel && overlay && panel.parentNode !== overlay) overlay.appendChild(panel);
+  if(panel) panel.classList.remove('topic-edit-inline');
+}
+
+function stashModalFormIds(){
+  const panel = document.getElementById('topicEditPanel');
+  if(!panel) return;
+  panel.querySelectorAll('[id]').forEach(el => {
+    if(el.dataset.stashedId) return;
+    el.dataset.stashedId = el.id;
+    el.removeAttribute('id');
+  });
+}
+
+function restoreModalFormIds(){
+  const panel = document.getElementById('topicEditPanel');
+  if(!panel) return;
+  panel.querySelectorAll('[data-stashed-id]').forEach(el => {
+    el.id = el.dataset.stashedId;
+    delete el.dataset.stashedId;
+  });
+}
+
+function finishEditSession(){
+  closeLayoutMenu();
+  destroyDesmosEditor();
+  if(editSurface === 'inline'){
+    const el = document.getElementById('detailContent');
+    if(el) el.innerHTML = '';
+    restoreModalFormIds();
+  } else {
+    parkEditPanel();
+  }
+  document.getElementById('modalOverlay').classList.remove('open');
+  editId = null;
+  editSurface = null;
+  editBatchDrafts = null;
+}
+
+function afterEditFormMounted(desmosState){
+  mountDesmosEditor(desmosState);
+  document.querySelectorAll('.rich-editor-wrap').forEach(attachRichDnD);
+  wireRichImages(document.getElementById('detailContent'));
+  wireRichImages(document.getElementById('topicEditPanel'));
+  wireEditDirtyTracking();
+  updateEditBatchButtons();
+}
+
+function openModal(id){
+  if(!assertCanEditTopic(id)) return;
+  if(editSurface === 'inline') finishEditSession();
+  restoreModalFormIds();
+  beginEditSession(id);
+  const desmosState = populateTopicForm(id);
+  parkEditPanel();
+  editSurface = 'modal';
+  afterEditFormMounted(desmosState);
   document.getElementById('modalOverlay').classList.add('open');
   setTimeout(() => document.getElementById('fName').focus(), 80);
 }
-function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); editId = null; destroyDesmosEditor(); }
+
+function startInlineEdit(id, opts){
+  opts = opts || {};
+  if(!id || !assertCanEditTopic(id)) return;
+  if(editSurface === 'inline' && editId === id && !opts.fromSwitch) return;
+  if(editSurface === 'inline' && !opts.fromSwitch){
+    finishEditSession();
+  }
+  if(!editBatchDrafts) editBatchDrafts = {};
+  closeEnlarge();
+  destroyDesmosView();
+  beginEditSession(id);
+  const el = document.getElementById('detailContent');
+  el.innerHTML = buildInlineEditHtml();
+  stashModalFormIds();
+  document.getElementById('teacherNotesPanel').style.display = 'none';
+  document.getElementById('welcomeState').style.display = 'none';
+  document.getElementById('detailOuter').style.display = 'flex';
+  el.style.display = 'block';
+  el.classList.add('on');
+  editSurface = 'inline';
+  activeId = id;
+  const draft = editBatchDrafts[editDraftKey(id)] || null;
+  const desmosState = populateTopicForm(id, draft);
+  afterEditFormMounted(desmosState);
+  setTimeout(() => document.getElementById('fName').focus(), 80);
+}
+
+function closeInlineEdit(){
+  const id = activeId;
+  finishEditSession();
+  if(id) viewTopic(id);
+}
+
+function closeModal(){
+  if(editSurface === 'inline'){ closeInlineEdit(); return; }
+  finishEditSession();
+}
 
 function populateSel(){
-  const units = getUnits(), sel = document.getElementById('fUnit'), cur = sel.value;
+  const sel = document.getElementById('fUnit');
+  if(!sel) return;
+  const units = getUnits();
+  const cur = sel.value && sel.value !== '__add_unit__' ? sel.value : '';
   sel.innerHTML = '<option value="">— No unit —</option>' +
-    units.map(u => `<option value="${esc(u)}"${u===cur?' selected':''}>${esc(u)}</option>`).join('');
+    units.map(u => `<option value="${esc(u)}"${u===cur?' selected':''}>${esc(u)}</option>`).join('') +
+    '<option value="__add_unit__">+ Add unit…</option>';
+  if(cur) sel.value = cur;
 }
-function showUnitInput(){ document.getElementById('unitInputRow').style.display='block'; document.getElementById('newUnitInput').value=''; document.getElementById('newUnitInput').focus(); document.getElementById('btnAddUnit').style.display='none'; }
-function hideUnitInput(){ document.getElementById('unitInputRow').style.display='none'; document.getElementById('btnAddUnit').style.display=''; }
+
+function onUnitSelectChange(){
+  const sel = document.getElementById('fUnit');
+  if(!sel || sel.value !== '__add_unit__') return;
+  sel.value = sel.dataset.prevUnit || '';
+  showUnitInput();
+}
+
+function showUnitInput(){
+  const sel = document.getElementById('fUnit');
+  const row = document.getElementById('unitInputRow');
+  if(sel){
+    sel.dataset.prevUnit = sel.value;
+    sel.style.display = 'none';
+  }
+  if(row) row.style.display = 'flex';
+  document.getElementById('newUnitInput').value='';
+  document.getElementById('newUnitInput').focus();
+}
+function hideUnitInput(){
+  const row = document.getElementById('unitInputRow');
+  if(row) row.style.display = 'none';
+  const sel = document.getElementById('fUnit');
+  if(sel) sel.style.display = '';
+}
 function confirmAddUnit(){
   const name = document.getElementById('newUnitInput').value.trim();
   if(!name) return;
@@ -1314,19 +1940,280 @@ function addTag(text){
   btn.onclick = () => removeTag(btn, captured);
   chip.appendChild(label); chip.appendChild(btn);
   wrap.insertBefore(chip, document.getElementById('tagsInput'));
+  hideTagsSuggest();
 }
 function removeTag(btn, text){ tempTags = tempTags.filter(t => t !== text); btn.closest('.tag-chip').remove(); }
 
-document.getElementById('tagsInput').addEventListener('keydown', e => {
-  if(e.key==='Enter'||e.key===','){ e.preventDefault(); const v=e.target.value.replace(',','').trim(); if(v){ addTag(v); e.target.value=''; } }
+let tagsSuggestList = [];
+let tagsSuggestIndex = 0;
+
+function relatedTermCandidateNames(){
+  const names = new Set();
+  const taken = new Set(tempTags.map(t => t.toLowerCase()));
+  getTopics().forEach(t => {
+    if(!t || !t.name) return;
+    if(editId != null && t.id === editId) return;
+    if(taken.has(String(t.name).toLowerCase())) return;
+    names.add(String(t.name));
+  });
+  return [...names];
+}
+
+function tagsMatchDistance(query, name){
+  const q = query.toLowerCase();
+  const n = name.toLowerCase();
+  if(!q) return Infinity;
+  if(n === q) return 0;
+  if(n.startsWith(q)) return 1 + (n.length - q.length) * 0.01;
+  const words = n.split(/[\s/_-]+/);
+  if(words.some(w => w.startsWith(q))) return 4 + (n.length - q.length) * 0.01;
+  if(n.includes(q)) return 8 + n.indexOf(q) * 0.1;
+  if(q.length >= 2){
+    const window = n.slice(0, Math.min(n.length, q.length + 2));
+    const a = q, b = window;
+    const prev = new Array(b.length + 1);
+    const cur = new Array(b.length + 1);
+    for(let j = 0; j <= b.length; j++) prev[j] = j;
+    for(let i = 1; i <= a.length; i++){
+      cur[0] = i;
+      for(let j = 1; j <= b.length; j++){
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+      }
+      for(let j = 0; j <= b.length; j++) prev[j] = cur[j];
+    }
+    const dist = prev[b.length];
+    const maxDist = Math.max(1, Math.floor(q.length / 3));
+    if(dist <= maxDist) return 20 + dist;
+  }
+  return Infinity;
+}
+
+function ensureTagsSuggestEl(){
+  let box = document.getElementById('tagsSuggest');
+  const wrap = document.getElementById('tagsWrap');
+  if(!wrap) return null;
+  if(!box){
+    box = document.createElement('div');
+    box.id = 'tagsSuggest';
+    box.className = 'tags-suggest';
+    box.setAttribute('role', 'listbox');
+    wrap.insertAdjacentElement('afterend', box);
+  }
+  return box;
+}
+
+function hideTagsSuggest(){
+  tagsSuggestList = [];
+  tagsSuggestIndex = 0;
+  const box = document.getElementById('tagsSuggest');
+  if(box){
+    box.classList.remove('open');
+    box.innerHTML = '';
+  }
+}
+
+function renderTagsSuggest(){
+  const box = ensureTagsSuggestEl();
+  if(!box) return;
+  if(!tagsSuggestList.length){
+    hideTagsSuggest();
+    return;
+  }
+  box.innerHTML = tagsSuggestList.map((name, i) =>
+    `<button type="button" class="tags-suggest-item${i === tagsSuggestIndex ? ' active' : ''}" role="option" aria-selected="${i === tagsSuggestIndex ? 'true' : 'false'}" data-idx="${i}">
+      <span>${esc(name)}</span>${i === 0 ? '<kbd>Tab</kbd>' : ''}
+    </button>`
+  ).join('');
+  box.classList.add('open');
+  box.querySelectorAll('.tags-suggest-item').forEach(btn => {
+    btn.onmousedown = (e) => {
+      e.preventDefault();
+      tagsSuggestIndex = Number(btn.dataset.idx) || 0;
+      acceptTagsSuggest();
+    };
+  });
+}
+
+function updateTagsSuggest(){
+  const input = document.getElementById('tagsInput');
+  if(!input){ hideTagsSuggest(); return; }
+  const q = input.value.trim();
+  if(q.length < 1){ hideTagsSuggest(); return; }
+  const ranked = relatedTermCandidateNames()
+    .map(name => ({ name, score: tagsMatchDistance(q, name) }))
+    .filter(x => x.score !== Infinity)
+    .sort((a, b) => a.score - b.score || a.name.localeCompare(b.name));
+  tagsSuggestList = ranked.slice(0, 6).map(x => x.name);
+  tagsSuggestIndex = 0;
+  renderTagsSuggest();
+}
+
+function acceptTagsSuggest(){
+  const input = document.getElementById('tagsInput');
+  if(!input || !tagsSuggestList.length) return false;
+  const name = tagsSuggestList[tagsSuggestIndex] || tagsSuggestList[0];
+  input.value = name;
+  hideTagsSuggest();
+  input.focus();
+  input.setSelectionRange(name.length, name.length);
+  return true;
+}
+
+document.addEventListener('input', e => {
+  if(e.target && e.target.id === 'tagsInput') updateTagsSuggest();
+});
+
+document.addEventListener('keydown', e => {
+  if(e.target.id !== 'tagsInput') return;
+  if(e.key === 'Tab' && tagsSuggestList.length){
+    e.preventDefault();
+    acceptTagsSuggest();
+    return;
+  }
+  if(e.key === 'ArrowDown' && tagsSuggestList.length){
+    e.preventDefault();
+    tagsSuggestIndex = (tagsSuggestIndex + 1) % tagsSuggestList.length;
+    renderTagsSuggest();
+    return;
+  }
+  if(e.key === 'ArrowUp' && tagsSuggestList.length){
+    e.preventDefault();
+    tagsSuggestIndex = (tagsSuggestIndex - 1 + tagsSuggestList.length) % tagsSuggestList.length;
+    renderTagsSuggest();
+    return;
+  }
+  if(e.key === 'Escape' && tagsSuggestList.length){
+    e.preventDefault();
+    hideTagsSuggest();
+    return;
+  }
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    const v = e.target.value.replace(',','').trim();
+    if(v){ addTag(v); e.target.value=''; }
+    hideTagsSuggest();
+  }
   if(e.key==='Backspace'&&!e.target.value&&tempTags.length){
     const chips = document.getElementById('tagsWrap').querySelectorAll('.tag-chip');
-    removeTag(chips[chips.length-1].querySelector('button'), tempTags[tempTags.length-1]);
+    if(chips.length) removeTag(chips[chips.length-1].querySelector('button'), tempTags[tempTags.length-1]);
   }
 });
 
+document.addEventListener('focusout', e => {
+  if(e.target && e.target.id === 'tagsInput'){
+    setTimeout(hideTagsSuggest, 120);
+  }
+});
+
+function applyDraftToTopicList(topics, draft){
+  let unit = draft.unit || '';
+  if(draft.parentId){
+    const parent = topics.find(t => t.id === draft.parentId) || Object.values(editBatchDrafts || {}).find(d => d.id === draft.parentId);
+    if(parent) unit = parent.unit || '';
+  }
+  const topic = {
+    id: draft.id,
+    name: draft.name.trim(),
+    unit,
+    definition: draft.definition || '',
+    keyPoints: draft.keyPoints || [],
+    formula: draft.formula || '',
+    materials: draft.materials || '',
+    process: draft.process || '',
+    safety: draft.safety || '',
+    examTip: draft.examTip || '',
+    bodyText: draft.bodyText || '',
+    pdfData: draft.pdfData || '',
+    pdfName: draft.pdfName || '',
+    tableData: draft.tableData || { columns: [], rows: [] },
+    desmosState: draft.desmosState || null,
+    layout: draft.layout || subjectDefaultLayout(),
+    relatedTerms: draft.relatedTerms || [],
+    flashcardQA: draft.flashcardQA || [],
+    parentId: draft.parentId || null,
+    addedBy: draft.addedBy || window.currentUid || null,
+    createdAt: draft.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  topics = topics.map(t => t.id === draft.id ? topic : t);
+  const keptChildIds = new Set();
+  (draft.subtopicRows || []).forEach(row => {
+    if(row.id){
+      topics = topics.map(t => t.id === row.id
+        ? { ...t, name: row.name, unit: topic.unit, updatedAt: new Date().toISOString() }
+        : t);
+      keptChildIds.add(row.id);
+    } else {
+      const childId = Date.now() + Math.floor(Math.random() * 1000);
+      topics.push({
+        id: childId,
+        name: row.name,
+        unit: topic.unit,
+        definition: '', keyPoints: [], formula: '', materials: '', process: '', safety: '', examTip: '',
+        relatedTerms: [], flashcardQA: [], tableData: { columns: [], rows: [] }, desmosState: null,
+        parentId: topic.id,
+        addedBy: window.currentUid || null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+      keptChildIds.add(childId);
+    }
+  });
+  const removedChildIds = topics.filter(t => t.parentId === topic.id && !keptChildIds.has(t.id)).map(t => t.id);
+  const toRemove = new Set(removedChildIds.flatMap(cid => [cid, ...getDescendantIds(cid, topics)]));
+  topics = topics.filter(t => !toRemove.has(t.id));
+  // Keep all descendants' units in sync with this topic's unit
+  const descIds = new Set(getDescendantIds(topic.id, topics));
+  return topics.map(t => descIds.has(t.id) ? { ...t, unit: topic.unit } : t);
+}
+
 function saveTopic(){
   if(!canEditClassTopics()){ showToast('Only teachers can add or edit class topics','info'); return; }
+
+  if(editSurface === 'inline'){
+    const name = document.getElementById('fName')?.value.trim();
+    if(!name){ document.getElementById('fName').focus(); return; }
+    stashCurrentEditDraft();
+    const drafts = collectDirtyEditDrafts();
+    if(!drafts.length){
+      const viewId = editId;
+      finishEditSession();
+      renderList();
+      viewTopic(viewId);
+      return;
+    }
+    for(const d of drafts){
+      if(!String(d.name || '').trim()){
+        startInlineEdit(d.id, { fromSwitch: true });
+        showToast('Every edited topic needs a name', 'info');
+        document.getElementById('fName')?.focus();
+        return;
+      }
+    }
+    drafts.sort((a, b) => {
+      const depth = (d) => {
+        let n = 0, pid = d.parentId;
+        while(pid != null && pid !== '' && n < 30){
+          n++;
+          const parent = drafts.find(x => x.id === pid);
+          pid = parent ? parent.parentId : null;
+          if(!parent) break;
+        }
+        return n;
+      };
+      return depth(a) - depth(b);
+    });
+    let viewId = editId;
+    let topics = getTopics();
+    drafts.forEach(d => { topics = applyDraftToTopicList(topics, d); });
+    saveTopics(topics);
+    finishEditSession();
+    renderList();
+    viewTopic(viewId);
+    return;
+  }
+
   const name = document.getElementById('fName').value.trim();
   if(!name){ document.getElementById('fName').focus(); return; }
   const keyPoints = Array.from(document.getElementById('kpList').querySelectorAll('.kp-row input'))
@@ -1344,10 +2231,15 @@ function saveTopic(){
   }).filter(Boolean);
   const ex = editId ? (getTopics().find(t => t.id===editId)||{}) : {};
   const newDesmosState = readDesmosState();
+  let unit = (() => { const v = document.getElementById('fUnit').value; return v === '__add_unit__' ? '' : v; })();
+  if(ex.parentId){
+    const parent = getTopics().find(t => t.id === ex.parentId);
+    if(parent) unit = parent.unit || '';
+  }
   const topic = {
     id: editId || Date.now(),
     name,
-    unit: document.getElementById('fUnit').value,
+    unit,
     definition: document.getElementById('fDefinition').value.trim(),
     keyPoints,
     formula:   getRichVal('fFormula'),
@@ -1359,9 +2251,6 @@ function saveTopic(){
     pdfData:   pendingPdfData !== null ? pendingPdfData : (ex.pdfData || ''),
     pdfName:   pendingPdfData !== null ? pendingPdfName : (ex.pdfName || ''),
     tableData: readTableData(),
-    // desmosEditorCalc may not have finished loading yet (async key fetch +
-    // script load) if the user saves very quickly — in that case fall back
-    // to whatever was already saved rather than wiping it out.
     desmosState: newDesmosState !== null ? newDesmosState : (ex.desmosState || null),
     layout:    currentLayout,
     relatedTerms,
@@ -1374,15 +2263,12 @@ function saveTopic(){
   let topics = getTopics();
   topics = editId ? topics.map(t => t.id===editId ? topic : t) : [...topics, topic];
 
-  // Sync linked subtopics (child topics) against the rows in the editor
   const keptChildIds = new Set();
   subtopicRows.forEach(row => {
     if(row.id){
-      // update existing child topic's name
-      topics = topics.map(t => t.id===row.id ? { ...t, name: row.name, updatedAt: new Date().toISOString() } : t);
+      topics = topics.map(t => t.id===row.id ? { ...t, name: row.name, unit: topic.unit, updatedAt: new Date().toISOString() } : t);
       keptChildIds.add(row.id);
     } else {
-      // create a new linked child topic
       const childId = Date.now() + Math.floor(Math.random()*1000);
       topics.push({
         id: childId,
@@ -1398,12 +2284,13 @@ function saveTopic(){
       keptChildIds.add(childId);
     }
   });
-  // remove children that were deleted from the editor list (and any of their own descendants)
   const removedChildIds = topics.filter(t => t.parentId === topic.id && !keptChildIds.has(t.id)).map(t => t.id);
   const toRemove = new Set(removedChildIds.flatMap(cid => [cid, ...getDescendantIds(cid, topics)]));
   topics = topics.filter(t => !toRemove.has(t.id));
+  const descIds = new Set(getDescendantIds(topic.id, topics));
+  topics = topics.map(t => descIds.has(t.id) ? { ...t, unit: topic.unit } : t);
 
-  saveTopics(topics); closeModal(); renderList(); viewTopic(topic.id);
+  saveTopics(topics); finishEditSession(); renderList(); viewTopic(topic.id);
 }
 
 // ── Delete confirm ──
@@ -1468,7 +2355,10 @@ function doDelete(){
 
 // ── Keyboard shortcuts ──
 document.addEventListener('keydown', e => {
-  if(e.key==='Escape'){ closeModal(); closeConfirm(); }
+  if(e.key==='Escape'){
+    closeModal(); closeConfirm();
+    if(typeof closeSuggestions === 'function') closeSuggestions();
+  }
   if((e.metaKey||e.ctrlKey)&&e.key==='k'){ e.preventDefault(); document.getElementById('searchInput').focus(); }
 });
 document.getElementById('searchInput').addEventListener('input', renderList);
@@ -1499,19 +2389,6 @@ function setSyncStatus(s){
   else { el.textContent='○ Offline'; el.className='sync-chip err'; }
 }
 
-function jsonpGet(url){
-  return new Promise((resolve, reject) => {
-    const cb = '_cb'+Date.now()+'_'+Math.floor(Math.random()*99999);
-    const script = document.createElement('script');
-    const cleanup = () => { delete window[cb]; if(script.parentNode) script.parentNode.removeChild(script); };
-    window[cb] = data => { cleanup(); resolve(data); };
-    script.onerror = () => { cleanup(); reject(new Error('JSONP error')); };
-    script.src = url + (url.includes('?')?'&':'?') + 'callback=' + cb;
-    document.head.appendChild(script);
-    setTimeout(() => { cleanup(); reject(new Error('Timeout')); }, 8000);
-  });
-}
-
 function syncPush(key, data){
   try{
     const id = 'sf'+Date.now();
@@ -1528,7 +2405,6 @@ function syncPush(key, data){
   } catch(e){ setSyncStatus('err'); }
 }
 
-let _nextSync = Date.now() + 60000;
 
 async function syncPull(){
   setSyncStatus('syncing');
@@ -1572,7 +2448,6 @@ async function syncPull(){
     setSyncStatus('ok');
     renderList();
   } catch(e){ setSyncStatus('err'); }
-  _nextSync = Date.now() + 60000;
 }
 
 function sanitizeForSync(topics){
@@ -1596,6 +2471,79 @@ function sanitizeForSync(topics){
 }
 
 // ── Image upload ──
+function extractDriveFileId(url){
+  if(!url) return '';
+  return (String(url).match(/[?&]id=([a-zA-Z0-9_-]+)/) || String(url).match(/\/d\/([a-zA-Z0-9_-]+)/) || [])[1] || '';
+}
+
+function driveImageCandidates(urlOrId, fallbackB64){
+  const id = extractDriveFileId(urlOrId) || (/^[a-zA-Z0-9_-]{10,}$/.test(String(urlOrId||'')) ? urlOrId : '');
+  const list = [];
+  if(id){
+    list.push('https://drive.google.com/thumbnail?id=' + id + '&sz=w1000');
+    list.push('https://lh3.googleusercontent.com/d/' + id + '=s900');
+    list.push('https://lh3.googleusercontent.com/d/' + id);
+  }
+  if(urlOrId && /^https?:\/\//i.test(urlOrId) && !list.includes(urlOrId)
+      && !/thumbnail\?id=/i.test(urlOrId) && !/lh3\.googleusercontent\.com/i.test(urlOrId)){
+    list.push(urlOrId);
+  }
+  if(fallbackB64 && /^data:image\//i.test(fallbackB64)) list.push(fallbackB64);
+  return list;
+}
+
+function preferredDriveImageUrl(urlOrId){
+  const id = extractDriveFileId(urlOrId);
+  return id ? ('https://drive.google.com/thumbnail?id=' + id + '&sz=w1000') : (urlOrId || '');
+}
+
+function attachImgFallback(img){
+  if(!img || img.dataset.fbWired === '1') return;
+  img.dataset.fbWired = '1';
+  const src = img.getAttribute('src') || '';
+  const id = img.dataset.driveId || extractDriveFileId(src);
+  if(id) img.dataset.driveId = id;
+  const candidates = driveImageCandidates(src || id, img.dataset.fallback || '');
+  if(!candidates.length) return;
+  let step = Math.max(0, candidates.indexOf(src));
+  const tryNext = () => {
+    step++;
+    if(step < candidates.length){
+      img.src = candidates[step];
+    } else {
+      img.removeEventListener('error', tryNext);
+      img.alt = 'Image unavailable';
+      img.classList.add('img-broken');
+    }
+  };
+  img.addEventListener('error', tryNext);
+  if(id && /^https:\/\/lh3\.googleusercontent\.com\//i.test(src)){
+    step = -1;
+    tryNext();
+    return;
+  }
+  if(img.complete && img.naturalWidth === 0){
+    step = -1;
+    tryNext();
+  }
+}
+
+function wireRichImages(root){
+  if(!root) return;
+  root.querySelectorAll('img').forEach(attachImgFallback);
+}
+
+function makeUploadedImg(url, fallbackB64){
+  const img = document.createElement('img');
+  img.alt = '';
+  const id = extractDriveFileId(url);
+  if(id) img.dataset.driveId = id;
+  if(fallbackB64) img.dataset.fallback = fallbackB64;
+  img.src = preferredDriveImageUrl(url) || url || fallbackB64 || '';
+  attachImgFallback(img);
+  return img;
+}
+
 function pollUploadResult(uid, ph) {
   let tries = 0;
   const poll = setInterval(async () => {
@@ -1603,12 +2551,13 @@ function pollUploadResult(uid, ph) {
     try {
       const res = await jsonpGet(SYNC_URL+'?key='+encodeURIComponent('_ur_'+uid));
       if(res && res.data){ clearInterval(poll);
-        const img = document.createElement('img');
-        img.src = res.data.ok && res.data.url ? res.data.url : ph._b64;
+        const url = res.data.ok && (res.data.url || res.data.id) ? (res.data.url || res.data.id) : '';
+        const img = makeUploadedImg(url, ph._b64);
+        if(!url && ph._b64) img.src = ph._b64;
         ph.replaceWith(img);
       }
     } catch(e) {}
-    if(tries >= 30){ clearInterval(poll); const img = document.createElement('img'); img.src = ph._b64; ph.replaceWith(img); }
+    if(tries >= 30){ clearInterval(poll); ph.replaceWith(makeUploadedImg('', ph._b64)); }
   }, 1500);
 }
 
@@ -1720,16 +2669,6 @@ function setupRichDnD(){
   document.querySelectorAll('.rich-editor-wrap').forEach(attachRichDnD);
 }
 
-// ── Sync countdown ──
-function startCountdown(){
-  const el=document.getElementById('syncCountdown');
-  if(!el)return;
-  setInterval(()=>{
-    const secs=Math.max(0,Math.round((_nextSync-Date.now())/1000));
-    el.textContent=secs>0?secs+'s':'';
-  },1000);
-}
-
 // ── Deep-link from index.html's "Units Overview" list: ?unit=<name> opens
 // the Units filter panel with that unit already selected (checked), so the
 // topic list is filtered to it immediately.
@@ -1766,8 +2705,7 @@ if(resolveSubject()){
   applyUnitLinkFromUrl();
   applyTopicLinkFromUrl();
   syncPull();
-  setInterval(syncPull, 60000);
-  startCountdown();
+  setTimeout(() => syncPull(), 10000);
 }
 
 /* ══════════════════════════════════════════════

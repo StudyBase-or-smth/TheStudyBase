@@ -3,8 +3,9 @@
 // This function is the ONLY place real API keys should live (as Netlify
 // environment variables, set in Site settings -> Environment variables):
 //
-//   GEMINI_API_KEY   -> your default Gemini key
-//   CLAUDE_API_KEY   -> your default Claude (Anthropic) key
+//   GEMINI_API_KEY            -> your default Gemini key
+//   GEMINI_API_MODEL_ANALYSER -> Gemini model id for analyser.html (else gemini-2.5-flash)
+//   CLAUDE_API_KEY            -> your default Claude (Anthropic) key
 //
 // The browser never sees these. If the user pastes their own key into the
 // optional textbox on the page, that key is sent per-request in the request
@@ -29,6 +30,12 @@ if (!admin.apps.length) {
 }
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
+const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
+
+function geminiModelId(raw, fallback) {
+  const id = String(raw || '').trim();
+  return /^[a-zA-Z0-9._-]+$/.test(id) ? id : fallback;
+}
 
 async function requireSignedInUser(event) {
   const authHeader = event.headers.authorization || event.headers.Authorization || '';
@@ -49,12 +56,12 @@ exports.handler = async function (event) {
     return { statusCode: 400, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
-  const { provider, prompt, userKey } = body;
+  const { provider, prompt, userKey, source } = body;
 
   if (!prompt || typeof prompt !== 'string') {
     return { statusCode: 400, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Missing prompt' }) };
   }
-  if (prompt.length > 20000) {
+  if (prompt.length > 30000) {
     return { statusCode: 413, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Prompt is too long' }) };
   }
 
@@ -113,8 +120,12 @@ exports.handler = async function (event) {
         return { statusCode: 500, headers: JSON_HEADERS, body: JSON.stringify({ error: 'No Gemini API key configured on server and none provided by user.' }) };
       }
 
+      const model = source === 'analyser'
+        ? geminiModelId(process.env.GEMINI_API_MODEL_ANALYSER, DEFAULT_GEMINI_MODEL)
+        : DEFAULT_GEMINI_MODEL;
+
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

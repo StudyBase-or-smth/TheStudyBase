@@ -1,13 +1,14 @@
 // subjects.js
+// default: topic layout when creating a new topic (basic | overview | math | text | pdf | table)
 const subjectsData = {
   subjects: [
-    { id: "eng2", name: "Engineering", emoji: "⚙️", colour: "#1a588e", storageKey: "eng2_topics", unitsKey: "eng2_units" },
-    { id: "eco",  name: "Economics",   emoji: "📊", colour: "#0c8247", storageKey: "eco_topics",  unitsKey: "eco_units"  },
-    { id: "eng",  name: "English",     emoji: "📖", colour: "#9f1239", storageKey: "eng_topics",  unitsKey: "eng_units"  },
-    { id: "mth",  name: "Maths",       emoji: "📐", colour: "rgb(79, 142, 205)", storageKey: "mth_topics",  unitsKey: "mth_units"  },
-    { id: "tmb",  name: "Timber",      emoji: "🪵", colour: "#92400e", storageKey: "tmb_topics",  unitsKey: "tmb_units"  },
-    { id: "mlt",  name: "Multimedia",  emoji: "🎬", colour: "#ce1ff1", storageKey: "mlt_topics",  unitsKey: "mlt_units"  },
-    { id: "phy",  name: "Physics",     emoji: "🧪", colour: "#0dbb07", storageKey: "phy_topics",  unitsKey: "phy_units" }
+    { id: "eng2", name: "Engineering", emoji: "⚙️", colour: "#1a588e", default: "basic",   storageKey: "eng2_topics", unitsKey: "eng2_units" },
+    { id: "eco",  name: "Economics",   emoji: "📊", colour: "#0c8247", default: "text",   storageKey: "eco_topics",  unitsKey: "eco_units"  },
+    { id: "eng",  name: "English",     emoji: "📖", colour: "#9f1239", default: "text",   storageKey: "eng_topics",  unitsKey: "eng_units"  },
+    { id: "mth",  name: "Maths",       emoji: "📐", colour: "rgb(79, 142, 205)", default: "math", storageKey: "mth_topics",  unitsKey: "mth_units"  },
+    { id: "tmb",  name: "Timber",      emoji: "🪵", colour: "#92400e", default: "text",  storageKey: "tmb_topics",  unitsKey: "tmb_units"  },
+    { id: "mlt",  name: "Multimedia",  emoji: "🎬", colour: "#ce1ff1", default: "text",    storageKey: "mlt_topics",  unitsKey: "mlt_units"  },
+    { id: "phy",  name: "Physics",     emoji: "🧪", colour: "#0dbb07", default: "basic",   storageKey: "phy_topics",  unitsKey: "phy_units" }
   ]
 };
 // classes.js

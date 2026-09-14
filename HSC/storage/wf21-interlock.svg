@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 240" role="img" aria-label="Safety interlock with two independent switches">
+  <rect width="620" height="240" fill="#fff"/>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#111"/>
+    </marker>
+  </defs>
+  <rect x="40" y="40" width="140" height="64" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="110" y="78" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16">Switch A</text>
+  <rect x="40" y="136" width="140" height="64" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="110" y="174" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16">Switch B</text>
+  <rect x="280" y="70" width="170" height="100" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="365" y="116" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16">safety</text>
+  <text x="365" y="140" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16">interlock</text>
+  <line x1="180" y1="72" x2="280" y2="96" stroke="#111" stroke-width="2" marker-end="url(#ah)"/>
+  <line x1="180" y1="168" x2="280" y2="144" stroke="#111" stroke-width="2" marker-end="url(#ah)"/>
+  <line x1="450" y1="120" x2="560" y2="120" stroke="#111" stroke-width="2" marker-end="url(#ah)"/>
+  <text x="505" y="108" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16">output</text>
+</svg>

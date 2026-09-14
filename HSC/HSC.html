@@ -66,7 +66,7 @@
     align-items: baseline;
     justify-content: space-between;
     gap: 12px;
-    font-family: 'Lora', serif;
+    font-family: 'Source Serif 4', serif;
     font-weight: 700;
     font-size: 18px;
     color: var(--text, #1a1a1a);
@@ -84,7 +84,7 @@
      than a UI label. Falls back to holding the full question text on older quiz
      files that don't have a separate `question` field. */
   .quiz-stem {
-    font-family: 'Lora', serif;
+    font-family: 'Source Serif 4', serif;
     font-size: 16px;
     font-weight: 400;
     color: var(--text, #1a1a1a);
@@ -251,7 +251,7 @@
 
   .quiz-summary { text-align: center; }
   .quiz-score {
-    font-family: 'Lora', serif;
+    font-family: 'Source Serif 4', serif;
     font-size: 32px;
     font-weight: 700;
     color: var(--text, #1a1a1a);
@@ -267,6 +267,271 @@
     font-size: 12px;
     color: var(--muted2, #999);
     margin: 0 0 22px;
+  }
+  .quiz-home-actions { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+
+  /* Home: pick a quiz. Uses the full detail panel (not the 640px question column). */
+  .quiz-home { max-width: 820px; }
+  .quiz-home-kicker {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted2, #999);
+    margin-bottom: 6px;
+  }
+  .quiz-home-title {
+    font-family: 'Source Serif 4', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text, #1a1a1a);
+    margin: 0 0 8px;
+  }
+  .quiz-home-lead {
+    font-size: 14px;
+    color: var(--muted, #666);
+    margin: 0 0 28px;
+    line-height: 1.5;
+  }
+  .quiz-paper-card {
+    background: var(--card, #fff);
+    border: 1px solid var(--border, #e0e0e0);
+    border-radius: 10px;
+    padding: 4px 0 6px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow, none);
+    overflow: hidden;
+    scroll-margin-top: 16px;
+  }
+  .quiz-home-subject { scroll-margin-top: 16px; }
+  .quiz-home-subject-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px 10px;
+  }
+  .quiz-home-subject-emoji { font-size: 20px; line-height: 1; }
+  .quiz-home-subject-name {
+    font-family: 'Source Serif 4', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text, #1a1a1a);
+  }
+  .quiz-home-subject-count {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--muted2, #999);
+  }
+  .quiz-paper-block { scroll-margin-top: 16px; }
+  .quiz-paper-block + .quiz-paper-block { border-top: 1px solid var(--border, #e0e0e0); }
+  .quiz-paper-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    padding: 14px 18px;
+    border: none;
+    background: transparent;
+    color: var(--text, #1a1a1a);
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .quiz-paper-head:hover { background: var(--card2, #f6f6f6); }
+  .quiz-paper-head.is-split {
+    cursor: default;
+  }
+  .quiz-paper-head.is-split:hover { background: transparent; }
+  .quiz-paper-name {
+    font-family: 'Source Serif 4', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text, #1a1a1a);
+    flex: 1;
+    min-width: 0;
+  }
+  .quiz-paper-head .quiz-section-go { margin-left: auto; flex-shrink: 0; }
+  .quiz-paper-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+  .quiz-restart-btn,
+  .quiz-continue-btn {
+    padding: 0;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .quiz-restart-btn { color: var(--muted, #666); }
+  .quiz-restart-btn:hover { color: var(--text, #1a1a1a); }
+  .quiz-continue-btn { color: var(--accent, #4f46e5); }
+  .quiz-paper-meta { display: none; }
+  .quiz-section-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    padding: 8px 18px 10px 18px;
+    border: none;
+    background: transparent;
+    color: var(--text, #1a1a1a);
+    font-family: 'Inter', sans-serif;
+  }
+  .quiz-section-name { font-size: 13px; font-weight: 400; color: var(--muted, #666); }
+  .quiz-section-stats {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted, #666);
+    white-space: nowrap;
+  }
+  .quiz-section-go {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent, #4f46e5);
+  }
+  .quiz-home-empty { font-size: 14px; color: var(--muted, #666); padding: 12px 0; }
+  .home-nav-subject .unit-label {
+    padding: 12px 12px 4px;
+    margin: 0;
+    cursor: pointer;
+  }
+  .quiz-back-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 16px;
+    border: none;
+    border-bottom: 1px solid var(--border, #e0e0e0);
+    background: transparent;
+    color: var(--text, #1a1a1a);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .quiz-back-btn:hover { background: var(--card2, #f6f6f6); }
+  .quiz-now-playing {
+    padding: 8px 16px 10px;
+    font-size: 12px;
+    color: var(--muted, #666);
+    border-bottom: 1px solid var(--border, #e0e0e0);
+  }
+  .quiz-now-playing strong { color: var(--text, #1a1a1a); display: block; font-size: 13px; font-weight: 600; }
+  .quiz-now-sub { font-size: 11px; color: var(--muted2, #999); }
+  #hdrBreadcrumb .bc-link { cursor: pointer; }
+
+  /* Dictionary questions: question on the left, grouped formula list sticky
+     on the right. Below 900px the sheet stacks above the question. */
+  .quiz-stage.has-dictionary {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    width: 100%;
+  }
+  .quiz-stage.has-dictionary .quiz-wrap {
+    flex: 1;
+    min-width: 0;
+    max-width: 640px;
+  }
+  @media (min-width: 701px) {
+    .quiz-stage.has-dictionary .quiz-wrap {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+  .quiz-dictionary {
+    width: min(46%, 440px);
+    flex-shrink: 0;
+    position: sticky;
+    top: 12px;
+    max-height: calc(100vh - 88px);
+    overflow-y: auto;
+    padding: 4px 4px 20px 12px;
+    border-left: 1px solid var(--border, #e0e0e0);
+  }
+  .quiz-dictionary-title {
+    font-family: 'Source Serif 4', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text, #1a1a1a);
+    margin: 0 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border, #e0e0e0);
+  }
+  .quiz-dictionary-section { margin-bottom: 20px; }
+  .quiz-dictionary-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--muted2, #999);
+    margin: 0 0 8px;
+  }
+  .quiz-dictionary-entries {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 24px;
+    row-gap: 22px;
+    align-items: baseline;
+  }
+  .quiz-dictionary-row {
+    display: inline-flex;
+    gap: 6px;
+    align-items: baseline;
+    white-space: nowrap;
+    border: none;
+    background: none;
+    padding: 2px 5px;
+    margin: -2px -5px;
+    border-radius: 5px;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+  }
+  .quiz-dictionary-row:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--accent, #4f46e5) 10%, transparent);
+  }
+  .quiz-dictionary-row:focus-visible {
+    outline: 2px solid var(--accent, #4f46e5);
+    outline-offset: 1px;
+  }
+  .quiz-dictionary-row.is-picked {
+    background: color-mix(in srgb, var(--accent, #4f46e5) 16%, transparent);
+  }
+  .quiz-dictionary-row:disabled {
+    cursor: default;
+    opacity: .75;
+  }
+  .quiz-dictionary-formula {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    color: var(--text, #1a1a1a);
+    line-height: 1.45;
+  }
+  .quiz-dictionary-num {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--accent, #4f46e5);
+  }
+  @media (max-width: 900px) {
+    .quiz-stage.has-dictionary { flex-direction: column-reverse; }
+    .quiz-dictionary {
+      width: 100%;
+      max-height: 42vh;
+      position: static;
+      border-left: none;
+      border-bottom: 1px solid var(--border, #e0e0e0);
+      padding: 0 0 14px;
+    }
+    .quiz-stage.has-dictionary .quiz-wrap { max-width: none; }
   }
 </style>
 </head>
@@ -328,8 +593,8 @@
           <span class="logo-sub-txt">SCHOOL REFERENCE</span>
         </div>
       </div>
-      <div class="hdr-breadcrumb">
-        <a class="bc-link" href="../index.html">Hub</a>
+      <div class="hdr-breadcrumb" id="hdrBreadcrumb">
+        <a class="bc-link" href="../index.html">Index</a>
         <span class="bc-sep">›</span>
         <span class="bc-current" id="hdrCurrent">HSC</span>
       </div>
@@ -379,49 +644,654 @@
 </script>
 
 <!-- ── Quiz engine ──
-     Picks a random quiz JSON from ./storage (via storage/manifest.json, since a static
-     folder can't be listed directly by the browser), then walks its questions in order.
+     Home page lists quizzes from storage/manifest.json grouped by subject. Choosing a
+     section loads that quiz JSON and walks its questions in order.
 
      Question types:
        - Multiple choice, single answer: isMultipleChoice: true, isCheckbox: false (or omitted) → radio group
        - Multiple choice, multi-select:   isMultipleChoice: true, isCheckbox: true              → checkboxes
        - Math / fill-in-the-blank:        math: true → one textbox per entry in "answers",
          each worth 1 mark, graded independently (numeric-aware) against answers[i].text.
+       - Dictionary number textbox:       dictionary: "<id>" (no isMultipleChoice/math/isAICheck)
+         → one numeric textbox, graded against the correct dictionary number(s).
+       - Dictionary multiple choice:      dictionary: "<id>" + isMultipleChoice: true
+         → radio/checkbox of dictionary numbers (answers[].text is the number).
+         Any question with `dictionary` also shows that dictionary's title,
+         section subtitles, and numbered formulae on the right.
+         Dictionary files live in storage/dictionaries/<id>.json.
 
-     manifest.json is a list of { file, name } entries — "file" is the quiz filename in this
-     folder, "name" is the display name shown in the progress line (e.g. "Section 1"). -->
+     manifest.json is a list of { file, name, subject, section } entries — "file" is the
+     quiz filename in this folder, "name" is the paper title, "subject" groups the home
+     page (Engineering, Maths, …), and "section" is Section I / II / Practice. -->
 <script>
 const STORAGE_FOLDER = 'storage';
+const DICTIONARY_FOLDER = 'storage/dictionaries';
+const SUBJECT_META = {
+  Engineering: { emoji: '⚙️', colour: '#1a588e' },
+  Maths: { emoji: '📐', colour: 'rgb(79, 142, 205)' },
+  Mathematics: { emoji: '📐', colour: 'rgb(79, 142, 205)' },
+  English: { emoji: '📖', colour: '#9f1239' },
+  Electrotechnology: { emoji: '⚡', colour: '#0f766e' },
+  Economics: { emoji: '📊', colour: '#0c8247' },
+  Physics: { emoji: '🧪', colour: '#0dbb07' }
+};
 let quizState = null;
-let quizManifest = []; // [{file, name}, ...] — loaded once, reused by the sidebar dropdown
+let quizManifest = []; // [{file, name, subject, section, questionCount, totalMarks}, ...]
+const dictionaryCache = Object.create(null);
+const QUIZ_PROGRESS_KEY = 'studybase_hsc_progress';
 
-async function loadRandomQuiz() {
+function subjectMeta(name) {
+  return SUBJECT_META[name] || { emoji: '📚', colour: '#4f46e5' };
+}
+
+function normalizeManifestEntry(entry) {
+  if (typeof entry === 'string') {
+    return { file: entry, name: entry, subject: 'Other', section: '' };
+  }
+  return {
+    file: entry.file,
+    name: entry.name || entry.file,
+    subject: entry.subject || 'Other',
+    section: entry.section || ''
+  };
+}
+
+async function ensureDictionary(id) {
+  if (!id) return null;
+  if (dictionaryCache[id] && dictionaryCache[id] !== 'failed') return dictionaryCache[id];
+  const res = await fetch(`${DICTIONARY_FOLDER}/${encodeURIComponent(id)}.json`);
+  if (!res.ok) throw new Error(`Could not load dictionary "${id}"`);
+  const data = await res.json();
+  dictionaryCache[id] = data;
+  return data;
+}
+
+function dictionaryEntries(dict) {
+  if (!dict || !dict.entries) return [];
+  if (Array.isArray(dict.entries)) return dict.entries;
+  return Object.keys(dict.entries).map(id => {
+    const v = dict.entries[id];
+    if (v && typeof v === 'object') return { id, ...v };
+    return { id, name: String(v), section: '', formula: '' };
+  });
+}
+
+function dictionaryEntry(dict, num) {
+  const key = String(num).trim();
+  return dictionaryEntries(dict).find(e => String(e.id) === key) || null;
+}
+
+function dictionaryEntryLabel(dict, num) {
+  const e = dictionaryEntry(dict, num);
+  if (!e) return '';
+  return e.formula || '';
+}
+
+function isDictionaryNumberQuestion(q) {
+  return !!q.dictionary && !q.isMultipleChoice && !q.math && !q.isAICheck;
+}
+
+function dictionaryCorrectNumbers(q) {
+  return (q.answers || [])
+    .filter(a => a && a.correct !== false)
+    .map(a => String(a.text).trim())
+    .filter(Boolean);
+}
+
+function paintQuiz(wrapHtml, q) {
   const canvas = document.getElementById('hscCanvas');
-  canvas.innerHTML = '<div class="quiz-status">Loading quiz…</div>';
-  try {
-    const manifestRes = await fetch(`${STORAGE_FOLDER}/manifest.json`);
-    if (!manifestRes.ok) throw new Error('Could not load storage/manifest.json');
-    const manifest = await manifestRes.json();
-    if (!Array.isArray(manifest) || manifest.length === 0) {
-      throw new Error('manifest.json has no quiz files listed');
-    }
-
-    // Each entry is normally { file, name }; a bare string filename is also accepted
-    // (name falls back to the filename) so older manifest.json files keep working.
-    quizManifest = manifest.map(entry =>
-      typeof entry === 'string' ? { file: entry, name: entry } : { file: entry.file, name: entry.name || entry.file }
-    );
-
-    const chosen = quizManifest[Math.floor(Math.random() * quizManifest.length)];
-    await loadQuizByFile(chosen.file, chosen.name);
-  } catch (err) {
-    canvas.innerHTML = `<div class="quiz-status quiz-error">Error loading quiz: ${escapeHtml(err.message)}</div>`;
+  if (q && q.dictionary) {
+    canvas.innerHTML = `<div class="quiz-stage has-dictionary">${wrapHtml}<aside class="quiz-dictionary" id="quizDictionary"></aside></div>`;
+    fillDictionaryPanel(q);
+  } else {
+    canvas.innerHTML = wrapHtml;
   }
 }
 
-// Loads one specific quiz file by name (used for the initial random pick and for the
-// sidebar dropdown). Resets all per-question progress, since switching quizzes starts fresh.
-async function loadQuizByFile(file, name) {
+function fillDictionaryPanel(q) {
+  const panel = document.getElementById('quizDictionary');
+  if (!panel) return;
+  const dict = dictionaryCache[q.dictionary];
+  if (!dict || dict === 'failed' || typeof dict !== 'object') {
+    panel.innerHTML = `<div class="quiz-status quiz-error">Could not load dictionary "${escapeHtml(q.dictionary)}".</div>`;
+    return;
+  }
+
+  const title = document.createElement('h2');
+  title.className = 'quiz-dictionary-title';
+  title.textContent = dict.title || dict.name || 'Formula sheet';
+  panel.appendChild(title);
+
+  const locked = !!(quizState && quizState.perQuestion[quizState.index]);
+
+  let currentSection = null;
+  let sectionEl = null;
+  let entriesEl = null;
+  dictionaryEntries(dict).forEach(entry => {
+    const sectionName = entry.section || '';
+    if (!sectionEl || sectionName !== currentSection) {
+      currentSection = sectionName;
+      sectionEl = document.createElement('div');
+      sectionEl.className = 'quiz-dictionary-section';
+      if (sectionName) {
+        const h = document.createElement('h3');
+        h.className = 'quiz-dictionary-section-title';
+        h.textContent = sectionName;
+        sectionEl.appendChild(h);
+      }
+      entriesEl = document.createElement('div');
+      entriesEl.className = 'quiz-dictionary-entries';
+      sectionEl.appendChild(entriesEl);
+      panel.appendChild(sectionEl);
+    }
+
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'quiz-dictionary-row';
+    row.dataset.dictId = String(entry.id ?? '');
+    row.title = `Insert ${entry.id}`;
+    if (locked) row.disabled = true;
+
+    if (entry.formula) {
+      const formulaEl = document.createElement('span');
+      formulaEl.className = 'quiz-dictionary-formula';
+      formulaEl.textContent = entry.formula;
+      row.appendChild(formulaEl);
+    }
+    const num = document.createElement('span');
+    num.className = 'quiz-dictionary-num';
+    num.textContent = String(entry.id ?? '');
+    row.appendChild(num);
+    row.addEventListener('click', () => insertDictionaryNumber(entry.id));
+    entriesEl.appendChild(row);
+  });
+  syncDictionaryPicked();
+}
+
+// Clicking a formula on the sheet fills the current question: the number
+// textbox, a matching multiple-choice option, or the focused/next math box.
+function insertDictionaryNumber(id) {
+  if (!quizState || quizState.perQuestion[quizState.index]) return;
+  const canvas = document.getElementById('hscCanvas');
+  if (!canvas) return;
+  const num = String(id);
+  const q = quizState.questions[quizState.index];
+
+  const dictInput = canvas.querySelector('#dictNumberInput');
+  if (dictInput && !dictInput.disabled) {
+    dictInput.value = num;
+    dictInput.focus();
+    syncDictionaryPicked();
+    return;
+  }
+
+  if (q.isMultipleChoice) {
+    const idx = q.answers.findIndex(a => String(a.text).trim() === num);
+    if (idx < 0) return;
+    const input = canvas.querySelector(`input[name="quizAnswer"][value="${idx}"]`);
+    if (!input || input.disabled) return;
+    input.checked = q.isCheckbox ? !input.checked : true;
+    selectAnswer();
+    syncDictionaryPicked();
+    return;
+  }
+
+  const mathInputs = [...canvas.querySelectorAll('.quiz-math-input:not(#dictNumberInput)')]
+    .filter(el => !el.disabled);
+  if (mathInputs.length) {
+    const active = mathInputs.find(el => el === document.activeElement);
+    const empty = mathInputs.find(el => el.value.trim() === '');
+    const target = active || empty || mathInputs[mathInputs.length - 1];
+    target.value = num;
+    target.focus();
+    syncDictionaryPicked();
+  }
+}
+
+function syncDictionaryPicked() {
+  const canvas = document.getElementById('hscCanvas');
+  if (!canvas || !quizState) return;
+  const picked = new Set();
+  const dictInput = canvas.querySelector('#dictNumberInput');
+  if (dictInput && dictInput.value.trim()) picked.add(dictInput.value.trim());
+  canvas.querySelectorAll('input[name="quizAnswer"]:checked').forEach(inp => {
+    const a = quizState.questions[quizState.index].answers[parseInt(inp.value, 10)];
+    if (a) picked.add(String(a.text).trim());
+  });
+  canvas.querySelectorAll('.quiz-math-input:not(#dictNumberInput)').forEach(el => {
+    if (el.value.trim()) picked.add(el.value.trim());
+  });
+  canvas.querySelectorAll('.quiz-dictionary-row').forEach(row => {
+    row.classList.toggle('is-picked', picked.has(row.dataset.dictId));
+  });
+}
+
+function revealDictionaryAnswerLabels(canvas, q) {
+  const dict = dictionaryCache[q.dictionary];
+  if (!dict || !q.answers) return;
+  canvas.querySelectorAll('.quiz-answer').forEach((label, i) => {
+    const num = q.answers[i] && q.answers[i].text;
+    const name = dictionaryEntryLabel(dict, num);
+    const textEl = label.querySelector('.quiz-answer-text');
+    if (textEl && name) textEl.textContent = `${num} — ${name}`;
+  });
+}
+
+async function loadManifest() {
+  const manifestRes = await fetch(`${STORAGE_FOLDER}/manifest.json`);
+  if (!manifestRes.ok) throw new Error('Could not load storage/manifest.json');
+  const manifest = await manifestRes.json();
+  if (!Array.isArray(manifest) || manifest.length === 0) {
+    throw new Error('manifest.json has no quiz files listed');
+  }
+
+  quizManifest = manifest.map(normalizeManifestEntry);
+
+  await Promise.all(quizManifest.map(async (entry) => {
+    try {
+      const res = await fetch(`${STORAGE_FOLDER}/${entry.file}`);
+      if (!res.ok) throw new Error(`Could not load ${entry.file}`);
+      const data = await res.json();
+      const questions = Array.isArray(data.questions) ? data.questions : [];
+      entry.questionCount = questions.length;
+      entry.totalMarks = questions.reduce((sum, q) => sum + marksForQuestion(q), 0);
+    } catch (err) {
+      entry.questionCount = null;
+      entry.totalMarks = null;
+      entry.loadError = err.message;
+    }
+  }));
+}
+
+function quizHashFile() {
+  return decodeURIComponent((location.hash || '').replace(/^#/, ''));
+}
+
+function setQuizHash(file) {
+  const desired = file
+    ? location.pathname + location.search + '#' + encodeURIComponent(file)
+    : location.pathname + location.search;
+  if (location.pathname + location.search + location.hash !== desired) {
+    history.replaceState(null, '', desired);
+  }
+}
+
+async function bootHsc() {
+  const canvas = document.getElementById('hscCanvas');
+  canvas.innerHTML = '<div class="quiz-status">Loading quizzes…</div>';
+  try {
+    await loadManifest();
+    const hashFile = quizHashFile();
+    const entry = hashFile && quizManifest.find(m => m.file === hashFile);
+    if (entry) await loadQuizByFile(entry.file, entry.name, { resume: true });
+    else showQuizHome();
+  } catch (err) {
+    canvas.innerHTML = `<div class="quiz-status quiz-error">Error loading quizzes: ${escapeHtml(err.message)}</div>`;
+  }
+}
+
+function groupedHomePapers(entries) {
+  const papers = [];
+  const indexByKey = Object.create(null);
+  entries.forEach(entry => {
+    const key = entry.subject + '\0' + entry.name;
+    if (indexByKey[key] == null) {
+      indexByKey[key] = papers.length;
+      papers.push({ subject: entry.subject, name: entry.name, sections: [] });
+    }
+    papers[indexByKey[key]].sections.push(entry);
+  });
+  return papers;
+}
+
+function uniqueSubjects() {
+  const seen = [];
+  quizManifest.forEach(m => {
+    if (!seen.includes(m.subject)) seen.push(m.subject);
+  });
+  return seen;
+}
+
+function homePaperId(paper) {
+  return 'home-paper-' + encodeURIComponent(paper.subject + '::' + paper.name);
+}
+
+function paperKey(paper) {
+  if (!paper) return '';
+  return paper.subject + '::' + paper.name;
+}
+
+function readProgressStore() {
+  try {
+    const raw = localStorage.getItem(QUIZ_PROGRESS_KEY);
+    const data = raw ? JSON.parse(raw) : {};
+    return data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeProgressStore(store) {
+  try {
+    localStorage.setItem(QUIZ_PROGRESS_KEY, JSON.stringify(store));
+  } catch {
+    /* quota / private mode — progress just will not persist */
+  }
+}
+
+function getPaperProgress(paper) {
+  const key = paperKey(paper);
+  if (!key) return null;
+  return readProgressStore()[key] || null;
+}
+
+function cloneSavedAnswers(saved, length) {
+  if (!Array.isArray(saved) || saved.length !== length) return null;
+  try {
+    const copy = JSON.parse(JSON.stringify(saved));
+    return copy.map(p => {
+      if (!p || typeof p !== 'object' || typeof p.earned !== 'number' || typeof p.total !== 'number') return null;
+      return p;
+    });
+  } catch {
+    return null;
+  }
+}
+
+function paperHasProgress(paper) {
+  const prog = getPaperProgress(paper);
+  if (!prog) return false;
+  if (prog.atSummary) return true;
+  if ((prog.index || 0) > 0) return true;
+  const byFile = prog.perQuestionByFile || {};
+  if (Object.keys(byFile).some(file => Array.isArray(byFile[file]) && byFile[file].some(Boolean))) return true;
+  const first = paper.sections && paper.sections[0];
+  return !!(first && prog.file && prog.file !== first.file);
+}
+
+function currentQuizHasProgress() {
+  if (!quizState) return false;
+  if (quizState.atSummary) return true;
+  if (quizState.index > 0) return true;
+  if (quizState.perQuestion.some(Boolean)) return true;
+  const entry = quizManifest.find(m => m.file === quizState.filename);
+  if (!entry) return false;
+  const first = quizManifest.find(m => m.subject === entry.subject && m.name === entry.name);
+  return !!(first && first.file !== quizState.filename);
+}
+
+function persistCurrentQuiz() {
+  if (!quizState) return;
+  const entry = quizManifest.find(m => m.file === quizState.filename);
+  if (!entry) return;
+  const key = paperKey(entry);
+  const store = readProgressStore();
+  const prev = store[key] || {};
+  store[key] = {
+    file: quizState.filename,
+    index: quizState.index,
+    atSummary: !!quizState.atSummary,
+    perQuestionByFile: {
+      ...(prev.perQuestionByFile || {}),
+      [quizState.filename]: quizState.perQuestion
+    }
+  };
+  writeProgressStore(store);
+}
+
+function clearPaperProgress(paper) {
+  const key = paperKey(paper);
+  if (!key) return;
+  const store = readProgressStore();
+  delete store[key];
+  writeProgressStore(store);
+}
+
+function startPaper(paper) {
+  const start = paper.sections[0];
+  if (!start || start.loadError) return;
+  loadQuizByFile(start.file, start.name);
+}
+
+function restartPaper(paper) {
+  const start = paper.sections[0];
+  if (!start || start.loadError) return;
+  loadQuizByFile(start.file, start.name, { reset: true });
+}
+
+function continuePaper(paper) {
+  const prog = getPaperProgress(paper);
+  const savedFile = prog && prog.file;
+  const entry = (savedFile && paper.sections.find(s => s.file === savedFile)) || paper.sections[0];
+  if (!entry || entry.loadError) return;
+  loadQuizByFile(entry.file, entry.name, { resume: true });
+}
+
+function locateHomeTarget(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showQuizHome() {
+  if (currentQuizHasProgress()) persistCurrentQuiz();
+  quizState = null;
+  setQuizHash('');
+  updateHscBreadcrumb(null);
+  renderHomePage();
+  renderHomeSidebar();
+}
+
+function renderHomePage() {
+  const canvas = document.getElementById('hscCanvas');
+  const subjects = uniqueSubjects();
+
+  const subjectBlocks = subjects.map(subject => {
+    const meta = subjectMeta(subject);
+    const papers = groupedHomePapers(quizManifest.filter(e => e.subject === subject));
+    const quizCount = papers.reduce((n, p) => n + p.sections.length, 0);
+    const paperBlocks = papers.map(paper => {
+      const rows = paper.sections.map(() =>
+        `<div class="quiz-section-row">
+          <span class="quiz-section-name"></span>
+          <span class="quiz-section-stats"></span>
+        </div>`
+      ).join('');
+      const inProgress = paperHasProgress(paper);
+      const head = inProgress
+        ? `<div class="quiz-paper-head is-split">
+            <div class="quiz-paper-name"></div>
+            <div class="quiz-paper-actions">
+              <button type="button" class="quiz-restart-btn">Restart</button>
+              <button type="button" class="quiz-continue-btn">Continue →</button>
+            </div>
+          </div>`
+        : `<button type="button" class="quiz-paper-head">
+            <div class="quiz-paper-name"></div>
+            <span class="quiz-section-go">Start →</span>
+          </button>`;
+      return `<div class="quiz-paper-block" id="${homePaperId(paper)}">
+        ${head}
+        ${rows}
+      </div>`;
+    }).join('');
+
+    return `<article class="quiz-paper-card" id="home-subject-${encodeURIComponent(subject)}" style="border-top:4px solid ${meta.colour}">
+      <div class="quiz-home-subject-head">
+        <span class="quiz-home-subject-emoji">${meta.emoji}</span>
+        <span class="quiz-home-subject-name"></span>
+        <span class="quiz-home-subject-count">${quizCount} quiz${quizCount === 1 ? '' : 'zes'}</span>
+      </div>
+      ${paperBlocks}
+    </article>`;
+  }).join('');
+
+  canvas.innerHTML = `
+    <div class="quiz-home">
+      <h1 class="quiz-home-title">Quiz Tool</h1>
+      <p class="quiz-home-lead">Start a paper from its title. If it has more than one section, they run in order.</p>
+      ${subjectBlocks || '<p class="quiz-home-empty">No quizzes yet.</p>'}
+    </div>`;
+
+  canvas.querySelectorAll('.quiz-paper-card').forEach((card, i) => {
+    card.querySelector('.quiz-home-subject-name').textContent = subjects[i];
+  });
+
+  const papersFlat = subjects.flatMap(subject => groupedHomePapers(quizManifest.filter(e => e.subject === subject)));
+  canvas.querySelectorAll('.quiz-paper-block').forEach((block, i) => {
+    const paper = papersFlat[i];
+    block.querySelector('.quiz-paper-name').textContent = paper.name;
+    const start = paper.sections[0];
+    if (start && !start.loadError) {
+      const restartBtn = block.querySelector('.quiz-restart-btn');
+      const continueBtn = block.querySelector('.quiz-continue-btn');
+      if (restartBtn && continueBtn) {
+        restartBtn.addEventListener('click', () => restartPaper(paper));
+        continueBtn.addEventListener('click', () => continuePaper(paper));
+      } else {
+        block.querySelector('.quiz-paper-head').addEventListener('click', () => startPaper(paper));
+      }
+    }
+    block.querySelectorAll('.quiz-section-row').forEach((row, j) => {
+      const sec = paper.sections[j];
+      row.querySelector('.quiz-section-name').textContent = sec.section || 'Quiz';
+      const qLabel = sec.questionCount == null
+        ? (sec.loadError || 'Could not load')
+        : `${sec.questionCount} question${sec.questionCount === 1 ? '' : 's'}`;
+      const mLabel = sec.totalMarks == null ? '' : ` · ${sec.totalMarks} mark${sec.totalMarks === 1 ? '' : 's'}`;
+      row.querySelector('.quiz-section-stats').textContent = qLabel + mLabel;
+    });
+  });
+}
+
+function renderHomeSidebar() {
+  const sidebar = document.getElementById('quizSidebar');
+  if (!sidebar) return;
+  const subjects = uniqueSubjects();
+
+  const rows = subjects.map(subject => {
+    const papers = groupedHomePapers(quizManifest.filter(m => m.subject === subject));
+    const paperRows = papers.map(paper => {
+      const sectionLabel = paper.sections.length === 1
+        ? (paper.sections[0].section || 'Quiz')
+        : `${paper.sections.length} sections`;
+      return `<div class="topic-item-wrap" data-target="${homePaperId(paper)}" data-search="${escapeHtml((paper.name + ' ' + paper.subject + ' ' + paper.sections.map(s => s.section).join(' ')).toLowerCase())}">
+        <div class="topic-item">
+          <div class="ti-top"><div class="ti-name"><span class="ti-name-text"></span></div></div>
+          <div class="ti-unit"></div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="home-nav-subject" data-subject="${escapeHtml(subject)}">
+      <div class="unit-label"></div>
+      ${paperRows}
+    </div>`;
+  }).join('');
+
+  sidebar.innerHTML = `
+    <div class="sidebar-top">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input class="search-input" type="text" id="quizSearchInput" placeholder="Find a quiz…">
+      </div>
+    </div>
+    <div class="topic-list" id="quizNavList">${rows}</div>
+  `;
+
+  sidebar.querySelectorAll('.home-nav-subject').forEach((block, i) => {
+    const subject = subjects[i];
+    block.querySelector('.unit-label').textContent = subject;
+    block.querySelector('.unit-label').addEventListener('click', () => {
+      locateHomeTarget('home-subject-' + encodeURIComponent(subject));
+    });
+    const papers = groupedHomePapers(quizManifest.filter(m => m.subject === subject));
+    block.querySelectorAll('.topic-item-wrap').forEach((wrap, j) => {
+      const paper = papers[j];
+      wrap.querySelector('.ti-name-text').textContent = paper.name;
+      wrap.querySelector('.ti-unit').textContent = paper.sections.length === 1
+        ? (paper.sections[0].section || 'Quiz')
+        : `${paper.sections.length} sections`;
+      wrap.addEventListener('click', () => locateHomeTarget(wrap.getAttribute('data-target')));
+    });
+  });
+
+  sidebar.querySelector('#quizSearchInput').addEventListener('input', (e) => filterHomeNav(e.target.value));
+}
+
+function filterHomeNav(query) {
+  const needle = query.trim().toLowerCase();
+  document.querySelectorAll('#quizNavList .home-nav-subject').forEach(block => {
+    let any = false;
+    block.querySelectorAll('.topic-item-wrap').forEach(wrap => {
+      const hay = wrap.getAttribute('data-search') || '';
+      const show = needle === '' || hay.includes(needle);
+      wrap.style.display = show ? '' : 'none';
+      if (show) any = true;
+    });
+    block.style.display = any ? '' : 'none';
+  });
+}
+
+function updateHscBreadcrumb(entry) {
+  const el = document.getElementById('hdrBreadcrumb');
+  if (!el) return;
+  el.innerHTML = '';
+
+  const addSep = () => {
+    const sep = document.createElement('span');
+    sep.className = 'bc-sep';
+    sep.textContent = '›';
+    el.appendChild(sep);
+  };
+
+  const indexLink = document.createElement('a');
+  indexLink.className = 'bc-link';
+  indexLink.href = '../index.html';
+  indexLink.textContent = 'Index';
+  el.appendChild(indexLink);
+  addSep();
+
+  if (!entry) {
+    const current = document.createElement('span');
+    current.className = 'bc-current';
+    current.textContent = 'HSC';
+    el.appendChild(current);
+    return;
+  }
+
+  const hscBtn = document.createElement('button');
+  hscBtn.type = 'button';
+  hscBtn.className = 'bc-link';
+  hscBtn.id = 'bcHscHome';
+  hscBtn.textContent = 'HSC';
+  hscBtn.addEventListener('click', showQuizHome);
+  el.appendChild(hscBtn);
+  addSep();
+
+  const quizName = entry.name || entry.subject || 'Quiz';
+  const sectionName = entry.section || '';
+
+  if (!sectionName) {
+    const current = document.createElement('span');
+    current.className = 'bc-current';
+    current.textContent = quizName;
+    el.appendChild(current);
+    return;
+  }
+
+  const quizEl = document.createElement('span');
+  quizEl.className = 'bc-link';
+  quizEl.textContent = quizName;
+  el.appendChild(quizEl);
+  addSep();
+
+  const current = document.createElement('span');
+  current.className = 'bc-current';
+  current.textContent = sectionName;
+  el.appendChild(current);
+}
+
+async function loadQuizByFile(file, name, opts = {}) {
   const canvas = document.getElementById('hscCanvas');
   canvas.innerHTML = '<div class="quiz-status">Loading quiz…</div>';
   try {
@@ -434,29 +1304,51 @@ async function loadQuizByFile(file, name) {
     }
 
     const totalMarks = quizData.questions.reduce((sum, q) => sum + marksForQuestion(q), 0);
+    const entry = quizManifest.find(m => m.file === file);
+    if (opts.reset && entry) clearPaperProgress(entry);
+
+    let index = 0;
+    let atSummary = false;
+    let perQuestion = new Array(quizData.questions.length).fill(null);
+    if (opts.resume && entry) {
+      const prog = getPaperProgress(entry);
+      if (prog) {
+        const restored = cloneSavedAnswers(prog.perQuestionByFile && prog.perQuestionByFile[file], quizData.questions.length);
+        if (restored) perQuestion = restored;
+        if (prog.file === file) {
+          index = Math.min(Math.max(0, prog.index || 0), quizData.questions.length - 1);
+          atSummary = !!prog.atSummary;
+        }
+      }
+    }
 
     quizState = {
       questions: quizData.questions,
       filename: file,
       quizName: name || file,
-      index: 0,
+      index,
+      atSummary,
       // One slot per question: null until answered, then { earned, total, selected | values }
       // — used both for scoring (no more running accumulator to double-count) and to redraw
       // a question exactly as the student left it when they jump back to it via the sidebar.
-      perQuestion: new Array(quizData.questions.length).fill(null),
+      perQuestion,
       totalMarks
     };
-    renderQuestion();
+
+    const dictIds = [...new Set(quizData.questions.map(q => q.dictionary).filter(Boolean))];
+    await Promise.all(dictIds.map(id => ensureDictionary(id).catch(() => { dictionaryCache[id] = 'failed'; })));
+
+    setQuizHash(file);
+    updateHscBreadcrumb(entry || { subject: name, section: '', name });
+    if (atSummary) {
+      renderSidebar();
+      renderSummary();
+    } else {
+      renderQuestion();
+    }
   } catch (err) {
     canvas.innerHTML = `<div class="quiz-status quiz-error">Error loading quiz: ${escapeHtml(err.message)}</div>`;
   }
-}
-
-// Sidebar dropdown "onchange" handler.
-function onQuizSelect(selectEl) {
-  const file = selectEl.value;
-  const entry = quizManifest.find(m => m.file === file);
-  loadQuizByFile(file, entry ? entry.name : file);
 }
 
 function escapeHtml(str) {
@@ -470,6 +1362,7 @@ function getEarnedMarks() {
 }
 
 function renderQuestion() {
+  quizState.atSummary = false;
   renderSidebar();
 
   const { questions, index } = quizState;
@@ -485,6 +1378,8 @@ function renderQuestion() {
     renderMathQuestion(q, index, questions.length, prior);
   } else if (q.isAICheck) {
     renderAICheckQuestion(q, index, questions.length, prior);
+  } else if (isDictionaryNumberQuestion(q)) {
+    renderDictionaryNumberQuestion(q, index, questions.length, prior);
   } else {
     renderChoiceQuestion(q, index, questions.length, prior);
   }
@@ -495,6 +1390,7 @@ function renderQuestion() {
 function marksForQuestion(q) {
   if (q.math) return q.answers.length;
   if (q.isAICheck) return q.marks;
+  if (isDictionaryNumberQuestion(q)) return 1;
   return 1;
 }
 
@@ -509,9 +1405,10 @@ function renderSidebar() {
   const sidebar = document.getElementById('quizSidebar');
   if (!sidebar || !quizState) return;
 
-  const fileOptions = quizManifest.map(m =>
-    `<option value="${escapeHtml(m.file)}"${m.file === quizState.filename ? ' selected' : ''}></option>`
-  ).join('');
+  const entry = quizManifest.find(m => m.file === quizState.filename);
+  const playingName = entry
+    ? (entry.section ? `${entry.name} · ${entry.section}` : entry.name)
+    : quizState.quizName;
 
   const rows = quizState.questions.map((q, i) => {
     const prior = quizState.perQuestion[i];
@@ -538,16 +1435,12 @@ function renderSidebar() {
   }).join('');
 
   sidebar.innerHTML = `
+    <button type="button" class="quiz-back-btn" id="quizHomeBtn">← All quizzes</button>
+    <div class="quiz-now-playing"><strong></strong><span class="quiz-now-sub"></span></div>
     <div class="sidebar-top">
       <div class="search-wrap">
         <span class="search-icon">⌕</span>
         <input class="search-input" type="text" id="quizSearchInput" placeholder="Search questions…">
-      </div>
-    </div>
-    <div class="unit-wrap">
-      <label class="unit-label" for="quizFileSelect">Quiz</label>
-      <div class="unit-select-row">
-        <select class="unit-select" id="quizFileSelect">${fileOptions}</select>
       </div>
     </div>
     <div style="display:flex;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
@@ -561,12 +1454,9 @@ function renderSidebar() {
     <div class="topic-list" id="quizNavList">${rows}</div>
   `;
 
-  // Labels/text set via textContent (not innerHTML) so manifest/question content can
-  // never inject markup.
-  sidebar.querySelectorAll('#quizFileSelect option').forEach((opt, i) => {
-    opt.textContent = quizManifest[i].name;
-  });
-  sidebar.querySelector('#quizFileSelect').addEventListener('change', (e) => onQuizSelect(e.target));
+  sidebar.querySelector('#quizHomeBtn').addEventListener('click', showQuizHome);
+  sidebar.querySelector('.quiz-now-playing strong').textContent = playingName;
+  if (entry) sidebar.querySelector('.quiz-now-sub').textContent = entry.subject;
 
   sidebar.querySelectorAll('#quizNavList .topic-item-wrap').forEach((wrap, i) => {
     wrap.querySelector('.ti-name-text').textContent = quizState.questions[i].name;
@@ -589,6 +1479,8 @@ function filterQuestionNav(query) {
 
 function jumpToQuestion(i) {
   quizState.index = i;
+  quizState.atSummary = false;
+  persistCurrentQuiz();
   renderQuestion();
 }
 
@@ -606,7 +1498,7 @@ function renderChoiceQuestion(q, index, total, prior) {
      </label>`
   ).join('');
 
-  canvas.innerHTML = `
+  paintQuiz(`
     <div class="quiz-wrap">
       <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
       <div class="quiz-heading">
@@ -615,7 +1507,7 @@ function renderChoiceQuestion(q, index, total, prior) {
       </div>
       <div class="quiz-stem"></div>
       <div class="quiz-image-wrap" id="quizImageWrap"></div>
-      <div class="quiz-type-hint">${q.isCheckbox ? '☑ Select all that apply' : '◉ Choose one answer'}</div>
+      <div class="quiz-type-hint">${q.dictionary && q.isMultipleChoice ? '# Choose the number from the sheet' : (q.isCheckbox ? '☑ Select all that apply' : '◉ Choose one answer')}</div>
       <div class="quiz-answers">${answerButtons}</div>
       <div class="quiz-feedback" id="quizFeedback"></div>
       <div class="quiz-actions">
@@ -623,7 +1515,7 @@ function renderChoiceQuestion(q, index, total, prior) {
         <button class="quiz-btn" id="quizNextBtn" style="display:none" onclick="nextQuestion()">Next →</button>
       </div>
     </div>
-  `;
+  `, q);
 
   // Set text content via textContent (not innerHTML) so quiz content can never inject markup.
   // `question` is the exam wording; `name` is the short heading ("Question 11"). Older quiz
@@ -672,6 +1564,11 @@ function applyChoiceGrading(canvas, q, selectedIdxs) {
     else if (selectedIdxs.has(i)) label.classList.add('incorrect');
   });
 
+  if (q.dictionary) {
+    revealDictionaryAnswerLabels(canvas, q);
+    syncDictionaryPicked();
+  }
+
   return isCorrect ? 1 : 0;
 }
 
@@ -701,11 +1598,114 @@ function submitAnswer() {
 
   const earned = applyChoiceGrading(canvas, q, selectedIdxs);
   quizState.perQuestion[quizState.index] = { earned, total: 1, selected: [...selectedIdxs] };
+  persistCurrentQuiz();
 
   showFeedback(canvas, earned, 1);
   document.getElementById('quizSubmitBtn').style.display = 'none';
   revealAdvanceButton();
   renderSidebar(); // reflect the new correct/partial/incorrect color on this question's nav button
+}
+
+/* ── Dictionary number textbox ──
+   q.dictionary names a file in storage/dictionaries/. The student types the
+   red number from that sheet. answers[].text (where correct !== false) is the
+   accepted number — usually one. Multiple-choice dictionary questions reuse
+   renderChoiceQuestion; this path is the simple numeric textbox. */
+
+function renderDictionaryNumberQuestion(q, index, total, prior) {
+  const canvas = document.getElementById('hscCanvas');
+  paintQuiz(`
+    <div class="quiz-wrap">
+      <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
+      <div class="quiz-heading">
+        <span class="quiz-heading-name"></span>
+        <span class="quiz-heading-marks">(1 mark)</span>
+      </div>
+      <div class="quiz-stem"></div>
+      <div class="quiz-image-wrap" id="quizImageWrap"></div>
+      <div class="quiz-type-hint"># Enter the number from the sheet</div>
+      <div class="quiz-math-answers">
+        <div class="quiz-math-group">
+          <div class="quiz-math-group-label">Sheet number</div>
+          <div class="quiz-math-input-rows">
+            <div class="quiz-math-input-row" id="dictNumberRow">
+              <input type="text" class="quiz-math-input" id="dictNumberInput" inputmode="numeric" placeholder="e.g. 5" autocomplete="off">
+              <span class="quiz-math-mark-label">1 mark</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <div class="quiz-actions">
+        <button class="quiz-btn quiz-btn-primary" id="quizSubmitBtn" onclick="submitDictionaryNumber()">Submit</button>
+        <button class="quiz-btn" id="quizNextBtn" style="display:none" onclick="nextQuestion()">Next →</button>
+      </div>
+    </div>
+  `, q);
+
+  renderHeadingAndStem(canvas, q);
+  renderQuestionImage(q, canvas);
+
+  const input = canvas.querySelector('#dictNumberInput');
+  if (input) {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); submitDictionaryNumber(); }
+    });
+    input.addEventListener('input', syncDictionaryPicked);
+  }
+
+  if (prior) {
+    applyDictionaryNumberGrading(canvas, q, prior.value || '');
+    showFeedback(canvas, prior.earned, 1);
+    document.getElementById('quizSubmitBtn').style.display = 'none';
+    revealAdvanceButton();
+  }
+}
+
+function applyDictionaryNumberGrading(canvas, q, given) {
+  const row = canvas.querySelector('#dictNumberRow');
+  const input = canvas.querySelector('#dictNumberInput');
+  if (input) {
+    input.value = given;
+    input.disabled = true;
+  }
+  const correct = dictionaryCorrectNumbers(q);
+  const ok = correct.some(c => valuesMatch(given, c));
+  if (row) row.classList.add(ok ? 'correct' : 'incorrect');
+  syncDictionaryPicked();
+
+  const dict = dictionaryCache[q.dictionary];
+  const labelled = correct.map(n => {
+    const name = dictionaryEntryLabel(dict, n);
+    return name ? `${n} — ${name}` : n;
+  }).join(', ');
+  if (!ok && labelled) {
+    const hint = document.createElement('div');
+    hint.className = 'quiz-math-hint';
+    hint.textContent = `Correct: ${labelled}`;
+    const groupEl = canvas.querySelector('.quiz-math-group');
+    if (groupEl) groupEl.appendChild(hint);
+  }
+  return ok ? 1 : 0;
+}
+
+function submitDictionaryNumber() {
+  if (quizState.perQuestion[quizState.index]) return;
+
+  const q = quizState.questions[quizState.index];
+  const canvas = document.getElementById('hscCanvas');
+  const input = canvas.querySelector('#dictNumberInput');
+  const given = (input && input.value || '').trim();
+  if (given === '') return;
+
+  const earned = applyDictionaryNumberGrading(canvas, q, given);
+  quizState.perQuestion[quizState.index] = { earned, total: 1, value: given };
+  persistCurrentQuiz();
+
+  showFeedback(canvas, earned, 1);
+  document.getElementById('quizSubmitBtn').style.display = 'none';
+  revealAdvanceButton();
+  renderSidebar();
 }
 
 /* ── Math / fill-in-the-blank ── */
@@ -759,7 +1759,7 @@ function renderMathQuestion(q, index, total, prior) {
 
   const markWord = q.answers.length === 1 ? 'mark' : 'marks';
 
-  canvas.innerHTML = `
+  paintQuiz(`
     <div class="quiz-wrap">
       <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
       <div class="quiz-heading">
@@ -775,7 +1775,7 @@ function renderMathQuestion(q, index, total, prior) {
         <button class="quiz-btn" id="quizNextBtn" style="display:none" onclick="nextQuestion()">Next →</button>
       </div>
     </div>
-  `;
+  `, q);
 
   renderHeadingAndStem(canvas, q);
   renderQuestionImage(q, canvas);
@@ -924,6 +1924,7 @@ function submitMathAnswer() {
 
   const earned = applyMathGrading(canvas, q, valuesFlat);
   quizState.perQuestion[quizState.index] = { earned, total: q.answers.length, values: valuesFlat };
+  persistCurrentQuiz();
 
   showFeedback(canvas, earned, q.answers.length);
   document.getElementById('quizSubmitBtn').style.display = 'none';
@@ -1030,7 +2031,7 @@ function renderAICheckQuestion(q, index, total, prior) {
   const canvas = document.getElementById('hscCanvas');
   const markWord = q.marks === 1 ? 'mark' : 'marks';
 
-  canvas.innerHTML = `
+  paintQuiz(`
     <div class="quiz-wrap">
       <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
       <div class="quiz-heading">
@@ -1047,7 +2048,7 @@ function renderAICheckQuestion(q, index, total, prior) {
         <button class="quiz-btn" id="quizNextBtn" style="display:none" onclick="nextQuestion()">Next →</button>
       </div>
     </div>
-  `;
+  `, q);
 
   renderHeadingAndStem(canvas, q);
   renderQuestionImage(q, canvas);
@@ -1094,6 +2095,7 @@ async function submitAICheck() {
     const { earned, feedback } = parseAICheckResult(result.text, q.marks);
 
     quizState.perQuestion[quizState.index] = { earned, total: q.marks, studentAnswer, feedback };
+    persistCurrentQuiz();
 
     // Reset the submit button's busy label directly rather than via
     // setAICheckBusy(canvas, false) — that helper also flips textarea.disabled
@@ -1129,6 +2131,7 @@ function nextQuestion() {
     return;
   }
   quizState.index++;
+  persistCurrentQuiz();
   renderQuestion();
 }
 
@@ -1144,19 +2147,27 @@ function questionOutcomes() {
 }
 
 function nextSectionEntry() {
-  const i = quizManifest.findIndex(m => m.file === quizState.filename);
-  if (i < 0 || i + 1 >= quizManifest.length) return null;
-  return quizManifest[i + 1];
+  const current = quizManifest.find(m => m.file === quizState.filename);
+  if (!current) return null;
+  const siblings = quizManifest.filter(m => m.subject === current.subject && m.name === current.name);
+  const i = siblings.findIndex(m => m.file === quizState.filename);
+  if (i < 0 || i + 1 >= siblings.length) return null;
+  return siblings[i + 1];
 }
 
-function continueToNextSection() {
+async function continueToNextSection() {
   const next = nextSectionEntry();
-  quizState = null;
-  if (next) loadQuizByFile(next.file, next.name);
-  else loadQuizByFile(quizManifest[0].file, quizManifest[0].name);
+  if (next) {
+    await loadQuizByFile(next.file, next.name);
+    persistCurrentQuiz();
+  } else {
+    showQuizHome();
+  }
 }
 
 function renderSummary() {
+  quizState.atSummary = true;
+  persistCurrentQuiz();
   const canvas = document.getElementById('hscCanvas');
   const earnedMarks = getEarnedMarks();
   const { totalMarks, quizName } = quizState;
@@ -1166,6 +2177,9 @@ function renderSummary() {
     partial ? `${partial} partial` : '',
     unanswered ? `${unanswered} unanswered` : ''
   ].filter(Boolean).join(' · ');
+  const nextLabel = next
+    ? `Continue to ${next.section || next.name}`
+    : 'Back to quizzes';
 
   canvas.innerHTML = `
     <div class="quiz-wrap quiz-summary">
@@ -1173,14 +2187,32 @@ function renderSummary() {
       <div class="quiz-score">${earnedMarks} / ${totalMarks} marks</div>
       <p class="quiz-ratio">Correct to incorrect <strong>${correct} : ${incorrect}</strong></p>
       ${extra ? `<p class="quiz-summary-sub">${escapeHtml(extra)}</p>` : '<div class="quiz-summary-sub"></div>'}
-      <button class="quiz-btn quiz-btn-primary" onclick="continueToNextSection()">
-        ${next ? 'Continue' : 'Start over'}
-      </button>
+      <div class="quiz-home-actions">
+        <button type="button" class="quiz-btn" id="quizSummaryHome">All quizzes</button>
+        <button type="button" class="quiz-btn quiz-btn-primary" id="quizSummaryNext">${escapeHtml(nextLabel)}</button>
+      </div>
     </div>
   `;
+  canvas.querySelector('#quizSummaryHome').addEventListener('click', showQuizHome);
+  canvas.querySelector('#quizSummaryNext').addEventListener('click', continueToNextSection);
 }
 
-document.addEventListener('DOMContentLoaded', loadRandomQuiz);
+document.addEventListener('DOMContentLoaded', bootHsc);
+window.addEventListener('beforeunload', () => {
+  if (currentQuizHasProgress()) persistCurrentQuiz();
+});
+window.addEventListener('hashchange', () => {
+  if (!quizManifest.length) return;
+  const hashFile = quizHashFile();
+  if (!hashFile) {
+    if (quizState) showQuizHome();
+    return;
+  }
+  const entry = quizManifest.find(m => m.file === hashFile);
+  if (entry && (!quizState || quizState.filename !== hashFile)) {
+    loadQuizByFile(entry.file, entry.name, { resume: true });
+  }
+});
 </script>
 
 </body>
