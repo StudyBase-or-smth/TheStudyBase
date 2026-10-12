@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 280" role="img" aria-label="Three resistors in parallel">
+  <rect width="480" height="280" fill="#fff"/>
+  <circle cx="70" cy="140" r="5" fill="#111"/>
+  <circle cx="410" cy="140" r="5" fill="#111"/>
+  <line x1="70" y1="140" x2="140" y2="140" stroke="#111" stroke-width="2"/>
+  <line x1="140" y1="50" x2="140" y2="230" stroke="#111" stroke-width="2"/>
+  <line x1="340" y1="50" x2="340" y2="230" stroke="#111" stroke-width="2"/>
+  <line x1="340" y1="140" x2="410" y2="140" stroke="#111" stroke-width="2"/>
+  <line x1="140" y1="50" x2="180" y2="50" stroke="#111" stroke-width="2"/>
+  <rect x="180" y="32" width="80" height="36" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="220" y="56" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16" font-style="italic">R1</text>
+  <line x1="260" y1="50" x2="340" y2="50" stroke="#111" stroke-width="2"/>
+  <line x1="140" y1="140" x2="180" y2="140" stroke="#111" stroke-width="2"/>
+  <rect x="180" y="122" width="80" height="36" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="220" y="146" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16" font-style="italic">R2</text>
+  <line x1="260" y1="140" x2="340" y2="140" stroke="#111" stroke-width="2"/>
+  <line x1="140" y1="230" x2="180" y2="230" stroke="#111" stroke-width="2"/>
+  <rect x="180" y="212" width="80" height="36" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="220" y="236" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16" font-style="italic">R3</text>
+  <line x1="260" y1="230" x2="340" y2="230" stroke="#111" stroke-width="2"/>
+</svg>

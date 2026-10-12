@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 300" role="img" aria-label="Hydraulic ram with force on the piston">
+  <rect width="560" height="300" fill="#fff"/>
+  <defs>
+    <pattern id="fluid" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M0,10 L10,0" stroke="#888" stroke-width="0.8"/>
+    </pattern>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#111"/>
+    </marker>
+  </defs>
+  <rect x="70" y="88" width="220" height="124" fill="url(#fluid)" stroke="#111" stroke-width="2.5"/>
+  <rect x="210" y="96" width="28" height="108" fill="#ddd" stroke="#111" stroke-width="2"/>
+  <rect x="238" y="132" width="160" height="36" fill="#fff" stroke="#111" stroke-width="2"/>
+  <line x1="70" y1="150" x2="40" y2="150" stroke="#111" stroke-width="2"/>
+  <line x1="70" y1="170" x2="40" y2="170" stroke="#111" stroke-width="2"/>
+  <text x="48" y="78" font-family="Times New Roman, Times, serif" font-size="16">fluid</text>
+  <line x1="224" y1="96" x2="224" y2="204" stroke="#111" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <text x="168" y="162" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="18" font-style="italic">A</text>
+  <line x1="398" y1="150" x2="510" y2="150" stroke="#111" stroke-width="2.5" marker-end="url(#ah)"/>
+  <text x="448" y="136" font-family="Times New Roman, Times, serif" font-size="18" font-style="italic">F</text>
+  <text x="180" y="250" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16">piston</text>
+</svg>

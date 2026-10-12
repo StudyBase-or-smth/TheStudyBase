@@ -16,4 +16,20 @@ Thumbs.db
 icon.af
 Blank.html
 
+# Local extract of the original zip — not part of the site
+_orig_zip/
 
+
+
+# Local Netlify folder
+.netlify
+
+# Standalone runtime data and local comparison checkouts
+secrets.json
+website.json
+json/
+files/
+users/
+analyser/
+_ethan_ref/
+_ethan_wt/

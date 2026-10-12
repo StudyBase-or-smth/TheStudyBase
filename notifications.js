@@ -350,9 +350,9 @@ function sbNotifyClose(){
 function sbNotifyBind(){
   const wrap = document.getElementById('hdrNotifyWrap');
   const btn = document.getElementById('hdrNotifyBtn');
-  if(!wrap || !btn || btn.dataset.sbNotifyBound === '1') return;
-  btn.dataset.sbNotifyBound = '1';
-  btn.addEventListener('click', ev => {
+  if(!wrap || wrap.dataset.sbNotifyBound === '1') return;
+  wrap.dataset.sbNotifyBound = '1';
+  if(btn) btn.addEventListener('click', ev => {
     ev.preventDefault();
     ev.stopPropagation();
     if(_sbNotifyOpen) sbNotifyClose();

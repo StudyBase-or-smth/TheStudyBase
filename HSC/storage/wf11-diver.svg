@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 360" role="img" aria-label="Diver 12 m below the surface of a lake">
+  <rect width="520" height="360" fill="#fff"/>
+  <rect x="70" y="70" width="280" height="250" fill="#eef6fb" stroke="#111" stroke-width="2"/>
+  <path d="M70,90 Q105,78 140,90 T210,90 T280,90 T350,90" fill="none" stroke="#111" stroke-width="1.5"/>
+  <text x="210" y="58" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16">surface</text>
+  <text x="368" y="86" font-family="Times New Roman, Times, serif" font-size="16" font-style="italic">P0</text>
+  <circle cx="210" cy="250" r="18" fill="#fff" stroke="#111" stroke-width="2"/>
+  <line x1="210" y1="268" x2="210" y2="292" stroke="#111" stroke-width="2"/>
+  <line x1="192" y1="278" x2="228" y2="278" stroke="#111" stroke-width="2"/>
+  <line x1="210" y1="292" x2="196" y2="312" stroke="#111" stroke-width="2"/>
+  <line x1="210" y1="292" x2="224" y2="312" stroke="#111" stroke-width="2"/>
+  <text x="236" y="256" font-family="Times New Roman, Times, serif" font-size="16">diver</text>
+  <line x1="400" y1="90" x2="400" y2="250" stroke="#111" stroke-width="1.4"/>
+  <line x1="394" y1="90" x2="406" y2="90" stroke="#111" stroke-width="1.4"/>
+  <line x1="394" y1="250" x2="406" y2="250" stroke="#111" stroke-width="1.4"/>
+  <text x="414" y="176" font-family="Times New Roman, Times, serif" font-size="16">12 m</text>
+</svg>

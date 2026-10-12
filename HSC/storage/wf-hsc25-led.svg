@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 240" role="img" aria-label="Series circuit with battery, resistor and LED">
+  <rect width="560" height="240" fill="#fff"/>
+  <line x1="80" y1="70" x2="80" y2="170" stroke="#111" stroke-width="2"/>
+  <line x1="74" y1="90" x2="86" y2="90" stroke="#111" stroke-width="3"/>
+  <line x1="70" y1="102" x2="90" y2="102" stroke="#111" stroke-width="3"/>
+  <line x1="74" y1="114" x2="86" y2="114" stroke="#111" stroke-width="3"/>
+  <line x1="70" y1="126" x2="90" y2="126" stroke="#111" stroke-width="3"/>
+  <text x="48" y="80" font-family="Times New Roman, Times, serif" font-size="15">9 V</text>
+  <line x1="80" y1="70" x2="180" y2="70" stroke="#111" stroke-width="2"/>
+  <rect x="180" y="52" width="110" height="36" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="235" y="76" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16" font-style="italic">R</text>
+  <line x1="290" y1="70" x2="360" y2="70" stroke="#111" stroke-width="2"/>
+  <polygon points="360,52 360,88 400,70" fill="#fff" stroke="#111" stroke-width="2"/>
+  <line x1="400" y1="52" x2="400" y2="88" stroke="#111" stroke-width="2.5"/>
+  <text x="430" y="64" font-family="Times New Roman, Times, serif" font-size="14">LED</text>
+  <text x="430" y="82" font-family="Times New Roman, Times, serif" font-size="14">2.1 V</text>
+  <text x="430" y="100" font-family="Times New Roman, Times, serif" font-size="14">50 mA max</text>
+  <line x1="400" y1="70" x2="480" y2="70" stroke="#111" stroke-width="2"/>
+  <line x1="480" y1="70" x2="480" y2="170" stroke="#111" stroke-width="2"/>
+  <line x1="480" y1="170" x2="80" y2="170" stroke="#111" stroke-width="2"/>
+</svg>

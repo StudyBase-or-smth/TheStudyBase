@@ -8,6 +8,8 @@
   <link rel="apple-touch-icon" href="icon.png">
   <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="mainstyle.css">
+  <script src="sync-config.js"></script>
+<link rel="stylesheet" href="qol.css">
 </head>
 <body>
 
@@ -17,16 +19,9 @@
     import { getAuth, onAuthStateChanged, signOut }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAZeyBIaTstTJ5Pr9o86MHk8dhDPAJFFCA",
-      authDomain: "studybase-8cfa1.firebaseapp.com",
-      projectId: "studybase-8cfa1",
-      storageBucket: "studybase-8cfa1.firebasestorage.app",
-      messagingSenderId: "434992387793",
-      appId: "1:434992387793:web:e5bcae8cad63b4eb6f17f0"
-    };
+    import { loadFirebaseConfig } from "./firebase-config.js";
 
-    const app = initializeApp(firebaseConfig);
+    const app = initializeApp(await loadFirebaseConfig());
     const auth = getAuth(app);
     window.__sbAuth = auth;
 
@@ -108,7 +103,8 @@
   <div class="hdr-outer">
     <a class="accent-bar" id="accentBar" style="background:#f59e0b"></a>
     <div class="hdr-main">
-      <div class="hdr-top">
+      <div class="hdr-top hub-header">
+        <div class="hub-header-left">
         <div class="logo-block">
           <div class="logo-icon2">
             <img src="icon.png" alt="Logo" style="width:28px;height:28px;object-fit:contain;">
@@ -118,10 +114,10 @@
             <span class="logo-sub-txt">SCHOOL REFERENCE</span>
           </div>
         </div>
-        <div id="branch-badge" style="font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;">Loading…</div>
-        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-          <span class="hdr-date-pill">Today — <strong id="todayDate"></strong></span>
-          <button class="hdr-ghost hdr-sync" onclick="manualSync()" data-tip="Sync now" aria-label="Sync now">⟳<span id="syncCountdown"></span></button>
+        <div id="branch-badge" style="font-size:11px;color:var(--muted);white-space:nowrap;">Loading…</div>
+        </div>
+        <div class="hub-date-time"><time id="hubClock"></time><span aria-hidden="true"> · </span><strong id="todayDate"></strong></div>
+        <div class="hdr-right-row" style="margin-left:auto;display:flex;align-items:center;gap:8px">
           <button class="hdr-ghost" onclick="openSuggestions()" data-tip="Suggestions" aria-label="Suggestions">📝</button>
           <div class="hdr-notify-wrap" id="hdrNotifyWrap">
             <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications">
@@ -142,14 +138,15 @@
   </div>
 
   <!-- ── Main content ── -->
-  <div class="wrap" style="margin-top:28px">
+  <div class="wrap" style="margin-top:44px">
     <div class="stats-row" id="statsRow"></div>
 
+
     <div class="main-grid">
+      <div class="sec-title hub-subject-heading">Subjects <span class="count" id="subjCount"></span></div>
 
       <!-- Left column -->
-      <div>
-        <div class="sec-title">Subjects <span class="count" id="subjCount"></span></div>
+      <div class="hub-subject-content">
         <div class="subjects-grid" id="subjectsGrid"></div>
 
         <div id="classesSection" style="display:none">
@@ -176,16 +173,17 @@
           </div>
         </div>
       </div>
-      
+
 
       <!-- Right sidebar -->
-      <div>
+      <aside id="hubSidebar" aria-label="Study sidebar">
         <div class="side-card">
           <div class="sec-title-collapsible" id="recentToggle" onclick="toggleSection('recent')" title="Click to collapse">
             <span>Recently Added</span>
             <span class="collapse-arrow">▾</span>
           </div>
           <div class="collapsible-body" id="recentBody" style="margin-top:0">
+            
             <div style="height:12px"></div>
             <div id="recentList"><div class="empty-note">No topics added yet.</div></div>
           </div>
@@ -197,6 +195,7 @@
           </div>
 
           <div class="collapsible-body" id="toolsBody" style="margin-top:0">
+            
             <div style="height:12px"></div>
             <div id="markerSection"></div>
           </div>
@@ -207,6 +206,7 @@
             <span class="collapse-arrow">▾</span>
           </div>
           <div class="collapsible-body" id="unitsBody" style="margin-top:0">
+            
             <div style="height:12px"></div>
             <div id="unitsList"><div class="empty-note">No units created yet.</div></div>
           </div>
@@ -214,7 +214,7 @@
         </div>
 
 
-      </div>
+      </aside>
 
     </div>
   </div>
@@ -230,7 +230,7 @@
       <div class="ev-row">
         <div class="ev-label">Date &amp; Time</div>
         <div style="display:flex;gap:8px">
-          <input class="ev-input" id="evDate" type="date" style="flex:1">
+          <input class="ev-input" id="evDate" type="date" required style="flex:1">
           <input class="ev-input" id="evTime" type="time" style="width:110px">
         </div>
       </div>
@@ -306,12 +306,15 @@
   <!-- ── Scripts ── -->
   <!-- subjects.js, sync-config.js and BranchVersion.js must load before mainapp.js -->
   <script src="subjects.js"></script>
-  <script src="sync-config.js"></script>
+
+  <script src="suggestions.js"></script>
   <script src="profile-store.js"></script>
   <script src="notifications.js"></script>
   <script src="BranchVersion.js"></script>
   <script src="mainapp.js"></script>
-  
+  <script src="qol.js"></script>
+  <script src="calendar-qol.js"></script>
+
 
 </body>
 </html>

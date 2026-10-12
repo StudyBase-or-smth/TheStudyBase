@@ -94,10 +94,11 @@
     let w = dim.w;
     let h = dim.h;
     if (!w || !h) return;
-    const scale = Math.min(this.maxW / w, (PAGE_H - MARGIN * 2) / h, 1);
+    const maxH = PAGE_H - MARGIN * 2;
+    const scale = Math.min(this.maxW / w, maxH / h, 1);
     w *= scale;
     h *= scale;
-    this._need(h + 8);
+    if (this.y - h < MARGIN && this._page.cmds.length) this.addPage();
     this.y -= h;
     const name = 'Im' + (this._page.images.length + 1);
     this._page.images.push({ name: name, bytes: u, w: dim.w, h: dim.h });

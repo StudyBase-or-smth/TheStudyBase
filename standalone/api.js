@@ -315,6 +315,16 @@ async function handleDesmosKey(res, secrets) {
   sendJson(res, 200, { apiKey: secrets.DESMOS_API_KEY || '' });
 }
 
+function handleFirebaseConfig(res, secrets) {
+  const projectId = String((secrets && secrets.FIREBASE_PROJECT_ID) || '').trim();
+  if (!projectId) return sendJson(res, 503, { error: 'Firebase web config is not set' });
+  sendJson(res, 200, {
+    projectId,
+    authDomain: projectId + '.firebaseapp.com',
+    storageBucket: projectId + '.firebasestorage.app',
+  });
+}
+
 function allowedAvatarUrl(raw) {
   let u;
   try { u = new URL(raw); } catch (e) { return null; }
@@ -479,7 +489,10 @@ async function handleGrade(req, res, secrets, readBody) {
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: geminiGradeParts(prompt, documents) }] }),
+        body: JSON.stringify({
+          contents: [{ parts: geminiGradeParts(prompt, documents) }],
+          generationConfig: { seed: 42 },
+        }),
       }
     );
     const data = await up.json();
@@ -635,6 +648,7 @@ async function handleApi(req, res, url, opts) {
 
   try {
     if (name === 'desmosKey' && method === 'GET') return handleDesmosKey(res, secrets);
+    if (name === 'firebaseConfig' && method === 'GET') return handleFirebaseConfig(res, secrets);
     if (name === 'avatar' && method === 'GET') return await handleAvatar(url, res);
     if (name === 'grade' && method === 'POST') return await handleGrade(req, res, secrets, readBody);
     if (name === 'registerRole' && method === 'POST') return await handleRegisterRole(req, res, secrets, readBody);

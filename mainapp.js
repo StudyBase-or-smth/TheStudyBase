@@ -16,6 +16,15 @@
   };
 })();
 
+function escapeHtml(str){
+  return String(str == null ? '' : str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
 // ── Branch version badge ──
 async function loadBranchVersion() {
   const badge = document.getElementById('branch-badge');
@@ -27,7 +36,7 @@ async function loadBranchVersion() {
     const colorMap = { dev: '#e11d48', bug: '#c2410c', main: '#15803d', other: '#1e40af' };
     const color = colorMap[data.colour || data.color || 'other'] || '#1e40af';
     badge.innerHTML = `<strong>${branch}</strong> · v${version} · ( ${date} )`;
-    badge.style.cssText = `font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;color:${color}`;
+    badge.style.cssText = `font-size:11px;white-space:nowrap;color:${color}`;
   };
   // window.BRANCH_VERSION comes from BranchVersion.js (a plain <script> tag,
   // loaded before this file) — it works when index.html is opened directly
@@ -41,7 +50,7 @@ async function loadBranchVersion() {
     apply(await res.json());
   } catch (e) {
     badge.innerHTML = '<strong>dev</strong> · Local';
-    badge.style.cssText = 'font-size:11px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap;color:#e0c200';
+    badge.style.cssText = 'font-size:11px;white-space:nowrap;color:#e0c200';
   }
 }
 window.addEventListener('load', loadBranchVersion);
@@ -49,25 +58,43 @@ loadBranchVersion();
 
 // ── Collapsible sidebar sections ──
 const COLLAPSE_KEY = 'studybase_collapsed_sections';
+const sidebarAnimations = new WeakMap();
 
 function getCollapsed() {
   try { return JSON.parse(localStorage.getItem(COLLAPSE_KEY) || '{}'); } catch (e) { return {}; }
 }
 function saveCollapsed(obj) { localStorage.setItem(COLLAPSE_KEY, JSON.stringify(obj)); }
 
-function applyCollapse(section, collapsed) {
+function applyCollapse(section, collapsed, animate = false) {
   const toggle = document.getElementById(section + 'Toggle');
   const body = document.getElementById(section + 'Body');
   if (!toggle || !body) return;
+  const height = body.getBoundingClientRect().height;
+  const opacity = getComputedStyle(body).opacity;
+  sidebarAnimations.get(body)?.cancel();
   toggle.classList.toggle('collapsed', collapsed);
+  toggle.setAttribute('aria-expanded',String(!collapsed));
   body.classList.toggle('collapsed', collapsed);
+  const enabled = animate && (window.SBQoL?.motionEnabled ? window.SBQoL.motionEnabled() : !document.body.classList.contains('qol-no-animation') && !(typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches));
+  if(enabled){
+    body.style.maxHeight = 'none'; body.style.height = height + 'px'; body.style.opacity = opacity; body.style.transition = 'none';
+    void body.offsetHeight;
+    let frame, timeout;
+    const cleanup = () => { cancelAnimationFrame(frame); clearTimeout(timeout); body.style.height = ''; body.style.maxHeight = ''; body.style.opacity = ''; body.style.transition = ''; if(sidebarAnimations.get(body)?.cancel === cleanup) sidebarAnimations.delete(body); };
+    sidebarAnimations.set(body,{cancel:cleanup});
+    frame = requestAnimationFrame(() => {
+      body.style.transition = 'height 180ms ease-out, opacity 180ms ease-out';
+      body.style.height = (collapsed ? 0 : body.scrollHeight) + 'px'; body.style.opacity = collapsed ? '0' : '1';
+      timeout = setTimeout(cleanup,220);
+    });
+  }
 }
 
 window.toggleSection = function (section) {
   const state = getCollapsed();
   state[section] = !state[section];
   saveCollapsed(state);
-  applyCollapse(section, state[section]);
+  applyCollapse(section, state[section], true);
 };
 
 function initCollapsibles() {
@@ -129,9 +156,9 @@ function init() {
   renderSidebar();
   updateHdrProfile();
   renderCalendar();
+  if(typeof sbWhenDiskReady === 'function') sbWhenDiskReady(() => { renderSubjects(); renderClasses(); renderStats(); renderSidebar(); });
   calSync();
   syncAllSubjectsAndUnits();
-  startSyncCountdown();
 
   document.getElementById('todayDate').textContent =
     TODAY.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -231,11 +258,14 @@ function renderStats() {
   });
   const lastStr = lastDate
     ? new Date(lastDate).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' }) : '—';
+  const updatedTitle = lastDate && Number.isFinite(new Date(lastDate).getTime())
+    ? 'Latest topic edit: ' + new Date(lastDate).toLocaleString('en-AU',{timeZone:'Australia/Sydney'}) : 'No topic edits recorded yet';
   document.getElementById('statsRow').innerHTML = `
-    <div class="stat-card"><div class="stat-num">${totalTopics}</div><div class="stat-label">Total Topics</div></div>
-    <div class="stat-card"><div class="stat-num">${totalUnits}</div><div class="stat-label">Total Units</div></div>
-    <div class="stat-card"><div class="stat-num">${subjects.length}</div><div class="stat-label">Subjects</div></div>
-    <div class="stat-card"><div class="stat-num" style="font-size:20px">${lastStr}</div><div class="stat-label">Last Updated</div></div>`;
+    <button type="button" class="stat-card" onclick="openHubStat('topics')" aria-label="Browse ${totalTopics} topics"><span class="stat-num">${totalTopics}</span><span class="stat-label">Topics</span></button>
+    <button type="button" class="stat-card" onclick="openHubStat('units')" aria-label="Browse ${totalUnits} units"><span class="stat-num">${totalUnits}</span><span class="stat-label">Units</span></button>
+    <button type="button" class="stat-card" onclick="openHubStat('subjects')" aria-label="Browse ${subjects.length} subjects"><span class="stat-num">${subjects.length}</span><span class="stat-label">Subjects</span></button>
+    <div class="stat-card stat-updated" title="${escapeHtml(updatedTitle)}"><span class="stat-label">Updated</span><span class="stat-num">${lastStr}</span></div>`;
+
 }
 
 // ── Sidebar: Recently Added + Units + Marker ──
@@ -314,7 +344,7 @@ function renderCalendar() {
   document.getElementById('calMonthLabel').textContent = MONTHS[calMonth] + ' ' + calYear;
   document.getElementById('calDow').innerHTML = DOWS.map(d => `<div class="cal-dow">${d}</div>`).join('');
 
-  const events = getEvents();
+  const events = window.SBCalendar ? window.SBCalendar.filtered(getEvents()) : getEvents();
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const firstDay = new Date(calYear, calMonth, 1);
   let startOffset = (firstDay.getDay() + 6) % 7;
@@ -342,7 +372,7 @@ function renderCalendar() {
       // on hover. escapeHtml keeps quotes/HTML in either field from breaking
       // out of the title="..." attribute.
       const tip = ev.tooltip ? ev.tooltip : ev.title;
-      html += `<div class="cal-event type-${ev.type}" onclick="event.stopPropagation();openEventModal('${ev.id}',null)" title="${escapeHtml(tip)}">${escapeHtml(ev.title)}${ev.time ? ' ' + escapeHtml(ev.time) : ''}</div>`;
+      html += `<div class="cal-event type-${ev.type}${ev.completed ? ' is-completed' : ''}" style="border-left:3px solid ${window.SBCalendar ? window.SBCalendar.colour(ev) : 'transparent'}" onclick="event.stopPropagation();openEventModal('${ev.id}',null)" title="${escapeHtml(tip)}">${escapeHtml(ev.title)}${ev.time ? ' ' + escapeHtml(ev.time) : ''}</div>`;
     });
     if (dayEvents.length > 2) html += `<div class="cal-more">+${dayEvents.length - 2} more</div>`;
     return html + '</div>';
@@ -421,7 +451,10 @@ window.closeEventModal = function () { document.getElementById('evOverlay').clas
 window.saveEvent = function () {
   const title = document.getElementById('evTitle').value.trim();
   if (!title) { document.getElementById('evTitle').focus(); return; }
+  if(!document.getElementById('evDate').value){ document.getElementById('evDate').reportValidity(); document.getElementById('evDate').focus(); return; }
   const ev = {
+    ...(editingEventId ? getEvents().find(e => e.id === editingEventId) || {} : {}),
+    completed: !!document.getElementById('evCompleted')?.checked,
     id: editingEventId || String(Date.now()),
     title,
     date: document.getElementById('evDate').value,
@@ -478,7 +511,7 @@ async function calSync() {
   } catch (e) { console.warn('Sync pull failed', e); }
   _nextSync = Date.now() + 60000;
 }
-setInterval(calSync, 60000);
+setInterval(() => calSync(), 60000);
 
 // Pull every subject's (and, for teacher/dev, every class's) topics + units
 // keys straight from the sync backend so the hub reflects the latest data
@@ -548,150 +581,6 @@ function startSyncCountdown() {
 }
 
 window.manualSync = function () { calSync(); renderSidebar(); showToast('Syncing…', 'info', 1500); };
-
-// ── Suggestions ──
-const SUG_KEY='studybase_suggestions';
-let _sugCache=[];
-
-// Suggestions are pulled from a shared, publicly-writable store (Google Apps
-// Script), so every field on a suggestion object — including id/tag, not
-// just its text — must be treated as untrusted and HTML-escaped before it
-// ever touches innerHTML. Never re-introduce raw template interpolation of
-// suggestion fields into HTML/attribute strings without going through this.
-function escapeHtml(str){
-  return String(str==null?'':str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#39;');
-}
-
-// Single delegated click handler for the suggestions list — avoids ever
-// building inline onclick="...('${untrustedValue}')" strings, which is what
-// let attacker-controlled id/tag values break out of an HTML attribute.
-document.addEventListener('click', function (e) {
-  const delBtn = e.target.closest('[data-sug-delete]');
-  if (delBtn) { deleteSuggestion(delBtn.getAttribute('data-sug-delete')); return; }
-  const toggleBtn = e.target.closest('[data-sug-toggle]');
-  if (toggleBtn) { toggleSuggestion(toggleBtn.getAttribute('data-sug-toggle')); return; }
-});
-
-
-function openSuggestions(){
-  document.getElementById('sugOverlay').classList.add('open');
-  document.body.style.overflow='hidden';
-  loadSuggestions();
-}
-function closeSuggestions(){
-  document.getElementById('sugOverlay').classList.remove('open');
-  document.body.style.overflow='';
-}
-
-
-window.closeSuggestions = function () {
-  document.getElementById('sugOverlay').classList.remove('open');
-  document.body.style.overflow = '';
-};
-
-async function loadSuggestions(){
-  const list=document.getElementById('sugList');
-  list.innerHTML='<div class="sug-empty">Loading…</div>';
-  try{
-    const res=await jsonpGet(SYNC_URL+'?key='+encodeURIComponent(SUG_KEY));
-    _sugCache=(res&&Array.isArray(res.data))?res.data:[];
-    renderSugList();
-  }catch(e){list.innerHTML='<div class="sug-empty">Could not load — check your connection.</div>';}
-}
-let _sugFilter='open';
-
-function setSugFilter(f,btn){
-  _sugFilter=f;
-  document.querySelectorAll('.sug-filter').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderSugList();
-}
-
-function toggleSuggestion(id){
-  const s=_sugCache.find(x=>x.id===id);
-  if(!s) return;
-  s.status=s.status==='closed'?'open':'closed';
-  renderSugList();
-  pushSuggestions();
-}
-
-// Rapid clicking (e.g. toggling a few suggestions quickly) used to fire an
-// overlapping push per click, each carrying its own snapshot of _sugCache —
-// whichever request's response the browser processed last would silently win
-// and could stomp a more recent change. Debounce so only one push goes out
-// per short burst, always carrying the latest _sugCache at send time.
-let _pushSuggestionsTimer = null;
-function pushSuggestions(){
-  if(_pushSuggestionsTimer) clearTimeout(_pushSuggestionsTimer);
-  _pushSuggestionsTimer = setTimeout(_doPushSuggestions, 300);
-}
-function _doPushSuggestions(){
-  _pushSuggestionsTimer = null;
-  sbPushToSync(SUG_KEY, _sugCache).catch(e => console.warn('Suggestion push failed', e));
-}
-
-function renderSugList(){
-  const list=document.getElementById('sugList');
-  const filtered=_sugFilter==='all'?_sugCache:_sugCache.filter(s=>(_sugFilter==='closed'?s.status==='closed':s.status!=='closed'));
-  // Update filter counts
-  const openCount=_sugCache.filter(s=>s.status!=='closed').length;
-  const closedCount=_sugCache.filter(s=>s.status==='closed').length;
-  const btns=document.querySelectorAll('.sug-filter');
-  if(btns[0]) btns[0].textContent='🟢 Open ('+openCount+')';
-  if(btns[1]) btns[1].textContent='🟣 Closed ('+closedCount+')';
-  if(btns[2]) btns[2].textContent='All ('+_sugCache.length+')';
-  if(!filtered.length){
-    list.innerHTML='<div class="sug-empty">'+(_sugCache.length?'No '+_sugFilter+' suggestions.':'No suggestions yet — be the first!')+'</div>';
-    return;
-  }
-  list.innerHTML=[...filtered].reverse().map(s=>{
-    const isClosed=s.status==='closed';
-    const safeId=escapeHtml(s.id);
-    const safeTag=escapeHtml(s.tag||'');
-    const tagHtml=s.tag?`<span class="sug-tag ${safeTag}">${safeTag}</span> `:'';
-    const statusHtml=`<span class="sug-status ${isClosed?'closed':'open'}">${isClosed?'🟣 Closed':'🟢 Open'}</span>`;
-    return `<div class="sug-item${isClosed?' closed':''}">
-      <button data-sug-delete="${safeId}" title="Delete" style="position:absolute;top:6px;right:6px;background:none;border:none;cursor:pointer;font-size:14px;line-height:1;color:var(--muted2);padding:2px 4px;border-radius:4px" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--muted2)'">×</button>
-      ${statusHtml} ${tagHtml}<div class="sug-text">${escapeHtml(s.text)}</div>
-      <div class="sug-meta">${escapeHtml(s.date)}${s.time?' · '+escapeHtml(s.time):''}</div>
-      <button class="sug-toggle-btn" data-sug-toggle="${safeId}">${isClosed?'↩ Reopen':'✓ Close'}</button>
-    </div>`;
-  }).join('');
-}
-function deleteSuggestion(id){
-  _sugCache=_sugCache.filter(s=>s.id!==id);
-  renderSugList();
-  showToast('Suggestion removed','warning');
-  pushSuggestions();
-}
-function selectSugTag(btn){
-  const wasActive=btn.classList.contains('active');
-  document.querySelectorAll('.sug-tag-btn').forEach(b=>b.classList.remove('active'));
-  if(!wasActive) btn.classList.add('active');
-}
-function sendSuggestion(){
-  const input=document.getElementById('sugInput');
-  const text=input.value.trim();
-  if(!text){input.focus();return;}
-  const now=new Date();
-  const date=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-  const time=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-  const activeTag=document.querySelector('.sug-tag-btn.active');
-  const newSug={id:String(Date.now()),text,tag:activeTag?activeTag.dataset.tag:'',date,time};
-  newSug.status='open';
-  _sugCache.push(newSug); renderSugList();
-  input.value='';
-  document.querySelectorAll('.sug-tag-btn').forEach(b=>b.classList.remove('active'));
-  showToast('Suggestion sent!','success');
-  pushSuggestions();
-}
-document.getElementById('sugOverlay').addEventListener('click',function(e){if(e.target===this)closeSuggestions();});
-
 
 // ── Boot ──
 document.addEventListener('DOMContentLoaded', init);

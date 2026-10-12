@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" role="img" aria-label="Crane lifting a panel a vertical distance of 6 m">
+  <rect width="560" height="360" fill="#fff"/>
+  <defs>
+    <pattern id="gnd" width="8" height="8" patternUnits="userSpaceOnUse">
+      <path d="M-1,9 L9,-1" stroke="#222" stroke-width="0.8"/>
+    </pattern>
+  </defs>
+  <rect x="30" y="318" width="500" height="18" fill="url(#gnd)" stroke="#111" stroke-width="1.5"/>
+  <line x1="30" y1="318" x2="530" y2="318" stroke="#111" stroke-width="2"/>
+  <rect x="88" y="88" width="22" height="230" fill="#fff" stroke="#111" stroke-width="2"/>
+  <line x1="99" y1="88" x2="99" y2="48" stroke="#111" stroke-width="2"/>
+  <line x1="99" y1="48" x2="380" y2="48" stroke="#111" stroke-width="2"/>
+  <line x1="99" y1="88" x2="360" y2="48" stroke="#111" stroke-width="1.5"/>
+  <line x1="380" y1="48" x2="380" y2="150" stroke="#111" stroke-width="1.5"/>
+  <line x1="368" y1="150" x2="392" y2="150" stroke="#111" stroke-width="2"/>
+  <rect x="330" y="150" width="100" height="70" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="380" y="192" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="15">250 kg</text>
+  <line x1="448" y1="318" x2="448" y2="150" stroke="#111" stroke-width="1.2"/>
+  <line x1="442" y1="318" x2="454" y2="318" stroke="#111" stroke-width="1.2"/>
+  <line x1="442" y1="150" x2="454" y2="150" stroke="#111" stroke-width="1.2"/>
+  <text x="462" y="240" font-family="Times New Roman, Times, serif" font-size="16">6 m</text>
+</svg>

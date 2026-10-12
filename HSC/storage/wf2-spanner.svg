@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" role="img" aria-label="Spanner applying a force to a wheel nut">
+  <rect width="640" height="300" fill="#fff"/>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#111"/>
+    </marker>
+  </defs>
+  <polygon points="118,92 148,110 148,146 118,164 88,146 88,110" fill="#fff" stroke="#111" stroke-width="2"/>
+  <circle cx="118" cy="128" r="14" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="118" y="76" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16">nut</text>
+  <path d="M148,118 L148,138 L520,138 L528,128 L520,118 Z" fill="#fff" stroke="#111" stroke-width="2"/>
+  <line x1="118" y1="188" x2="520" y2="188" stroke="#111" stroke-width="1.2"/>
+  <line x1="118" y1="182" x2="118" y2="194" stroke="#111" stroke-width="1.2"/>
+  <line x1="520" y1="182" x2="520" y2="194" stroke="#111" stroke-width="1.2"/>
+  <text x="320" y="214" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16">400 mm</text>
+  <line x1="520" y1="128" x2="520" y2="248" stroke="#111" stroke-width="2" marker-end="url(#ah)"/>
+  <text x="538" y="200" font-family="Times New Roman, Times, serif" font-size="18" font-style="italic">F</text>
+</svg>

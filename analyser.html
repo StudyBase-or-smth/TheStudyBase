@@ -180,7 +180,10 @@
     .section-block.drag-over{outline:2px dashed var(--amber);outline-offset:3px;border-radius:8px}
     .file-upload p{font-size:12px}
     .file-upload p+p{font-size:11px;color:var(--muted2);margin-top:3px}
-    .file-preview{margin-top:7px;font-size:11px;color:var(--muted);position:relative;z-index:1;pointer-events:none}
+    .file-preview{margin-top:7px;font-size:11px;color:var(--muted);position:relative;z-index:1;pointer-events:none;display:flex;align-items:center;gap:8px}
+    .file-preview-text{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .file-remove{flex-shrink:0;width:28px;height:28px;border:none;background:transparent;color:var(--muted);border-radius:6px;cursor:pointer;font-size:16px;line-height:1;pointer-events:auto;display:none;align-items:center;justify-content:center;font-family:inherit}
+    .file-remove:hover{background:rgba(248,113,113,.14);color:#f87171}
     .file-upload input[type=file]{display:none;pointer-events:none}
     .file-drop-wrap.has-file .file-upload{
       position:absolute;inset:0;border-color:transparent;background:transparent;padding:0;margin:0;z-index:2;
@@ -190,7 +193,8 @@
     .file-drop-wrap.has-file .file-upload.drag-over{
       border:2px dashed var(--amber);background:rgba(245,158,11,.08);border-radius:7px;
     }
-    .file-drop-wrap.has-file .file-preview{margin-top:0;padding:8px 2px}
+    .file-drop-wrap.has-file .file-preview{margin-top:0;padding:8px 6px 8px 12px;min-height:40px;border:1px solid var(--border);border-radius:7px;background:var(--card2);z-index:3;color:var(--text)}
+    .file-drop-wrap.has-file .file-remove{display:inline-flex}
 
     .pdf-method-wrap{display:none;margin-left:auto;align-items:center;flex-shrink:0}
     .pdf-method-wrap.show{display:flex}
@@ -532,6 +536,7 @@
       .mark-box{-webkit-print-color-adjust:exact;print-color-adjust:exact}
     }
   </style>
+<link rel="stylesheet" href="qol.css">
 </head>
 <body>
 
@@ -614,8 +619,8 @@ loadBranchVersion();
         <div class="file-drop-wrap">
           <div class="file-upload" id="asgUpload">
             <p style="font-weight:600">Upload assignment</p>
-            <p>PDF or Word (.docx)</p>
-            <input type="file" id="asgFile" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+            <p>PDF, Word (.docx), or images</p>
+            <input type="file" id="asgFile" accept=".pdf,.docx,.jpg,.jpeg,.png,.webp,.gif,.bmp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*" multiple>
           </div>
           <div class="file-preview" id="asgPreview"></div>
         </div>
@@ -643,8 +648,8 @@ loadBranchVersion();
         <div class="file-drop-wrap">
           <div class="file-upload" id="criteriaUpload">
             <p style="font-weight:600">Upload marking criteria</p>
-            <p>PDF or Word (.docx)</p>
-            <input type="file" id="criteriaFile" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+            <p>PDF, Word (.docx), or images</p>
+            <input type="file" id="criteriaFile" accept=".pdf,.docx,.jpg,.jpeg,.png,.webp,.gif,.bmp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*" multiple>
           </div>
           <div class="file-preview" id="criteriaPreview"></div>
         </div>
@@ -807,14 +812,8 @@ loadBranchVersion();
     try{
       const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
       const { getAuth, onAuthStateChanged, signOut } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
-      const auth = getAuth(initializeApp({
-        apiKey:'AIzaSyAZeyBIaTstTJ5Pr9o86MHk8dhDPAJFFCA',
-        authDomain:'studybase-8cfa1.firebaseapp.com',
-        projectId:'studybase-8cfa1',
-        storageBucket:'studybase-8cfa1.firebasestorage.app',
-        messagingSenderId:'434992387793',
-        appId:'1:434992387793:web:e5bcae8cad63b4eb6f17f0'
-      }));
+      const { loadFirebaseConfig } = await import('./firebase-config.js');
+      const auth = getAuth(initializeApp(await loadFirebaseConfig()));
       window.__sbAuth = auth;
       window.sbSignOut = function(){
         if(sessionStorage.getItem('studybase_guest') === '1'){
@@ -1115,29 +1114,85 @@ loadBranchVersion();
       e.preventDefault();
       e.stopPropagation();
       highlight(false);
-      const f=e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-      if(f) onFile(f);
+      const files=e.dataTransfer && e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+      if(files.length) onFile(files);
     });
   }
 
-  function acceptUploadDrop(kind, file){
+  const MAX_IMAGE_FILES=12;
+  const MAX_IMAGE_BYTES=20*1024*1024;
+  const IMAGE_ACCEPT='PDF, Word (.docx), or images (JPG, PNG, WebP, GIF)';
+
+  function acceptUploadDrop(kind, files){
     if(analyserLocked){
       showToast('Sign in with an approved role to upload','warning');
       return;
     }
-    if(!isPdfFile(file) && !isDocxFile(file)){
-      showToast('Upload a PDF or Word (.docx) file','error');
+    const list=Array.isArray(files)?files:(files?[files]:[]);
+    if(!list.length) return;
+    const pdfs=list.filter(isPdfFile);
+    const docs=list.filter(isDocxFile);
+    const images=list.filter(isImageFile);
+    const heic=list.find(isHeicFile);
+    if(heic){
+      showToast('HEIC photos aren’t supported — export as JPEG or PNG','error');
       return;
     }
-    if(kind==='criteria') switchCriteriaMode('file');
-    else switchAsgMode('file');
-    processUploadFile(file, kind);
+    if(images.length && !pdfs.length && !docs.length){
+      if(kind==='criteria') switchCriteriaMode('file');
+      else switchAsgMode('file');
+      processUploadFiles(images, kind);
+      return;
+    }
+    if(list.length===1 && (isPdfFile(list[0]) || isDocxFile(list[0]))){
+      if(kind==='criteria') switchCriteriaMode('file');
+      else switchAsgMode('file');
+      processUploadFile(list[0], kind);
+      return;
+    }
+    showToast('Upload a '+IMAGE_ACCEPT,'error');
   }
 
   function isPdfFile(f){ return f && (f.type==='application/pdf' || /\.pdf$/i.test(f.name)); }
   function isDocxFile(f){ return f && (/\.docx$/i.test(f.name) || f.type==='application/vnd.openxmlformats-officedocument.wordprocessingml.document'); }
+  function isHeicFile(f){ return f && (/image\/hei(c|f)/i.test(f.type||'') || /\.hei[cf]$/i.test(f.name||'')); }
+  function isImageFile(f){
+    if(!f || isHeicFile(f)) return false;
+    if(/^image\/(jpeg|jpg|pjpeg|png|webp|gif|bmp)$/i.test(f.type||'')) return true;
+    return /\.(jpe?g|png|webp|gif|bmp)$/i.test(f.name||'');
+  }
 
-  function setPreview(id, html){ document.getElementById(id).innerHTML=html; }
+  function previewKindFromId(id){ return id==='criteriaPreview' ? 'criteria' : 'assignment'; }
+
+  function setPreview(id, html){
+    const el=document.getElementById(id);
+    if(!el) return;
+    if(!html){ el.innerHTML=''; return; }
+    const kind=previewKindFromId(id);
+    el.innerHTML=`<span class="file-preview-text">${html}</span><button type="button" class="file-remove" data-kind="${kind}" title="Remove file" aria-label="Remove file">✕</button>`;
+  }
+
+  function clearUploadedFile(kind){
+    if(kind==='criteria'){
+      extractedCriteria=''; criteriaContent=''; criteriaFileName=''; criteriaPdfBytes=null; pdfPages=[];
+      renderPagePicker();
+      showScanWarn('criteriaScanWarn', false);
+      setPreview('criteriaPreview','');
+      setZoneFilled('criteriaUpload', false);
+      const inp=document.getElementById('criteriaFile');
+      if(inp) inp.value='';
+    } else {
+      extractedAssignment=''; asgFileName=''; assignmentPdfBytes=null;
+      showScanWarn('asgScanWarn', false);
+      setPreview('asgPreview','');
+      setZoneFilled('asgUpload', false);
+      const inp=document.getElementById('asgFile');
+      if(inp) inp.value='';
+    }
+    updateTokens();
+    scheduleDraftSave();
+    showToast('File removed','info');
+  }
 
   function setZoneFilled(uploadId, filled){
     const el=document.getElementById(uploadId);
@@ -1156,11 +1211,11 @@ loadBranchVersion();
     return btoa(s);
   }
 
-  async function dataUrlToJpeg(dataUrl){
+  async function dataUrlToJpeg(dataUrl, force){
     const m=String(dataUrl||'').match(/^data:([^;]+);base64,([\s\S]+)$/);
     if(!m) throw new Error('Bad image');
     const mime=m[1].toLowerCase();
-    if(mime==='image/jpeg' || mime==='image/jpg'){
+    if(!force && (mime==='image/jpeg' || mime==='image/jpg')){
       const bin=atob(m[2]);
       const u=new Uint8Array(bin.length);
       for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
@@ -1193,6 +1248,32 @@ loadBranchVersion();
       img.onerror=()=>reject(new Error('Could not load image'));
       img.src=dataUrl;
     });
+  }
+
+  function readFileAsDataUrl(file){
+    return new Promise((resolve,reject)=>{
+      const r=new FileReader();
+      r.onload=()=>resolve(r.result);
+      r.onerror=()=>reject(new Error('Could not read '+((file&&file.name)||'image')));
+      r.readAsDataURL(file);
+    });
+  }
+
+  async function imageFilesToPdf(files){
+    if(typeof SimplePdf!=='function') throw new Error('PDF builder missing');
+    if(!files.length) throw new Error('No images selected');
+    if(files.length>MAX_IMAGE_FILES) throw new Error('Too many images (max '+MAX_IMAGE_FILES+')');
+    const pdf=new SimplePdf();
+    let first=true;
+    for(const file of files){
+      if(file.size>MAX_IMAGE_BYTES) throw new Error((file.name||'Image')+' is too large (max 20 MB)');
+      if(!first) pdf.addPage();
+      first=false;
+      const jpeg=await dataUrlToJpeg(await readFileAsDataUrl(file), true);
+      pdf.addJpeg(jpeg);
+    }
+    if(!pdf.imageCount) throw new Error('Could not read that image');
+    return { pdfBytes: pdf.build(), imageCount: pdf.imageCount };
   }
 
   async function htmlToPdfBytes(html){
@@ -1252,9 +1333,20 @@ loadBranchVersion();
   }
 
   function setUploadPreview(kind, fileName, bits, scanned){
-    const p=document.getElementById(kind==='criteria'?'criteriaPreview':'asgPreview');
     const extra=bits.filter(Boolean).join(', ');
-    p.innerHTML=`${scanned?'⚠':'✅'} <strong>${esc(fileName)}</strong>${extra?' — '+extra:''}`;
+    setPreview(kind==='criteria'?'criteriaPreview':'asgPreview',
+      `${scanned?'⚠':'✅'} <strong>${esc(fileName)}</strong>${extra?' — '+extra:''}`);
+  }
+
+  async function processUploadFiles(files, kind){
+    const list=Array.isArray(files)?files.filter(Boolean):[];
+    if(!list.length) return;
+    if(list.every(isImageFile)){
+      const fake={ name: list.length===1 ? list[0].name : (list.length+' images'), _images:list };
+      return processUploadFile(fake, kind);
+    }
+    if(list.length===1) return processUploadFile(list[0], kind);
+    showToast('Upload one PDF/Word file, or one or more images','error');
   }
 
   async function processUploadFile(file, kind){
@@ -1262,6 +1354,7 @@ loadBranchVersion();
     const previewId=kind==='criteria'?'criteriaPreview':'asgPreview';
     const warnId=kind==='criteria'?'criteriaScanWarn':'asgScanWarn';
     const p=document.getElementById(previewId);
+    const images=file && file._images ? file._images : (isImageFile(file)?[file]:null);
     p.textContent=`Processing: ${file.name}…`;
     setZoneFilled(uploadId, true);
     showScanWarn(warnId, false);
@@ -1270,8 +1363,18 @@ loadBranchVersion();
       let text='';
       let imageCount=0;
       let fromWord=false;
+      let fromImages=false;
       let pages=[];
-      if(isDocxFile(file)){
+      if(images){
+        fromImages=true;
+        const converted=await imageFilesToPdf(images);
+        pdfBytes=converted.pdfBytes;
+        imageCount=converted.imageCount;
+        if(!pdfBytes || !pdfBytes.length) throw new Error('Could not read that image');
+        if(pdfBytes.length>MAX_UPLOAD_PDF) throw new Error('Converted PDF is too large (max 8 MB)');
+        pages=await extractPdfPagesFromBytes(pdfBytes);
+        text='';
+      } else if(isDocxFile(file)){
         fromWord=true;
         const converted=await docxToPdf(file);
         pdfBytes=converted.pdfBytes;
@@ -1288,11 +1391,13 @@ loadBranchVersion();
         text=pages.map(pg=>`\n--- Page ${pg.num} ---\n${pg.text}\n`).join('').trim();
       } else if(/\.doc$/i.test(file.name||'')){
         throw new Error('Old .doc files are not supported — save as .docx');
+      } else if(isHeicFile(file)){
+        throw new Error('HEIC photos aren’t supported — export as JPEG or PNG');
       } else {
-        throw new Error('Upload a PDF or Word (.docx) file');
+        throw new Error('Upload a '+IMAGE_ACCEPT);
       }
 
-      const scanned=!fromWord && isLikelyScanned(pages);
+      const scanned=fromImages || (!fromWord && isLikelyScanned(pages));
       showScanWarn(warnId, scanned);
 
       if(kind==='criteria'){
@@ -1312,7 +1417,8 @@ loadBranchVersion();
 
       const bits=[];
       if(fromWord) bits.push('converted to PDF');
-      if(imageCount) bits.push(imageCount+' image'+(imageCount===1?'':'s'));
+      if(fromImages) bits.push('photo'+(imageCount===1?'':'s')+' attached');
+      if(imageCount && !fromImages) bits.push(imageCount+' image'+(imageCount===1?'':'s'));
       if(kind==='criteria'){
         const kept=pdfPages.filter(x=>x.selected).length;
         bits.push(pdfPages.length+' page'+(pdfPages.length===1?'':'s'));
@@ -1320,7 +1426,7 @@ loadBranchVersion();
       } else if(countWords(text)){
         bits.push(countWords(text).toLocaleString()+' words');
       }
-      if(scanned) bits.push('little text extracted — Gemini will read the pages as images');
+      if(scanned) bits.push(fromImages ? 'Gemini will read the photo'+(imageCount===1?'':'s') : 'little text extracted — Gemini will read the pages as images');
       setUploadPreview(kind, file.name, bits, scanned);
       showToast(kind==='criteria'?'Criteria loaded':'Assignment loaded', scanned?'warning':'success', scanned?4000:2000);
       updateTokens();
@@ -1341,7 +1447,14 @@ loadBranchVersion();
   }
 
   document.getElementById('asgUpload').addEventListener('click',()=>document.getElementById('asgFile').click());
-  document.getElementById('asgFile').addEventListener('change',e=>{if(e.target.files[0])processUploadFile(e.target.files[0],'assignment');});
+  document.getElementById('asgFile').addEventListener('change',e=>{if(e.target.files && e.target.files.length)processUploadFiles(Array.from(e.target.files),'assignment'); e.target.value='';});
+  document.getElementById('asgPreview').addEventListener('click',e=>{
+    const btn=e.target.closest('.file-remove');
+    if(!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    clearUploadedFile('assignment');
+  });
   makeDraggable('asgUpload',f=>acceptUploadDrop('assignment',f));
   makeDraggable('asgSection',f=>acceptUploadDrop('assignment',f));
 
@@ -1386,7 +1499,8 @@ loadBranchVersion();
     if(guessed.length){
       pdfPages.forEach(p=>{ p.selected = pageMatchesGuess(p.text); });
     } else {
-      pdfPages.forEach(p=>{ p.selected = pdfMethod==='guess' ? false : p.hasText; });
+      const anyText=pdfPages.some(p=>p.hasText);
+      pdfPages.forEach(p=>{ p.selected = pdfMethod==='guess' ? false : (anyText ? p.hasText : true); });
     }
   }
 
@@ -1428,7 +1542,14 @@ loadBranchVersion();
   }
 
   document.getElementById('criteriaUpload').addEventListener('click',()=>document.getElementById('criteriaFile').click());
-  document.getElementById('criteriaFile').addEventListener('change',e=>{if(e.target.files[0])processUploadFile(e.target.files[0],'criteria');});
+  document.getElementById('criteriaFile').addEventListener('change',e=>{if(e.target.files && e.target.files.length)processUploadFiles(Array.from(e.target.files),'criteria'); e.target.value='';});
+  document.getElementById('criteriaPreview').addEventListener('click',e=>{
+    const btn=e.target.closest('.file-remove');
+    if(!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    clearUploadedFile('criteria');
+  });
   makeDraggable('criteriaUpload',f=>acceptUploadDrop('criteria',f));
   makeDraggable('criteriaSection',f=>acceptUploadDrop('criteria',f));
 
@@ -2032,9 +2153,9 @@ loadBranchVersion();
     if(!userKey) throw new Error('No proxy available (dev/GitHub Pages mode) — paste your own Gemini API key to test directly.');
     const parts=(documents||[]).map(d=>({inline_data:{mime_type:d.mime||'application/pdf', data:d.data}}));
     parts.push({text:prompt});
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${userKey}`,{
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${userKey}`,{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({contents:[{parts}]}),
+      body:JSON.stringify({contents:[{parts}],generationConfig:{seed:42}}),
       signal
     });
     const data=await res.json();
@@ -2143,6 +2264,7 @@ Rules:
 - Each criteria "comment" must be at most 12 words. State only whether it was met and why in brief. No quotes, no examples, no restating the criterion name.
 - Put longer explanation in "improvements" and "nextDraft", not in criteria.
 - "improvements" and "nextDraft" must be actionable (what to change), not generic praise.
+- Areas for Improvement must have a minium of 4 improvement
 - Quotes (improvements only) must be short real extracts from the student text, or "".
 - "score" is an integer 0–100.
 - "grade" is A–E (with optional +/−) if the rubric uses bands; otherwise "".
@@ -2172,11 +2294,11 @@ ${critBlock}
     const asgPdf=assignmentMode==='file' && assignmentPdfBytes;
     const critPdf=criteriaMode==='file' && criteriaPdfBytes;
     if(assignmentMode==='file' && !assignmentPdfBytes && !studentText){
-      showToast('Re-upload the assignment PDF or Word file','warning');
+      showToast('Re-upload the assignment file','warning');
       return;
     }
     if(criteriaMode==='file' && !criteriaPdfBytes && !(criteriaContent||'').trim()){
-      showToast('Re-upload the criteria PDF or Word file','warning');
+      showToast('Re-upload the criteria file','warning');
       return;
     }
     if(asgPdf && assignmentPdfBytes.length>MAX_UPLOAD_PDF){
@@ -2740,5 +2862,7 @@ ${critBlock}
   renderHistory();
   updateTokens();
 </script>
+<script src="subjects.js"></script>
+<script src="qol.js"></script>
 </body>
 </html>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 320" role="img" aria-label="Crate resting on a warehouse floor">
+  <rect width="520" height="320" fill="#fff"/>
+  <defs>
+    <pattern id="gnd" width="8" height="8" patternUnits="userSpaceOnUse">
+      <path d="M-1,9 L9,-1" stroke="#222" stroke-width="0.8"/>
+    </pattern>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#111"/>
+    </marker>
+  </defs>
+  <rect x="40" y="250" width="440" height="22" fill="url(#gnd)" stroke="#111" stroke-width="1.5"/>
+  <line x1="40" y1="250" x2="480" y2="250" stroke="#111" stroke-width="2"/>
+  <rect x="170" y="118" width="180" height="132" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="260" y="188" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="18">crate</text>
+  <line x1="260" y1="118" x2="260" y2="42" stroke="#111" stroke-width="2" marker-end="url(#ah)"/>
+  <text x="276" y="78" font-family="Times New Roman, Times, serif" font-size="18" font-style="italic">N</text>
+  <text x="260" y="288" text-anchor="middle" font-family="Times New Roman, Times, serif" font-size="16">coefficient of friction given</text>
+</svg>

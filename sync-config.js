@@ -1,23 +1,7 @@
-// sync-config.js
-//
-// Shared client config loaded before mainapp.js / subjectapp.js / classapp.js.
-//
-// SYNC_URL — JSON + file store.
-// This laptop (file://, localhost, 127.0.0.1) talks to StudyBaseProgram on
-// http://127.0.0.1:8787, which writes StudyBaseData next to start.bat.
-// Other hosts still use BaseComputer. Apps Script is off; set
-// USE_APPS_SCRIPT to true to send the public HTTPS site back to Google.
-// Public HTTPS pages cannot call these HTTP URLs.
-//
-// DESMOS_API_KEY — Desmos Graphing Calculator key (desmos.com/my-api).
-// Desmos embeds this in a public <script src>, so it is not a spend
-// secret. Keep it here so subject/class pages work from file:// without
-// hitting /api/desmosKey. If this is empty, those pages fall back to
-// /api/desmosKey on the StudyBaseProgram store.
-const APPS_SCRIPT_SYNC_URL = 'https://script.google.com/macros/s/AKfycbw58Nd3KktmYnRXnW7JqKUA5vdfAwpr7Wa8GZNROv773MRWn9-3opMb9xy1XYhi_INP/exec';
+// Shared StudyBaseData client configuration. All storage and API requests
+// use the standalone server; no external hosting proxy is required.
 const BASECOMPUTER_SYNC_URL = 'http://basecomputer.tail8c20e2.ts.net:8787/sync';
 const PROGRAM_SYNC_URL = 'http://127.0.0.1:8787/sync';
-const USE_APPS_SCRIPT = false;
 
 function isLocalDevHost(){
   try {
@@ -29,8 +13,7 @@ function isLocalDevHost(){
   }
 }
 
-function resolvedSyncUrl(){
-  if(USE_APPS_SCRIPT && !isLocalDevHost()) return APPS_SCRIPT_SYNC_URL;
+function programSyncUrl(){
   try {
     if(location.protocol === 'file:') return PROGRAM_SYNC_URL;
     const h = location.hostname;
@@ -40,7 +23,27 @@ function resolvedSyncUrl(){
       return PROGRAM_SYNC_URL;
     }
   } catch(e) {}
+  try { if(location.protocol === 'http:' || location.protocol === 'https:') return location.origin + '/sync'; } catch(e) {}
   return BASECOMPUTER_SYNC_URL;
+}
+
+function resolvedSyncUrl(){
+  return programSyncUrl();
+}
+
+function programApiOrigin(){
+  try {
+    if(location.protocol === 'file:') return new URL(PROGRAM_SYNC_URL).origin;
+    const h = location.hostname;
+    if(h === 'localhost' || h === '127.0.0.1'){
+      const port = String(location.port || '');
+      if(port === '8787') return location.origin;
+      return new URL(PROGRAM_SYNC_URL).origin;
+    }
+    return location.origin;
+  } catch(e) {
+    return '';
+  }
 }
 
 const LOCAL_SYNC_URL = PROGRAM_SYNC_URL;
@@ -48,8 +51,7 @@ const SYNC_URL = resolvedSyncUrl();
 const DESMOS_API_KEY = '7339116aaed4438899621e81f10dd250';
 
 function sbApiOrigin(){
-  if(USE_APPS_SCRIPT && !isLocalDevHost()) return '';
-  try { return new URL(SYNC_URL).origin; } catch(e) { return ''; }
+  return programApiOrigin();
 }
 function sbApiUrl(path){
   const p = (path && path.charAt(0) === '/') ? path : '/' + (path || '');
@@ -77,14 +79,7 @@ function isAllowedSyncMediaUrl(src){
   }
 }
 
-function usesConfirmableSync(){
-  try {
-    const h = new URL(SYNC_URL).hostname;
-    return h !== 'script.google.com';
-  } catch(e) {
-    return false;
-  }
-}
+function usesConfirmableSync(){ return true; }
 
 let _sbAuthWait = null;
 let _sbIdToken = '';
@@ -138,7 +133,15 @@ function sbMediaUrl(src){
     if(!origin) return src;
     const u = new URL(src);
     if(u.origin !== origin) return src;
+    if(!u.pathname.startsWith('/files/') && !/^\/users\/[A-Za-z0-9._-]+\/photo\/?$/.test(u.pathname)) return src;
     u.searchParams.set('token', _sbIdToken);
+    return u.href;
+  } catch(e){ return src; }
+}
+function sbUnsignMediaUrl(src){
+  try {
+    const u = new URL(src);
+    if(u.origin === syncMediaOrigin()) u.searchParams.delete('token');
     return u.href;
   } catch(e){ return src; }
 }
@@ -163,57 +166,136 @@ function sbAuthorizedFetch(url, opts){
 }
 try { localStorage.removeItem('studybase_store_login'); } catch(e){}
 
-// Local sync answers the POST; Apps Script does not (CORS), so that path
-// still uses a hidden form and cannot be confirmed.
+// Server writes are authenticated and only succeed after acknowledgement.
+const _sbWriteQueue = new Map();
 function sbPushToSync(key, data){
   const body = new URLSearchParams();
   body.set('key', String(key));
   body.set('data', JSON.stringify(data));
-
-  if(usesConfirmableSync()){
-    return sbAuthorizedFetch(SYNC_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body.toString()
-    }).then(res => {
-      if(!res.ok) throw new Error('sync failed');
-    });
-  }
-
-  return new Promise((resolve, reject) => {
-    try {
-      const id = 'sf' + Date.now();
-      const iframe = document.createElement('iframe');
-      iframe.name = id;
-      iframe.style.cssText = 'display:none;width:0;height:0;border:0';
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = SYNC_URL;
-      form.target = id;
-      form.style.display = 'none';
-      [['key', key], ['data', JSON.stringify(data)]].forEach(([n, v]) => {
-        const inp = document.createElement('input');
-        inp.type = 'hidden';
-        inp.name = n;
-        inp.value = v;
-        form.appendChild(inp);
-      });
-      document.body.appendChild(iframe);
-      document.body.appendChild(form);
-      form.submit();
-      setTimeout(() => {
-        if(iframe.parentNode) iframe.remove();
-        if(form.parentNode) form.remove();
-      }, 6000);
-      resolve();
-    } catch(e) {
-      reject(e);
-    }
+  const send = () => sbAuthorizedFetch(SYNC_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString()
+  }).then(res => {
+    if(!res.ok) throw new Error('sync failed');
   });
+  const pending = (_sbWriteQueue.get(key) || Promise.resolve()).catch(() => {}).then(send);
+  _sbWriteQueue.set(key, pending);
+  const cleanup = () => { if(_sbWriteQueue.get(key) === pending) _sbWriteQueue.delete(key); };
+  pending.then(cleanup, cleanup);
+  return pending;
 }
 
 var _sbMem = Object.create(null);
 var _sbUnsynced = Object.create(null);
+var SB_DISK_PREFIX = 'sbdisk:';
+var SB_UNSYNCED_KEY = 'sbdisk:_unsynced';
+var SB_IDB_NAME = 'studybase-cache';
+var SB_IDB_STORE = 'kv';
+var _sbDiskReady = false;
+var _sbDiskWaiters = [];
+
+function sbWhenDiskReady(fn){
+  if(typeof fn !== 'function') return;
+  if(_sbDiskReady){ try { fn(); } catch(e) {} return; }
+  _sbDiskWaiters.push(fn);
+}
+function _sbDiskNotify(){
+  _sbDiskReady = true;
+  const waiters = _sbDiskWaiters.splice(0);
+  waiters.forEach(fn => { try { fn(); } catch(e) {} });
+}
+function sbDiskKey(key){ return SB_DISK_PREFIX + String(key); }
+
+function _sbIdbOpen(){
+  return new Promise((resolve, reject) => {
+    if(typeof indexedDB === 'undefined'){ reject(new Error('no idb')); return; }
+    const req = indexedDB.open(SB_IDB_NAME, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if(!db.objectStoreNames.contains(SB_IDB_STORE)) db.createObjectStore(SB_IDB_STORE);
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+function _sbIdbPut(key, json){
+  return _sbIdbOpen().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(SB_IDB_STORE, 'readwrite');
+    tx.objectStore(SB_IDB_STORE).put(json, key);
+    tx.oncomplete = () => { db.close(); resolve(); };
+    tx.onerror = () => { db.close(); reject(tx.error); };
+  }));
+}
+function _sbIdbGetAll(){
+  return _sbIdbOpen().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(SB_IDB_STORE, 'readonly');
+    const out = {};
+    const req = tx.objectStore(SB_IDB_STORE).openCursor();
+    req.onsuccess = () => {
+      const cursor = req.result;
+      if(cursor){
+        out[cursor.key] = cursor.value;
+        cursor.continue();
+      } else {
+        db.close();
+        resolve(out);
+      }
+    };
+    req.onerror = () => { db.close(); reject(req.error); };
+  }));
+}
+function _sbLsSet(key, json){
+  try {
+    localStorage.setItem(sbDiskKey(key), json);
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+function sbPersistKey(key, val){
+  if(!key) return;
+  let json;
+  try { json = JSON.stringify(val); }
+  catch(e) { return; }
+  if(_sbLsSet(key, json)) return;
+  try { localStorage.removeItem(sbDiskKey(key)); } catch(e) {}
+  _sbIdbPut(key, json).catch(() => {});
+}
+function _sbPersistUnsynced(){
+  try { localStorage.setItem(SB_UNSYNCED_KEY, JSON.stringify(_sbUnsynced)); }
+  catch(e) {}
+}
+function sbHydrateFromLocalStorage(){
+  try {
+    for(let i = 0; i < localStorage.length; i++){
+      const k = localStorage.key(i);
+      if(!k || k.indexOf(SB_DISK_PREFIX) !== 0) continue;
+      if(k === SB_UNSYNCED_KEY) continue;
+      const memKey = k.slice(SB_DISK_PREFIX.length);
+      try { _sbMem[memKey] = JSON.parse(localStorage.getItem(k)); }
+      catch(e) {}
+    }
+    const uns = localStorage.getItem(SB_UNSYNCED_KEY);
+    if(uns){
+      try {
+        const obj = JSON.parse(uns);
+        if(obj && typeof obj === 'object' && !Array.isArray(obj)){
+          Object.keys(obj).forEach(k => { _sbUnsynced[k] = obj[k]; });
+        }
+      } catch(e) {}
+    }
+  } catch(e) {}
+}
+function sbHydrateFromIdb(){
+  return _sbIdbGetAll().then(map => {
+    Object.keys(map || {}).forEach(k => {
+      if(!k || map[k] == null || Object.prototype.hasOwnProperty.call(_sbMem, k)) return;
+      try { _sbMem[k] = typeof map[k] === 'string' ? JSON.parse(map[k]) : map[k]; }
+      catch(e){ _sbMem[k] = map[k]; }
+    });
+  }).catch(() => {}).then(_sbDiskNotify);
+}
 
 function sbMemGet(key, fallback){
   if(!key || !Object.prototype.hasOwnProperty.call(_sbMem, key)){
@@ -225,27 +307,23 @@ function sbMemGet(key, fallback){
 function sbMemSet(key, val){
   try { _sbMem[key] = JSON.parse(JSON.stringify(val)); }
   catch(e){ _sbMem[key] = val; }
+  sbPersistKey(key, _sbMem[key]);
   return val;
 }
 
+sbHydrateFromLocalStorage();
+if(typeof indexedDB !== 'undefined') sbHydrateFromIdb();
+else _sbDiskNotify();
+
+// Retain the existing helper name for callers; transport is authenticated fetch.
 function sbJsonp(url){
-  if(usesConfirmableSync()){
-    return sbAuthorizedFetch(url, { timeout: 8000 }).then(res => {
-      if(!res.ok) throw new Error('sync failed');
-      return res.json();
-    });
-  }
-  return new Promise((resolve, reject) => {
-    const cb = '_sbj' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const s = document.createElement('script');
-    const cleanup = () => { delete window[cb]; if(s.parentNode) s.remove(); };
-    window[cb] = data => { cleanup(); resolve(data); };
-    s.onerror = () => { cleanup(); reject(new Error('JSONP error')); };
-    s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
-    document.head.appendChild(s);
-    setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 8000);
+  return sbAuthorizedFetch(url, { timeout: 8000 }).then(res => {
+    if(!res.ok) throw new Error('sync failed');
+    return res.json();
   });
 }
+function jsonpGet(url, timeoutMs){ return sbJsonp(url); }
+function sbJsonpGet(url){ return sbJsonp(url); }
 function sbIngestKey(key, data, placeholder){
   if(key && String(key).endsWith('_topics')){
     const list = Array.isArray(data) ? data : (data && Array.isArray(data.items) ? data.items : []);
@@ -279,6 +357,7 @@ function setUnsyncedTopicIds(bucket, ids){
   const arr = [...new Set((ids || []).map(String))];
   if(!arr.length) delete _sbUnsynced[bucket];
   else _sbUnsynced[bucket] = arr;
+  _sbPersistUnsynced();
 }
 function markTopicsUnsynced(bucket, ids){
   const s = getUnsyncedTopicIds(bucket);
@@ -287,6 +366,7 @@ function markTopicsUnsynced(bucket, ids){
 }
 function clearUnsyncedTopics(bucket){
   delete _sbUnsynced[bucket];
+  _sbPersistUnsynced();
 }
 function isTopicUnsynced(bucket, id){
   return getUnsyncedTopicIds(bucket).has(String(id));
@@ -303,7 +383,7 @@ function mergeTopicsKeepUnsynced(remote, localKey, placeholder){
   if(!Array.isArray(local)) local = [];
   if(!Array.isArray(remote)) return remote;
   const unsynced = getUnsyncedTopicIds(localKey);
-  const merged = remote.map(rem => {
+  const merged = remote.filter(rem => !unsynced.has(String(rem.id)) || local.some(t => t.id == rem.id)).map(rem => {
     const loc = local.find(t => t.id == rem.id);
     if(!loc) return rem;
     if(unsynced.has(String(rem.id))) return loc;
@@ -328,10 +408,11 @@ function flushUnsyncedTopics(){
   const buckets = unsyncedTopicBuckets();
   if(!buckets.length) return Promise.resolve({ flushed: false, remaining: false });
   return Promise.all(buckets.map(bucket => {
+    const version = _sbPushVersions[bucket] || 0;
     const data = sbMemGet(bucket, []);
     const payload = Array.isArray(data) ? serializeTopicList(data) : data;
     return sbPushToSync(bucket, payload).then(() => {
-      clearUnsyncedTopics(bucket);
+      if((_sbPushVersions[bucket] || 0) === version) clearUnsyncedTopics(bucket);
       return true;
     }).catch(() => false);
   })).then(results => ({
@@ -345,11 +426,17 @@ function changedTopicIds(prev, next){
   (Array.isArray(next) ? next : []).forEach(t => {
     if(prevMap.get(String(t.id)) !== JSON.stringify(t)) ids.push(t.id);
   });
+  const nextIds = new Set((Array.isArray(next) ? next : []).map(t => String(t.id)));
+  prevMap.forEach((_, id) => { if(!nextIds.has(id)) ids.push(id); });
   return ids;
 }
+const _sbPushVersions = Object.create(null);
 function trackTopicPush(bucket, changedIds, pushPromise){
+  const version = (_sbPushVersions[bucket] || 0) + 1;
+  _sbPushVersions[bucket] = version;
+  if(changedIds && changedIds.length) markTopicsUnsynced(bucket, changedIds);
   return Promise.resolve(pushPromise).then(() => {
-    clearUnsyncedTopics(bucket);
+    if(_sbPushVersions[bucket] === version) clearUnsyncedTopics(bucket);
   }).catch(err => {
     if(changedIds && changedIds.length) markTopicsUnsynced(bucket, changedIds);
     throw err;
@@ -440,6 +527,7 @@ function normalizeTopic(raw){
     layout,
     unit: raw.unit != null && raw.unit !== '' ? String(raw.unit) : '',
     parentId,
+    order: typeof raw.order === 'number' && Number.isFinite(raw.order) ? raw.order : null,
     relatedTerms: Array.isArray(raw.relatedTerms) ? raw.relatedTerms.slice() : [],
     flashcardQA: Array.isArray(raw.flashcardQA) ? raw.flashcardQA.slice() : [],
     addedBy: raw.addedBy || null,
@@ -482,6 +570,7 @@ function serializeTopic(t){
   const out = { v: 1, id: n.id, name: n.name, layout };
   if(n.unit) out.unit = n.unit;
   if(n.parentId) out.parentId = n.parentId;
+  if(n.order != null) out.order = n.order;
   if(n.relatedTerms.length) out.relatedTerms = n.relatedTerms;
   if(n.flashcardQA.length) out.flashcardQA = n.flashcardQA;
   if(n.addedBy) out.addedBy = n.addedBy;

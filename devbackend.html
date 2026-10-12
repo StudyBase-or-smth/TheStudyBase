@@ -60,7 +60,7 @@
     width:110px; padding-top:34px;
   }
   h1 {
-    font-family:'Lora',serif; color:#7c3aed; margin:0;
+    font-family:'Source Serif 4',serif; color:#7c3aed; margin:0;
     font-size:22px; letter-spacing:2px;
   }
   #hud {
@@ -226,7 +226,7 @@
   let lineIntensity = parseInt(localStorage.getItem('tetrisLineIntensity'), 10);
   if (!INTENSITY_LEVELS.hasOwnProperty(lineIntensity)) lineIntensity = 3;
 
-  // ── Apps Script sync (shared Top 5 leaderboard) ──
+  // ── StudyBaseData sync (shared Top 5 leaderboard) ──
   // SYNC_URL is now defined once in sync-config.js (loaded via <script> above).
   const LEADERBOARD_KEY = 'tetris_leaderboard';
 

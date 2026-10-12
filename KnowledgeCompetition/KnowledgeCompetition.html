@@ -8,6 +8,7 @@
 <link rel="apple-touch-icon" href="../icon.png">
 <link rel="stylesheet" href="../fonts.css">
 <link rel="stylesheet" href="../mainstyle.css">
+<script src="../sync-config.js"></script>
 <link rel="stylesheet" href="skins.css?v=dark">
 <style>
   /* Knowledge Competition — same subject-page shell as HSC, with hub-style tiles
@@ -93,7 +94,7 @@
     margin-bottom: 8px;
   }
   .kc-title {
-    font-family: 'Lora', serif;
+    font-family: 'Source Serif 4', serif;
     font-size: 28px;
     font-weight: 700;
     color: var(--text);
@@ -388,7 +389,7 @@
     flex-shrink: 0;
   }
   .kc-lb-title {
-    font-family: 'Lora', serif;
+    font-family: 'Source Serif 4', serif;
     font-size: 16px;
     font-weight: 700;
     color: var(--text);
@@ -567,7 +568,7 @@
     border-bottom: 1px solid var(--border);
   }
   .kc-q-head-name {
-    font-family: 'Lora', serif;
+    font-family: 'Source Serif 4', serif;
     font-weight: 700;
     font-size: 18px;
     color: var(--text);
@@ -653,7 +654,7 @@
     align-items: baseline;
     justify-content: space-between;
     gap: 12px;
-    font-family: 'Lora', serif;
+    font-family: 'Source Serif 4', serif;
     font-weight: 700;
     font-size: 18px;
     color: var(--text);
@@ -662,7 +663,7 @@
     border-bottom: 1px solid var(--border);
   }
   .quiz-stem {
-    font-family: 'Lora', serif;
+    font-family: 'Source Serif 4', serif;
     font-size: 16px;
     font-weight: 400;
     color: var(--text);
@@ -733,12 +734,13 @@
     box-shadow: 0 20px 60px rgba(0,0,0,.25);
   }
   .kc-modal h3 {
-    font-family: 'Lora', serif;
+    font-family: 'Source Serif 4', serif;
     font-size: 18px;
     margin-bottom: 8px;
   }
   .kc-modal p { font-size: 13px; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
 </style>
+<link rel="stylesheet" href="../qol.css">
 </head>
 <body class="subject-page kc-page kc-skin-stage kc-dark">
 
@@ -748,15 +750,8 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  const cfg = {
-    apiKey:"AIzaSyAZeyBIaTstTJ5Pr9o86MHk8dhDPAJFFCA",
-    authDomain:"studybase-8cfa1.firebaseapp.com",
-    projectId:"studybase-8cfa1",
-    storageBucket:"studybase-8cfa1.firebasestorage.app",
-    messagingSenderId:"434992387793",
-    appId:"1:434992387793:web:e5bcae8cad63b4eb6f17f0"
-  };
-  const auth = getAuth(initializeApp(cfg));
+  import { loadFirebaseConfig } from "../firebase-config.js";
+  const auth = getAuth(initializeApp(await loadFirebaseConfig()));
   window.__sbAuth = auth;
   onAuthStateChanged(auth, user => {
     const isGuest = sessionStorage.getItem('studybase_guest') === '1';
@@ -874,9 +869,11 @@
   <button onclick="document.getElementById('guest-nudge').style.display='none'" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;margin-top:6px;width:100%;font-family:'Inter',sans-serif">Dismiss</button>
 </div>
 
-<script src="../sync-config.js"></script>
+
 <script src="../profile-store.js"></script>
 <script src="../notifications.js"></script>
 <script src="kc.js"></script>
+<script src="../subjects.js"></script>
+<script src="../qol.js"></script>
 </body>
 </html>
