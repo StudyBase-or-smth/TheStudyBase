@@ -22,7 +22,6 @@ function programSyncUrl(){
       return PROGRAM_SYNC_URL;
     }
   } catch(e) {}
-  try { if(location.protocol === 'http:' || location.protocol === 'https:') return location.origin + '/sync'; } catch(e) {}
   return BASECOMPUTER_SYNC_URL;
 }
 
@@ -32,14 +31,7 @@ function resolvedSyncUrl(){
 
 function programApiOrigin(){
   try {
-    if(location.protocol === 'file:') return new URL(PROGRAM_SYNC_URL).origin;
-    const h = location.hostname;
-    if(h === 'localhost' || h === '127.0.0.1'){
-      const port = String(location.port || '');
-      if(port === '8787') return location.origin;
-      return new URL(PROGRAM_SYNC_URL).origin;
-    }
-    return location.origin;
+    return new URL(programSyncUrl()).origin;
   } catch(e) {
     return '';
   }

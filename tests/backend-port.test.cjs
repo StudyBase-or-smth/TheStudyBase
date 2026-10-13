@@ -6,28 +6,31 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 
-function client(url, fetchImpl = async () => ({ ok: true, json: async () => ({ data: [] }) })) {
+function client(url, fetchImpl = async () => ({ ok: true, json: async () => ({ data: [] }) }), config = read('sync-config.generated.example.js')) {
   const values = new Map();
   const storage = { getItem: k => values.get(k) || null, setItem: (k, v) => values.set(k, v), removeItem: k => values.delete(k), length: 0 };
   const context = vm.createContext({
     location: new URL(url), window: {}, localStorage: storage, sessionStorage: storage,
     URL, URLSearchParams, AbortController, fetch: fetchImpl, setTimeout, clearTimeout, console
   });
-  vm.runInContext(read('sync-config.generated.example.js'), context); vm.runInContext(read('sync-config.js'), context);
+  vm.runInContext(config, context); vm.runInContext(read('sync-config.js'), context);
   return context;
 }
 
-test('API and sync follow the standalone server origin, including remote HTTPS', () => {
+test('API and sync use the configured backend for remote pages and preserve local routing', () => {
   for (const [url, origin] of [
     ['http://127.0.0.1:8787/subject/class.html', 'http://127.0.0.1:8787'],
-    ['http://localhost:5173/', 'http://127.0.0.1:8787'],
-    ['file:///C:/StudyBase/index.html', 'http://127.0.0.1:8787'],
-    ['https://study.example.edu/subject/subject.html', 'https://study.example.edu']
+    ['http://localhost:5173/', 'http://127.0.0.1:9876'],
+    ['file:///C:/StudyBase/index.html', 'http://127.0.0.1:9876'],
+    ['https://study.example.edu/subject/subject.html', 'https://backend.example.edu'],
+    ['http://study.example.edu/', 'https://backend.example.edu']
   ]) {
-    const c = client(url);
+    const c = client(url, undefined, "const BASECOMPUTER_SYNC_URL = 'https://backend.example.edu/sync'; const PROGRAM_SYNC_URL = 'http://127.0.0.1:9876/sync';");
     assert.equal(vm.runInContext('SYNC_URL', c), origin + '/sync');
     assert.equal(c.sbApiUrl('/api/grade'), origin + '/api/grade');
     assert.equal(c.sbApiUrl('/api/firebaseConfig'), origin + '/api/firebaseConfig');
+    assert.equal(c.isAllowedSyncMediaUrl(origin + '/files/lesson.pdf'), true);
+    assert.equal(c.isAllowedSyncMediaUrl('https://unrelated.example/files/lesson.pdf'), false);
   }
 });
 

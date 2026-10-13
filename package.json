@@ -2,9 +2,9 @@
   "name": "thestudybase",
   "private": true,
   "scripts": {
-    "build": "node scripts/build-config.js",
+    "build": "node scripts/build-static.js",
     "start": "node server.js",
-    "test": "node --test tests/backend-port.test.cjs tests/qol.test.cjs"
+    "test": "node --test tests/backend-port.test.cjs tests/qol.test.cjs tests/static-build.test.cjs"
   },
   "dependencies": {
     "firebase-admin": "^13.10.0"
