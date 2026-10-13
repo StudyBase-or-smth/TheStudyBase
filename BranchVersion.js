@@ -2,7 +2,7 @@
 // Mirrors BranchVersion.json for pages opened via file:// (see comment there).
 window.BRANCH_VERSION = {
   "date": "23-8-26",
-  "branch": "Backend",
-  "version": "7.2.0",
+  "branch": "Coolify",
+  "version": "8.1.0",
   "colour": "main"
 };
