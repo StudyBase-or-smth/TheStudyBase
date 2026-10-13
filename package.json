@@ -2,6 +2,7 @@
   "name": "thestudybase",
   "private": true,
   "scripts": {
+    "build": "node scripts/build-config.js",
     "start": "node server.js",
     "test": "node --test tests/backend-port.test.cjs tests/qol.test.cjs"
   },

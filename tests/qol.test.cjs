@@ -24,7 +24,7 @@ async function harness(t, storage) {
   w.isGuest = false; w.isTeacher = true; w.userRole = 'dev'; w.currentUid = 'test-user';
   w.__sbAuth = {currentUser:{uid:'test-user',getIdToken:async () => 'test-token'}};
   const run = file => vm.runInContext(read(file),ctx,{filename:file});
-  run('subjects.js'); run('sync-config.js');
+  run('subjects.js'); run('sync-config.generated.example.js'); run('sync-config.js');
   if(!storage) {
     w.sbMemSet('test_topics',[
       {id:1,name:'First topic',definition:'Original definition',layout:'text',bodyText:'A note about mechanics',notes:{general:['Keep this note']},createdAt:'2026-01-01'},
@@ -144,7 +144,7 @@ test('hub has global search, three continue links in its sidebar and profile not
   const w = dom.window; await tick();
   w.currentUid = 'test-user'; w.fetch = async () => ({ok:true,json:async () => ({data:null})}); w.AbortController = AbortController;
   w.HTMLDialogElement.prototype.showModal = function(){this.open=true}; w.HTMLDialogElement.prototype.close = function(){this.open=false;this.dispatchEvent(new w.Event('close'));};
-  const ctx = dom.getInternalVMContext(); vm.runInContext(read('subjects.js'),ctx); vm.runInContext(read('sync-config.js'),ctx);
+  const ctx = dom.getInternalVMContext(); vm.runInContext(read('subjects.js'),ctx); vm.runInContext(read('sync-config.generated.example.js'), ctx); vm.runInContext(read('sync-config.js'),ctx);
   w.localStorage.setItem('sbq:test-user:recent',JSON.stringify([1,2,3,4].map(id => ({name:'Topic '+id,subject:'Test',href:'http://localhost:8787/subject/subject.html?topic='+id+'#test'}))));
   const notify = w.document.getElementById('hdrNotifyWrap');
   vm.runInContext(read('qol.js'),ctx);
@@ -172,7 +172,7 @@ test('calendar agenda, subject colours and completion work together and edits ke
   w.currentUid = 'calendar-test'; w.isGuest = false; w.AbortController = AbortController; w.matchMedia = () => ({matches:true});
   w.fetch = async () => ({ok:true,json:async () => ({data:null})});
   w.__sbAuth = {currentUser:{uid:'calendar-test',getIdToken:async () => 'test-token'}};
-  for(const f of ['subjects.js','sync-config.js','suggestions.js','mainapp.js','qol.js']) vm.runInContext(read(f),ctx,{filename:f});
+  for(const f of ['subjects.js','sync-config.generated.example.js','sync-config.js','suggestions.js','mainapp.js','qol.js']) vm.runInContext(read(f),ctx,{filename:f});
   const today = new Date(); const key = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
   const tomorrow = new Date(today); tomorrow.setDate(today.getDate()+1);
   w.sbMemSet('studybase_events',[{id:'one',title:'Engineering assignment',date:key(tomorrow),subject:'Engineering',type:'assignment'}, {id:'two',title:'Maths exam',date:key(today),subject:'Maths',type:'exam'}]);

@@ -1,7 +1,6 @@
 // Shared StudyBaseData client configuration. All storage and API requests
 // use the standalone server; no external hosting proxy is required.
-const BASECOMPUTER_SYNC_URL = 'https://thestudybase-server.tail8c20e2.ts.net:10000/sync';
-const PROGRAM_SYNC_URL = 'https://thestudybase-server.tail8c20e2.ts.net:10000/sync';
+// Load sync-config.generated.js first (created by npm run build).
 
 function isLocalDevHost(){
   try {

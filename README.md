@@ -4,7 +4,15 @@ StudyBase is a personal school reference tool that helps students organise their
 
 Backend-Dev uses the standalone StudyBaseData server (the Server-Dev architecture) for storage and /api routes.
 
-Run npm install, then npm start. The server listens on port 8787. Set STUDYBASE_WEBSITE_DIR to this checkout and STUDYBASE_DATA_DIR to your data folder. Copy standalone/secrets.example.json to secrets.json in that data folder and fill in the Firebase Admin credentials and any AI keys. Server credentials stay outside the browser.
+Run npm install, npm run build, then npm start. The server listens on port 8787. Set STUDYBASE_WEBSITE_DIR to this checkout and STUDYBASE_DATA_DIR to your data folder. Copy standalone/secrets.example.json to secrets.json in that data folder and fill in the Firebase Admin credentials and any AI keys. Server credentials stay outside the browser.
+
+Build-time browser configuration and Coolify
+
+Run npm run build before serving this checkout. scripts/build-config.js reads BASECOMPUTER_SYNC_URL and PROGRAM_SYNC_URL from the process environment and writes sync-config.generated.js at the repository root. Each missing or empty value defaults independently to http://127.0.0.1:8787/sync. The generated file is ignored by Git; sync-config.generated.example.js documents the defaults. These URLs are public browser configuration, not secrets. Rebuild and redeploy after changing them.
+
+For Coolify, select the Nixpacks build strategy and Static site type (older versions label this “Is it a static site?”). Set Base Directory to /, Install Command to npm ci, Build Command to npm run build, Publish Directory to / (the repository root), and the exposed port to 80. No Node start command is needed for static serving. Add BASECOMPUTER_SYNC_URL and PROGRAM_SYNC_URL with your backend's full HTTPS /sync URLs, and enable Available during build for both. Runtime availability is unnecessary. See https://coolify.io/docs/applications/builds/nixpacks/deploy and https://coolify.io/docs/applications/configuration/environment-variables.
+
+The existing routing is preserved: remote HTTP(S) pages still request /sync and /api on the website's origin. A static Coolify deployment therefore needs those paths proxied to StudyBaseData; setting the two build variables alone does not redirect remote requests to a different backend origin. PROGRAM_SYNC_URL is used for file:// and separate localhost development; BASECOMPUTER_SYNC_URL is the fallback for other protocols.
 
 When served by StudyBaseData, the website uses the server's own origin for storage and API calls. For file:// or a separate localhost development server it uses http://127.0.0.1:8787. Run npm test for port integration checks.
 

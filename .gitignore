@@ -6,6 +6,7 @@ standalone/secrets.json
 
 # Node
 node_modules/
+sync-config.generated.js
 
 # OS / editor junk
 .DS_Store

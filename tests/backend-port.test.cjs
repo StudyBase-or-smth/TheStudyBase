@@ -13,7 +13,7 @@ function client(url, fetchImpl = async () => ({ ok: true, json: async () => ({ d
     location: new URL(url), window: {}, localStorage: storage, sessionStorage: storage,
     URL, URLSearchParams, AbortController, fetch: fetchImpl, setTimeout, clearTimeout, console
   });
-  vm.runInContext(read('sync-config.js'), context);
+  vm.runInContext(read('sync-config.generated.example.js'), context); vm.runInContext(read('sync-config.js'), context);
   return context;
 }
 
