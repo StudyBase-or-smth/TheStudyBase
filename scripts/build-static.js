@@ -14,7 +14,7 @@ fs.mkdirSync(output);
 
 // Explicit public entries keep backend code, credentials and development files out.
 const entries = [
-  'index.html', 'login.html', 'profile.html', 'analyser.html',
+  'index.html', 'login.html', 'waiting.html', 'profile.html', 'analyser.html',
   'Devpanel.html', 'devbackend.html',
   'BranchVersion.js', 'BranchVersion.json', 'calendar-qol.js',
   'firebase-config.js', 'fonts.css', 'icon.png', 'mainapp.js', 'mainstyle.css',
