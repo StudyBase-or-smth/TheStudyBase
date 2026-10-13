@@ -1,8 +1,0 @@
-{
-  "name": "studybase-standalone-api",
-  "private": true,
-  "description": "/api routes for the StudyBaseData server",
-  "dependencies": {
-    "firebase-admin": "^13.10.0"
-  }
-}

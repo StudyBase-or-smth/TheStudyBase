@@ -1950,7 +1950,7 @@ function submitMathAnswer() {
    (what a full-marks response should cover, not a literal string to match),
    q.marks is the total for the sub-part. Reuses the app's existing /api/grade
    Netlify function (same one analyser.html's marker already calls) so no
-   API key ever reaches the browser — see standalone/api.js. */
+   API key ever reaches the browser — see the separate backend API. */
 
 // Same proxy-first-then-direct-fallback pattern as analyser.html's callAI(),
 // trimmed to the one provider this page needs. The direct-call fallback only

@@ -2,12 +2,10 @@
 .env
 .env.local
 .env.*.local
-standalone/secrets.json
 
 # Node
 node_modules/
 sync-config.generated.js
-dist/
 
 # OS / editor junk
 .DS_Store
