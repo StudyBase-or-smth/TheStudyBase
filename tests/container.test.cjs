@@ -23,7 +23,34 @@ async function start(t, extraEnv = {}) {
   if (extraEnv.static) env.STUDYBASE_WEBSITE_DIR = website;
   delete env.static;
   // IPC emits the signal event on Windows too, where kill(SIGTERM) bypasses handlers.
-  const child = spawn(process.execPath, ['-e', "process.on('message', () => process.emit('SIGTERM')); require('./server.js');"], {
+  const bootstrap = `
+    const Module = require('node:module');
+    const original = Module._load;
+    const accounts = {
+      student: { uid: 'testuser', role: 'student', status: 'active' },
+      other: { uid: 'otheruser', role: 'student', status: 'active' },
+      teacher: { uid: 'teacher', role: 'teacher', status: 'active' },
+      dev: { uid: 'developer', role: 'dev', status: 'active' },
+      pending: { uid: 'pending', role: 'student', status: 'pending' },
+      disabled: { uid: 'disabled', role: 'student', status: 'active', disabled: true }
+    };
+    Module._load = function(name, ...args) {
+      if (name === 'firebase-admin') return { apps: [true], auth: () => ({
+        verifyIdToken: async (token, revoked) => {
+          if (!revoked || !accounts[token]) throw Error('Invalid token');
+          return { uid: accounts[token].uid, status: 'active', role: 'dev' };
+        },
+        getUser: async uid => {
+          const account = Object.values(accounts).find(a => a.uid === uid);
+          return { uid, customClaims: account, disabled: account.disabled, displayName: uid };
+        }
+      }) };
+      return original.call(this, name, ...args);
+    };
+    process.on('message', () => process.emit('SIGTERM'));
+    require('./server.js');
+  `;
+  const child = spawn(process.execPath, ['-e', bootstrap], {
     cwd: root, env, stdio: ['pipe', 'pipe', 'pipe', 'ipc']
   });
   let logs = '';
@@ -48,7 +75,7 @@ async function start(t, extraEnv = {}) {
     ready.then(() => clearTimeout(timer));
     child.once('error', reject);
   })]);
-  return { child, data, logs: () => logs, request: (url, opts) => fetch('http://127.0.0.1:' + port + url, opts) };
+  return { child, data, logs: () => logs, request: (url, opts = {}, token = 'student') => fetch('http://127.0.0.1:' + port + url, { ...opts, headers: { ...(token ? { Authorization: 'Bearer ' + token } : {}), ...opts.headers } }) };
 }
 
 test('API-only server removes management pages, honors env secrets and shuts down cleanly', async t => {
@@ -73,7 +100,7 @@ test('API-only server removes management pages, honors env secrets and shuts dow
 
 test('allowlist handles actual requests and preflight across sync and API', async t => {
   const c = await start(t, { STUDYBASE_ALLOWED_ORIGINS: 'https://one.example, https://two.example' });
-  for (const endpoint of ['/sync?key=test', '/api/desmosKey']) {
+  for (const endpoint of ['/sync?key=studybase_events', '/api/desmosKey']) {
     const allowed = await c.request(endpoint, { headers: { Origin: 'https://two.example' } });
     assert.equal(allowed.headers.get('access-control-allow-origin'), 'https://two.example');
     const denied = await c.request(endpoint, { headers: { Origin: 'https://evil.example' } });
@@ -99,9 +126,9 @@ test('sync formats and generated file/photo URLs are preserved behind a proxy', 
     assert.equal(result.status, 200);
     assert.equal(await result.text(), 'ok');
   }
-  await post('test', [{ id: 1 }]);
-  assert.deepEqual(await (await c.request('/sync?key=test')).json(), { data: [{ id: 1 }] });
-  assert.equal(await (await c.request('/sync?key=test&callback=cb')).text(), '/**/ cb({"data":[{"id":1}]});');
+  await post('studybase_events', [{ id: 1 }]);
+  assert.deepEqual(await (await c.request('/sync?key=studybase_events')).json(), { data: [{ id: 1 }] });
+  assert.equal((await c.request('/sync?key=studybase_events&callback=cb')).status, 400);
   await post('_up_test', { image: 'data:image/png;base64,aGVsbG8=', filename: 'image.png' });
   const upload = (await (await c.request('/sync?key=_ur_test')).json()).data;
   assert.equal(upload.ok, true);
@@ -134,4 +161,87 @@ test('environment secrets override file values and missing values fall back', ()
     if (previousGemini === undefined) delete process.env.GEMINI_API_KEY; else process.env.GEMINI_API_KEY = previousGemini;
     fs.rmSync(data, { recursive: true, force: true });
   }
+});
+
+test('sync and media require current approved identities and enforce ownership', async t => {
+  const c = await start(t);
+  const post = (key, value, token = 'student') => c.request('/sync', { method: 'POST', body: new URLSearchParams({ key, data: JSON.stringify(value) }) }, token);
+  for (const route of ['/sync?key=studybase_events', '/?key=studybase_events', '/files/test.png', '/users/testuser/photo']) {
+    assert.equal((await c.request(route, {}, null)).status, 401, route);
+    assert.equal((await c.request(route, {}, 'invalid')).status, 401, route);
+    assert.equal((await c.request(route, {}, 'pending')).status, 403, route);
+    assert.equal((await c.request(route, {}, 'disabled')).status, 401, route);
+  }
+  assert.equal((await post('_profile_testuser', { name: 'Owner' })).status, 200);
+  assert.equal((await c.request('/sync?key=_profile_testuser', {}, 'other')).status, 403);
+  assert.equal((await post('_profile_testuser', {}, 'other')).status, 403);
+  assert.equal((await post('_profile_..', {})).status, 403);
+  assert.equal(fs.existsSync(path.join(c.data, 'profile.json')), false);
+  assert.equal((await post('_analyser_testuser', [])).status, 200);
+  assert.equal((await c.request('/sync?key=_analyser_testuser', {}, 'other')).status, 403);
+  assert.equal((await post('_kc_games_testuser', { games: [] })).status, 200);
+  assert.equal((await post('_kc_games_testuser', {}, 'other')).status, 403);
+  assert.equal((await post('unknown_private_key', {})).status, 403);
+  assert.equal((await post('2026-12A-mth_topics', [])).status, 403);
+  assert.equal((await post('2026-12A-mth_topics', [], 'teacher')).status, 200);
+  assert.equal((await post('eng2_topics', [{ id: 1, bodyText: 'Student note' }])).status, 200);
+  assert.equal((await post('eng2_topics', [{ id: 1, notes: { general: ['Staff note'] } }], 'teacher')).status, 200);
+  assert.equal((await post('eng2_topics', [{ id: 1, notes: {} }])).status, 403);
+  assert.equal((await post('eng2_topics', [])).status, 403);
+  assert.equal((await post('_up_avatar_otheruser', {})).status, 403);
+  assert.equal((await post('_up_private', { image: 'data:image/png;base64,aGVsbG8=', filename: 'test.png' })).status, 200);
+  assert.equal((await c.request('/sync?key=_ur_private', {}, 'other')).status, 403);
+  assert.equal((await post('_ur_private', { url: 'forged' })).status, 403);
+  assert.equal((await post('_up_private', {}, 'other')).status, 403);
+  const uploaded = (await (await c.request('/sync?key=_ur_private')).json()).data;
+  assert.equal((await c.request(new URL(uploaded.url).pathname + '?token=student', {}, null)).status, 401);
+  const ticketResponse = await c.request('/api/mediaTicket');
+  assert.equal(ticketResponse.headers.get('cache-control'), 'no-store');
+  const { ticket } = await ticketResponse.json();
+  assert.equal((await c.request('/sync?key=studybase_events&media_ticket=' + ticket, {}, null)).status, 401);
+  assert.equal((await c.request('/api/mediaTicket', {}, null)).status, 401);
+  const media = await c.request(new URL(uploaded.url).pathname + '?media_ticket=' + ticket, {}, null);
+  assert.equal(media.status, 200);
+  assert.equal(media.headers.get('cache-control'), 'private, no-store');
+});
+
+test('notifications and lobbies cannot be forged by another approved user', async t => {
+  const c = await start(t);
+  const post = (key, value, token = 'student') => c.request('/sync', { method: 'POST', body: new URLSearchParams({ key, data: JSON.stringify(value) }) }, token);
+  const note = { id: 'n1', kind: 'text', text: 'Notice', target: { kind: 'user', uid: 'testuser' }, audience: ['testuser'], readBy: [] };
+  assert.equal((await post('studybase_notifications', { items: [note] })).status, 403);
+  assert.equal((await post('studybase_notifications', { items: [note] }, 'dev')).status, 200);
+  assert.deepEqual((await (await c.request('/sync?key=studybase_notifications', {}, 'other')).json()).data, { items: [] });
+  assert.equal((await post('studybase_notifications', { items: [{ ...note, text: 'Forged' }] })).status, 403);
+  assert.equal((await post('studybase_notifications', { items: [{ ...note, readBy: ['testuser'] }] })).status, 200);
+  const lobby = { code: 'ABCDEF', hostUid: 'testuser', players: [{ uid: 'testuser', score: 0 }], status: 'waiting' };
+  assert.equal((await post('_kc_lobby_ABCDEF', lobby)).status, 200);
+  assert.equal((await post('_kc_lobby_ABCDEF', { ...lobby, hostUid: 'otheruser' }, 'other')).status, 403);
+  assert.equal((await post('_kc_lobby_ABCDEF', { ...lobby, players: [...lobby.players, { uid: 'otheruser', score: 0 }] }, 'other')).status, 200);
+});
+
+test('topic collisions and reserved metadata IDs are rejected without altering notes', async t => {
+  const c = await start(t);
+  const post = (value, token = 'student') => c.request('/sync', { method: 'POST', body: new URLSearchParams({ key: 'eng_topics', data: JSON.stringify(value) }) }, token);
+  const original = { id: 'topic_', notes: { general: ['protected'] } };
+  assert.equal((await post([original], 'teacher')).status, 200);
+  for (const id of ['topic!', '_meta', 'topic_', 'TOPIC_']) assert.equal((await post([original, { id }])).status, 400);
+  assert.deepEqual((await (await c.request('/sync?key=eng_topics')).json()).data, [original]);
+});
+test('protected lobbies hide contents and require a server-verified password', async t => {
+  const c = await start(t);
+  const key = '_kc_lobby_ABCDEF';
+  const post = (value, token = 'student') => c.request('/sync', { method: 'POST', body: new URLSearchParams({ key, data: JSON.stringify(value) }) }, token);
+  const lobby = { code: 'ABCDEF', hostUid: 'testuser', passwordHash: require('node:crypto').createHash('sha256').update('test-password').digest('hex'), status: 'waiting', players: [{ uid: 'testuser', score: 0 }], game: { questions: [] } };
+  assert.equal((await post(lobby)).status, 200);
+  const view = (await (await c.request('/sync?key=' + key, {}, 'other')).json()).data;
+  assert.equal(view.passwordHash, 'protected'); assert.equal(view.game, undefined); assert.equal(view.players, undefined);
+  assert.equal((await post({ ...lobby, players: [...lobby.players, { uid: 'otheruser' }] }, 'other')).status, 403);
+  const join = password => c.request('/api/joinLobby', { method: 'POST', body: JSON.stringify({ code: 'ABCDEF', password }) }, 'other');
+  assert.equal((await join('wrong')).status, 403);
+  assert.equal((await join('test-password')).status, 200);
+  const member = (await (await c.request('/sync?key=' + key, {}, 'other')).json()).data;
+  member.players.find(p => p.uid === 'otheruser').score = 99999;
+  assert.equal((await post(member, 'other')).status, 200);
+  assert.equal((await (await c.request('/sync?key=' + key, {}, 'other')).json()).data.players.find(p => p.uid === 'otheruser').score, 0);
 });

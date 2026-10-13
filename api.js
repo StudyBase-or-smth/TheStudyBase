@@ -88,7 +88,23 @@ async function requireCaller(req, secrets) {
   const token = bearer(req);
   if (!token) throw { statusCode: 401, message: 'Missing Authorization header' };
   const admin = getAdmin(secrets);
-  return admin.auth().verifyIdToken(token, true);
+  try {
+    const decoded = await admin.auth().verifyIdToken(token, true);
+    const record = await admin.auth().getUser(decoded.uid);
+    if (record.disabled) throw new Error('Disabled account');
+    return { ...decoded, role: (record.customClaims || {}).role, status: (record.customClaims || {}).status, name: record.displayName || '' };
+  }
+  catch (e) { throw { statusCode: 401, message: 'Invalid or expired sign-in token' }; }
+}
+
+async function requireStoreUser(req, dataDir) {
+  const request = req;
+  const secrets = loadSecrets(dataDir);
+  const decoded = await requireCaller(request, secrets);
+  if (decoded.status !== 'active' || !['student', 'teacher', 'dev'].includes(decoded.role)) {
+    throw { statusCode: 403, message: 'An approved account is required' };
+  }
+  return { uid: decoded.uid, role: decoded.role, name: decoded.name };
 }
 
 async function requireDev(req, secrets) {
@@ -213,7 +229,7 @@ async function handleAvatar(url, res) {
   let upstream;
   try {
     upstream = await fetch(target, {
-      redirect: 'follow',
+      redirect: 'error',
       headers: { Accept: 'image/*' },
       signal: AbortSignal.timeout(8000),
     });
@@ -226,8 +242,18 @@ async function handleAvatar(url, res) {
   if (!AVATAR_HOST.test(finalHost)) return sendJson(res, 400, { error: 'Bad redirect' });
   const ct = (upstream.headers.get('content-type') || '').split(';')[0].trim();
   if (!ct.startsWith('image/')) return sendJson(res, 415, { error: 'Not an image' });
-  const buf = Buffer.from(await upstream.arrayBuffer());
-  if (buf.length > AVATAR_MAX) return sendJson(res, 413, { error: 'Too large' });
+  if (Number(upstream.headers.get('content-length')) > AVATAR_MAX) {
+    await upstream.body.cancel();
+    return sendJson(res, 413, { error: 'Too large' });
+  }
+  const chunks = [];
+  let size = 0;
+  for await (const chunk of upstream.body) {
+    size += chunk.length;
+    if (size > AVATAR_MAX) return sendJson(res, 413, { error: 'Too large' });
+    chunks.push(chunk);
+  }
+  const buf = Buffer.concat(chunks, size);
   res.writeHead(200, {
     'Content-Type': ct,
     'Cache-Control': 'public, max-age=604800',
@@ -584,6 +610,6 @@ async function handleApi(req, res, url, opts) {
   }
 }
 
-module.exports = { handleApi, loadSecrets, hookProgramConsole, setProgramActionHandler, pushProgramLog };
+module.exports = { requireStoreUser, handleApi, loadSecrets, hookProgramConsole, setProgramActionHandler, pushProgramLog };
 
 hookProgramConsole();

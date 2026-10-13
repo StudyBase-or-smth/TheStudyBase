@@ -6,7 +6,11 @@ const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
 const querystring = require('querystring');
+const mediaTickets = require('./media-ticket');
+const crypto = require('node:crypto');
+const joinAttempts = new Map();
 const { handleCors } = require('./cors');
+const { validUid, authorizeKey, readable, writable } = require('./access-policy');
 
 const PORT = parseInt(process.env.PORT || '8787', 10);
 const PROGRAM_DIR = __dirname;
@@ -21,7 +25,6 @@ const PHOTO_NAMES = ['photo.jpg', 'photo.jpeg', 'photo.png', 'photo.webp', 'phot
 const MAX_BODY = 28 * 1024 * 1024;
 const MAX_FILE = 8 * 1024 * 1024;
 const KEY_RE = /^[A-Za-z0-9._-]{1,120}$/;
-const CB_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const FILE_RE = /^[A-Za-z0-9._-]{1,180}$/;
 
 const MIME_EXT = {
@@ -150,10 +153,7 @@ function profileUidFromKey(key) {
   return key.slice('_profile_'.length);
 }
 
-function safeUid(uid) {
-  const s = String(uid || '').replace(/[^A-Za-z0-9._-]/g, '_').slice(0, 80);
-  return KEY_RE.test(s) ? s : null;
-}
+function safeUid(uid) { return validUid(uid) ? uid : null; }
 
 function userDir(uid) {
   const id = safeUid(uid);
@@ -400,27 +400,24 @@ function saveUpload(payload, req) {
   }
   if (!buf.length || buf.length > MAX_FILE) return { ok: false };
   const name = sanitizeUploadName(payload.filename, mime);
-  if (!EXT_MIME[path.extname(name).toLowerCase()]) return send(res, 404, 'text/plain', 'not found');
   if (!FILE_RE.test(name)) return { ok: false };
   fs.writeFileSync(path.join(FILES_DIR, name), buf);
   return { ok: true, url: publicOrigin(req) + '/files/' + name };
 }
 
-function handleGetSync(url, res) {
+function handleGetSync(url, res, user) {
   const key = url.searchParams.get('key') || '';
-  const cb = url.searchParams.get('callback') || '';
+  if (url.searchParams.has('callback')) return send(res, 400, 'text/plain', 'JSONP is disabled');
   if (!KEY_RE.test(key)) {
     return send(res, 400, 'text/plain', 'bad key');
   }
-  const payload = JSON.stringify({ data: readKey(key) });
-  if (cb) {
-    if (!CB_RE.test(cb)) return send(res, 400, 'text/plain', 'bad callback');
-    return send(res, 200, 'text/javascript; charset=utf-8', '/**/ ' + cb + '(' + payload + ');');
-  }
+  authorizeKey(key, user, false, uploadOwner);
+  const payload = JSON.stringify({ data: readable(key, readKey(key), user) });
   send(res, 200, 'application/json; charset=utf-8', payload);
 }
 
-function handlePostSync(key, dataStr, req, res) {
+function handlePostSync(key, dataStr, req, res, user) {
+  authorizeKey(key, user, true, uploadOwner);
   if (!KEY_RE.test(key)) return send(res, 400, 'text/plain', 'bad key');
   if (key.startsWith('_up_avatar_')) {
     const uid = key.slice('_up_avatar_'.length);
@@ -441,13 +438,16 @@ function handlePostSync(key, dataStr, req, res) {
       writeKey('_ur_' + uid, { ok: false });
       return send(res, 400, 'text/plain', 'bad json');
     }
-    writeKey('_ur_' + uid, saveUpload(payload, req));
+    const result = saveUpload(payload, req);
+    writeJsonFile(path.join(DATA_DIR, 'upload-owners', uid + '.json'), { uid: user.uid });
+    writeKey('_ur_' + uid, result);
     return send(res, 200, 'text/plain; charset=utf-8', 'ok');
   }
   let value;
   try { value = JSON.parse(dataStr); } catch (e) {
     return send(res, 400, 'text/plain', 'bad json');
   }
+  value = writable(key, value, readKey(key), user, readKey);
   writeKey(key, value);
   send(res, 200, 'text/plain; charset=utf-8', 'ok');
 }
@@ -462,12 +462,19 @@ function handleUserPhoto(uid, res) {
   res.writeHead(200, {
     'Content-Type': type,
     'Content-Disposition': 'inline; filename="' + path.basename(p) + '"',
-    'Cache-Control': 'public, max-age=3600',
+    'Cache-Control': 'private, no-store',
   });
   fs.createReadStream(p).pipe(res);
 }
 
+function uploadOwner(id) {
+  if (!/^[A-Za-z0-9_-]{1,116}$/.test(id)) return null;
+  const record = readJsonFile(path.join(DATA_DIR, 'upload-owners', id + '.json'));
+  return record && record.uid;
+}
+
 function handleFile(name, res) {
+  if (!EXT_MIME[path.extname(name).toLowerCase()]) return send(res, 404, 'text/plain', 'not found');
   if (!FILE_RE.test(name)) return send(res, 400, 'text/plain', 'bad file');
   const p = path.join(FILES_DIR, name);
   if (path.dirname(p) !== FILES_DIR || !fs.existsSync(p)) {
@@ -478,7 +485,7 @@ function handleFile(name, res) {
   res.writeHead(200, {
     'Content-Type': type,
     'Content-Disposition': 'inline; filename="' + name + '"',
-    'Cache-Control': 'public, max-age=31536000, immutable',
+    'Cache-Control': 'private, no-store',
   });
   fs.createReadStream(p).pipe(res);
 }
@@ -564,6 +571,39 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/_status' || pathname.startsWith('/_website')) return send(res, 404, 'text/plain', 'not found');
   if (req.method === 'GET' && pathname === '/health') return send(res, 200, 'application/json', '{"ok":true}');
 
+  if (pathname === '/api/joinLobby' && req.method === 'POST') {
+    const identity = await standaloneApi.requireStoreUser(req, DATA_DIR);
+    const now = Date.now();
+    for (const [uid, hit] of joinAttempts) if (hit.until <= now) joinAttempts.delete(uid);
+    const hit = joinAttempts.get(identity.uid) || { count: 0, until: now + 60000 };
+    hit.count++; joinAttempts.set(identity.uid, hit);
+    if (hit.count > 10) return send(res, 429, 'application/json', '{"error":"Too many join attempts; try again in a minute"}');
+    let body; try { body = JSON.parse(await readBody(req)); } catch { return send(res, 400, 'application/json', '{"error":"Invalid request"}'); }
+    if (!body || !/^[A-Z0-9]{6}$/.test(body.code) || typeof body.password !== 'string' || body.password.length > 256) return send(res, 400, 'application/json', '{"error":"Invalid lobby or password"}');
+    const key = '_kc_lobby_' + body.code;
+    const lobby = readKey(key);
+    if (!lobby || lobby.status === 'closed') return send(res, 404, 'application/json', '{"error":"Lobby not found"}');
+    if (lobby.hostUid !== identity.uid && !(lobby.players || []).some(p => p.uid === identity.uid)) {
+      if (lobby.status !== 'waiting') return send(res, 403, 'application/json', '{"error":"Lobby has already started"}');
+      const hash = crypto.createHash('sha256').update(body.password).digest('hex');
+      if (lobby.passwordHash && hash !== lobby.passwordHash) return send(res, 403, 'application/json', '{"error":"Wrong password"}');
+      lobby.players = [...(lobby.players || []), { uid: identity.uid, name: identity.name || '', score: 0, answers: {} }];
+      writeKey(key, lobby);
+    }
+    return send(res, 200, 'application/json', '{"ok":true}');
+  }
+  if (pathname === '/api/mediaTicket' && req.method === 'GET') {
+    const identity = await standaloneApi.requireStoreUser(req, DATA_DIR);
+    res.setHeader('Cache-Control', 'no-store');
+    return send(res, 200, 'application/json', JSON.stringify(mediaTickets.issue(identity)));
+  }
+  const storeRoute = isSyncPath(pathname) || (pathname === '/' && (req.method === 'POST' || url.searchParams.has('key')));
+  const mediaRoute = pathname.startsWith('/files/') || /^\/users\/[^/]+\/photo\/?$/.test(pathname);
+  const ticketAllowed = mediaRoute && req.method === 'GET' && mediaTickets.verify(url.searchParams.get('media_ticket'));
+  const user = storeRoute || (mediaRoute && !ticketAllowed) ? await standaloneApi.requireStoreUser(req, DATA_DIR) : null;
+  if (mediaRoute) res.setHeader('Referrer-Policy', 'no-referrer');
+  if (mediaRoute) res.setHeader('Cache-Control', 'private, no-store');
+
   if (req.method === 'GET' && pathname.startsWith('/files/')) {
     return handleFile(pathname.slice('/files/'.length), res);
   }
@@ -578,11 +618,11 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && pathname === '/' && url.searchParams.has('key')) {
-    return handleGetSync(url, res);
+    return handleGetSync(url, res, user);
   }
 
   if (req.method === 'GET' && isSyncPath(pathname)) {
-    return handleGetSync(url, res);
+    return handleGetSync(url, res, user);
   }
 
   if (req.method === 'POST' && (isSyncPath(pathname) || pathname === '/')) {
@@ -593,7 +633,7 @@ const server = http.createServer(async (req, res) => {
     const fields = querystring.parse(raw);
     const key = String(fields.key || '');
     const data = typeof fields.data === 'string' ? fields.data : '';
-    return handlePostSync(key, data, req, res);
+    return handlePostSync(key, data, req, res, user);
   }
 
   if (req.method === 'GET') {

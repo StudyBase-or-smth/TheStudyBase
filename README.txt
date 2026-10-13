@@ -67,3 +67,19 @@ Nginx proxy is required. Redeploy the backend after changing its runtime values.
 
 Checks: npm test (Node.js 20 or newer). Startup logs include only listening
 address, public origin, data-directory path, static-serving mode and health path.
+
+Security deployment notes
+- Deploy the website and backend together: the website now uses POST /api/joinLobby
+  and GET /api/mediaTicket. Existing /sync payloads remain supported.
+- Media URLs use five-minute, read-only media tickets, never Firebase login tokens.
+  Tickets cannot call /sync or /api routes. Restarting the backend invalidates them;
+  refresh the website afterward. A ticket can remain usable until its expiry after
+  an account is disabled. No additional environment variables are required.
+- Protected lobby passwords are checked on the server, with ten join attempts per
+  account per minute. Players cannot set their own scores or change earlier answers.
+- Topic IDs must be unique (case-insensitive), use letters/numbers/dot/underscore/
+  hyphen, and cannot be _meta. Invalid legacy IDs must be corrected before saving.
+- Avatar downloads stop at 500 KiB and reject redirects.
+- Use npm ci to install the committed dependency lockfile. The uuid override keeps
+  Firebase's transitive dependencies on patched CommonJS-compatible uuid 11.
+- AI usage quotas are intentionally deferred.
