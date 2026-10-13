@@ -1,12 +1,12 @@
 // /api/* for the StudyBaseData server.
-// Loaded by server.js. Secrets come from StudyBaseData/secrets.json
-// (or STUDYBASE_DATA_DIR), or from environment variables of the same names.
+// Loaded by server.js. Environment secrets take priority over data-directory secrets.json.
 
 'use strict';
 
 const fs = require('fs');
 const path = require('path');
 const { runProgramCommand } = require('./program-commands');
+const { handleCors } = require('./cors');
 
 const ALLOWED_ROLES_SIGNUP = ['student', 'teacher'];
 const ALLOWED_ROLES_ASSIGN = ['student', 'teacher', 'dev'];
@@ -26,14 +26,7 @@ let adminInitError = null;
 let secretsCache = null;
 let secretsPath = null;
 
-function cors(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-}
-
 function sendJson(res, status, obj) {
-  cors(res);
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
   res.end(JSON.stringify(obj));
 }
@@ -52,7 +45,7 @@ function loadSecrets(dataDir) {
   try {
     const raw = JSON.parse(fs.readFileSync(file, 'utf8'));
     Object.keys(out).forEach(k => {
-      if (raw[k] != null && String(raw[k]).trim()) {
+      if (!out[k] && raw[k] != null && String(raw[k]).trim()) {
         out[k] = k === 'FIREBASE_PRIVATE_KEY' ? String(raw[k]).replace(/\\n/g, '\n') : String(raw[k]);
       }
     });
@@ -68,7 +61,7 @@ function getAdmin(secrets) {
     try {
       adminMod = require('firebase-admin');
     } catch (e) {
-      adminInitError = { statusCode: 503, message: 'firebase-admin is not installed. Run npm install in the program folder (next to start.bat / start.sh).' };
+      adminInitError = { statusCode: 503, message: 'firebase-admin is not installed. Run npm ci in the program folder.' };
       throw adminInitError;
     }
   }
@@ -77,7 +70,7 @@ function getAdmin(secrets) {
     const clientEmail = secrets.FIREBASE_CLIENT_EMAIL;
     const privateKey = secrets.FIREBASE_PRIVATE_KEY;
     if (!projectId || !clientEmail || !privateKey) {
-      throw { statusCode: 503, message: 'Firebase Admin secrets are missing. Copy secrets.example.json to secrets.json and fill it in.' };
+      throw { statusCode: 503, message: 'Firebase Admin secrets are missing. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY.' };
     }
     adminMod.initializeApp({
       credential: adminMod.credential.cert({ projectId, clientEmail, privateKey }),
@@ -235,7 +228,6 @@ async function handleAvatar(url, res) {
   if (!ct.startsWith('image/')) return sendJson(res, 415, { error: 'Not an image' });
   const buf = Buffer.from(await upstream.arrayBuffer());
   if (buf.length > AVATAR_MAX) return sendJson(res, 413, { error: 'Too large' });
-  cors(res);
   res.writeHead(200, {
     'Content-Type': ct,
     'Cache-Control': 'public, max-age=604800',
@@ -554,6 +546,7 @@ async function handleUpdateUserName(req, res, secrets, readBody) {
 }
 
 async function handleApi(req, res, url, opts) {
+  if (handleCors(req, res)) return;
   const dataDir = opts.dataDir;
   const readBody = opts.readBody;
   const secrets = loadSecrets(dataDir);

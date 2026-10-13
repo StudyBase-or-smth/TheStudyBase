@@ -1,52 +1,69 @@
-StudyBaseProgram — local store (Apps Script replacement)
+StudyBaseProgram — Coolify API/sync backend
 
-This folder lives on the machine running the sync program, not in the git repo.
+The website is deployed separately. This program serves /sync, /api/*,
+uploaded files and user photos. GET /health returns only {"ok":true}.
+The local status page and HTTP website-folder management routes are removed.
 
-  start.bat   Windows: double-click to run (asks for the website folder once)
-  start.sh    Linux: ./start.sh (same, when run in a terminal)
-  server.js   The program the website talks to; also serves that website folder
-  api.js      Standalone /api/* (dev panel, grade, registerRole, desmos, avatar)
-  secrets.example.json  Copy into StudyBaseData/secrets.json and fill in keys
-  /_status    Server page: choose or change the website folder
+Coolify application settings
+  Build strategy: Nixpacks
+  Install command: npm ci
+  Start command: node server.js
+  Internal port: 8787 (server binds to 0.0.0.0)
+  Health check: GET /health on port 8787, expected HTTP 200
+  Persistent volume destination: /data
+  Keep your existing 8787:8787 mapping if required by your external proxy.
 
-  StudyBaseData/   All store data (same folder as start.bat / start.sh)
-    website.json   Saved website folder (created when you pick one)
-    secrets.json   Firebase Admin + LLM keys (not in git)
-    json/          Shared JSON records
-                   *_topics/  one file per topic + _meta.json
-                   *_units.json  { v: 1, items: [{ id, name }] }
-    files/         Uploaded topic images and PDFs
-    users/         One folder per signed-in user (uid)
-                   profile.json  subjects, classes, photo URL, stats
-                   photo.jpg     profile picture (any image ext)
-    analyser/      Analyser history and drafts, one folder per uid
-                   history.json  sync key _analyser_<uid>
-                   draft.json    sync key _analyser_draft_<uid>
+Runtime environment variables
+  STUDYBASE_DATA_DIR=/data
+  PORT=8787
+  STUDYBASE_PUBLIC_URL=https://thestudybase-server.tail8c20e2.ts.net:10000
+  STUDYBASE_ALLOWED_ORIGINS=https://thestudybase-server.tail8c20e2.ts.net:8443
+  FIREBASE_PROJECT_ID=<Firebase project ID>
+  FIREBASE_CLIENT_EMAIL=<Firebase Admin service-account email>
+  FIREBASE_PRIVATE_KEY=<Firebase Admin private key>
+  DESMOS_API_KEY=<Desmos key>
+  CLAUDE_API_KEY=<Anthropic key>
+  GEMINI_API_KEY=<Google key>
 
-Override the data folder with STUDYBASE_DATA_DIR. If json/, files/, users/,
-analyser/, secrets.json, or website.json are still next to start.bat from an
-older layout, the next start moves them into StudyBaseData/.
+Set these on the backend as available at runtime. Secrets need not be available
+during build. FIREBASE_PRIVATE_KEY accepts real newlines or literal \n escapes.
+Environment values take priority; /data/secrets.json is an optional per-key
+fallback for unset or empty environment values. Credentials are never served.
+STUDYBASE_PUBLIC_URL is an HTTP(S) origin, with no path or credentials. It is
+used for every newly generated upload/photo URL; existing saved URLs are not
+rewritten. Without it, local development defaults to http://127.0.0.1:PORT.
 
-/api routes:
-  GET  /api/desmosKey
-  GET  /api/avatar?u=
-  POST /api/grade
-  POST /api/registerRole
-  GET  /api/getAllUsers
-  GET  /api/getPendingUsers
-  POST /api/approveUser
-  POST /api/rejectUser
-  POST /api/updateUserName
+Set STUDYBASE_ALLOWED_ORIGINS to the exact frontend origin (scheme, hostname,
+and port; no trailing slash). Separate multiple origins with commas. The
+default is https://thestudybase-server.tail8c20e2.ts.net:8443. An empty value
+disables browser cross-origin access. Allowed OPTIONS requests return 204 and
+allow GET, POST, Content-Type, Authorization and X-StudyBase-Store. Disallowed
+origins, methods and headers return 403. Requests without Origin still work
+for server clients and health checks; CORS is not an authentication mechanism.
 
-Pick the folder that contains the StudyBase website (index.html). After that,
-http://127.0.0.1:8787 serves the site and the sync API together. Change it
-later at http://127.0.0.1:8787/_status or set STUDYBASE_WEBSITE_DIR.
+Leave STUDYBASE_WEBSITE_DIR unset for API/sync-only deployment. Optional static
+serving is enabled only by this variable. website.json is never read or written
+by the program. Hidden files, secrets.json and runtime data are not served.
+There are no folder dialogs, browser launchers, stdin commands or restart-code
+loops. SIGTERM/SIGINT close the HTTP server, allowing up to 10 seconds for active
+requests before closing remaining connections. Configure Coolify/Docker stop
+timeout to at least 15 seconds. Use Coolify to restart the application. Existing
+dev-panel stop/restart response formats remain; either action now closes the
+process with exit code 0, so container restart policy controls what happens next.
 
-On BaseComputer the systemd user service studybase-sync keeps it running.
-This laptop (localhost / file://) talks to it over Tailscale at
-http://basecomputer.tail8c20e2.ts.net:8787
+Data under /data
+  json/       Shared sync records and topic files
+  files/      Uploaded images and PDFs
+  users/      User profiles and photos
+  analyser/   Per-user histories and drafts
+Back up the persistent volume. Dependencies, StudyBaseData and secrets.json
+are ignored by Git. No desktop/systemd integration is required.
 
-Apps Script is temporarily disabled. The site (localhost / file://) talks
-to this program. A public HTTPS page cannot call this HTTP URL until there
-is a public HTTPS tunnel. To restore Apps Script, set
-USE_APPS_SCRIPT = true in TheStudyBase/sync-config.js.
+Frontend configuration
+  BASECOMPUTER_SYNC_URL=https://thestudybase-server.tail8c20e2.ts.net:10000/sync
+Rebuild/redeploy the static website after changing its build-time URL. Keep the
+frontend origin in this backend's STUDYBASE_ALLOWED_ORIGINS allowlist. No frontend
+Nginx proxy is required. Redeploy the backend after changing its runtime values.
+
+Checks: npm test (Node.js 20 or newer). Startup logs include only listening
+address, public origin, data-directory path, static-serving mode and health path.

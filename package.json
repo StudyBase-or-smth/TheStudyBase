@@ -4,5 +4,9 @@
   "description": "/api routes for the StudyBaseData server",
   "dependencies": {
     "firebase-admin": "^13.10.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/container.test.cjs"
   }
 }

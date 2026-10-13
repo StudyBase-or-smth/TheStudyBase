@@ -1,30 +1,12 @@
-// StudyBase local sync — Apps Script replacement that stores data on this machine.
-//
-// Talks the same protocol the site already uses:
-//   GET  /sync?key=NAME[&callback=cb]  →  cb({ data: ... })  or  { data: ... }
-//   POST /sync   key=NAME&data=<json>  →  writes json/NAME.json
-//   POST key=_up_<id>  data={ image: dataUrl, filename }  →  files/... + _ur_<id>
-//   POST key=_up_avatar_<uid>  →  users/<uid>/photo.jpg + _ur_avatar_<uid>
-//   GET  /files/<name>  →  uploaded image or PDF
-//   GET  /users/<uid>/photo  →  that user's profile picture
-//   GET/POST _profile_<uid>  →  users/<uid>/profile.json
-//   GET/POST _analyser_<uid> / _analyser_draft_<uid>  →  analyser/<uid>/history.json and draft.json
-//
-// Program files (start.bat / start.sh / server.js) live in this folder.
-// Data lives in StudyBaseData/ next to those starters.
-// Override with env: STUDYBASE_DATA_DIR, PORT, STUDYBASE_PUBLIC_URL,
-//   STUDYBASE_WEBSITE_DIR, STUDYBASE_PICK_WEBSITE, STUDYBASE_OPEN_BROWSER
-// Website folder is stored in StudyBaseData/website.json and served at http://127.0.0.1:PORT/
-
+// StudyBaseProgram API/sync server for container deployment.
 'use strict';
 
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { spawn, spawnSync } = require('child_process');
 const { URL } = require('url');
 const querystring = require('querystring');
-const { runProgramCommand, RESTART_EXIT } = require('./program-commands');
+const { handleCors } = require('./cors');
 
 const PORT = parseInt(process.env.PORT || '8787', 10);
 const PROGRAM_DIR = __dirname;
@@ -33,9 +15,7 @@ const JSON_DIR = path.join(DATA_DIR, 'json');
 const FILES_DIR = path.join(DATA_DIR, 'files');
 const USERS_DIR = path.join(DATA_DIR, 'users');
 const ANALYSER_DIR = path.join(DATA_DIR, 'analyser');
-const WEBSITE_CONFIG = path.join(DATA_DIR, 'website.json');
 const WEB_BLOCK_DIRS = new Set(['.git', 'node_modules', 'studybasedata']);
-const LEGACY_DATA_NAMES = ['json', 'files', 'users', 'analyser', 'secrets.json', 'website.json'];
 const WEB_BLOCK_FILES = new Set(['secrets.json', '.env', 'website.json']);
 const PHOTO_NAMES = ['photo.jpg', 'photo.jpeg', 'photo.png', 'photo.webp', 'photo.gif', 'photo.bmp'];
 const MAX_BODY = 28 * 1024 * 1024;
@@ -79,19 +59,6 @@ const WEB_MIME = Object.assign({
   '.webp': 'image/webp',
 }, EXT_MIME);
 
-function migrateLegacyData() {
-  if (path.resolve(DATA_DIR) === path.resolve(PROGRAM_DIR)) return;
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  LEGACY_DATA_NAMES.forEach(name => {
-    const from = path.join(PROGRAM_DIR, name);
-    const to = path.join(DATA_DIR, name);
-    if (!fs.existsSync(from)) return;
-    if (path.resolve(from) === path.resolve(to)) return;
-    if (fs.existsSync(to)) return;
-    try { fs.renameSync(from, to); } catch (e) {}
-  });
-}
-
 function ensureDirs() {
   fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.mkdirSync(JSON_DIR, { recursive: true });
@@ -100,26 +67,16 @@ function ensureDirs() {
   fs.mkdirSync(ANALYSER_DIR, { recursive: true });
 }
 
-function cors(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-}
-
 function send(res, status, type, body) {
-  cors(res);
   res.writeHead(status, { 'Content-Type': type });
   res.end(body);
 }
 
-function publicOrigin(req) {
-  if (process.env.STUDYBASE_PUBLIC_URL) {
-    return process.env.STUDYBASE_PUBLIC_URL.replace(/\/$/, '');
-  }
-  const proto = String(req.headers['x-forwarded-proto'] || 'http').split(',')[0].trim();
-  const host = String(req.headers['x-forwarded-host'] || req.headers.host || ('127.0.0.1:' + PORT)).split(',')[0].trim();
-  return proto + '://' + host;
+const PUBLIC_URL = new URL(process.env.STUDYBASE_PUBLIC_URL || ('http://127.0.0.1:' + PORT));
+if (!['http:', 'https:'].includes(PUBLIC_URL.protocol) || PUBLIC_URL.username || PUBLIC_URL.password || PUBLIC_URL.search || PUBLIC_URL.hash || PUBLIC_URL.pathname !== '/') {
+  throw new Error('STUDYBASE_PUBLIC_URL must be an HTTP(S) origin without credentials, path, query or fragment');
 }
+function publicOrigin() { return PUBLIC_URL.origin; }
 
 function jsonPath(key) {
   return path.join(JSON_DIR, key + '.json');
@@ -421,21 +378,6 @@ function writeKey(key, value) {
   writeJsonFile(jsonPath(key), value);
 }
 
-function countJsonRecords() {
-  let n = 0;
-  function walk(d) {
-    let ents;
-    try { ents = fs.readdirSync(d, { withFileTypes: true }); } catch (e) { return; }
-    ents.forEach(ent => {
-      const p = path.join(d, ent.name);
-      if (ent.isDirectory()) walk(p);
-      else if (ent.name.endsWith('.json')) n++;
-    });
-  }
-  walk(JSON_DIR);
-  return n;
-}
-
 function sanitizeUploadName(raw, mime) {
   const base = path.basename(String(raw || 'file')).replace(/[^A-Za-z0-9._-]/g, '_');
   let ext = path.extname(base).toLowerCase();
@@ -458,6 +400,7 @@ function saveUpload(payload, req) {
   }
   if (!buf.length || buf.length > MAX_FILE) return { ok: false };
   const name = sanitizeUploadName(payload.filename, mime);
+  if (!EXT_MIME[path.extname(name).toLowerCase()]) return send(res, 404, 'text/plain', 'not found');
   if (!FILE_RE.test(name)) return { ok: false };
   fs.writeFileSync(path.join(FILES_DIR, name), buf);
   return { ok: true, url: publicOrigin(req) + '/files/' + name };
@@ -516,7 +459,6 @@ function handleUserPhoto(uid, res) {
   if (!p) return send(res, 404, 'text/plain', 'not found');
   const ext = path.extname(p).toLowerCase();
   const type = EXT_MIME[ext] || 'application/octet-stream';
-  cors(res);
   res.writeHead(200, {
     'Content-Type': type,
     'Content-Disposition': 'inline; filename="' + path.basename(p) + '"',
@@ -533,7 +475,6 @@ function handleFile(name, res) {
   }
   const ext = path.extname(name).toLowerCase();
   const type = EXT_MIME[ext] || 'application/octet-stream';
-  cors(res);
   res.writeHead(200, {
     'Content-Type': type,
     'Content-Disposition': 'inline; filename="' + name + '"',
@@ -542,104 +483,8 @@ function handleFile(name, res) {
   fs.createReadStream(p).pipe(res);
 }
 
-let websiteDir = '';
-
-function esc(s) {
-  return String(s).replace(/[&<>"']/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-  }[c]));
-}
-
-function validateWebsiteDir(dir) {
-  if (!dir || !String(dir).trim()) return 'Choose a folder that contains the StudyBase website.';
-  const d = path.resolve(String(dir).trim());
-  try {
-    if (!fs.existsSync(d)) return 'That folder does not exist on this computer.';
-    if (!fs.statSync(d).isDirectory()) return 'That path is not a folder.';
-  } catch (e) {
-    return 'That folder cannot be read.';
-  }
-  return '';
-}
-
-function loadWebsiteDir() {
-  const fromEnv = String(process.env.STUDYBASE_WEBSITE_DIR || '').trim();
-  if (fromEnv && !validateWebsiteDir(fromEnv)) return path.resolve(fromEnv);
-  try {
-    const raw = JSON.parse(fs.readFileSync(WEBSITE_CONFIG, 'utf8'));
-    const d = String(raw.websiteDir || '').trim();
-    return d ? path.resolve(d) : '';
-  } catch (e) {
-    return '';
-  }
-}
-
-function saveWebsiteDir(dir) {
-  const resolved = path.resolve(String(dir).trim());
-  const err = validateWebsiteDir(resolved);
-  if (err) return err;
-  writeJsonFile(WEBSITE_CONFIG, { websiteDir: resolved });
-  websiteDir = resolved;
-  return '';
-}
-
-function websiteReady() {
-  return !validateWebsiteDir(websiteDir);
-}
-
-function pickWebsiteDirNative() {
-  if (process.platform === 'win32') {
-    const ps = [
-      'Add-Type -AssemblyName System.Windows.Forms',
-      '$d = New-Object System.Windows.Forms.FolderBrowserDialog',
-      "$d.Description = 'Select the folder that contains the StudyBase website'",
-      '$d.ShowNewFolderButton = $false',
-      'try { $d.RootFolder = [Environment+SpecialFolder]::MyComputer } catch {}',
-      'if ($d.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { [Console]::Out.Write($d.SelectedPath) }',
-    ].join('; ');
-    const r = spawnSync('powershell.exe', ['-NoProfile', '-STA', '-Command', ps], {
-      encoding: 'utf8',
-      windowsHide: false,
-      timeout: 300000,
-    });
-    return String(r.stdout || '').trim();
-  }
-  const linux = [
-    ['zenity', ['--file-selection', '--directory', '--title=Select the StudyBase website folder']],
-    ['yad', ['--file-selection', '--directory', '--title=Select the StudyBase website folder']],
-    ['kdialog', ['--getexistingdirectory', process.env.HOME || '.', 'Select the StudyBase website folder']],
-  ];
-  for (let i = 0; i < linux.length; i++) {
-    const r = spawnSync(linux[i][0], linux[i][1], { encoding: 'utf8', timeout: 300000 });
-    const out = String(r.stdout || '').trim();
-    if (r.status === 0 && out) return out;
-  }
-  const py = [
-    'import sys',
-    'try:',
-    '    import tkinter as tk',
-    '    from tkinter import filedialog',
-    '    root = tk.Tk()',
-    '    root.withdraw()',
-    '    root.attributes("-topmost", True)',
-    '    p = filedialog.askdirectory(title="Select the StudyBase website folder")',
-    '    sys.stdout.write(p or "")',
-    'except Exception:',
-    '    sys.exit(1)',
-  ].join('\n');
-  const r = spawnSync('python3', ['-c', py], { encoding: 'utf8', timeout: 300000, env: process.env });
-  return String(r.stdout || '').trim();
-}
-
-function openBrowser(target) {
-  try {
-    if (process.platform === 'win32') {
-      spawn('cmd', ['/c', 'start', '', target], { detached: true, stdio: 'ignore' }).unref();
-    } else {
-      spawn('xdg-open', [target], { detached: true, stdio: 'ignore' }).unref();
-    }
-  } catch (e) {}
-}
+const websiteDir = String(process.env.STUDYBASE_WEBSITE_DIR || '').trim();
+function websiteReady() { return !!websiteDir; }
 
 function resolveWebsiteFile(pathname) {
   if (!websiteReady()) return null;
@@ -650,17 +495,23 @@ function resolveWebsiteFile(pathname) {
   else rel = rel.replace(/^\/+/, '');
   const parts = rel.split(/[\\/]+/).filter(Boolean);
   if (!parts.length) return null;
-  if (parts.some(p => p === '.' || p === '..' || WEB_BLOCK_DIRS.has(p.toLowerCase()))) return null;
+  if (parts.some(p => p.startsWith('.') || WEB_BLOCK_DIRS.has(p.toLowerCase()))) return null;
   if (WEB_BLOCK_FILES.has(parts[parts.length - 1].toLowerCase())) return null;
   const target = path.resolve(root, ...parts);
   if (target !== root && !target.startsWith(root + path.sep)) return null;
   try {
+    const realRoot = fs.realpathSync(root);
+    const realTarget = fs.realpathSync(target);
+    const realData = fs.realpathSync(DATA_DIR);
+    if (!realTarget.startsWith(realRoot + path.sep)) return null;
+    if (realTarget === realData || realTarget.startsWith(realData + path.sep)) return null;
+    if (WEB_BLOCK_FILES.has(path.basename(realTarget).toLowerCase()) || path.basename(realTarget).startsWith('.')) return null;
     if (fs.existsSync(target) && fs.statSync(target).isDirectory()) {
       const idx = path.join(target, 'index.html');
-      if (fs.existsSync(idx) && fs.statSync(idx).isFile()) return idx;
+      if (fs.existsSync(idx) && fs.statSync(idx).isFile()) return resolveWebsiteFile('/' + parts.join('/') + '/index.html');
       return null;
     }
-    if (fs.existsSync(target) && fs.statSync(target).isFile()) return target;
+    if (fs.existsSync(target) && fs.statSync(target).isFile()) return realTarget;
   } catch (e) {
     return null;
   }
@@ -670,100 +521,11 @@ function resolveWebsiteFile(pathname) {
 function handleWebsiteFile(filePath, res) {
   const ext = path.extname(filePath).toLowerCase();
   const type = WEB_MIME[ext] || 'application/octet-stream';
-  cors(res);
   res.writeHead(200, {
     'Content-Type': type,
     'Cache-Control': 'no-cache',
   });
   fs.createReadStream(filePath).pipe(res);
-}
-
-function websiteConfigPayload() {
-  const err = websiteDir ? validateWebsiteDir(websiteDir) : '';
-  return {
-    websiteDir: websiteDir || '',
-    ready: !err && !!websiteDir,
-    error: err || '',
-    hasIndex: !err && !!websiteDir && fs.existsSync(path.join(websiteDir, 'index.html')),
-  };
-}
-
-function statusHtml() {
-  let jsonCount = 0;
-  let fileCount = 0;
-  jsonCount = countJsonRecords();
-  try { fileCount = fs.readdirSync(FILES_DIR).length; } catch (e) {}
-  let userCount = 0;
-  try { userCount = fs.readdirSync(USERS_DIR).filter(n => fs.statSync(path.join(USERS_DIR, n)).isDirectory()).length; } catch (e) {}
-  const web = websiteConfigPayload();
-  const webNote = web.ready
-    ? (web.hasIndex
-      ? 'This folder is served at the same address as the sync program.'
-      : 'Folder saved. There is no index.html in it yet — open a page path such as /subject/subject.html.')
-    : 'Choose the folder that has the StudyBase website (the one with index.html). The next time this program starts, it will serve that site.';
-  return `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>StudyBase local sync</title>
-<style>
-  body{font:15px/1.45 system-ui,sans-serif;max-width:42rem;margin:3rem auto;padding:0 1.2rem;color:#1f2937}
-  code{background:#f3f4f6;padding:.1em .35em;border-radius:4px}
-  .ok{color:#15803d;font-weight:600}
-  .warn{color:#b45309}
-  label{display:block;font-weight:600;margin:1.2rem 0 .4rem}
-  .row{display:flex;gap:.5rem;flex-wrap:wrap}
-  input[type=text]{flex:1;min-width:16rem;padding:.45rem .55rem;border:1px solid #d1d5db;border-radius:6px;font:inherit}
-  button{padding:.45rem .75rem;border:1px solid #d1d5db;border-radius:6px;background:#fff;font:inherit;cursor:pointer}
-  button.primary{background:#1f2937;color:#fff;border-color:#1f2937}
-  #msg{margin-top:.7rem;min-height:1.3em}
-</style></head><body>
-<h1>StudyBase local sync</h1>
-<p class="ok">Running on this computer.</p>
-<p>Data folder: <code>${esc(DATA_DIR)}</code></p>
-<p>JSON records: <strong>${jsonCount}</strong> &nbsp; Files: <strong>${fileCount}</strong> &nbsp; Users: <strong>${userCount}</strong></p>
-<label for="websiteDir">Website folder</label>
-<form id="webform">
-  <div class="row">
-    <input id="websiteDir" name="websiteDir" type="text" value="${esc(web.websiteDir)}" placeholder="Folder that contains index.html" spellcheck="false">
-    <button type="button" id="browse">Browse…</button>
-    <button type="submit" class="primary">Save</button>
-  </div>
-</form>
-<p class="${web.ready ? 'ok' : 'warn'}">${esc(webNote)}</p>
-<p id="msg">${web.error ? esc(web.error) : ''}</p>
-<p>${web.ready ? '<a href="/">Open the website</a> · ' : ''}This program should stay running while the site is using the store.</p>
-<p>Browse opens a folder window on <em>this</em> computer. From another machine, type the path instead.</p>
-<script>
-const form = document.getElementById('webform');
-const input = document.getElementById('websiteDir');
-const msg = document.getElementById('msg');
-document.getElementById('browse').onclick = async function () {
-  msg.textContent = 'Open the folder window on this computer…';
-  try {
-    const r = await fetch('/_website-pick', { method: 'POST' });
-    const j = await r.json();
-    if (j.websiteDir) { location.reload(); return; }
-    msg.textContent = j.error || 'Cancelled. You can type the path instead.';
-  } catch (e) {
-    msg.textContent = 'Could not open a folder window. Type the path instead.';
-  }
-};
-form.onsubmit = async function (e) {
-  e.preventDefault();
-  msg.textContent = 'Saving…';
-  try {
-    const r = await fetch('/_website-config', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ websiteDir: input.value })
-    });
-    const j = await r.json();
-    if (j.ok) { location.href = j.hasIndex ? '/' : '/_status'; return; }
-    msg.textContent = j.error || 'Could not save that folder.';
-  } catch (err) {
-    msg.textContent = 'Could not save that folder.';
-  }
-};
-</script>
-</body></html>`;
 }
 
 function readBody(req) {
@@ -788,86 +550,19 @@ function isSyncPath(pathname) {
   return pathname === '/sync';
 }
 
-let standaloneApi = null;
-let handleStandaloneApi = null;
-try {
-  standaloneApi = require('./api');
-  handleStandaloneApi = standaloneApi.handleApi;
-} catch (e) {
-  standaloneApi = null;
-  handleStandaloneApi = null;
-}
+const standaloneApi = require('./api');
+const handleStandaloneApi = standaloneApi.handleApi;
 
-migrateLegacyData();
 ensureDirs();
-websiteDir = loadWebsiteDir();
-if (!websiteReady() && process.env.STUDYBASE_PICK_WEBSITE === '1') {
-  console.log('Select the folder that contains the StudyBase website…');
-  const picked = pickWebsiteDirNative();
-  if (picked) {
-    const err = saveWebsiteDir(picked);
-    if (err) console.log('Folder not used: ' + err);
-  } else {
-    console.log('No website folder selected. Open /_status to choose one.');
-  }
-}
 
 const server = http.createServer(async (req, res) => {
   try {
   const url = new URL(req.url || '/', 'http://' + (req.headers.host || '127.0.0.1'));
   const pathname = url.pathname.replace(/\/+$/, '') || '/';
 
-  if (req.method === 'OPTIONS') {
-    cors(res);
-    res.writeHead(204);
-    return res.end();
-  }
-
-  if (req.method === 'GET' && pathname === '/health') {
-    const web = websiteConfigPayload();
-    return send(res, 200, 'application/json', JSON.stringify({
-      ok: true,
-      dataDir: DATA_DIR,
-      api: !!handleStandaloneApi,
-      websiteDir: web.websiteDir,
-      website: web.ready,
-    }));
-  }
-
-  if (req.method === 'GET' && pathname === '/_status') {
-    return send(res, 200, 'text/html; charset=utf-8', statusHtml());
-  }
-
-  if (req.method === 'GET' && pathname === '/_website-config') {
-    return send(res, 200, 'application/json; charset=utf-8', JSON.stringify(websiteConfigPayload()));
-  }
-
-  if (req.method === 'POST' && pathname === '/_website-config') {
-    let raw;
-    try { raw = await readBody(req); } catch (e) {
-      return send(res, 413, 'text/plain', 'too large');
-    }
-    let dir = '';
-    try {
-      const parsed = JSON.parse(raw);
-      dir = parsed && parsed.websiteDir != null ? String(parsed.websiteDir) : '';
-    } catch (e) {
-      dir = String(querystring.parse(raw).websiteDir || '');
-    }
-    const err = saveWebsiteDir(dir);
-    if (err) return send(res, 400, 'application/json; charset=utf-8', JSON.stringify({ ok: false, error: err }));
-    return send(res, 200, 'application/json; charset=utf-8', JSON.stringify(Object.assign({ ok: true }, websiteConfigPayload())));
-  }
-
-  if (req.method === 'POST' && pathname === '/_website-pick') {
-    const picked = pickWebsiteDirNative();
-    if (!picked) {
-      return send(res, 200, 'application/json; charset=utf-8', JSON.stringify({ cancelled: true }));
-    }
-    const err = saveWebsiteDir(picked);
-    if (err) return send(res, 400, 'application/json; charset=utf-8', JSON.stringify({ ok: false, error: err }));
-    return send(res, 200, 'application/json; charset=utf-8', JSON.stringify(Object.assign({ ok: true }, websiteConfigPayload())));
-  }
+  if (handleCors(req, res)) return;
+  if (pathname === '/_status' || pathname.startsWith('/_website')) return send(res, 404, 'text/plain', 'not found');
+  if (req.method === 'GET' && pathname === '/health') return send(res, 200, 'application/json', '{"ok":true}');
 
   if (req.method === 'GET' && pathname.startsWith('/files/')) {
     return handleFile(pathname.slice('/files/'.length), res);
@@ -879,11 +574,6 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (pathname.startsWith('/api')) {
-    if (!handleStandaloneApi) {
-      cors(res);
-      res.writeHead(503, { 'Content-Type': 'application/json; charset=utf-8' });
-      return res.end(JSON.stringify({ error: 'Standalone API module is missing (api.js)' }));
-    }
     return await handleStandaloneApi(req, res, url, { dataDir: DATA_DIR, readBody });
   }
 
@@ -892,8 +582,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && isSyncPath(pathname)) {
-    if (url.searchParams.has('key')) return handleGetSync(url, res);
-    return send(res, 200, 'text/html; charset=utf-8', statusHtml());
+    return handleGetSync(url, res);
   }
 
   if (req.method === 'POST' && (isSyncPath(pathname) || pathname === '/')) {
@@ -911,10 +600,8 @@ const server = http.createServer(async (req, res) => {
     if (websiteReady()) {
       const filePath = resolveWebsiteFile(url.pathname || '/');
       if (filePath) return handleWebsiteFile(filePath, res);
-      if (pathname === '/') return send(res, 200, 'text/html; charset=utf-8', statusHtml());
       return send(res, 404, 'text/plain', 'not found');
     }
-    if (pathname === '/') return send(res, 200, 'text/html; charset=utf-8', statusHtml());
   }
 
   send(res, 404, 'text/plain', 'not found');
@@ -923,7 +610,6 @@ const server = http.createServer(async (req, res) => {
     const message = (err && err.message) || 'Unexpected server error';
     console.error('Request failed:', message);
     if (!res.headersSent) {
-      cors(res);
       res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify({ error: message }));
     }
@@ -935,56 +621,33 @@ process.on('unhandledRejection', (reason) => {
   console.error('Unhandled promise rejection:', message);
 });
 
-function applyProgramAction(result) {
-  if (!result || (result.action !== 'stop' && result.action !== 'restart')) return;
-  const code = result.action === 'restart' ? RESTART_EXIT : 0;
-  setTimeout(() => {
-    try { server.close(() => process.exit(code)); } catch (e) { process.exit(code); }
-    setTimeout(() => process.exit(code), 1500);
-  }, 200);
+let shuttingDown = false;
+function shutdown(reason) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log('StudyBaseProgram shutting down: ' + reason);
+  const deadline = setTimeout(() => {
+    server.closeAllConnections();
+    process.exit(0);
+  }, 10000);
+  deadline.unref();
+  server.close(() => { clearTimeout(deadline); process.exit(0); });
+  server.closeIdleConnections();
 }
-
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 if (standaloneApi && typeof standaloneApi.setProgramActionHandler === 'function') {
-  standaloneApi.setProgramActionHandler(applyProgramAction);
-}
-
-function attachProgramStdin() {
-  if (!process.stdin || typeof process.stdin.on !== 'function') return;
-  process.stdin.setEncoding('utf8');
-  let buf = '';
-  process.stdin.on('data', chunk => {
-    buf += String(chunk);
-    let nl;
-    while ((nl = buf.search(/\r?\n/)) !== -1) {
-      const line = buf.slice(0, nl).replace(/\r$/, '');
-      buf = buf.slice(nl + (buf[nl] === '\r' ? 2 : 1));
-      const trimmed = line.trim();
-      if (!trimmed) continue;
-      if (standaloneApi && typeof standaloneApi.pushProgramLog === 'function') {
-        standaloneApi.pushProgramLog('log', '> ' + trimmed);
-      }
-      const result = runProgramCommand(trimmed);
-      console.log(result.message);
-      applyProgramAction(result);
+  standaloneApi.setProgramActionHandler(result => {
+    if (result && (result.action === 'stop' || result.action === 'restart')) {
+      // Preserve the API response, then let Coolify manage the container lifecycle.
+      setTimeout(() => shutdown(result.action), 200);
     }
   });
-  try { process.stdin.resume(); } catch (e) {}
 }
-
 server.listen(PORT, '0.0.0.0', () => {
-  const origin = 'http://127.0.0.1:' + PORT;
-  console.log('StudyBase local sync');
-  console.log('  ' + origin);
-  console.log('  data: ' + DATA_DIR);
-  if (websiteReady()) {
-    console.log('  website: ' + websiteDir);
-    console.log('  status: ' + origin + '/_status');
-  } else {
-    console.log('  website: (none — open ' + origin + '/_status to choose a folder)');
-  }
-  console.log('  commands: stop (twice to exit), restart  — type in this window');
-  attachProgramStdin();
-  if (process.env.STUDYBASE_OPEN_BROWSER === '1') {
-    openBrowser(origin + (websiteReady() ? '/' : '/_status'));
-  }
+  console.log('StudyBaseProgram listening on 0.0.0.0:' + server.address().port);
+  console.log('  public URL: ' + publicOrigin());
+  console.log('  data directory: ' + DATA_DIR);
+  console.log('  static website: ' + (websiteDir ? 'enabled via STUDYBASE_WEBSITE_DIR' : 'disabled (API/sync only)'));
+  console.log('  health check: /health');
 });

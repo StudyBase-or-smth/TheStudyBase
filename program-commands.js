@@ -1,6 +1,5 @@
 'use strict';
 
-const RESTART_EXIT = 75;
 let stopArmed = false;
 
 function runProgramCommand(raw) {
@@ -34,4 +33,4 @@ function runProgramCommand(raw) {
   return { ok: false, message: 'Unknown command: ' + line + '. Type help.', action: 'none' };
 }
 
-module.exports = { runProgramCommand, RESTART_EXIT };
+module.exports = { runProgramCommand };
