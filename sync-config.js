@@ -103,11 +103,24 @@ function sbWaitForFirebaseUser(){
   }).finally(() => { _sbAuthWait = null; });
   return _sbAuthWait;
 }
+let _sbMediaTicket = null;
+let _sbMediaTicketPending = null;
+async function sbRefreshMediaTicket(token) {
+  if (_sbMediaTicket && _sbMediaTicket.token === token && _sbMediaTicket.expiresAt > Date.now() + 60000) return;
+  if (!_sbMediaTicketPending) _sbMediaTicketPending = fetch(syncMediaOrigin() + '/api/mediaTicket', {
+    headers: sbStoreAuthHeaders(token), cache: 'no-store', signal: AbortSignal.timeout(10000)
+  }).then(async res => {
+    if (!res.ok) throw new Error('Media authorization failed');
+    _sbMediaTicket = { ...(await res.json()), token };
+  }).finally(() => { _sbMediaTicketPending = null; });
+  await _sbMediaTicketPending;
+}
 function sbGetIdToken(){
   return sbWaitForFirebaseUser().then(user => {
     if(!user) return '';
-    return user.getIdToken().then(token => {
+    return user.getIdToken().then(async token => {
       _sbIdToken = token || '';
+      if (token) await sbRefreshMediaTicket(token);
       return _sbIdToken;
     });
   }).catch(() => '');
@@ -118,21 +131,22 @@ function sbStoreAuthHeaders(token){
 }
 function sbMediaUrl(src){
   if(!src || typeof src !== 'string' || !usesConfirmableSync()) return src;
-  if(!_sbIdToken) return src;
+  if(!sbCurrentUser() || !_sbMediaTicket || _sbMediaTicket.token !== _sbIdToken || _sbMediaTicket.expiresAt <= Date.now()) return sbUnsignMediaUrl(src);
   try {
     const origin = syncMediaOrigin();
     if(!origin) return src;
     const u = new URL(src);
     if(u.origin !== origin) return src;
     if(!u.pathname.startsWith('/files/') && !/^\/users\/[A-Za-z0-9._-]+\/photo\/?$/.test(u.pathname)) return src;
-    u.searchParams.set('token', _sbIdToken);
+    u.searchParams.delete('token');
+    u.searchParams.set('media_ticket', _sbMediaTicket.ticket);
     return u.href;
   } catch(e){ return src; }
 }
 function sbUnsignMediaUrl(src){
   try {
     const u = new URL(src);
-    if(u.origin === syncMediaOrigin()) u.searchParams.delete('token');
+    if(u.origin === syncMediaOrigin()) { u.searchParams.delete('token'); u.searchParams.delete('media_ticket'); }
     return u.href;
   } catch(e){ return src; }
 }

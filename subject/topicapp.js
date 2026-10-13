@@ -32,7 +32,7 @@ function resolveSubject(){
   }
   SUBJECT = (catalog.subjects || []).find(s => s.id === id);
   if(!SUBJECT){
-    document.body.innerHTML = `<p style="padding:40px;font-family:sans-serif;color:#c00">Unknown subject "${id}". <a href="../index.html">Go back to index.</a></p>`;
+    document.body.innerHTML = `<p style="padding:40px;font-family:sans-serif;color:#c00">Unknown subject "${esc(id)}". <a href="../index.html">Go back to index.</a></p>`;
     return false;
   }
   ST = SUBJECT.storageKey || (id + '_topics');
@@ -138,7 +138,7 @@ function getRichVal(id){
   });
   return copy.innerHTML.trim();
 }
-function setRichVal(id,html){ const el=document.getElementById(id); if(!el)return; if(el.contentEditable==='true'){el.innerHTML=html||'';}else{el.value=html||'';} }
+function setRichVal(id,html){ const el=document.getElementById(id); if(!el)return; if(el.contentEditable==='true'){el.innerHTML=sanitizeRich(html||'');}else{el.value=html||'';} }
 function clearRich(id){ setRichVal(id,''); }
 function isDangerousUrl(val){
   const s = String(val || '').replace(/[\s\0]/g, '').toLowerCase();
@@ -146,25 +146,36 @@ function isDangerousUrl(val){
 }
 function sanitizeRich(html){
   if(!html)return'';
-  const d=document.createElement('div'); d.innerHTML=html;
-  d.querySelectorAll('script,style,iframe,object,embed,link,form,meta,base').forEach(e=>e.remove());
+  const template=document.createElement('template'); template.innerHTML=String(html);
+  const d=template.content;
+  const tags=new Set('P DIV SPAN B STRONG I EM U S STRIKE SUB SUP UL OL LI BLOCKQUOTE PRE CODE BR HR H1 H2 H3 H4 H5 H6 TABLE CAPTION THEAD TBODY TFOOT TR TD TH A IMG FONT'.split(' '));
+  const attrs=new Set('class style href src alt title width height colspan rowspan target rel face color size'.split(' '));
+  d.querySelectorAll('script,style,iframe,object,embed,link,form,input,button,textarea,select,meta,base,svg,math,template').forEach(e=>e.remove());
   d.querySelectorAll('*').forEach(el=>{
+    if(!tags.has(el.tagName)){ el.replaceWith(...el.childNodes); return; }
     [...el.attributes].forEach(attr=>{
-      const name = attr.name.toLowerCase();
-      if(name.startsWith('on') || name === 'srcdoc'){
-        el.removeAttribute(attr.name);
-        return;
+      const name=attr.name.toLowerCase();
+      if(!attrs.has(name) || (name==='href' && el.tagName!=='A') || (name==='src' && el.tagName!=='IMG')){
+        el.removeAttribute(attr.name); return;
       }
-      if(name === 'href' || name === 'src' || name === 'xlink:href' || name === 'action' || name === 'formaction' || name === 'poster'){
-        if(isDangerousUrl(attr.value)) el.removeAttribute(attr.name);
+      if(name==='href'){
+        const raw=attr.value.trim();
+        if(isDangerousUrl(raw) || (/^[a-z][a-z0-9+.-]*:/i.test(raw) && !/^(https?:|mailto:)/i.test(raw))) el.removeAttribute(name);
+      }
+      if(name==='style'){
+        const allowed=new Set(['color','background-color','font-family','font-size','font-weight','font-style','text-decoration','text-align','white-space','vertical-align']);
+        for(const property of Array.from(el.style)) if(!allowed.has(property)) el.style.removeProperty(property);
       }
     });
+    if(el.tagName==='A') el.setAttribute('rel','noopener noreferrer');
   });
   d.querySelectorAll('img').forEach(img=>{
-    const src=img.getAttribute('src')||img.src||'';
-    if(typeof isAllowedSyncMediaUrl === 'function' ? !isAllowedSyncMediaUrl(src) : (!src.startsWith('data:')&&!src.startsWith('https://drive.google.com/')&&!src.startsWith('https://lh3.googleusercontent.com/')))img.remove();
+    const src=img.getAttribute('src')||'';
+    const dataImage=/^data:image\/(png|jpe?g|gif|webp|bmp);base64,/i.test(src);
+    const remote=!/^data:/i.test(src) && !isDangerousUrl(src) && (typeof isAllowedSyncMediaUrl==='function' ? isAllowedSyncMediaUrl(src) : /^https:\/\/(drive\.google\.com|lh[0-9]\.googleusercontent\.com)\//i.test(src));
+    if(!dataImage && !remote) img.remove();
   });
-  return d.innerHTML;
+  return template.innerHTML;
 }
 
 // ── Table topic type ──
@@ -178,7 +189,7 @@ function tableCellHtml(html){
   const id = newTableCellId();
   return `<td><div class="rich-editor-wrap table-cell-editor">
       <div class="rich-toolbar mini"><button type="button" class="rich-btn" onclick="richAddImage('${id}')" title="Insert image">🖼</button></div>
-      <div class="rich-content" id="${id}" contenteditable="true" data-placeholder="…">${html||''}</div>
+      <div class="rich-content" id="${id}" contenteditable="true" data-placeholder="…">${sanitizeRich(html||'')}</div>
       <input type="file" id="img_${id}" accept="image/*" style="display:none">
     </div></td>`;
 }
@@ -1039,7 +1050,7 @@ function enlargeCancelEdit(){
   if(_enlargeMeta.field === 'bodyText'){
     const el = document.getElementById(_enlargeMeta.viewId);
     if(el){
-      el.innerHTML = _enlargeMeta.snapshot || '';
+      el.innerHTML = sanitizeRich(_enlargeMeta.snapshot || '');
       el.contentEditable = 'false';
       el.classList.remove('plain-text-editing');
     }

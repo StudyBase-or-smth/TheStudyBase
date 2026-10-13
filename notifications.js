@@ -205,7 +205,8 @@ function sbNotifyLoad(){
 }
 
 function sbNotifySave(items){
-  const next = sbNotifyFinalize(items);
+  const me = sbNotifyMe();
+  const next = me && me.role === 'dev' ? sbNotifyFinalize(items) : items;
   _sbNotifyItems = next;
   const payload = next.length ? { items: next } : {};
   if(typeof sbPushToSync !== 'function') return Promise.resolve(next);

@@ -14,3 +14,5 @@ Coolify settings:
 Set BASECOMPUTER_SYNC_URL to the backend's full HTTPS /sync URL and PROGRAM_SYNC_URL to your local backend URL. Make both available during build. Remote pages use BASECOMPUTER_SYNC_URL; local/file pages use PROGRAM_SYNC_URL. The backend's STUDYBASE_ALLOWED_ORIGINS must include the frontend origin.
 
 Pages and assets are served directly from this folder; there is no dist directory or copying build. Push source changes and redeploy to update the hosted website. For local edits, run the config generator once, serve this folder with a static web server, and refresh the page.
+
+Security update: deploy this website with the matching backend update. Lobby joins use the authenticated /api/joinLobby endpoint. Media uses five-minute read-only tickets from /api/mediaTicket instead of Firebase login tokens in URLs. No additional Coolify environment variables are needed. Refresh the page after restarting or redeploying the backend.

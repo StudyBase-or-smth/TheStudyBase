@@ -1,0 +1,7 @@
+.git
+.netlify
+node_modules
+.env
+.env.*
+secrets.json
+StudyBaseData

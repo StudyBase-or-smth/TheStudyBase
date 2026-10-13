@@ -591,22 +591,16 @@
       promptPassword(code);
       return false;
     }
-    if (lobby.passwordHash) {
-      const hash = await sha256hex(password);
-      if (hash !== lobby.passwordHash) {
-        showToast('Wrong password', 'error');
-        return false;
-      }
-    }
-    await patchLobby(code, L => {
-      L.players = Array.isArray(L.players) ? L.players : [];
-      if (!L.players.some(p => p.uid === myUid())) {
-        L.players.push({ uid: myUid(), name: myName(), score: 0, answers: {} });
-      } else {
-        const me = L.players.find(p => p.uid === myUid());
-        me.name = myName();
-      }
+
+    const joined = await sbAuthorizedFetch(sbApiUrl('/api/joinLobby'), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, password: password || '' })
     });
+    if (!joined.ok) {
+      const result = await joined.json();
+      showToast(result.error || 'Could not join lobby', 'error');
+      return false;
+    }
     if (lobby.visibility === 'public') {
       const next = await loadLobby(code);
       if (next) upsertPublic(next).catch(() => {});
