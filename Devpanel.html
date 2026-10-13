@@ -301,6 +301,7 @@ body.dark .console-log .c-warn{color:#fbbf24}
   let programLogLastId = 0;
   let programLogTimer = null;
   let programLogRetry = false;
+  let programLogError = '';
 
   function programLogClass(level){
     if(level === 'error') return 'c-err';
@@ -323,7 +324,9 @@ body.dark .console-log .c-warn{color:#fbbf24}
         return pullProgramLogs();
       }
       programLogRetry = false;
-      if(!res.ok) return;
+      if(!res.ok) throw await sbResponseError(res, 'Program logs');
+      if(programLogError) consoleAppend('c-log', 'Connected to StudyBaseProgram');
+      programLogError = '';
       const data = await res.json();
       const rows = Array.isArray(data.logs) ? data.logs : [];
       if(!rows.length) return;
@@ -338,7 +341,12 @@ body.dark .console-log .c-warn{color:#fbbf24}
         consoleAppend(programLogClass(entry.level), formatProgramLine(entry));
       });
       if(data.lastId && data.lastId > programLogLastId) programLogLastId = data.lastId;
-    }catch(e){ programLogRetry = false; }
+    }catch(e){
+      programLogRetry = false;
+      const message = e.message || 'Could not connect to StudyBaseProgram';
+      if(message !== programLogError) consoleAppend('c-err', message);
+      programLogError = message;
+    }
   }
   function startProgramLogPoll(){
     if(programLogTimer) return;

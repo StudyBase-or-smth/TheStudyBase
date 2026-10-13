@@ -110,7 +110,7 @@ async function sbRefreshMediaTicket(token) {
   if (!_sbMediaTicketPending) _sbMediaTicketPending = fetch(syncMediaOrigin() + '/api/mediaTicket', {
     headers: sbStoreAuthHeaders(token), cache: 'no-store', signal: AbortSignal.timeout(10000)
   }).then(async res => {
-    if (!res.ok) throw new Error('Media authorization failed');
+    if (!res.ok) throw await sbResponseError(res, 'Media authorization');
     _sbMediaTicket = { ...(await res.json()), token };
   }).finally(() => { _sbMediaTicketPending = null; });
   await _sbMediaTicketPending;
@@ -120,10 +120,21 @@ function sbGetIdToken(){
     if(!user) return '';
     return user.getIdToken().then(async token => {
       _sbIdToken = token || '';
-      if (token) await sbRefreshMediaTicket(token);
+      if (token) {
+        try { await sbRefreshMediaTicket(token); }
+        catch (error) { console.warn('Media unavailable:', error.message); }
+      }
       return _sbIdToken;
     });
-  }).catch(() => '');
+  });
+}
+async function sbResponseError(res, action) {
+  const raw = await res.text();
+  let detail = '';
+  try { detail = JSON.parse(raw).error || ''; } catch(e) {
+    if (!raw.trim().startsWith('<')) detail = raw.slice(0, 200);
+  }
+  return new Error(action + ' failed (HTTP ' + res.status + ')' + (detail ? ': ' + detail : ''));
 }
 function sbStoreAuthHeaders(token){
   if(!token) return {};
@@ -181,8 +192,8 @@ function sbPushToSync(key, data){
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body.toString()
-  }).then(res => {
-    if(!res.ok) throw new Error('sync failed');
+  }).then(async res => {
+    if(!res.ok) throw await sbResponseError(res, 'Sync');
   });
   const pending = (_sbWriteQueue.get(key) || Promise.resolve()).catch(() => {}).then(send);
   _sbWriteQueue.set(key, pending);
@@ -322,8 +333,8 @@ else _sbDiskNotify();
 
 // Retain the existing helper name for callers; transport is authenticated fetch.
 function sbJsonp(url){
-  return sbAuthorizedFetch(url, { timeout: 8000 }).then(res => {
-    if(!res.ok) throw new Error('sync failed');
+  return sbAuthorizedFetch(url, { timeout: 8000 }).then(async res => {
+    if(!res.ok) throw await sbResponseError(res, 'Sync');
     return res.json();
   });
 }
