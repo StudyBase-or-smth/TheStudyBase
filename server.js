@@ -10,10 +10,11 @@
 //   GET/POST _profile_<uid>  →  users/<uid>/profile.json
 //   GET/POST _analyser_<uid> / _analyser_draft_<uid>  →  analyser/<uid>/history.json and draft.json
 //
-// Lives in this folder with the data it manages.
+// Program files (start.bat / start.sh / server.js) live in this folder.
+// Data lives in StudyBaseData/ next to those starters.
 // Override with env: STUDYBASE_DATA_DIR, PORT, STUDYBASE_PUBLIC_URL,
 //   STUDYBASE_WEBSITE_DIR, STUDYBASE_PICK_WEBSITE, STUDYBASE_OPEN_BROWSER
-// Website folder is stored in website.json and served at http://127.0.0.1:PORT/
+// Website folder is stored in StudyBaseData/website.json and served at http://127.0.0.1:PORT/
 
 'use strict';
 
@@ -23,18 +24,21 @@ const path = require('path');
 const { spawn, spawnSync } = require('child_process');
 const { URL } = require('url');
 const querystring = require('querystring');
+const { runProgramCommand, RESTART_EXIT } = require('./program-commands');
 
 const PORT = parseInt(process.env.PORT || '8787', 10);
-const DATA_DIR = process.env.STUDYBASE_DATA_DIR || __dirname;
+const PROGRAM_DIR = __dirname;
+const DATA_DIR = process.env.STUDYBASE_DATA_DIR || path.join(PROGRAM_DIR, 'StudyBaseData');
 const JSON_DIR = path.join(DATA_DIR, 'json');
 const FILES_DIR = path.join(DATA_DIR, 'files');
 const USERS_DIR = path.join(DATA_DIR, 'users');
 const ANALYSER_DIR = path.join(DATA_DIR, 'analyser');
 const WEBSITE_CONFIG = path.join(DATA_DIR, 'website.json');
-const WEB_BLOCK_DIRS = new Set(['.git', 'node_modules']);
+const WEB_BLOCK_DIRS = new Set(['.git', 'node_modules', 'studybasedata']);
+const LEGACY_DATA_NAMES = ['json', 'files', 'users', 'analyser', 'secrets.json', 'website.json'];
 const WEB_BLOCK_FILES = new Set(['secrets.json', '.env', 'website.json']);
 const PHOTO_NAMES = ['photo.jpg', 'photo.jpeg', 'photo.png', 'photo.webp', 'photo.gif', 'photo.bmp'];
-const MAX_BODY = 12 * 1024 * 1024;
+const MAX_BODY = 28 * 1024 * 1024;
 const MAX_FILE = 8 * 1024 * 1024;
 const KEY_RE = /^[A-Za-z0-9._-]{1,120}$/;
 const CB_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
@@ -75,7 +79,21 @@ const WEB_MIME = Object.assign({
   '.webp': 'image/webp',
 }, EXT_MIME);
 
+function migrateLegacyData() {
+  if (path.resolve(DATA_DIR) === path.resolve(PROGRAM_DIR)) return;
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  LEGACY_DATA_NAMES.forEach(name => {
+    const from = path.join(PROGRAM_DIR, name);
+    const to = path.join(DATA_DIR, name);
+    if (!fs.existsSync(from)) return;
+    if (path.resolve(from) === path.resolve(to)) return;
+    if (fs.existsSync(to)) return;
+    try { fs.renameSync(from, to); } catch (e) {}
+  });
+}
+
 function ensureDirs() {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.mkdirSync(JSON_DIR, { recursive: true });
   fs.mkdirSync(FILES_DIR, { recursive: true });
   fs.mkdirSync(USERS_DIR, { recursive: true });
@@ -770,13 +788,17 @@ function isSyncPath(pathname) {
   return pathname === '/sync';
 }
 
+let standaloneApi = null;
 let handleStandaloneApi = null;
 try {
-  handleStandaloneApi = require('./api').handleApi;
+  standaloneApi = require('./api');
+  handleStandaloneApi = standaloneApi.handleApi;
 } catch (e) {
+  standaloneApi = null;
   handleStandaloneApi = null;
 }
 
+migrateLegacyData();
 ensureDirs();
 websiteDir = loadWebsiteDir();
 if (!websiteReady() && process.env.STUDYBASE_PICK_WEBSITE === '1') {
@@ -791,6 +813,7 @@ if (!websiteReady() && process.env.STUDYBASE_PICK_WEBSITE === '1') {
 }
 
 const server = http.createServer(async (req, res) => {
+  try {
   const url = new URL(req.url || '/', 'http://' + (req.headers.host || '127.0.0.1'));
   const pathname = url.pathname.replace(/\/+$/, '') || '/';
 
@@ -861,7 +884,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(503, { 'Content-Type': 'application/json; charset=utf-8' });
       return res.end(JSON.stringify({ error: 'Standalone API module is missing (api.js)' }));
     }
-    return handleStandaloneApi(req, res, url, { dataDir: DATA_DIR, readBody });
+    return await handleStandaloneApi(req, res, url, { dataDir: DATA_DIR, readBody });
   }
 
   if (req.method === 'GET' && pathname === '/' && url.searchParams.has('key')) {
@@ -895,7 +918,58 @@ const server = http.createServer(async (req, res) => {
   }
 
   send(res, 404, 'text/plain', 'not found');
+  } catch (err) {
+    const status = (err && err.statusCode) || 500;
+    const message = (err && err.message) || 'Unexpected server error';
+    console.error('Request failed:', message);
+    if (!res.headersSent) {
+      cors(res);
+      res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ error: message }));
+    }
+  }
 });
+
+process.on('unhandledRejection', (reason) => {
+  const message = reason && reason.message ? reason.message : String(reason);
+  console.error('Unhandled promise rejection:', message);
+});
+
+function applyProgramAction(result) {
+  if (!result || (result.action !== 'stop' && result.action !== 'restart')) return;
+  const code = result.action === 'restart' ? RESTART_EXIT : 0;
+  setTimeout(() => {
+    try { server.close(() => process.exit(code)); } catch (e) { process.exit(code); }
+    setTimeout(() => process.exit(code), 1500);
+  }, 200);
+}
+
+if (standaloneApi && typeof standaloneApi.setProgramActionHandler === 'function') {
+  standaloneApi.setProgramActionHandler(applyProgramAction);
+}
+
+function attachProgramStdin() {
+  if (!process.stdin || typeof process.stdin.on !== 'function') return;
+  process.stdin.setEncoding('utf8');
+  let buf = '';
+  process.stdin.on('data', chunk => {
+    buf += String(chunk);
+    let nl;
+    while ((nl = buf.search(/\r?\n/)) !== -1) {
+      const line = buf.slice(0, nl).replace(/\r$/, '');
+      buf = buf.slice(nl + (buf[nl] === '\r' ? 2 : 1));
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      if (standaloneApi && typeof standaloneApi.pushProgramLog === 'function') {
+        standaloneApi.pushProgramLog('log', '> ' + trimmed);
+      }
+      const result = runProgramCommand(trimmed);
+      console.log(result.message);
+      applyProgramAction(result);
+    }
+  });
+  try { process.stdin.resume(); } catch (e) {}
+}
 
 server.listen(PORT, '0.0.0.0', () => {
   const origin = 'http://127.0.0.1:' + PORT;
@@ -908,6 +982,8 @@ server.listen(PORT, '0.0.0.0', () => {
   } else {
     console.log('  website: (none — open ' + origin + '/_status to choose a folder)');
   }
+  console.log('  commands: stop (twice to exit), restart  — type in this window');
+  attachProgramStdin();
   if (process.env.STUDYBASE_OPEN_BROWSER === '1') {
     openBrowser(origin + (websiteReady() ? '/' : '/_status'));
   }

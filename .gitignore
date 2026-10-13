@@ -2,3 +2,7 @@ node_modules/
 secrets.json
 .env
 *.log
+
+# Local program dependencies and runtime data
+node_modules/
+StudyBaseData/

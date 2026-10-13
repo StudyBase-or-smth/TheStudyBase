@@ -1,16 +1,25 @@
-// Standalone replacements for Netlify /api/* functions.
-// Loaded by StudyBaseData/server.js. Secrets come from secrets.json
-// in the data folder, or from environment variables of the same names.
+// /api/* for the StudyBaseData server.
+// Loaded by server.js. Secrets come from StudyBaseData/secrets.json
+// (or STUDYBASE_DATA_DIR), or from environment variables of the same names.
 
 'use strict';
 
 const fs = require('fs');
 const path = require('path');
+const { runProgramCommand } = require('./program-commands');
 
 const ALLOWED_ROLES_SIGNUP = ['student', 'teacher'];
 const ALLOWED_ROLES_ASSIGN = ['student', 'teacher', 'dev'];
 const AVATAR_HOST = /^(lh\d\.googleusercontent\.com|drive\.google\.com)$/i;
 const AVATAR_MAX = 500 * 1024;
+const GRADE_MAX_PROMPT = 8000;
+const GRADE_MAX_DOCS = 2;
+const GRADE_MAX_DOC_BYTES = 8 * 1024 * 1024;
+const RESOLVE_WINDOW_MS = 10 * 60 * 1000;
+const RESOLVE_MAX_PER_WINDOW = 30;
+const resolveHits = new Map();
+const SIGNIN_USER_CACHE_MS = 30 * 1000;
+let signInUserCache = { at: 0, users: [] };
 
 let adminMod = null;
 let adminInitError = null;
@@ -59,7 +68,7 @@ function getAdmin(secrets) {
     try {
       adminMod = require('firebase-admin');
     } catch (e) {
-      adminInitError = { statusCode: 503, message: 'firebase-admin is not installed. Run npm install in the StudyBaseData folder.' };
+      adminInitError = { statusCode: 503, message: 'firebase-admin is not installed. Run npm install in the program folder (next to start.bat / start.sh).' };
       throw adminInitError;
     }
   }
@@ -111,8 +120,90 @@ function routeName(pathname) {
   return pathname.replace(/^\/api\/?/, '').replace(/\/+$/, '');
 }
 
+const PROGRAM_LOG_MAX = 500;
+const programLogs = [];
+let programLogSeq = 0;
+let programConsoleHooked = false;
+
+function formatProgramLogArgs(args) {
+  return args.map(a => {
+    if (a instanceof Error) return a.stack || a.message;
+    if (typeof a === 'string') return a;
+    try { return JSON.stringify(a); } catch (e) { return String(a); }
+  }).join(' ');
+}
+
+function pushProgramLog(level, text) {
+  programLogSeq += 1;
+  programLogs.push({
+    id: programLogSeq,
+    ts: Date.now(),
+    level: String(level || 'log'),
+    text: String(text == null ? '' : text).slice(0, 4000),
+  });
+  if (programLogs.length > PROGRAM_LOG_MAX) {
+    programLogs.splice(0, programLogs.length - PROGRAM_LOG_MAX);
+  }
+}
+
+function hookProgramConsole() {
+  if (programConsoleHooked) return;
+  programConsoleHooked = true;
+  ['log', 'info', 'warn', 'error'].forEach(level => {
+    const orig = console[level].bind(console);
+    console[level] = function () {
+      orig.apply(console, arguments);
+      pushProgramLog(level, formatProgramLogArgs(Array.prototype.slice.call(arguments)));
+    };
+  });
+}
+
+async function handleProgramLogsGet(req, res, secrets, url) {
+  await requireDev(req, secrets);
+  const after = parseInt(url.searchParams.get('after') || '0', 10) || 0;
+  const logs = programLogs.filter(e => e.id > after);
+  return sendJson(res, 200, { logs, lastId: programLogSeq });
+}
+
+async function handleProgramLogPost(req, res, secrets, readBody) {
+  await requireDev(req, secrets);
+  const body = await parseJsonBody(req, readBody);
+  const text = String(body.text == null ? '' : body.text).trim().slice(0, 2000);
+  if (!text) return sendJson(res, 400, { error: 'Missing text' });
+  const level = body.level === 'error' || body.level === 'warn' ? body.level : 'log';
+  console[level]('[devpanel] ' + text);
+  return sendJson(res, 200, { ok: true, id: programLogSeq });
+}
+
+let programActionHandler = null;
+function setProgramActionHandler(fn) {
+  programActionHandler = typeof fn === 'function' ? fn : null;
+}
+
+async function handleProgramCommand(req, res, secrets, readBody) {
+  await requireDev(req, secrets);
+  const body = await parseJsonBody(req, readBody);
+  const line = String(body.command || body.line || body.text || '').trim();
+  if (!line) return sendJson(res, 400, { error: 'Missing command' });
+  const result = runProgramCommand(line);
+  console.log('[devpanel] > ' + line);
+  console.log('[devpanel] ' + result.message);
+  if (programActionHandler) programActionHandler(result);
+  return sendJson(res, 200, result);
+}
+
 async function handleDesmosKey(res, secrets) {
   sendJson(res, 200, { apiKey: secrets.DESMOS_API_KEY || '' });
+}
+
+function handleFirebaseConfig(res, secrets) {
+  const projectId = String((secrets && secrets.FIREBASE_PROJECT_ID) || '').trim();
+  if (!projectId) return sendJson(res, 503, { error: 'Firebase web config is not set' });
+  sendJson(res, 200, {
+    projectId,
+    authDomain: projectId + '.firebaseapp.com',
+    storageBucket: projectId + '.firebasestorage.app',
+  });
 }
 
 function allowedAvatarUrl(raw) {
@@ -152,6 +243,69 @@ async function handleAvatar(url, res) {
   res.end(buf);
 }
 
+function parseGradeDocuments(raw) {
+  if (raw == null) return [];
+  if (!Array.isArray(raw)) {
+    throw { statusCode: 400, message: 'documents must be an array' };
+  }
+  if (raw.length > GRADE_MAX_DOCS) {
+    throw { statusCode: 400, message: 'Too many documents (max ' + GRADE_MAX_DOCS + ')' };
+  }
+  const out = [];
+  for (const d of raw) {
+    if (!d || typeof d !== 'object') {
+      throw { statusCode: 400, message: 'Invalid document' };
+    }
+    const mime = String(d.mime || d.media_type || 'application/pdf').toLowerCase();
+    if (mime !== 'application/pdf') {
+      throw { statusCode: 400, message: 'Only PDF documents are accepted' };
+    }
+    if (typeof d.data !== 'string' || !d.data.length) {
+      throw { statusCode: 400, message: 'Document data missing' };
+    }
+    const compact = d.data.replace(/\s/g, '');
+    if (compact.length > Math.ceil(GRADE_MAX_DOC_BYTES * 4 / 3) + 64) {
+      throw { statusCode: 400, message: 'Document is too large' };
+    }
+    let buf;
+    try {
+      buf = Buffer.from(compact, 'base64');
+    } catch (e) {
+      throw { statusCode: 400, message: 'Document is not valid base64' };
+    }
+    if (buf.length < 5 || buf.length > GRADE_MAX_DOC_BYTES) {
+      throw { statusCode: 400, message: 'Document is too large' };
+    }
+    if (buf.slice(0, 4).toString('latin1') !== '%PDF') {
+      throw { statusCode: 400, message: 'Document is not a PDF' };
+    }
+    out.push({
+      name: String(d.name || 'document.pdf').slice(0, 80),
+      mime: 'application/pdf',
+      data: compact,
+    });
+  }
+  return out;
+}
+
+function geminiGradeParts(prompt, documents) {
+  const parts = documents.map(d => ({
+    inline_data: { mime_type: 'application/pdf', data: d.data },
+  }));
+  parts.push({ text: prompt });
+  return parts;
+}
+
+function claudeGradeContent(prompt, documents) {
+  if (!documents.length) return prompt;
+  const content = documents.map(d => ({
+    type: 'document',
+    source: { type: 'base64', media_type: 'application/pdf', data: d.data },
+  }));
+  content.push({ type: 'text', text: prompt });
+  return content;
+}
+
 async function handleGrade(req, res, secrets, readBody) {
   const body = await parseJsonBody(req, readBody);
   const { provider, prompt, userKey } = body;
@@ -162,21 +316,35 @@ async function handleGrade(req, res, secrets, readBody) {
   if (decoded.status !== 'active') {
     return sendJson(res, 403, { error: 'Account must be approved before using AI marking.' });
   }
+  if (prompt.length > GRADE_MAX_PROMPT) {
+    return sendJson(res, 400, { error: 'Prompt is too long' });
+  }
+  if (userKey && String(userKey).length > 200) {
+    return sendJson(res, 400, { error: 'Invalid user key' });
+  }
+  let documents;
+  try {
+    documents = parseGradeDocuments(body.documents);
+  } catch (e) {
+    return sendJson(res, e.statusCode || 400, { error: e.message || 'Invalid documents' });
+  }
 
   if (provider === 'claude') {
     const apiKey = (userKey && String(userKey).trim()) || secrets.CLAUDE_API_KEY;
     if (!apiKey) return sendJson(res, 500, { error: 'No Claude API key configured on server and none provided by user.' });
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    };
+    if (documents.length) headers['anthropic-beta'] = 'pdfs-2024-09-25';
     const up = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
+      headers,
       body: JSON.stringify({
         model: 'claude-sonnet-5',
         max_tokens: 1500,
-        messages: [{ role: 'user', content: prompt }],
+        messages: [{ role: 'user', content: claudeGradeContent(prompt, documents) }],
       }),
     });
     const data = await up.json();
@@ -199,7 +367,7 @@ async function handleGrade(req, res, secrets, readBody) {
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+        body: JSON.stringify({ contents: [{ parts: geminiGradeParts(prompt, documents) }] }),
       }
     );
     const data = await up.json();
@@ -256,6 +424,67 @@ async function listAuthUsers(admin) {
     nextPageToken = page.pageToken;
   } while (nextPageToken);
   return users;
+}
+
+function clientIp(req) {
+  return (req && req.socket && req.socket.remoteAddress) || 'anon';
+}
+
+function resolveAllowed(ip) {
+  const now = Date.now();
+  const id = String(ip || 'anon');
+  const hits = (resolveHits.get(id) || []).filter(t => now - t < RESOLVE_WINDOW_MS);
+  if (hits.length >= RESOLVE_MAX_PER_WINDOW) {
+    resolveHits.set(id, hits);
+    return false;
+  }
+  hits.push(now);
+  resolveHits.set(id, hits);
+  return true;
+}
+
+function normSignInName(s) {
+  return String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function findSignInEmail(users, rawName) {
+  const needle = normSignInName(rawName);
+  if (!needle) return { status: 400, error: 'Enter your name or email.' };
+  if (needle.length > 100) return { status: 400, error: 'That name is too long.' };
+  const named = (users || []).filter(u => u.email && u.displayName);
+  const exact = named.filter(u => normSignInName(u.displayName) === needle);
+  if (exact.length === 1) return { email: exact[0].email };
+  if (exact.length > 1) return { status: 409, error: 'Several people have that name — sign in with email.' };
+  if (needle.length < 3) return { status: 404, error: 'No account found with that name. Try your email.' };
+  const loose = named.filter(u => {
+    const n = normSignInName(u.displayName);
+    return n.startsWith(needle) || n.split(' ')[0] === needle;
+  });
+  if (loose.length === 1) return { email: loose[0].email };
+  if (loose.length > 1) return { status: 409, error: 'Several people have that name — sign in with email.' };
+  return { status: 404, error: 'No account found with that name. Try your email.' };
+}
+
+async function listSignInUsers(admin) {
+  const now = Date.now();
+  if (now - signInUserCache.at < SIGNIN_USER_CACHE_MS && signInUserCache.users.length) {
+    return signInUserCache.users;
+  }
+  const users = await listAuthUsers(admin);
+  signInUserCache = { at: now, users };
+  return users;
+}
+
+async function handleResolveSignIn(req, res, secrets, readBody) {
+  if (!resolveAllowed(clientIp(req))) {
+    return sendJson(res, 429, { error: 'Too many attempts. Try again later.' });
+  }
+  const body = await parseJsonBody(req, readBody);
+  const raw = body.name != null ? body.name : body.displayName;
+  const users = await listSignInUsers(getAdmin(secrets));
+  const found = findSignInEmail(users, raw);
+  if (found.error) return sendJson(res, found.status || 404, { error: found.error });
+  return sendJson(res, 200, { email: found.email });
 }
 
 async function handleGetAllUsers(req, res, secrets) {
@@ -333,21 +562,35 @@ async function handleApi(req, res, url, opts) {
 
   try {
     if (name === 'desmosKey' && method === 'GET') return handleDesmosKey(res, secrets);
-    if (name === 'avatar' && method === 'GET') return handleAvatar(url, res);
-    if (name === 'grade' && method === 'POST') return handleGrade(req, res, secrets, readBody);
-    if (name === 'registerRole' && method === 'POST') return handleRegisterRole(req, res, secrets, readBody);
-    if ((name === 'getAllUsers') && (method === 'GET' || method === 'POST')) return handleGetAllUsers(req, res, secrets);
-    if ((name === 'getPendingUsers') && (method === 'GET' || method === 'POST')) return handleGetPendingUsers(req, res, secrets);
-    if (name === 'approveUser' && method === 'POST') return handleApproveUser(req, res, secrets, readBody);
-    if (name === 'rejectUser' && method === 'POST') return handleRejectUser(req, res, secrets, readBody);
+    if (name === 'firebaseConfig' && method === 'GET') return handleFirebaseConfig(res, secrets);
+    if (name === 'avatar' && method === 'GET') return await handleAvatar(url, res);
+    if (name === 'grade' && method === 'POST') return await handleGrade(req, res, secrets, readBody);
+    if (name === 'registerRole' && method === 'POST') return await handleRegisterRole(req, res, secrets, readBody);
+    if (name === 'resolveSignIn' && method === 'POST') return await handleResolveSignIn(req, res, secrets, readBody);
+    if ((name === 'getAllUsers') && (method === 'GET' || method === 'POST')) return await handleGetAllUsers(req, res, secrets);
+    if ((name === 'getPendingUsers') && (method === 'GET' || method === 'POST')) return await handleGetPendingUsers(req, res, secrets);
+    if (name === 'approveUser' && method === 'POST') return await handleApproveUser(req, res, secrets, readBody);
+    if (name === 'rejectUser' && method === 'POST') return await handleRejectUser(req, res, secrets, readBody);
     if ((name === 'updateUserName' || name === 'Updateusername') && method === 'POST') {
-      return handleUpdateUserName(req, res, secrets, readBody);
+      return await handleUpdateUserName(req, res, secrets, readBody);
+    }
+    if ((name === 'programLogs' || name === 'programLog') && method === 'GET') {
+      return await handleProgramLogsGet(req, res, secrets, url);
+    }
+    if ((name === 'programLogs' || name === 'programLog') && method === 'POST') {
+      return await handleProgramLogPost(req, res, secrets, readBody);
+    }
+    if (name === 'programCommand' && method === 'POST') {
+      return await handleProgramCommand(req, res, secrets, readBody);
     }
     return sendJson(res, 404, { error: 'Unknown API route' });
   } catch (err) {
-    const statusCode = err.statusCode || 500;
-    return sendJson(res, statusCode, { error: err.message || 'Unexpected server error' });
+    const statusCode = (err && err.statusCode) || 500;
+    const message = (err && err.message) || 'Unexpected server error';
+    if (!res.headersSent) return sendJson(res, statusCode, { error: message });
   }
 }
 
-module.exports = { handleApi, loadSecrets };
+module.exports = { handleApi, loadSecrets, hookProgramConsole, setProgramActionHandler, pushProgramLog };
+
+hookProgramConsole();

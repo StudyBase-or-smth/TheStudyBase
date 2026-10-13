@@ -20,8 +20,19 @@ if [ -t 0 ]; then
   export STUDYBASE_OPEN_BROWSER=1
 fi
 echo "Starting StudyBase local sync on http://127.0.0.1:${PORT}"
-echo "Data folder: $(pwd)"
+echo "Data folder: ${STUDYBASE_DATA_DIR:-$(pwd)/StudyBaseData}"
 if [ -z "${STUDYBASE_WEBSITE_DIR:-}" ] && [ ! -f website.json ]; then
   echo "If no website folder is saved yet, a folder window will open."
 fi
-exec "$NODE" server.js
+echo "Type stop (twice) or restart in this window."
+while true; do
+  "$NODE" server.js
+  code=$?
+  if [ "$code" -eq 75 ]; then
+    echo "Restarting..."
+    unset STUDYBASE_OPEN_BROWSER
+    unset STUDYBASE_PICK_WEBSITE
+    continue
+  fi
+  exit "$code"
+done

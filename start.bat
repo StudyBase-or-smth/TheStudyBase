@@ -4,11 +4,20 @@ cd /d "%~dp0"
 set STUDYBASE_PICK_WEBSITE=1
 set STUDYBASE_OPEN_BROWSER=1
 echo Starting StudyBase local sync on http://127.0.0.1:8787
-echo Data folder: %~dp0
+echo Data folder: %~dp0StudyBaseData
 echo Keep this window open while you use the site locally.
 echo If no website folder is saved yet, a folder window will open.
+echo Type stop (twice) or restart in this window.
 echo.
+
+:run
 node server.js
+if errorlevel 75 if not errorlevel 76 (
+  echo Restarting...
+  set STUDYBASE_OPEN_BROWSER=
+  set STUDYBASE_PICK_WEBSITE=
+  goto run
+)
 if errorlevel 1 (
   echo.
   echo Server stopped with an error. Is Node.js installed?
