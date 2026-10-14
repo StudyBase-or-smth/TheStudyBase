@@ -29,7 +29,10 @@ function escapeHtml(str){
 async function loadBranchVersion() {
   const badge = document.getElementById('branch-badge');
   if (!badge) return;
+  badge.hidden = window.userRole !== 'dev';
+  if (badge.hidden) return;
   const apply = data => {
+    if (window.userRole !== 'dev') { badge.hidden = true; return; }
     const branch  = data.branch  || 'unknown';
     const version = data.version || '0.0.0';
     const date    = data.date    || 'unknown';
@@ -49,6 +52,7 @@ async function loadBranchVersion() {
     if (!res.ok) throw new Error('not found');
     apply(await res.json());
   } catch (e) {
+    if (window.userRole !== 'dev') { badge.hidden = true; return; }
     badge.innerHTML = '<strong>dev</strong> · Local';
     badge.style.cssText = 'font-size:11px;white-space:nowrap;color:#e0c200';
   }
@@ -321,6 +325,7 @@ function renderSidebar() {
   if (document.getElementById('markerSection')) {
     document.getElementById('markerSection').innerHTML = `
       <div class="tools-list">
+        <a href="graphing.html" class="tool-btn">📈 Graphing tool</a>
         <a href="analyser.html" class="tool-btn">📍 Analyser Tool</a>
         <a href="HSC/HSC.html" class="tool-btn">🎓 HSC Quiz Tool</a>
         <a href="KnowledgeCompetition/KnowledgeCompetition.html" class="tool-btn">🏆 Knowledge Competition</a>

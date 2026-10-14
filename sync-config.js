@@ -39,7 +39,6 @@ function programApiOrigin(){
 
 const LOCAL_SYNC_URL = PROGRAM_SYNC_URL;
 const SYNC_URL = resolvedSyncUrl();
-const DESMOS_API_KEY = '7339116aaed4438899621e81f10dd250';
 
 function sbApiOrigin(){
   return programApiOrigin();
@@ -564,6 +563,7 @@ function normalizeTopic(raw){
     desmosState: null
   };
   Object.assign(t, topicContentFromRaw(src, layout));
+  if(t.desmosState && typeof StudyGraph !== 'undefined') t.desmosState = StudyGraph.migrate(t.desmosState);
   if(!Array.isArray(t.keyPoints)) t.keyPoints = [];
   if(!t.tableData || typeof t.tableData !== 'object') t.tableData = emptyTableData();
   return t;

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graphing tool — StudyBase</title>
+  <link rel="icon" href="icon.png" type="image/png">
+  <link rel="stylesheet" href="fonts.css">
+  <link rel="stylesheet" href="mainstyle.css">
+  <link rel="stylesheet" href="qol.css">
+  <link rel="stylesheet" href="graphing.css">
+  <script src="sync-config.generated.js"></script>
+  <script src="sync-config.js"></script>
+</head>
+<body class="graphing-page">
+  <header class="hdr-outer">
+    <a class="accent-bar is-back" href="index.html" title="Back to Index" aria-label="Back to Index"></a>
+    <div class="hdr-main"><div class="hdr-top">
+      <a class="logo-block graphing-home" href="index.html" aria-label="StudyBase home">
+        <span class="logo-icon2"><img src="icon.png" alt="" width="24" height="24"></span>
+        <span><span class="logo-text2">StudyBase</span><span class="logo-sub-txt">EXPERIMENTAL TOOLS</span></span>
+      </a>
+      <nav class="hdr-breadcrumb" aria-label="Breadcrumb"><a class="bc-link" href="index.html">Index</a><span class="bc-sep" aria-hidden="true">›</span><h1 class="bc-current">Graphing tool</h1></nav>
+      <div class="hdr-right-row">
+        <button class="hdr-ghost" id="toggleProjects" type="button" aria-controls="projectsSidebar" aria-expanded="true">Hide projects</button>
+        <div class="hdr-notify-wrap" id="hdrNotifyWrap" hidden>
+          <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications"><span aria-hidden="true">🔔</span><span class="hdr-notify-badge" id="hdrNotifyBadge" hidden></span></button>
+          <div class="hdr-notify-tip" id="hdrNotifyTip"></div>
+        </div>
+        <div class="hdr-profile-wrap">
+          <button class="hdr-ghost hdr-profile" id="hdrProfileBtn" type="button" aria-label="Profile and notifications" aria-controls="hdrProfileTip" aria-expanded="false"><span class="hdr-profile-face">👤</span></button>
+          <div class="hdr-profile-tip" id="hdrProfileTip">
+            <div class="pt-top"><span class="pt-name">Account</span><div class="pt-actions"><button type="button" class="pt-dark" onclick="toggleDark()" aria-label="Toggle dark mode">🌙</button></div></div>
+            <p class="qol-muted" id="graphingAccountStatus">Loading account…</p>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </header>
+  <button class="graphing-scrim" id="projectsScrim" type="button" aria-label="Close projects" hidden tabindex="-1"></button>
+  <main class="graphing-workspace">
+    <aside class="sidebar graphing-projects" id="projectsSidebar" aria-label="Projects">
+      <div class="graphing-projects-heading"><h2>Projects</h2><button id="closeProjects" class="hdr-ghost" type="button" aria-label="Close projects">×</button><button id="newProject" class="qol-button" type="button">+ New</button></div>
+      <p class="graphing-storage-note">Saved on this device</p>
+      <div id="projectList" class="scroll-y"></div>
+    </aside>
+    <section class="graphing-main" aria-label="Graph workspace">
+      <div class="graphing-project-toolbar">
+        <div class="graphing-project-title">
+          <label class="graphing-label" for="projectName">Project name</label>
+          <input id="projectName" maxlength="100" value="Untitled project" autocomplete="off">
+          <span id="projectState">Unsaved project</span>
+        </div>
+        <div class="graphing-actions">
+          <button type="button" id="viewProject" class="qol-button" disabled>View</button>
+          <button type="button" id="shareProject" class="qol-button" disabled>Share</button>
+          <button type="button" id="saveProject" class="qol-button primary" disabled>Save project</button>
+        </div>
+      </div>
+      <p id="graphingStatus" class="graphing-status" role="status" aria-live="polite"></p>
+      <div id="graphingCanvas" class="graphing-canvas"><p class="graphing-loading">Loading graph…</p></div>
+      <div class="graphing-project-footer">
+        <span id="viewNote">Build your graph, then switch to View to explore its values.</span>
+        <button id="deleteProject" class="qol-button danger" type="button" hidden>Delete project</button>
+      </div>
+    </section>
+  </main>
+  <dialog id="shareDialog" class="qol-dialog graphing-dialog" aria-labelledby="shareTitle">
+    <div class="qol-dialog-heading"><h2 id="shareTitle">Share graph</h2><button type="button" id="closeShare" class="hdr-ghost" aria-label="Close sharing">×</button></div>
+    <p>Anyone with this link can view this snapshot and explore its values. Later edits to your project won’t change the shared graph.</p>
+    <label class="graphing-label" for="shareLink">Graph link</label>
+    <input id="shareLink" readonly>
+    <button type="button" id="copyShare" class="qol-button primary">Copy link</button>
+    <p id="shareStatus" role="status" aria-live="polite"></p>
+  </dialog>
+  <script src="subject/graph-editor.js?v=graphing-tool1"></script>
+  <script src="subjects.js"></script>
+  <script>window.isGuest = true;</script>
+  <script src="profile-store.js"></script>
+  <script src="notifications.js"></script>
+  <script src="graphing.js"></script>
+  <script src="qol.js"></script>
+  <script src="graphing-shell.js"></script>
+  <script type="module" src="graphing-account.js"></script>
+</body>
+</html>

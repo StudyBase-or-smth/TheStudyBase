@@ -696,8 +696,7 @@ body.subject-page .rich-btn{background:var(--card2)!important}body.dark.subject-
   }body.subject-page .hdr-breadcrumb{ display: none !important; }body.subject-page .hdr-right-row{
     margin-left: auto !important;
     gap: 4px !important;
-  }body.subject-page #syncStatus,
-body.subject-page #syncCountdown{ display: none !important; }body.subject-page .overlay{
+  }body.subject-page #syncCountdown{ display: none !important; }body.subject-page .overlay{
     padding: 0 !important;
     align-items: flex-end !important;
   }body.subject-page .modal{
@@ -940,29 +939,21 @@ body.subject-page .data-table thead th{background:var(--card2);color:var(--text)
 body.subject-page .data-table tbody tr:nth-child(even){background:var(--card2)}
 body.subject-page .data-table td img{max-width:100%;height:auto;border-radius:4px;display:block;margin:4px 0}
 
-/* ══════════════════════════════════════════════
-   DESMOS GRAPH field — math topic type. The Desmos calculator sizes
-   itself to fill its container, so both containers below need an
-   explicit height. desmosEditorUnavailable/desmosViewUnavailable only
-   ever show when DESMOS_API_KEY isn't configured yet (see
-   the separate backend API) — styled as an actionable notice
-   rather than a plain empty-note, since it's aimed at whoever runs the
-   site, not the student reading the topic.
-   ══════════════════════════════════════════════ */
-body.subject-page .desmos-editor-wrap,
-body.subject-page .desmos-view-wrap{border:1px solid var(--border);border-radius:8px;overflow:hidden}
-body.subject-page .desmos-calculator{width:100%;height:360px}
-body.subject-page .desmos-view-calc{width:100%;height:420px}
-body.subject-page .desmos-unavailable{background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;font-size:12.5px;line-height:1.6;padding:12px 14px;margin:0}
-body.subject-page .desmos-unavailable code{background:rgba(0,0,0,.06);border-radius:3px;padding:1px 5px;font-family:'JetBrains Mono',monospace;font-size:11.5px}
-body.dark.subject-page .desmos-unavailable{background:#1f1208!important;border-color:#4d2c10!important;color:#f0b07a!important}
-body.dark.subject-page .desmos-unavailable code{background:rgba(255,255,255,.08)!important}
-body.subject-page .desmos-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;width:100%;background:var(--card2);color:var(--muted);font-size:12.5px}
-body.subject-page .desmos-spinner{width:22px;height:22px;border:2.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:desmosSpin .7s linear infinite}
-@keyframes desmosSpin{to{transform:rotate(360deg)}}
+/* Math graph containers. */
+body.subject-page .graph-editor-wrap,
+body.subject-page .graph-view-wrap{border:1px solid var(--border);border-radius:8px;overflow:hidden}
+body.subject-page .graph-calculator{width:100%;height:360px}
+body.subject-page .graph-view-calc{width:100%;height:420px}
+body.subject-page .graph-unavailable{background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;font-size:12.5px;line-height:1.6;padding:12px 14px;margin:0}
+body.subject-page .graph-unavailable code{background:rgba(0,0,0,.06);border-radius:3px;padding:1px 5px;font-family:'JetBrains Mono',monospace;font-size:11.5px}
+body.dark.subject-page .graph-unavailable{background:#1f1208!important;border-color:#4d2c10!important;color:#f0b07a!important}
+body.dark.subject-page .graph-unavailable code{background:rgba(255,255,255,.08)!important}
+body.subject-page .graph-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;width:100%;background:var(--card2);color:var(--muted);font-size:12.5px}
+body.subject-page .graph-spinner{width:22px;height:22px;border:2.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:graphSpin .7s linear infinite}
+@keyframes graphSpin{to{transform:rotate(360deg)}}
 
 /* ══════════════════════════════════════════════
-   EXPAND CONTROLS — fullscreen / ~80%-enlarge buttons on the Desmos
+   EXPAND CONTROLS — fullscreen / ~80%-enlarge buttons on the math
    Graph, Main Text (text layout), and PDF Document sections. See
    expandBtnsHtml()/expandFullscreen()/expandEnlarge() in
    subjectapp.js / classapp.js.
@@ -977,16 +968,16 @@ body.subject-page .enlarge-overlay.open{display:flex}
 body.subject-page .enlarge-box{position:relative;width:80vw;height:80vh;background:var(--card);border:1px solid var(--border2);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.35);padding:16px;box-sizing:border-box;animation:pop .18s cubic-bezier(.34,1.4,.64,1)}
 body.subject-page .enlarge-close{position:absolute;top:10px;right:10px;z-index:5}
 body.subject-page .enlarge-slot{width:100%;height:100%;overflow:auto}
-body.subject-page .enlarge-slot .desmos-view-calc.enlarged-active,
+body.subject-page .enlarge-slot .graph-view-calc.enlarged-active,
 body.subject-page .enlarge-slot .pdf-viewer.enlarged-active,
-body.subject-page .enlarge-slot .desmos-calculator.enlarged-active{width:100%;height:100%}
+body.subject-page .enlarge-slot .graph-calculator.enlarged-active{width:100%;height:100%}
 body.subject-page .enlarge-slot .plain-text.enlarged-active{width:100%;height:100%;font-size:16px;padding:8px;box-sizing:border-box}
 body.subject-page .enlarge-slot .rich-content.enlarged-active{width:100%;height:100%;box-sizing:border-box;font-size:16px}
 
 /* Fullscreen — the UA stylesheet already sizes the :fullscreen element to
    fill the screen; these just make the content inside reflow well */
-body.subject-page .desmos-view-calc:fullscreen,
-body.subject-page .desmos-calculator:fullscreen{width:100vw;height:100vh}
+body.subject-page .graph-view-calc:fullscreen,
+body.subject-page .graph-calculator:fullscreen{width:100vw;height:100vh}
 body.subject-page .plain-text:fullscreen{width:100vw;height:100vh;overflow:auto;padding:40px;background:var(--card);box-sizing:border-box;font-size:17px}
 body.subject-page .pdf-viewer:fullscreen{width:100vw;height:100vh}
 /* Invert only the bitmap — chrome (border/letterbox/background) stays on .pdf-viewer-stage */
@@ -997,7 +988,7 @@ body.subject-page .enlarge-slot{display:flex;justify-content:center;align-items:
 body.subject-page .enlarge-slot .pdf-viewer-img.enlarged-active{max-width:100%;max-height:100%;width:auto;height:auto}
 body.subject-page .rich-content:fullscreen{width:100vw;height:100vh;overflow:auto;padding:40px;box-sizing:border-box;font-size:17px;background:var(--card2)}
 
-/* Editor-side field label row (Desmos Graph) that also carries expand
+/* Editor-side field label row (Graph) that also carries expand
    buttons — same .sh-expand-btn/.sh-expand-btns as the read view */
 body.subject-page .form-l-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 body.subject-page .form-l-row .form-l{margin-bottom:6px}
@@ -1077,3 +1068,62 @@ body.subject-page .confirm-btns{display:flex;flex-wrap:wrap;gap:8px;justify-cont
 body.subject-page .confirm-btns .btn-cancel{margin-right:auto}
 body.subject-page .btn-del-keep{padding:8px 14px;border-radius:7px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
 body.subject-page .btn-del-keep:hover{border-color:var(--border2);background:var(--card)}
+
+/* Reusable math expression editor; theme colors follow the topic page. */
+.graph-editor{display:flex;min-height:360px;background:var(--card,#faf8f5);color:var(--text,#1c1917);box-sizing:border-box}
+.graph-expressions{width:260px;flex-shrink:0;overflow:auto;border-right:1px solid var(--border,#ddd);padding:10px;box-sizing:border-box}
+.graph-right{display:flex;flex-direction:column;flex:1;min-width:0;min-height:0}
+.graph-toolbar{display:flex;gap:8px;padding:8px;border-bottom:1px solid var(--border,#ddd)}
+.graph-board{flex:1;min-height:300px;width:100%;border:0;touch-action:none}
+.graph-row{padding:8px 0;border-bottom:1px solid var(--border,#ddd)}
+.graph-row-line{display:flex;align-items:center;gap:6px}
+.graph-row input[type=text]{width:100%;min-width:0;background:var(--card2,#fff);color:var(--text,#222);border:1px solid var(--border,#ddd);border-radius:5px;padding:8px;font-family:'Cambria Math','STIX Two Math','Source Serif 4',serif;font-style:normal;font-size:17px;line-height:1.4}
+.graph-row input[type=text]::placeholder{font-family:var(--font-sans,'Inter',sans-serif);font-style:normal;font-size:13px}
+.graph-editor button{background:var(--card2,#fff);color:var(--text,#222);border:1px solid var(--border,#ddd);border-radius:5px;padding:5px 8px;font:inherit;font-size:12px;cursor:pointer}
+.graph-editor button.graph-dot{background:transparent;border:0;font-size:22px;padding:0}
+.graph-error{font-size:11px;color:#c74440;margin:4px 0;overflow-wrap:anywhere}
+.graph-row input[type=range]{width:100%}
+.graph-row .graph-parameter-value{width:100%;box-sizing:border-box;margin:4px 0;padding:6px 8px;border:1px solid var(--border,#ddd);border-radius:5px;background:var(--card2,#fff);color:var(--text,#222);font:inherit;font-size:13px}
+.graph-viewer-parameters{margin-bottom:8px}
+.graph-viewer-parameter{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px}
+.graph-viewer-parameter input{width:100%;min-width:0;padding:6px 8px;border:1px solid var(--border,#ddd);border-radius:5px;background:var(--card2,#fff);color:var(--text,#222);font:inherit}
+.graph-formula>.graph-row-line{cursor:pointer;list-style:none}
+.graph-formula>.graph-row-line::-webkit-details-marker{display:none}
+.graph-formula .graph-expression-field input{cursor:pointer}
+.graph-formula .graph-formula-values{margin:8px 0 0 18px;padding-left:12px;border-left:2px solid var(--border,#ddd)}
+.graph-formula .graph-viewer-parameter{display:grid;grid-template-columns:36px minmax(0,1fr)}
+.dark .graph-board svg text{fill:#e8e3dc!important}
+.dark .graph-board .JXGtext{color:#e8e3dc!important}
+.graph-expressions>button{margin-top:10px}
+.graph-input-help{font-size:12px;line-height:1.5;color:var(--muted,#666);padding-bottom:10px;border-bottom:1px solid var(--border,#ddd)}
+.graph-input-help p{margin:0 0 8px}
+.graph-examples{display:flex;flex-wrap:wrap;gap:5px}
+.graph-editor .graph-examples button{font-size:11px;padding:4px 7px}
+.graph-toolbar .graph-notation{margin-left:auto}
+.graph-toolbar .graph-notation[aria-pressed="true"]{background:var(--border,#ddd)}
+.graph-toolbar .graph-info{font-size:16px}
+.graph-computer-notation .graph-row input[type=text]{font-family:'JetBrains Mono',monospace;font-size:13px}
+.graph-expression-field{position:relative;flex:1;min-width:0}
+.graph-expression-highlight{display:none}
+.graph-computer-notation .graph-expression-highlight{display:block;position:absolute;inset:1px;padding:8px;white-space:pre;overflow:hidden;font:normal 13px/1.4 'JetBrains Mono',monospace;color:var(--text,#222);pointer-events:none}
+.graph-computer-notation .graph-expression-field input[type=text]{color:transparent;caret-color:var(--text,#222)}
+.graph-computer-notation .graph-expression-field input[type=text]::placeholder{color:var(--muted,#666)}
+@media(forced-colors:active){.graph-computer-notation .graph-expression-highlight{display:none}.graph-computer-notation .graph-expression-field input[type=text]{color:CanvasText}}
+.graph-input-help[hidden]{display:none}
+.graph-symbols{display:flex;gap:6px;margin-bottom:8px}
+.graph-editor .graph-symbols button{min-width:32px;font-family:'Cambria Math','STIX Two Math','Source Serif 4',serif;font-size:18px;padding:3px 8px}
+.graph-editor .graph-symbols button{font-style:normal}
+body.subject-page .hdr-outer{position:relative}
+body.subject-page #syncStatus{position:absolute;left:50%;top:26px;transform:translate(-50%,-50%);margin:0;z-index:2;white-space:nowrap;pointer-events:none;background:var(--card);padding:3px 8px;border-radius:5px}
+body.subject-page #syncStatus:empty{display:none}
+body.subject-page #syncStatus.ok{animation:sync-status-fade .3s ease 3s forwards}
+body.subject-page #syncStatus.err{animation:sync-status-pop .4s cubic-bezier(.2,.8,.3,1.3)}
+@keyframes sync-status-fade{to{opacity:0;visibility:hidden}}
+@keyframes sync-status-pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}70%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+body.subject-page .inline-edit-root .section[data-block="formula"]{overflow:visible}
+body.subject-page .rich-toolbar.mini .symbol-picker-panel{left:auto;right:0}
+body.subject-page .inline-edit-root .section[data-block="formula"]{position:relative}
+body.subject-page .inline-edit-root .section[data-block="formula"] .section-header{padding-right:100px}
+body.subject-page .inline-edit-root .section[data-block="formula"] .rich-editor-wrap{position:static}
+body.subject-page .inline-edit-root .section[data-block="formula"] .rich-toolbar.mini{position:absolute;right:12px;top:4px;padding:0;background:transparent;border:0}
+@media(max-width:600px){.graph-editor{flex-direction:column;height:auto!important}.graph-expressions{width:100%;max-height:220px;border-right:0;border-bottom:1px solid var(--border,#ddd)}.graph-right{min-height:320px}}

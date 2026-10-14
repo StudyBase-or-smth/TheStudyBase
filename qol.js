@@ -83,15 +83,15 @@
     });
   }
   function motionEnabled() { const p = read('preferences',{}); return p.animations === true || (p.animations !== false && !(typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches)); }
-  function applyPreferences() { const p = read('preferences', {}); document.body.classList.toggle('qol-wide', p.width === 'wide'); document.body.classList.toggle('qol-compact', p.density === 'compact'); document.body.classList.toggle('qol-allow-animation',p.animations === true); document.body.classList.toggle('qol-no-animation',!motionEnabled()); if(!motionEnabled()) document.getAnimations?.().forEach(animation => animation.cancel()); }
+  function applyPreferences() { const p = read('preferences', {}); document.querySelectorAll('[data-qol-preference]').forEach(control => { const key = control.dataset.qolPreference; if(key === 'animations') control.checked = motionEnabled(); else control.value = p[key] || control.options[0].value; }); document.body.classList.toggle('qol-wide', p.width === 'wide'); document.body.classList.toggle('qol-compact', p.density === 'compact'); document.body.classList.toggle('qol-allow-animation',p.animations === true); document.body.classList.toggle('qol-no-animation',!motionEnabled()); if(!motionEnabled()) document.getAnimations?.().forEach(animation => animation.cancel()); }
   function renderPreferences(content) {
       for(const [key,label,options] of [['width','Content width',[['standard','Comfortable'],['wide','Wide — tables and diagrams']]],['density','Spacing',[['comfortable','Comfortable'],['compact','Compact']]]]) {
         const row = node('label','qol-setting'); row.append(node('span','',label)); const select = node('select');
         for(const [value,text] of options) { const o = node('option','',text); o.value = value; select.append(o); }
-        select.value = read('preferences',{})[key] || options[0][0]; select.addEventListener('change',() => { write('preferences',{...read('preferences',{}),[key]:select.value}); applyPreferences(); window.dispatchEvent(new Event('resize')); }); row.append(select); content.append(row);
+        select.dataset.qolPreference = key; select.value = read('preferences',{})[key] || options[0][0]; select.addEventListener('change',() => { write('preferences',{...read('preferences',{}),[key]:select.value}); applyPreferences(); window.dispatchEvent(new Event('resize')); }); row.append(select); content.append(row);
       }
       const motion = node('label','qol-setting'); motion.append(node('span','','Animations'));
-      const toggle = node('input'); toggle.type = 'checkbox'; toggle.checked = motionEnabled();
+      const toggle = node('input'); toggle.type = 'checkbox'; toggle.dataset.qolPreference = 'animations'; toggle.checked = motionEnabled();
       toggle.addEventListener('change',() => { write('preferences',{...read('preferences',{}),animations:toggle.checked}); applyPreferences(); });
       motion.append(toggle); content.append(motion);
   }
@@ -192,7 +192,7 @@
     document.querySelectorAll('button').forEach(el => { if(!el.getAttribute('aria-label') && !el.textContent.trim()) el.setAttribute('aria-label',el.title || el.dataset.tip || 'Action'); });
     continueCard();
   }
-  window.SBQoL = { read, write, node, button, dialog, notify, linkFor, root, record, recordActivity, search, preferences, catalogs, motionEnabled };
+  window.SBQoL = { read, write, node, button, dialog, notify, linkFor, root, record, recordActivity, search, preferences, catalogs, motionEnabled, applyPreferences };
   window.openHubStat = function(kind){
     const subjects = typeof hubSubjects === 'function' ? hubSubjects() : catalogs().filter(s => !s.isClass);
     dialog({topics:'Topics',units:'Units',subjects:'Subjects'}[kind] || 'Overview',content => {

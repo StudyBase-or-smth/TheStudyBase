@@ -1,5 +1,7 @@
 StudyBase is a static website. Its API/sync backend is maintained separately in Backend-server-program.
 
+See [DESIGN.md](DESIGN.md) for shared styling, header, sidebar, and topic-tree rules, including when page-specific exceptions are appropriate.
+
 Run npm run build to generate sync-config.generated.js in this folder. The generator has no dependencies. It reads BASECOMPUTER_SYNC_URL and PROGRAM_SYNC_URL from the build environment, with independent defaults of http://127.0.0.1:8787/sync. The generated file is ignored by Git. These are public backend URLs; never include credentials in them.
 
 Coolify settings:

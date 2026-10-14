@@ -2,6 +2,12 @@
   "name": "thestudybase",
   "private": true,
   "scripts": {
-    "build": "node scripts/build-config.js"
+    "build": "node scripts/build-config.js",
+    "test": "node --test tests"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0",
+    "jsxgraph": "1.11.1",
+    "mathjs": "15.2.0"
   }
 }

@@ -111,8 +111,8 @@
         <span class="bc-sep" id="hdrTopicSep" style="display:none">›</span>
         <span class="bc-current" id="hdrTopicName" style="display:none"></span>
       </div>
+      <span id="syncStatus" style="font-size:11px;font-weight:600"></span>
       <div class="hdr-right-row">
-        <span id="syncStatus" style="font-size:11px;font-weight:600"></span>
         <button class="hdr-ghost hdr-sync" onclick="syncPull()" data-tip="Sync now" aria-label="Sync now">⟳<span id="syncCountdown"></span></button>
         <button class="hdr-ghost" onclick="openSuggestions()" data-tip="Suggestions" aria-label="Suggestions">📝</button>
         <button class="hdr-ghost" id="btnFlashcards" onclick="window.location.href='flashcards.html#'" data-tip="Flashcards" aria-label="Flashcards">🃏</button>
@@ -247,16 +247,16 @@
     </div>
     <div class="form-g" data-layout-group="math">
       <div class="form-l-row">
-        <label class="form-l">Desmos Graph <span>— build the graph below; it saves with the topic</span></label>
+        <label class="form-l">Graph <span>— build the graph below; it saves with the topic</span></label>
         <span class="sh-expand-btns">
-          <button type="button" class="sh-expand-btn" onclick="expandEnlarge('desmosEditorCalc')" title="Pop out">⤢</button>
-          <button type="button" class="sh-expand-btn" onclick="expandFullscreen('desmosEditorCalc')" title="Fullscreen">⛶</button>
+          <button type="button" class="sh-expand-btn" onclick="expandEnlarge('graphEditorCalc')" title="Pop out">⤢</button>
+          <button type="button" class="sh-expand-btn" onclick="expandFullscreen('graphEditorCalc')" title="Fullscreen">⛶</button>
         </span>
       </div>
-      <div class="desmos-editor-wrap">
-        <div class="desmos-calculator" id="desmosEditorCalc"></div>
-        <div class="desmos-loading" id="desmosEditorLoading" style="height:360px"><span class="desmos-spinner"></span>Loading graphing calculator…</div>
-        <p class="desmos-unavailable" id="desmosEditorUnavailable" style="display:none">Desmos graphing isn't configured yet — set <code>DESMOS_API_KEY</code> in <code>sync-config.js</code>.</p>
+      <div class="graph-editor-wrap">
+        <div class="graph-calculator" id="graphEditorCalc"></div>
+        <div class="graph-loading" id="graphEditorLoading" style="height:360px"><span class="graph-spinner"></span>Loading graphing calculator…</div>
+        <p class="graph-unavailable" id="graphEditorUnavailable" style="display:none">Graph libraries could not load. Check your connection.</p>
       </div>
     </div>
     <div class="form-g" data-layout-group="pdf">
@@ -359,7 +359,7 @@
 </div>
 
 <!-- Shared "enlarge" overlay (~80% of viewport) used by expand buttons on
-     the Desmos Graph / Main Text / PDF/Image Document sections. The actual
+     the Graph / Main Text / PDF/Image Document sections. The actual
      content node is moved into #enlargeSlot on open and moved back to its
      original spot on close — see expandEnlarge()/closeEnlarge() in
      topicapp.js. -->
@@ -411,6 +411,8 @@
 <script src="../profile-store.js"></script>
 <script src="../notifications.js"></script>
 <script>window.TOPIC_APP_MODE = 'class';</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.11.1/distrib/jsxgraph.css">
+<script src="graph-editor.js?v=linked-values3"></script>
 <script src="topicapp.js?v=qol1"></script>
 <script src="../qol.js"></script>
 <script src="topic-qol.js"></script>

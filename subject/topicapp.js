@@ -101,8 +101,8 @@ function applySubjectTheme(){
   if(btn) btn.textContent = on ? '☀️' : '🌙';
 })();
 window.onDarkModeChange = function(){
-  if(typeof desmosEditorCalc !== 'undefined' && desmosEditorCalc) desmosEditorCalc.updateSettings(desmosThemeOpts());
-  if(typeof desmosViewCalc !== 'undefined' && desmosViewCalc) desmosViewCalc.updateSettings(desmosThemeOpts());
+  if(typeof graphEditorCalc !== 'undefined' && graphEditorCalc) graphEditorCalc.updateSettings();
+  if(typeof graphViewCalc !== 'undefined' && graphViewCalc) graphViewCalc.updateSettings();
 };
 
 // ── Sidebar collapse (desktop) ──
@@ -323,134 +323,47 @@ function toggleImgInvert(el){
   el.classList.toggle('no-invert');
 }
 
-// ── Desmos graphing (math layout only) ──
-// The API key lives in ../sync-config.js (DESMOS_API_KEY), loaded before
-// this file. If that constant is empty, loadDesmosScript() falls back to
-// /api/desmosKey (Netlify env). Two independent live
-// Desmos.GraphingCalculator instances can exist at once: desmosEditorCalc
-// (the New/Edit topic modal) and desmosViewCalc (the detail panel). Both
-// must be .destroy()ed before their container is removed — Desmos holds a
-// WebGL context that isn't freed by discarding the DOM node.
-const DESMOS_API_VERSION = 'v1.12';
-let _desmosLoadPromise = null;
-let desmosEditorCalc = null;
-let desmosViewCalc = null;
-let editDesmosTouched = false;
-
-// Desmos doesn't auto-detect page theme, so we hand it explicit colors that
-// track StudyBase's dark-mode class and the active subject's accent color
-// (these are still "Beta" options per Desmos's docs, but well-supported).
-function desmosThemeOpts(){
-  const dark = document.body.classList.contains('dark');
-  const accent = (getComputedStyle(document.body).getPropertyValue('--accent') || '').trim();
-  return dark
-    ? { backgroundColor: '#252220', textColor: '#e8e3dc', accentColor: accent || '#7fb0e0' }
-    : { backgroundColor: '#faf8f5', textColor: '#1c1917', accentColor: accent || '#2f72dc' };
-}
-
-function injectDesmosScript(apiKey){
-  return new Promise(resolve => {
-    if(!apiKey){ resolve(false); return; }
-    if(window.Desmos){ resolve(true); return; }
-    const s = document.createElement('script');
-    s.src = `https://www.desmos.com/api/${DESMOS_API_VERSION}/calculator.js?apiKey=${encodeURIComponent(apiKey)}`;
-    s.onload = () => resolve(!!window.Desmos);
-    s.onerror = () => resolve(false);
-    document.head.appendChild(s);
-  });
-}
-
-function loadDesmosScript(){
-  if(_desmosLoadPromise) return _desmosLoadPromise;
-  const fromConfig = (typeof DESMOS_API_KEY === 'string' && DESMOS_API_KEY.trim()) ? DESMOS_API_KEY.trim() : '';
-  _desmosLoadPromise = fromConfig
-    ? injectDesmosScript(fromConfig)
-    : fetch((typeof sbApiUrl === 'function' ? sbApiUrl('/api/desmosKey') : '/api/desmosKey'))
-        .then(res => res.ok ? res.json() : { apiKey: '' })
-        .catch(() => ({ apiKey: '' }))
-        .then(data => injectDesmosScript((data && data.apiKey) || ''));
-  return _desmosLoadPromise;
-}
-
-async function mountDesmosEditor(state){
-  const container = document.getElementById('desmosEditorCalc');
-  const unavailable = document.getElementById('desmosEditorUnavailable');
-  const loading = document.getElementById('desmosEditorLoading');
+// JSXGraph editor and read-only topic viewer. Keep desmosState as the storage key.
+let graphEditorCalc = null, graphViewCalc = null, editGraphTouched = false;
+let graphEditorMount = 0, graphViewMount = 0;
+async function mountGraphEditor(state){
+  destroyGraphEditor();
+  const container = document.getElementById('graphEditorCalc');
   if(!container) return;
-  if(desmosEditorCalc){ desmosEditorCalc.destroy(); desmosEditorCalc = null; }
-  // Skip the spinner once the Desmos script is already loaded (window.Desmos
-  // set) — only the first mount per page actually has to wait on the network.
-  const alreadyLoaded = !!window.Desmos;
-  container.style.display = 'none';
+  const token = graphEditorMount;
+  const loading = document.getElementById('graphEditorLoading');
+  const unavailable = document.getElementById('graphEditorUnavailable');
+  if(loading) loading.style.display = '';
   if(unavailable) unavailable.style.display = 'none';
-  if(loading) loading.style.display = alreadyLoaded ? 'none' : '';
-  const ok = await loadDesmosScript();
-  if(document.getElementById('desmosEditorCalc') !== container) return; // modal closed/reopened while loading
-  if(loading) loading.style.display = 'none';
-  if(!ok){
-    container.style.display = 'none';
-    if(unavailable) unavailable.style.display = '';
-    return;
-  }
+  editGraphTouched = false;
+  try{
+    const calc = await StudyGraph.create(container, {state, isCurrent:()=>token === graphEditorMount && container.isConnected, onChange(){editGraphTouched = true; if(editSurface === 'inline') updateEditBatchButtons();}});
+    if(!calc) return;
+    if(token !== graphEditorMount || !container.isConnected){calc.destroy();return;}
+    graphEditorCalc = calc;
+  }catch(e){if(unavailable){unavailable.textContent = e.message; unavailable.style.display = '';}}
+  finally{if(loading) loading.style.display = 'none';}
+}
+function readGraphState(){return graphEditorCalc ? graphEditorCalc.getState() : null;}
+function destroyGraphEditor(){graphEditorMount++;if(graphEditorCalc){graphEditorCalc.destroy();graphEditorCalc=null;}}
+async function mountGraphView(t){
+  destroyGraphView();
+  const container = document.getElementById('graphViewCalc');
+  if(!container || !t.desmosState) return;
+  const token = graphViewMount;
+  const loading = document.getElementById('graphViewLoading');
+  const unavailable = document.getElementById('graphViewUnavailable');
   container.style.display = '';
-  if(unavailable) unavailable.style.display = 'none';
-  desmosEditorCalc = Desmos.GraphingCalculator(container, desmosThemeOpts());
-  let desmosReady = false;
-  editDesmosTouched = false;
-  desmosEditorCalc.observeEvent('change', () => {
-    if(!desmosReady) return;
-    editDesmosTouched = true;
-    if(editSurface === 'inline') updateEditBatchButtons();
-  });
-  if(state){ try{ desmosEditorCalc.setState(state); }catch(e){ desmosEditorCalc.setBlank(); } }
-  setTimeout(() => { desmosReady = true; editDesmosTouched = false; }, 0);
+  if(loading) loading.style.display = '';
+  try{
+    const calc = await StudyGraph.create(container,{state:t.desmosState,readOnly:true,isCurrent:()=>token === graphViewMount && container.isConnected});
+    if(!calc) return;
+    if(token !== graphViewMount || !container.isConnected){calc.destroy();return;}
+    graphViewCalc = calc;
+  }catch(e){if(unavailable){unavailable.textContent=e.message;unavailable.style.display='';}}
+  finally{if(loading) loading.style.display='none';}
 }
-
-function readDesmosState(){
-  return desmosEditorCalc ? desmosEditorCalc.getState() : null;
-}
-
-function destroyDesmosEditor(){
-  if(desmosEditorCalc){ desmosEditorCalc.destroy(); desmosEditorCalc = null; }
-}
-
-async function mountDesmosView(t){
-  const container = document.getElementById('desmosViewCalc');
-  const empty = document.getElementById('desmosViewEmpty');
-  const unavailable = document.getElementById('desmosViewUnavailable');
-  const loading = document.getElementById('desmosViewLoading');
-  if(!container) return; // not on a math-layout topic
-  if(!t.desmosState){
-    container.style.display = 'none';
-    if(loading) loading.style.display = 'none';
-    if(unavailable) unavailable.style.display = 'none';
-    if(empty) empty.style.display = '';
-    return;
-  }
-  if(empty) empty.style.display = 'none';
-  if(unavailable) unavailable.style.display = 'none';
-  container.style.display = 'none';
-  // Skip the spinner once the Desmos script is already loaded (window.Desmos
-  // set) — only the first mount per page actually has to wait on the network.
-  const alreadyLoaded = !!window.Desmos;
-  if(loading) loading.style.display = alreadyLoaded ? 'none' : '';
-  const ok = await loadDesmosScript();
-  if(document.getElementById('desmosViewCalc') !== container) return; // navigated away while loading
-  if(loading) loading.style.display = 'none';
-  if(!ok){
-    container.style.display = 'none';
-    if(unavailable) unavailable.style.display = '';
-    return;
-  }
-  container.style.display = '';
-  desmosViewCalc = Desmos.GraphingCalculator(container, Object.assign(
-    { expressions: false, settingsMenu: false, keypad: false }, desmosThemeOpts()));
-  desmosViewCalc.setState(t.desmosState);
-}
-
-function destroyDesmosView(){
-  if(desmosViewCalc){ desmosViewCalc.destroy(); desmosViewCalc = null; }
-}
+function destroyGraphView(){graphViewMount++;if(graphViewCalc){graphViewCalc.destroy();graphViewCalc=null;}}
 
 // ── Storage helpers ──
 const getTopics  = () => normalizeTopicList(sbMemGet(ST, []));
@@ -932,11 +845,11 @@ function buildInlineEditHtml(){
     ${inlineEditSection('basic', 'definition', '📝', 'Definition', `<textarea class="form-ta" id="fDefinition" rows="3" placeholder="A clear, concise definition…"></textarea>`)}
     ${inlineEditSection('overview text', 'bodyText', '📄', '<span id="bodyTextLabel">Overview</span>', inlineRichField('fBodyText', 'Write the overview or main text here…', 160))}
     ${inlineEditSection('basic overview text', 'keyPoints', '✦', '<span id="kpFieldLabel">Key Points</span>', `<div class="kp-list" id="kpList"></div><button type="button" class="btn-add-kp" onclick="addKpRow()">+ Add key point</button>`)}
-    ${inlineEditSection('basic math', 'formula', '∑', 'Formula / Equation', inlineRichField('fFormula', 'e.g. σ = F/A', 88, { mono: true, symbols: true }))}
-    ${inlineEditSection('math', 'desmos', '📐', 'Desmos Graph', `<div class="desmos-editor-wrap">
-      <div class="desmos-calculator" id="desmosEditorCalc"></div>
-      <div class="desmos-loading" id="desmosEditorLoading" style="height:360px"><span class="desmos-spinner"></span>Loading graphing calculator…</div>
-      <p class="desmos-unavailable" id="desmosEditorUnavailable" style="display:none">Desmos graphing isn't configured yet — set DESMOS_API_KEY in sync-config.js.</p>
+    ${inlineEditSection('basic math', 'formula', '∑', 'Formula / Equation', inlineRichField('fFormula', 'e.g. σ = F/A', 44, { mono: true, symbols: true }))}
+    ${inlineEditSection('math', 'desmos', '📐', 'Graph', `<div class="graph-editor-wrap">
+      <div class="graph-calculator" id="graphEditorCalc"></div>
+      <div class="graph-loading" id="graphEditorLoading" style="height:360px"><span class="graph-spinner"></span>Loading graphing calculator…</div>
+      <p class="graph-unavailable" id="graphEditorUnavailable" style="display:none">Graph libraries could not load. Check your connection.</p>
     </div>`)}
     ${inlineEditSection('pdf', 'pdfDoc', '📄', 'PDF / Image Document', `<input type="file" id="fPdfFile" accept="application/pdf,image/*" style="display:none" onchange="onPdfFileSelected(this)"><div id="pdfPreviewArea"></div>`)}
     ${inlineEditSection('table', 'tableData', '▦', 'Table', `<div class="table-editor-wrap"><table class="table-editor" id="tableEditorGrid"><thead><tr id="tableEditorHeadRow"></tr></thead><tbody id="tableEditorBody"></tbody></table></div>
@@ -958,9 +871,9 @@ function buildInlineEditHtml(){
 }
 
 // ── Expand controls (fullscreen / ~80%-enlarge) for select detail sections ──
-// Used by Desmos Graph, Main Text (text layout), and PDF/Image Document. The
+// Used by Graph, Main Text (text layout), and PDF/Image Document. The
 // "enlarge" mode MOVES the actual content node into a shared overlay
-// (rather than cloning it) so stateful content — the live Desmos
+// (rather than cloning it) so stateful content — the live graph
 // calculator, the PDF iframe — isn't duplicated or reloaded; it's moved
 // back to its original spot on close. Fullscreen uses the native
 // Fullscreen API directly on the content node, which works regardless of
@@ -994,7 +907,7 @@ function updateEnlargeToolbar(){
   const cancelBtn = document.getElementById('enlargeCancelBtn');
   if(!editBtn) return;
   const showEdit = _enlargeMeta && canEditTopic(_enlargeMeta.topicId) && !_enlargeMeta.editing
-    && (_enlargeMeta.field === 'bodyText' || _enlargeMeta.field === 'desmos');
+    && _enlargeMeta.field === 'bodyText';
   editBtn.style.display = showEdit ? '' : 'none';
   const editing = !!(_enlargeMeta && _enlargeMeta.editing);
   if(saveBtn) saveBtn.style.display = editing ? '' : 'none';
@@ -1017,7 +930,7 @@ function expandEnlarge(id, topicId, field){
 }
 
 function enlargeToggleEdit(){
-  if(!_enlargeMeta || !canEditTopic(_enlargeMeta.topicId)) return;
+  if(!_enlargeMeta || _enlargeMeta.field === 'desmos' || !canEditTopic(_enlargeMeta.topicId)) return;
   if(_enlargeMeta.field === 'bodyText'){
     const el = document.getElementById(_enlargeMeta.viewId);
     if(!el) return;
@@ -1030,17 +943,18 @@ function enlargeToggleEdit(){
     return;
   }
   if(_enlargeMeta.field === 'desmos'){
-    const state = desmosViewCalc ? desmosViewCalc.getState() : null;
-    destroyDesmosView();
+    const state = graphViewCalc ? graphViewCalc.getState() : (topicsSrc().find(t => t.id === _enlargeMeta.topicId)?.desmosState || null);
+    destroyGraphView();
     _enlargeOrigin = null;
     const slot = document.getElementById('enlargeSlot');
-    slot.innerHTML = `<div class="desmos-editor-wrap" style="width:100%;height:100%">
-      <div class="desmos-calculator" id="desmosEditorCalc" style="width:100%;height:100%"></div>
-      <div class="desmos-loading" id="desmosEditorLoading" style="display:none"></div>
+    slot.innerHTML = `<div class="graph-editor-wrap" style="width:100%;height:100%">
+      <div class="graph-calculator" id="graphEditorCalc" style="width:100%;height:100%"></div>
+      <div class="graph-loading" id="graphEditorLoading" style="display:none"></div>
+      <p class="graph-unavailable" id="graphEditorUnavailable" style="display:none"></p>
     </div>`;
     _enlargeMeta.editing = true;
-    _enlargeMeta.desmosSnapshot = state;
-    mountDesmosEditor(state);
+    _enlargeMeta.graphSnapshot = state;
+    mountGraphEditor(state);
     updateEnlargeToolbar();
   }
 }
@@ -1059,7 +973,7 @@ function enlargeCancelEdit(){
     return;
   }
   if(_enlargeMeta.field === 'desmos'){
-    destroyDesmosEditor();
+    destroyGraphEditor();
     _enlargeMeta = null;
     closeEnlarge(true);
     if(activeId) viewTopic(activeId, activeOrigin ? activeOrigin.id : null);
@@ -1087,8 +1001,9 @@ function enlargeSaveEdit(){
     return;
   }
   if(_enlargeMeta.field === 'desmos'){
-    const desmosState = readDesmosState();
-    destroyDesmosEditor();
+    const desmosState = readGraphState();
+    if(desmosState === null) return; // Preserve the saved graph while loading.
+    destroyGraphEditor();
     const topics = topicsSrc().map(x => x.id === t.id ? { ...x, desmosState, updatedAt: new Date().toISOString() } : x);
     saveTopicsForOrigin(origin, topics);
     _enlargeMeta = null;
@@ -1745,11 +1660,11 @@ function viewTopic(id, originId){
         `<div class="formula-box">${sanitizeRich(t.formula)}</div>`);
     }
     if(t.desmosState){
-      bodyHtml += sec('desmos', 'Desmos Graph', '📐', `<div class="desmos-view-wrap">
-        <div class="desmos-view-calc" id="desmosViewCalc" style="display:none"></div>
-        <div class="desmos-loading" id="desmosViewLoading" style="display:none;height:420px"><span class="desmos-spinner"></span>Loading graph…</div>
-        <p class="desmos-unavailable" id="desmosViewUnavailable" style="display:none">Desmos graphing isn't configured yet — set DESMOS_API_KEY in sync-config.js.</p>
-      </div>`, expandBtnsHtml('desmosViewCalc', {enlarge:true, fullscreen:true, topicId: t.id, enlargeField: 'desmos'}));
+      bodyHtml += sec('desmos', 'Graph', '📐', `<div class="graph-view-wrap">
+        <div class="graph-view-calc" id="graphViewCalc" style="display:none"></div>
+        <div class="graph-loading" id="graphViewLoading" style="display:none;height:420px"><span class="graph-spinner"></span>Loading graph…</div>
+        <p class="graph-unavailable" id="graphViewUnavailable" style="display:none">Graph libraries could not load. Check your connection.</p>
+      </div>`, expandBtnsHtml('graphViewCalc', {enlarge:true, fullscreen:true, topicId: t.id, enlargeField: 'desmos'}));
     }
   } else if(layout === 'text'){
     if(hasFieldContent(t.bodyText)){
@@ -1787,7 +1702,7 @@ function viewTopic(id, originId){
     ? `<span class="dh-unit" style="background:${origin.colour}22;color:${origin.colour};border-color:${origin.colour}55">${esc(origin.emoji||'🏫')} From ${esc(origin.name)}${origin.class?' · '+esc(origin.class):''}</span>`
     : '';
 
-  destroyDesmosView(); // the old container (if any) is about to be replaced below
+  destroyGraphView(); // the old container (if any) is about to be replaced below
   closeEnlarge(); // any enlarged content belongs to the topic being replaced
   el.innerHTML = `
       <div class="dh">
@@ -1814,7 +1729,7 @@ function viewTopic(id, originId){
   }
   _lastRenderedTopicKey = renderKey;
   buildTeacherPanel(t.id, visibleBlocks);
-  mountDesmosView(t);
+  mountGraphView(t);
   wireRichImages(el);
 
   // Breadcrumb: Index / Subject / [parent…] / Topic
@@ -1850,7 +1765,7 @@ function beginEditSession(id){
   const canEditClassTopic = activeOrigin && window.userRole === 'dev';
   editOrigin = (id && canEditClassTopic) ? activeOrigin : null;
   editId = id || null;
-  editDesmosTouched = false;
+  editGraphTouched = false;
 }
 
 function editDraftKey(id, origin){
@@ -1884,8 +1799,8 @@ function captureEditDraft(){
     tableData: (currentLayout === 'table' && typeof readTableData === 'function' && document.getElementById('tableEditorBody'))
       ? readTableData() : (ex.tableData || null),
     desmosState: (() => {
-      if(!editDesmosTouched) return ex.desmosState || null;
-      const ds = readDesmosState();
+      if(!editGraphTouched) return ex.desmosState || null;
+      const ds = readGraphState();
       return ds !== null ? ds : (ex.desmosState || null);
     })(),
     layout: currentLayout,
@@ -2091,7 +2006,7 @@ function restoreModalFormIds(){
 
 function finishEditSession(){
   closeLayoutMenu();
-  destroyDesmosEditor();
+  destroyGraphEditor();
   if(editSurface === 'inline'){
     const el = document.getElementById('detailContent');
     if(el) el.innerHTML = '';
@@ -2153,7 +2068,7 @@ function wireStickyEditHeader(){
 }
 
 function afterEditFormMounted(desmosState){
-  mountDesmosEditor(desmosState);
+  mountGraphEditor(desmosState);
   document.querySelectorAll('.rich-editor-wrap').forEach(attachRichDnD);
   wireRichImages(document.getElementById('detailContent'));
   wireRichImages(document.getElementById('topicEditPanel'));
@@ -2186,7 +2101,7 @@ function startInlineEdit(id, opts){
   }
   if(!editBatchDrafts) editBatchDrafts = {};
   closeEnlarge();
-  destroyDesmosView();
+  destroyGraphView();
   beginEditSession(id);
   const el = document.getElementById('detailContent');
   el.innerHTML = buildInlineEditHtml();
@@ -2644,7 +2559,7 @@ function saveTopic(){
   }).filter(Boolean);
   const topicsSrc = () => editOrigin ? topicsForOrigin(editOrigin) : getTopics();
   const ex = editId ? (topicsSrc().find(t => t.id===editId)||{}) : {};
-  const newDesmosState = readDesmosState();
+  const newDesmosState = readGraphState();
   let unit = (() => { const v = document.getElementById('fUnit').value; return v === '__add_unit__' ? '' : v; })();
   if(ex.parentId){
     const parent = topicsSrc().find(t => t.id === ex.parentId);
@@ -2756,7 +2671,7 @@ function closeTopicView(){
   activeId = null;
   activeOrigin = null;
   _lastRenderedTopicKey = null;
-  destroyDesmosView();
+  destroyGraphView();
   closeEnlarge();
   document.getElementById('welcomeState').style.display = '';
   const outer = document.getElementById('detailOuter');
@@ -3058,7 +2973,7 @@ function richAddImage(id){
 
 // ── Symbol picker (Formula/Equation field) ──
 // The formula field is plain contenteditable text, not LaTeX-aware like the
-// Desmos box, so this just inserts the literal Unicode character at the
+// graph editor, so this just inserts the literal Unicode character at the
 // cursor. Every symbol button uses onmousedown="event.preventDefault()" so
 // the browser never shifts focus/selection away from the formula field —
 // the click still fires and inserts at wherever the cursor already was.
@@ -3085,6 +3000,7 @@ function initSymbolPickers(){
 function toggleSymbolPicker(btn){
   const panel = btn.parentNode.querySelector('.symbol-picker-panel');
   if(!panel) return;
+  if(!panel.children.length && panel.dataset.target) panel.innerHTML = symbolPickerPanelHtml(panel.dataset.target);
   const isOpen = panel.classList.contains('open');
   closeSymbolPickers();
   if(!isOpen) panel.classList.add('open');
