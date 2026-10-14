@@ -278,7 +278,24 @@
     function theme(){const dark=document.body.classList.contains('dark');boardEl.style.background=dark?'#252220':'#faf8f5';Object.values(board.objects).forEach(o=>{if(o.elType==='axis')o.setAttribute({strokeColor:dark?'#b8b3ad':'#666666'});});board.update();}
     render();plot();theme();board.on('boundingbox',()=>{if(!resizing) notify();});
     const resize=new ResizeObserver(()=>{if(!dead && boardEl.clientWidth>0 && boardEl.clientHeight>0){resizing=true;try{board.resizeContainer(boardEl.clientWidth,boardEl.clientHeight,true);board.fullUpdate();}finally{resizing=false;}}});resize.observe(boardEl);
-    return {getState(){const b=board.getBoundingBox();const bounds={xmin:b[0],xmax:b[2],ymin:b[3],ymax:b[1]};return {...state,v:1,expressions:state.expressions.map(e=>({...e})),viewport:Object.values(bounds).every(Number.isFinite)?viewport(bounds):state.viewport,angleMode:degrees?'degrees':'radians',notation:computerNotation?'computer':'math'};},updateSettings:theme,destroy(){dead=true;clearTimeout(timer);resize.disconnect();root.JXG.JSXGraph.freeBoard(board);container.replaceChildren();}};
+    // Dedicated-tool export captures the current view, including temporary plotted points.
+    function exportSVG({width=1600,transparent=false}={}){
+      const source=boardEl.querySelector('svg');if(!source)throw Error('The graph is not ready to export.');
+      const rect=boardEl.getBoundingClientRect(),w=rect.width||Number(source.getAttribute('width'))||800,h=rect.height||Number(source.getAttribute('height'))||600;
+      const output=source.cloneNode(true),ns='http://www.w3.org/2000/svg',dark=document.body.classList.contains('dark');
+      output.setAttribute('xmlns',ns);output.setAttribute('viewBox','0 0 '+w+' '+h);output.setAttribute('width',String(width));output.setAttribute('height',String(Math.round(width*h/w)));
+      output.removeAttribute('style');
+      if(!transparent){const background=document.createElementNS(ns,'rect');background.setAttribute('width',String(w));background.setAttribute('height',String(h));background.setAttribute('fill',getComputedStyle(boardEl).backgroundColor|| (dark?'#252220':'#faf8f5'));output.prepend(background);}
+      boardEl.querySelectorAll('.JXGtext').forEach(label=>{
+        if(source.contains(label))return;
+        const position=label.getBoundingClientRect(),text=document.createElementNS(ns,'text'),style=getComputedStyle(label);
+        text.setAttribute('x',String(position.left-rect.left));text.setAttribute('y',String(position.top-rect.top+(parseFloat(style.fontSize)||12)));
+        text.setAttribute('fill',dark?'#e8e3dc':style.color||'#1c1917');text.setAttribute('font-family','Arial, sans-serif');text.setAttribute('font-size',style.fontSize||'12px');text.textContent=label.textContent;output.append(text);
+      });
+      if(dark)output.querySelectorAll('text').forEach(text=>text.setAttribute('fill','#e8e3dc'));
+      return new XMLSerializer().serializeToString(output);
+    }
+    return {getState(){const b=board.getBoundingBox();const bounds={xmin:b[0],xmax:b[2],ymin:b[3],ymax:b[1]};return {...state,v:1,expressions:state.expressions.map(e=>({...e})),viewport:Object.values(bounds).every(Number.isFinite)?viewport(bounds):state.viewport,angleMode:degrees?'degrees':'radians',notation:computerNotation?'computer':'math'};},exportSVG,updateSettings:theme,destroy(){dead=true;clearTimeout(timer);resize.disconnect();root.JXG.JSXGraph.freeBoard(board);container.replaceChildren();}};
   }
   root.StudyGraph={create,migrate,parse,latexToText};
   if(typeof module!=='undefined') module.exports=root.StudyGraph;

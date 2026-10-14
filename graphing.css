@@ -1,8 +1,5 @@
 .graphing-page{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 .graphing-workspace{display:flex;flex:1;min-height:0}
-.graphing-projects{width:272px;flex-shrink:0;padding:12px;border-right:1px solid var(--border);overflow:hidden;background:var(--card);display:flex;flex-direction:column;min-height:0}
-.graphing-projects-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.graphing-projects h2{font-size:13px;font-weight:600}
 .graphing-storage-note{font-size:11px;color:var(--muted);margin:8px 0 20px}
 .graphing-project-item{display:block;width:100%;text-align:left;margin-bottom:6px;padding:10px 12px;border:0;border-left:3px solid transparent;border-radius:7px;background:transparent;color:var(--text);font:inherit;cursor:pointer}
 .graphing-project-item[aria-current="true"]{border-left-color:var(--accent);background:var(--accent-l);color:var(--accent)}
@@ -33,8 +30,6 @@
 .graphing-page .hdr-top{height:auto;min-height:52px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
 .graphing-page .hdr-ghost{min-height:28px}
 .graphing-page .bc-link{color:var(--muted)}
-.graphing-projects[hidden],.graphing-scrim[hidden]{display:none}
-.graphing-projects h2{font:600 16px var(--font-serif);margin-right:auto}
 #projectList{flex:1;min-height:0;padding:3px}
 .graphing-project-item:hover{background:var(--card2)}
 .graphing-page button:disabled{opacity:.5;cursor:default}
@@ -63,13 +58,9 @@
 .graphing-canvas .graph-viewer-parameter::after{content:'•';position:absolute;left:-12px;top:50%;width:30px;border-top:1px solid var(--border2);text-align:right;line-height:0;color:var(--muted)}
 .graphing-dialog{padding:0 20px 20px;overflow:auto}
 .graphing-dialog .qol-dialog-heading{margin:0 -20px 16px}
-#closeProjects{display:none}
-.graphing-scrim{position:fixed;inset:0;z-index:590;background:rgba(28,25,23,.45);border:0}
-@media(min-width:701px) and (max-width:1100px){.graphing-projects{width:220px}.graphing-main{padding:20px}.graphing-canvas .graph-expressions{width:260px}}
 @media(max-width:700px){
  .graphing-page .hdr-top{padding:8px 10px;gap:8px}.graphing-page .hdr-breadcrumb{order:3;width:100%}
  .graphing-page .hdr-right-row{gap:4px}.graphing-page .hdr-ghost{min-height:36px}
- .graphing-projects{position:fixed;inset:0 auto 0 0;width:88vw;max-width:320px;z-index:600;padding:16px;box-shadow:0 8px 24px #0003}
  #closeProjects{display:flex}.graphing-main{padding:16px}.graphing-project-toolbar{gap:12px}.graphing-project-title{flex-basis:100%}
  .graphing-canvas{flex:none;min-height:560px;flex-direction:column}.graphing-canvas .graph-expressions{width:100%;max-height:260px;border-right:0;border-bottom:1px solid var(--border)}
  .graphing-canvas .graph-right{min-height:340px}.graphing-project-footer{align-items:flex-start}.graphing-page .qol-button,.graphing-canvas button{min-height:40px}
@@ -99,3 +90,28 @@
 .graphing-page.qol-no-animation .accent-bar{transition:none}
 .graphing-page.qol-no-animation .accent-bar::after{transition:none}
 @media(max-width:700px){.graphing-page .hdr-profile{width:36px;height:36px;min-height:36px}.graphing-page .hdr-right-row{flex-wrap:wrap}.graphing-page .hdr-profile-tip{position:fixed;top:calc(var(--graphing-header-bottom,92px) + 8px);right:16px}.graphing-page .qol-settings-menu{position:fixed;top:calc(var(--graphing-header-bottom,92px) + 8px);right:16px}}
+
+/* No project navigation sidebar: projects are selected in a dialog. */
+.graphing-workspace{display:block;overflow:hidden}
+.graphing-main{height:100%;width:100%}
+#projectsDialog{max-height:80dvh}
+#projectList{max-height:55dvh;overflow:auto}
+.graphing-image-option{display:flex;align-items:center;gap:8px;margin:12px 0 16px;font-size:13px}
+.graphing-image-option input{width:auto;margin:0}
+#imageWidth{margin-top:0}
+#imageFormat{margin-bottom:16px}
+.graphing-canvas .graph-expressions{width:var(--expression-width,290px)}
+.graphing-resizer{flex:0 0 9px;background:var(--card2);border-left:1px solid var(--border);border-right:1px solid var(--border);cursor:col-resize;position:relative;touch-action:none}
+.graphing-resizer::after{content:'';position:absolute;left:3px;top:calc(50% - 16px);width:1px;height:32px;background:var(--border2)}
+.graphing-resizer:hover,.graphing-resizer:focus-visible{background:var(--accent-l)}
+.graphing-resizing{user-select:none}
+@media(max-width:700px){
+ .graphing-main{padding:16px}.graphing-project-toolbar{gap:12px}.graphing-project-title{flex-basis:100%}
+ .graphing-canvas{flex:none;min-height:560px;flex-direction:column}
+ .graphing-canvas .graph-expressions{width:100%;height:var(--expression-height,260px);max-height:none;flex-shrink:0;border-right:0;border-bottom:0}
+ .graphing-canvas .graph-right{min-height:340px}
+ .graphing-resizer{flex-basis:12px;min-height:12px;cursor:row-resize;border-left:0;border-right:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+ .graphing-resizer::after{left:calc(50% - 16px);top:5px;width:32px;height:1px}
+ .graphing-page .qol-button,.graphing-canvas button{min-height:40px}
+ .graphing-actions{justify-content:flex-start}.graphing-project-footer{align-items:flex-start}
+}

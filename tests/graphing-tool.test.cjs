@@ -18,48 +18,29 @@ test('invalid shared data and oversized expressions are rejected',()=>{
   assert.throws(()=>project.cleanGraph({v:1,expressions:Array(101).fill({text:'x'})}));
 });
 
-function fixture(url='https://studybase.example/graphing.html',storage,mobile=false){
+function fixture(url='https://studybase.example/graphing.html',storage,mobile=false,recovery){
   const dom=new JSDOM(fs.readFileSync(require.resolve('../graphing.html'),'utf8'),{url,runScripts:'outside-only'}),w=dom.window,sessions=[];
   w.TextEncoder=TextEncoder;w.TextDecoder=TextDecoder;w.confirm=()=>true;
   w.matchMedia=()=>({matches:mobile,addEventListener(){}});
   w.isGuest=true;
   w.eval(fs.readFileSync(require.resolve('../profile-store.js'),'utf8'));
   if(storage)w.localStorage.setItem('studybase_graphing_projects_v1',storage);
-  w.StudyGraph={async create(container,options){const data=JSON.parse(JSON.stringify(options.state));const editor={data,options,getState(){return data;},destroy(){}};sessions.push(editor);return editor;}};
-  const dialog=w.document.getElementById('shareDialog');dialog.showModal=()=>dialog.open=true;dialog.close=()=>dialog.open=false;
+  if(recovery)w.localStorage.setItem('studybase_graphing_recovery_v1',recovery);
+  w.StudyGraph={async create(container,options){container.innerHTML='<div class="graph-expressions"></div><div class="graph-right"></div>';const data=JSON.parse(JSON.stringify(options.state));const editor={data,options,getState(){return data;},destroy(){}};sessions.push(editor);return editor;}};
+  w.document.querySelectorAll('dialog').forEach(dialog=>{dialog.showModal=()=>dialog.open=true;dialog.close=()=>dialog.open=false;});
   w.eval(fs.readFileSync(require.resolve('../graphing.js'),'utf8'));
   return {dom,w,sessions,byId:id=>w.document.getElementById(id)};
 }
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
 
-test('mobile projects drawer manages focus, dismissal, and background interaction',async()=>{
-  const {dom,w,byId}=fixture(undefined,undefined,true);await settle();
-  assert.equal(byId('projectsSidebar').hidden,true);
-  byId('toggleProjects').click();
-  assert.equal(byId('projectsSidebar').getAttribute('aria-modal'),'true');
-  assert.equal(w.document.querySelector('.graphing-main').inert,true);
-  assert.equal(w.document.activeElement,byId('closeProjects'));
-  byId('newProject').focus();w.document.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Tab',cancelable:true}));
-  assert.equal(w.document.activeElement,byId('closeProjects'));
-  w.document.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape'}));
-  assert.equal(byId('projectsSidebar').hidden,true);
-  assert.equal(w.document.querySelector('.graphing-main').inert,false);
-  assert.equal(w.document.activeElement,byId('toggleProjects'));
-  byId('toggleProjects').click();byId('projectsScrim').click();
-  assert.equal(byId('toggleProjects').getAttribute('aria-expanded'),'false');
-  dom.window.close();
-});
-
-test('desktop collapse and theme use persistent preferences without changing project state',async()=>{
+test('project picker replaces navigation sidebar and theme retains site preferences',async()=>{
   const {dom,w,byId}=fixture();await settle();
-  byId('toggleProjects').click();assert.equal(byId('projectsSidebar').hidden,true);
-  assert.equal(w.localStorage.getItem('studybase_graphing_sidebar_collapsed'),'1');
-  byId('toggleProjects').click();assert.equal(byId('projectsSidebar').hidden,false);
+  assert.equal(w.document.querySelector('aside'),null);
+  byId('openProjects').click();assert.equal(byId('projectsDialog').open,true);
+  byId('closeProjects').click();assert.equal(byId('projectsDialog').open,false);
   w.toggleDark();assert.equal(w.document.body.classList.contains('dark'),true);
   assert.equal(w.localStorage.getItem('studybase_dark'),'1');
-  assert.equal(w.document.querySelector('.pt-dark').textContent,'☀️');
-  assert.equal(byId('projectState').textContent,'Unsaved project');
-  dom.window.close();
+  assert.equal(byId('projectState').textContent,'Unsaved project');dom.window.close();
 });
 
 test('shared profile and settings popovers support keyboard dismissal and scoped preferences',async()=>{
@@ -77,6 +58,65 @@ test('shared profile and settings popovers support keyboard dismissal and scoped
   assert.equal(JSON.parse(w.localStorage.getItem('sbq:guest:preferences')).width,'wide');
   menu.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
   assert.equal(menu.inert,true);assert.equal(w.document.activeElement,settings);
+  await settle();
+  dom.window.close();
+});
+
+test('project files round-trip authored data and reject incompatible or oversized files',()=>{
+  const input={name:'Exported curve',graph:{...graph,viewerValues:{x:100}}};
+  const restored=project.importData(project.exportData(input));
+  assert.equal(restored.name,input.name);assert.equal(restored.graph.viewerValues,undefined);
+  assert.deepEqual(restored.graph.viewport,graph.viewport);
+  for(const text of ['bad','{}',JSON.stringify({type:'StudyBaseGraph',v:2,...input}), 'x'.repeat(1000001)])assert.throws(()=>project.importData(text));
+});
+
+test('edits autosave and a newer journal recovers instead of losing the draft',async()=>{
+  const {dom,w,sessions,byId}=fixture();await settle();
+  byId('projectName').value='Autosaved curve';byId('projectName').dispatchEvent(new w.Event('input'));
+  sessions.at(-1).data.expressions[0].text='y = 4*x';sessions.at(-1).options.onChange();
+  assert.equal(JSON.parse(w.localStorage.getItem('studybase_graphing_recovery_v1')).graph.expressions[0].text,'y = 4*x');
+  await new Promise(resolve=>setTimeout(resolve,800));
+  const storage=w.localStorage.getItem('studybase_graphing_projects_v1'),saved=JSON.parse(storage).projects[0];
+  assert.equal(saved.name,'Autosaved curve');assert.equal(w.localStorage.getItem('studybase_graphing_recovery_v1'),null);
+  const recovery=JSON.stringify({v:1,id:saved.id,updatedAt:saved.updatedAt+10,name:'Recovered curve',graph:{...graph,expressions:[{id:'f',text:'y = 7*x',color:'#2d70b3'}]}});
+  dom.window.close();const next=fixture(undefined,storage,false,recovery);await settle();
+  assert.equal(next.byId('projectName').value,'Recovered curve');assert.match(next.byId('graphingStatus').textContent,/Recovered/);
+  next.byId('saveProject').click();assert.equal(JSON.parse(next.w.localStorage.getItem('studybase_graphing_projects_v1')).projects.length,1);
+  next.dom.window.close();
+});
+
+test('duplicate and import create independent projects without modifying the original',async()=>{
+  const {dom,w,sessions,byId}=fixture();await settle();byId('saveProject').click();
+  byId('duplicateProject').click();await settle();
+  let saved=JSON.parse(w.localStorage.getItem('studybase_graphing_projects_v1')).projects;
+  assert.equal(saved.length,2);assert.notEqual(saved[0].id,saved[1].id);assert.match(saved[1].name,/copy/);
+  sessions.at(-1).data.expressions[0].text='y = 99';sessions.at(-1).options.onChange();byId('saveProject').click();
+  saved=JSON.parse(w.localStorage.getItem('studybase_graphing_projects_v1')).projects;assert.equal(saved[0].graph.expressions[0].text,'y = x^2');
+  const file={size:100,text:async()=>project.exportData({name:'Imported curve',graph})};
+  Object.defineProperty(byId('projectFile'),'files',{value:[file],configurable:true});
+  await byId('projectFile').onchange();await settle();
+  saved=JSON.parse(w.localStorage.getItem('studybase_graphing_projects_v1')).projects;assert.equal(saved.length,3);assert.equal(byId('projectName').value,'Imported curve');
+  dom.window.close();
+});
+
+test('failed autosave retains a recovery draft and corrupted libraries are never overwritten',async()=>{
+  const {dom,w,sessions,byId}=fixture();await settle();
+  const set=w.Storage.prototype.setItem;w.Storage.prototype.setItem=function(key,value){if(key==='studybase_graphing_projects_v1')throw Error('Storage full');return set.call(this,key,value);};
+  sessions.at(-1).data.expressions[0].text='y = 8*x';sessions.at(-1).options.onChange();byId('saveProject').click();
+  assert.equal(byId('projectState').textContent,'Unsaved changes');assert.equal(JSON.parse(w.localStorage.getItem('studybase_graphing_recovery_v1')).graph.expressions[0].text,'y = 8*x');dom.window.close();
+  const next=fixture(undefined,'broken');await settle();next.byId('saveProject').click();
+  assert.equal(next.w.localStorage.getItem('studybase_graphing_projects_v1'),'broken');assert.equal(next.byId('graphingStatus').dataset.error,'true');next.dom.window.close();
+});
+
+test('resizing and collapsing the expression panel preserves authored formulas',async()=>{
+  const {dom,w,sessions,byId}=fixture();await settle();
+  const separator=w.document.querySelector('[role="separator"]');assert.ok(separator);
+  separator.dispatchEvent(new w.KeyboardEvent('keydown',{key:'ArrowRight',cancelable:true}));
+  assert.equal(separator.getAttribute('aria-valuenow'),'310');
+  assert.equal(JSON.parse(w.localStorage.getItem('studybase_graphing_layout_v1')).width,310);
+  byId('toggleExpressions').click();assert.equal(w.document.querySelector('.graph-expressions').hidden,true);
+  byId('toggleExpressions').click();assert.equal(w.document.querySelector('.graph-expressions').hidden,false);
+  assert.equal(sessions.at(-1).data.expressions[0].text,'y = x^2');
   dom.window.close();
 });
 
@@ -152,5 +192,16 @@ test('dedicated page mounts a real SVG graph, saves it and explores linked value
   x.value='3';x.dispatchEvent(new w.Event('input'));assert.equal(y.value,'9');
   assert.equal(JSON.parse(w.localStorage.getItem('studybase_graphing_projects_v1')).projects[0].graph.expressions[0].text,'y = x^2');
   assert.ok([...w.document.querySelectorAll('.graph-error')].every(e=>!e.textContent));
+  const downloads=[];w.URL.createObjectURL=blob=>{downloads.push(blob);return 'blob:test';};w.URL.revokeObjectURL=()=>{};w.HTMLAnchorElement.prototype.click=()=>{};
+  w.document.getElementById('imageFormat').value='svg';
+  w.document.getElementById('imageWidth').value='1200';
+  await w.document.getElementById('downloadImage').onclick();
+  assert.equal(downloads.length,1);
+  const text=await new Promise((resolve,reject)=>{const reader=new w.FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsText(downloads[0]);});
+  const svg=new w.DOMParser().parseFromString(text,'image/svg+xml');
+  assert.equal(svg.querySelector('parsererror'),null,svg.querySelector('parsererror')?.textContent);assert.equal(svg.documentElement.getAttribute('width'),'1200');
+  assert.ok(svg.querySelector('path'));assert.ok(svg.querySelector('text'));assert.match(w.document.getElementById('imageStatus').textContent,/exported/);
+  w.document.getElementById('imageWidth').value='99999';await w.document.getElementById('downloadImage').onclick();assert.equal(downloads.length,1);
+  assert.match(w.document.getElementById('imageStatus').textContent,/320 to 4096/);
   w.close();
 });
