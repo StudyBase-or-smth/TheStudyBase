@@ -826,6 +826,7 @@ loadBranchVersion();
       };
       onAuthStateChanged(auth, async user => {
         if(!user){
+          window.isGuest = true;
           setAnalyserLocked(true, 'signedout');
           if(typeof bootHdrProfile === 'function') bootHdrProfile(null, 'guest');
           return;
@@ -840,6 +841,7 @@ loadBranchVersion();
         let allowed = ['student','teacher','dev'].includes(role) && status === 'active';
 
         if(!allowed){
+          window.isGuest = true;
           try{
             ({ role, status } = readClaims(await user.getIdTokenResult(true)));
             allowed = ['student','teacher','dev'].includes(role) && status === 'active';
@@ -850,8 +852,10 @@ loadBranchVersion();
           setAnalyserLocked(true, (status === 'pending' || !status) ? 'pending' : 'norole');
           if(typeof bootHdrProfile === 'function') bootHdrProfile(user, role || 'guest');
         } else {
+          window.isGuest = false;
           setAnalyserLocked(false);
           if(typeof bootHdrProfile === 'function') bootHdrProfile(user, role);
+          recordAnalyserTask();
           pullAnalyserFromStore().catch(e=>console.warn('Analyser pull failed', e));
         }
       });
@@ -949,6 +953,7 @@ loadBranchVersion();
   let draftTimer=null;
   let restoringDraft=false;
   let activeTaskId='_scratch';
+  const analyserRequestedTask=new URLSearchParams(location.search).get('task');
 
   window.openRawOutput=function(){
     document.getElementById('rawText').textContent=lastRawResponse||'No output yet.';
@@ -1701,11 +1706,12 @@ loadBranchVersion();
       scheduleAnalyserPush();
     }
     const blob=loadDraftBlob();
-    if(blob.currentTaskId && blob.currentTaskId!=='_scratch'){
+    if(!isTaskSelected() && blob.currentTaskId && blob.currentTaskId!=='_scratch'){
       activeTaskId=blob.currentTaskId;
       if(blob.byTask && blob.byTask[blob.currentTaskId]) applyDraft(blob.byTask[blob.currentTaskId]);
     }
     renderHistory(false);
+    resumeRequestedTask();
   }
   function migrateHistoryIfNeeded(){
     const old=localStorage.getItem(OLD_HISTORY_KEY);
@@ -1735,6 +1741,26 @@ loadBranchVersion();
     const name=getTaskName();
     if(name) return name;
     return taskLabel(resolveTaskId());
+  }
+
+  function analyserTaskURL(id){
+    const url=new URL('analyser.html',location.href);
+    url.searchParams.set('task',id);
+    return url.href;
+  }
+  function recordAnalyserTask(){
+    if(analyserLocked || !isTaskSelected()) return;
+    const url=analyserTaskURL(activeTaskId);
+    window.SBQoL?.recordActivity(currentTaskDisplayName(),'','Analyser Tool',url);
+    history.replaceState(null,'',url);
+  }
+  let analyserResumeApplied=false;
+  function resumeRequestedTask(){
+    if(analyserResumeApplied) return;
+    const requested=analyserRequestedTask;
+    if(!requested || !listAllTaskIds().includes(requested)) return;
+    analyserResumeApplied=true;
+    switchToTask(requested);
   }
 
   function collectDraft(){
@@ -2489,6 +2515,7 @@ ${critBlock}
           return;
         }
         store.tasks[newId]={ ...task, id:newId, name };
+        window.SBQoL?.removeActivity(analyserTaskURL(id));
         delete store.tasks[id];
         migrateDraftTaskId(id, newId);
         if(activeTaskId===id) activeTaskId=newId;
@@ -2527,6 +2554,7 @@ ${critBlock}
       viewingHistoryIndex=null;
       resetWorkspace();
     }
+    window.SBQoL?.removeActivity(analyserTaskURL(id));
     renderHistory(false);
     showToast('Task deleted','warning');
   };
@@ -2735,6 +2763,7 @@ ${critBlock}
   }
 
   function renderHistory(animateLatest=false){
+    recordAnalyserTask();
     const home=document.getElementById('taskHome');
     const card=document.getElementById('historyCard');
     const result=document.getElementById('resultArea');
@@ -2865,5 +2894,11 @@ ${critBlock}
 </script>
 <script src="subjects.js"></script>
 <script src="qol.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded',()=>{
+    resumeRequestedTask();
+    recordAnalyserTask();
+  });
+</script>
 </body>
 </html>

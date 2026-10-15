@@ -283,7 +283,9 @@
       const source=boardEl.querySelector('svg');if(!source)throw Error('The graph is not ready to export.');
       const rect=boardEl.getBoundingClientRect(),w=rect.width||Number(source.getAttribute('width'))||800,h=rect.height||Number(source.getAttribute('height'))||600;
       const output=source.cloneNode(true),ns='http://www.w3.org/2000/svg',dark=document.body.classList.contains('dark');
-      output.setAttribute('xmlns',ns);output.setAttribute('viewBox','0 0 '+w+' '+h);output.setAttribute('width',String(width));output.setAttribute('height',String(Math.round(width*h/w)));
+      // XMLSerializer supplies the SVG namespace; adding an unnamespaced xmlns
+      // attribute here produces duplicate namespace attributes in some browsers.
+      output.removeAttribute('xmlns');output.setAttribute('viewBox','0 0 '+w+' '+h);output.setAttribute('width',String(width));output.setAttribute('height',String(Math.round(width*h/w)));
       output.removeAttribute('style');
       if(!transparent){const background=document.createElementNS(ns,'rect');background.setAttribute('width',String(w));background.setAttribute('height',String(h));background.setAttribute('fill',getComputedStyle(boardEl).backgroundColor|| (dark?'#252220':'#faf8f5'));output.prepend(background);}
       boardEl.querySelectorAll('.JXGtext').forEach(label=>{

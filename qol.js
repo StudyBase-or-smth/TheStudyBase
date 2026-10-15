@@ -103,23 +103,27 @@
   function recordActivity(name, subject, tool, href) {
     const url = new URL(href,root); if(url.origin !== location.origin) return;
     const old = read('recent',[]); write('recent',[{href:url.href,name,subject,tool,time:Date.now()},...old.filter(r => r.href !== url.href)].slice(0,12));
+    continueCard();
   }
+  function removeActivity(href) { const url = new URL(href,root); write('recent',read('recent',[]).filter(r => r.href !== url.href)); continueCard(); }
   function record(subject, topic, isClass) { recordActivity(topic.name,subject.name,isClass ? 'Class topics' : 'Topics',linkFor(subject,topic.id,isClass)); }
   function continueCard() {
     const grid = document.getElementById('hubSidebar'); if(!grid) return;
     let card = document.getElementById('qol-continue'); if(!card) { card = node('section','side-card qol-continue'); card.id = 'qol-continue'; grid.prepend(card); }
     card.replaceChildren(node('h2','qol-card-title','Continue studying'));
-    const recent = read('recent',[]).slice(0,3); if(!recent.length) { card.append(node('p','qol-muted','Your recently opened topics will appear here.')); return; }
+    const recent = read('recent',[]).slice(0,3); if(!recent.length) { card.append(node('p','qol-muted','Your recently opened topics, graphing projects, and analyser tasks will appear here.')); return; }
     for(const r of recent) {
       const a = node('a','qol-result'); let tool = r.tool;
       try { const u = new URL(r.href); if(u.origin !== location.origin) continue; a.href = u.href;
-        if(!tool) tool = u.pathname.includes('flashcards') ? 'Flashcards' : u.pathname.includes('/HSC/') ? 'HSC practice' : u.pathname.includes('analyser') ? 'Analyser' : u.pathname.includes('class.html') ? 'Class topics' : 'Topics';
+        if(!tool) tool = u.pathname.includes('graphing.html') ? 'Graphing tool' : u.pathname.includes('flashcards') ? 'Flashcards' : u.pathname.includes('/HSC/') ? 'HSC practice' : u.pathname.includes('analyser') ? 'Analyser Tool' : u.pathname.includes('class.html') ? 'Class topics' : 'Topics';
       } catch(_) { continue; }
-      const source = node('span','qol-muted',[r.subject,tool === 'Topics' || tool === 'Class topics' ? '' : tool].filter(Boolean).join(' · '));
+      const toolSource = /^(Graphing tool|Graphing)$/i.test(tool) ? {icon:'📈',name:'Graphing tool'} : /^(Analyser|Analyser Tool)$/i.test(tool) ? {icon:'📍',name:'Analyser Tool'} : null;
+      const source = node('span','qol-muted',toolSource ? '' : [r.subject,tool === 'Topics' || tool === 'Class topics' ? '' : tool].filter(Boolean).join(' · '));
+      if(toolSource) { const icon = node('span','qol-continue-tool-icon',toolSource.icon); icon.setAttribute('aria-hidden','true'); source.append(icon,document.createTextNode(' ' + toolSource.name)); }
       const subject = catalogs().find(s => s.name === r.subject);
       const hscSubject = {Engineering:'eng2',Maths:'mth',Math:'mth',English:'eng',Economics:'eco'}[r.subject];
       const colour = subject?.colour || catalogs().find(s => s.id === hscSubject)?.colour;
-      if(colour) source.style.color = colour;
+      if(colour && !toolSource) source.style.color = colour;
       const heading = node('div','qol-continue-heading'); heading.append(node('strong','',r.name));
       if(r.time && Number.isFinite(new Date(r.time).getTime())) {
         const date = node('time','qol-continue-date',new Date(r.time).toLocaleDateString('en-AU',{day:'numeric',month:'short',timeZone:'Australia/Sydney'}));
@@ -192,7 +196,7 @@
     document.querySelectorAll('button').forEach(el => { if(!el.getAttribute('aria-label') && !el.textContent.trim()) el.setAttribute('aria-label',el.title || el.dataset.tip || 'Action'); });
     continueCard();
   }
-  window.SBQoL = { read, write, node, button, dialog, notify, linkFor, root, record, recordActivity, search, preferences, catalogs, motionEnabled, applyPreferences };
+  window.SBQoL = { read, write, node, button, dialog, notify, linkFor, root, record, recordActivity, removeActivity, refreshContinue:continueCard, search, preferences, catalogs, motionEnabled, applyPreferences };
   window.openHubStat = function(kind){
     const subjects = typeof hubSubjects === 'function' ? hubSubjects() : catalogs().filter(s => !s.isClass);
     dialog({topics:'Topics',units:'Units',subjects:'Subjects'}[kind] || 'Overview',content => {
@@ -212,4 +216,5 @@
   };
   document.addEventListener('keydown',e => { if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); if(!activeDialog) search(); } });
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+  window.addEventListener('pageshow',continueCard);
 })();

@@ -6,10 +6,22 @@
       "isMultipleChoice": true,
       "isCheckbox": false,
       "answers": [
-        { "text": "Permission to grant exemptions to safety regulations for certain businesses", "correct": false },
-        { "text": "Authorisation to make arrests for safety violations", "correct": false },
-        { "text": "Terminate employees from the company", "correct": false },
-        { "text": "Power to issue a notice or prohibit unsafe activities", "correct": true }
+        {
+          "text": "Permission to grant exemptions to safety regulations for certain businesses",
+          "correct": false
+        },
+        {
+          "text": "Authorisation to make arrests for safety violations",
+          "correct": false
+        },
+        {
+          "text": "Terminate employees from the company",
+          "correct": false
+        },
+        {
+          "text": "Power to issue a notice or prohibit unsafe activities",
+          "correct": true
+        }
       ]
     },
     {
@@ -18,10 +30,22 @@
       "isMultipleChoice": true,
       "isCheckbox": false,
       "answers": [
-        { "text": "Volts (V)", "correct": false },
-        { "text": "Amperes (A)", "correct": true },
-        { "text": "Ohms (Ω)", "correct": false },
-        { "text": "Watts (W)", "correct": false }
+        {
+          "text": "Volts (V)",
+          "correct": false
+        },
+        {
+          "text": "Amperes (A)",
+          "correct": true
+        },
+        {
+          "text": "Ohms (Ω)",
+          "correct": false
+        },
+        {
+          "text": "Watts (W)",
+          "correct": false
+        }
       ]
     },
     {
@@ -30,10 +54,22 @@
       "isMultipleChoice": true,
       "isCheckbox": false,
       "answers": [
-        { "text": "Solar capture and battery system", "correct": true },
-        { "text": "Tidal power generation", "correct": false },
-        { "text": "Nuclear fusion reactors", "correct": false },
-        { "text": "Coal-fired power plants", "correct": false }
+        {
+          "text": "Solar capture and battery system",
+          "correct": true
+        },
+        {
+          "text": "Tidal power generation",
+          "correct": false
+        },
+        {
+          "text": "Nuclear fusion reactors",
+          "correct": false
+        },
+        {
+          "text": "Coal-fired power plants",
+          "correct": false
+        }
       ]
     },
     {
@@ -42,10 +78,22 @@
       "isMultipleChoice": true,
       "isCheckbox": false,
       "answers": [
-        { "text": "Self-drilling", "correct": true },
-        { "text": "Self-tapper", "correct": false },
-        { "text": "Screw-anchor", "correct": false },
-        { "text": "Bolt-and-nut", "correct": false }
+        {
+          "text": "Self-drilling",
+          "correct": true
+        },
+        {
+          "text": "Self-tapper",
+          "correct": false
+        },
+        {
+          "text": "Screw-anchor",
+          "correct": false
+        },
+        {
+          "text": "Bolt-and-nut",
+          "correct": false
+        }
       ]
     },
     {
@@ -54,10 +102,22 @@
       "isMultipleChoice": true,
       "isCheckbox": false,
       "answers": [
-        { "text": "Implementing regulations for waste management and recycling programs", "correct": false },
-        { "text": "Regulating and administering schemes related to carbon pricing and clean energy initiatives", "correct": true },
-        { "text": "Regulating air and water quality standards", "correct": false },
-        { "text": "Managing national parks and protected areas", "correct": false }
+        {
+          "text": "Implementing regulations for waste management and recycling programs",
+          "correct": false
+        },
+        {
+          "text": "Regulating and administering schemes related to carbon pricing and clean energy initiatives",
+          "correct": true
+        },
+        {
+          "text": "Regulating air and water quality standards",
+          "correct": false
+        },
+        {
+          "text": "Managing national parks and protected areas",
+          "correct": false
+        }
       ]
     },
     {
@@ -66,10 +126,22 @@
       "isMultipleChoice": true,
       "isCheckbox": false,
       "answers": [
-        { "text": "Spanner", "correct": true },
-        { "text": "Screwdriver", "correct": false },
-        { "text": "Pliers", "correct": false },
-        { "text": "Hammer", "correct": false }
+        {
+          "text": "Spanner",
+          "correct": true
+        },
+        {
+          "text": "Screwdriver",
+          "correct": false
+        },
+        {
+          "text": "Pliers",
+          "correct": false
+        },
+        {
+          "text": "Hammer",
+          "correct": false
+        }
       ]
     },
     {
@@ -78,10 +150,22 @@
       "isMultipleChoice": true,
       "isCheckbox": false,
       "answers": [
-        { "text": "Regulate the flow of electrical current to prevent overload.", "correct": false },
-        { "text": "Protect electronic devices from power surges.", "correct": false },
-        { "text": "Monitor energy usage and provide consumption data.", "correct": false },
-        { "text": "Quickly disconnect power in case of a fault.", "correct": true }
+        {
+          "text": "Regulate the flow of electrical current to prevent overload.",
+          "correct": false
+        },
+        {
+          "text": "Protect electronic devices from power surges.",
+          "correct": false
+        },
+        {
+          "text": "Monitor energy usage and provide consumption data.",
+          "correct": false
+        },
+        {
+          "text": "Quickly disconnect power in case of a fault.",
+          "correct": true
+        }
       ]
     },
     {
@@ -90,10 +174,22 @@
       "isMultipleChoice": true,
       "isCheckbox": false,
       "answers": [
-        { "text": "l = RA/ρ", "correct": true },
-        { "text": "l = ρ/RA", "correct": false },
-        { "text": "l = A/Rρ", "correct": false },
-        { "text": "l = RρA", "correct": false }
+        {
+          "text": "l = RA/ρ",
+          "correct": true
+        },
+        {
+          "text": "l = ρ/RA",
+          "correct": false
+        },
+        {
+          "text": "l = A/Rρ",
+          "correct": false
+        },
+        {
+          "text": "l = RρA",
+          "correct": false
+        }
       ]
     },
     {
@@ -102,10 +198,22 @@
       "isMultipleChoice": true,
       "isCheckbox": false,
       "answers": [
-        { "text": "In the company's annual financial report", "correct": false },
-        { "text": "Within the employee handbook outlining company policies and procedures", "correct": false },
-        { "text": "In the weekly newsletter distributed to all staff members", "correct": false },
-        { "text": "Standard Operating Procedures", "correct": true }
+        {
+          "text": "In the company's annual financial report",
+          "correct": false
+        },
+        {
+          "text": "Within the employee handbook outlining company policies and procedures",
+          "correct": false
+        },
+        {
+          "text": "In the weekly newsletter distributed to all staff members",
+          "correct": false
+        },
+        {
+          "text": "Standard Operating Procedures",
+          "correct": true
+        }
       ]
     },
     {
@@ -114,10 +222,22 @@
       "isMultipleChoice": true,
       "isCheckbox": false,
       "answers": [
-        { "text": "Near the entrance of the building for easy access in case of emergency", "correct": false },
-        { "text": "In designated fire escape routes to ensure visibility and accessibility", "correct": false },
-        { "text": "Strategically placed throughout the workplace, accessible and visible", "correct": true },
-        { "text": "Stored in a centralised location, away from work areas to prevent tampering", "correct": false }
+        {
+          "text": "Near the entrance of the building for easy access in case of emergency",
+          "correct": false
+        },
+        {
+          "text": "In designated fire escape routes to ensure visibility and accessibility",
+          "correct": false
+        },
+        {
+          "text": "Strategically placed throughout the workplace, accessible and visible",
+          "correct": true
+        },
+        {
+          "text": "Stored in a centralised location, away from work areas to prevent tampering",
+          "correct": false
+        }
       ]
     },
     {
@@ -126,10 +246,22 @@
       "isMultipleChoice": true,
       "isCheckbox": false,
       "answers": [
-        { "text": "By completing tasks without asking questions", "correct": false },
-        { "text": "By asking for clarification on instructions and client requirements", "correct": true },
-        { "text": "By ignoring client specifications to save time", "correct": false },
-        { "text": "By following instructions without thinking about their relevance", "correct": false }
+        {
+          "text": "By completing tasks without asking questions",
+          "correct": false
+        },
+        {
+          "text": "By asking for clarification on instructions and client requirements",
+          "correct": true
+        },
+        {
+          "text": "By ignoring client specifications to save time",
+          "correct": false
+        },
+        {
+          "text": "By following instructions without thinking about their relevance",
+          "correct": false
+        }
       ]
     },
     {
@@ -138,10 +270,22 @@
       "isMultipleChoice": true,
       "isCheckbox": false,
       "answers": [
-        { "text": "Higher power ratings result in lower energy consumption.", "correct": false },
-        { "text": "Lower power ratings allow for more efficient operation.", "correct": false },
-        { "text": "Devices with higher power ratings can handle greater electrical loads.", "correct": true },
-        { "text": "Power ratings have no impact on the performance of resistors or devices.", "correct": false }
+        {
+          "text": "Higher power ratings result in lower energy consumption.",
+          "correct": false
+        },
+        {
+          "text": "Lower power ratings allow for more efficient operation.",
+          "correct": false
+        },
+        {
+          "text": "Devices with higher power ratings can handle greater electrical loads.",
+          "correct": true
+        },
+        {
+          "text": "Power ratings have no impact on the performance of resistors or devices.",
+          "correct": false
+        }
       ]
     },
     {
@@ -150,10 +294,22 @@
       "isMultipleChoice": true,
       "isCheckbox": false,
       "answers": [
-        { "text": "The colour of the adhesive or tape to match the accessory", "correct": false },
-        { "text": "The availability of the adhesive or tape in the local hardware store", "correct": false },
-        { "text": "The compatibility of the adhesive or tape with the materials being joined", "correct": true },
-        { "text": "The cost of the adhesive or tape per unit", "correct": false }
+        {
+          "text": "The colour of the adhesive or tape to match the accessory",
+          "correct": false
+        },
+        {
+          "text": "The availability of the adhesive or tape in the local hardware store",
+          "correct": false
+        },
+        {
+          "text": "The compatibility of the adhesive or tape with the materials being joined",
+          "correct": true
+        },
+        {
+          "text": "The cost of the adhesive or tape per unit",
+          "correct": false
+        }
       ]
     },
     {
@@ -162,10 +318,22 @@
       "isMultipleChoice": true,
       "isCheckbox": false,
       "answers": [
-        { "text": "Conducting market research to identify consumer preferences and how best to meet them", "correct": false },
-        { "text": "Developing and publishing national standards for products, services and systems", "correct": true },
-        { "text": "Providing financial assistance to small businesses for innovation projects", "correct": false },
-        { "text": "Offering certification programs for industry professionals", "correct": false }
+        {
+          "text": "Conducting market research to identify consumer preferences and how best to meet them",
+          "correct": false
+        },
+        {
+          "text": "Developing and publishing national standards for products, services and systems",
+          "correct": true
+        },
+        {
+          "text": "Providing financial assistance to small businesses for innovation projects",
+          "correct": false
+        },
+        {
+          "text": "Offering certification programs for industry professionals",
+          "correct": false
+        }
       ]
     },
     {
@@ -174,10 +342,22 @@
       "isMultipleChoice": true,
       "isCheckbox": false,
       "answers": [
-        { "text": "Ignoring instances of bias and harassment to avoid conflict", "correct": false },
-        { "text": "Implementing regular diversity and inclusion training sessions for all employees", "correct": true },
-        { "text": "Promoting a culture where only certain groups of employees are given preferential treatment", "correct": false },
-        { "text": "Encouraging competition among employees based on gender or ethnicity", "correct": false }
+        {
+          "text": "Ignoring instances of bias and harassment to avoid conflict",
+          "correct": false
+        },
+        {
+          "text": "Implementing regular diversity and inclusion training sessions for all employees",
+          "correct": true
+        },
+        {
+          "text": "Promoting a culture where only certain groups of employees are given preferential treatment",
+          "correct": false
+        },
+        {
+          "text": "Encouraging competition among employees based on gender or ethnicity",
+          "correct": false
+        }
       ]
     },
     {
@@ -187,7 +367,13 @@
       "isMultipleChoice": false,
       "isCheckbox": false,
       "marks": 2,
-      "answer": "Effects: impaired judgement and concentration, slower reaction times, increased risk of workplace accidents/injuries, absenteeism, reduced productivity, damaged working relationships. Ways to reduce risk: workplace drug and alcohol policy, random/pre-employment drug and alcohol testing, employee assistance programs (EAP), education and awareness training, clear reporting procedures, supervision. Award full marks for at least one clear effect and one clear reduction strategy; award partial marks for a partial or one-sided answer."
+      "answer": "Effects: impaired judgement and concentration, slower reaction times, increased risk of workplace accidents/injuries, absenteeism, reduced productivity, damaged working relationships. Ways to reduce risk: workplace drug and alcohol policy, random/pre-employment drug and alcohol testing, employee assistance programs (EAP), education and awareness training, clear reporting procedures, supervision. Award full marks for at least one clear effect and one clear reduction strategy; award partial marks for a partial or one-sided answer.",
+      "markingLevels": {
+        "0": "No relevant effect or risk-reduction strategy.",
+        "1": "Identifies a valid effect or a valid reduction strategy, but does not clearly cover both.",
+        "2": "Identifies at least one valid effect and at least one valid risk-reduction strategy."
+      },
+      "completionGuide": "Identify a clear workplace effect of drug or alcohol use, then describe a practical way to reduce that risk. Make sure your response addresses both parts of the question."
     },
     {
       "id": "q17",
@@ -196,7 +382,15 @@
       "isMultipleChoice": false,
       "isCheckbox": false,
       "marks": 5,
-      "answer": "Standard safe isolation procedure: 1) Identify the correct circuit/equipment to be isolated. 2) Notify affected people that the supply is about to be isolated. 3) Switch off and isolate the supply at the source (e.g. switchboard/isolator). 4) Secure the isolation using a lock-out device and attach a danger/warning tag (lock out, tag out - LOTO), retaining sole control of the key. 5) Prove the tester is working on a known live source (before use). 6) Test the isolated circuit/equipment to confirm it is dead, using an approved voltage tester. 7) Re-prove the tester on the known live source again (after use) to confirm it is still working. 8) Only then begin work. Award marks proportionally for each correct step identified, in a sensible order, with test-before-work emphasised."
+      "answer": "Standard safe isolation procedure: 1) Identify the correct circuit/equipment to be isolated. 2) Notify affected people that the supply is about to be isolated. 3) Switch off and isolate the supply at the source (e.g. switchboard/isolator). 4) Secure the isolation using a lock-out device and attach a danger/warning tag (lock out, tag out - LOTO), retaining sole control of the key. 5) Prove the tester is working on a known live source (before use). 6) Test the isolated circuit/equipment to confirm it is dead, using an approved voltage tester. 7) Re-prove the tester on the known live source again (after use) to confirm it is still working. 8) Only then begin work. Award marks proportionally for each correct step identified, in a sensible order, with test-before-work emphasised.",
+      "markingLevels": {
+        "0": "No correct isolation procedure.",
+        "1": "Mentions a relevant isolation action without a usable procedure.",
+        "2": "Describes disconnecting or isolating the supply with some correct preparation, but critical securing and testing steps are absent.",
+        "3": "Describes identifying and isolating the supply and securing it against reconnection, but testing for dead is incomplete or poorly ordered.",
+        "4": "Describes a mostly complete, sensible isolation sequence including lock-out/tag-out and testing for dead; a supporting step or tester verification step is missing.",
+        "5": "Describes the complete safe isolation sequence in the supplied guidance, including securing isolation, proving the tester before and after testing for dead, and testing before work."
+      }
     },
     {
       "id": "q18",
@@ -205,7 +399,14 @@
       "isMultipleChoice": false,
       "isCheckbox": false,
       "marks": 4,
-      "answer": "Accept any four of: weather/climate dependency causing intermittent supply (e.g. solar needs sunlight, wind needs wind); high upfront infrastructure and installation costs; limited energy storage capacity/battery technology; challenges integrating renewable supply into the existing electricity grid; geographic or land-use constraints on where renewable generation can be built; changing government policy, subsidies or regulation; public acceptance or opposition to installations; ongoing maintenance requirements and equipment lifespan. Award 1 mark per distinct, correctly explained issue, up to 4 marks."
+      "answer": "Accept any four of: weather/climate dependency causing intermittent supply (e.g. solar needs sunlight, wind needs wind); high upfront infrastructure and installation costs; limited energy storage capacity/battery technology; challenges integrating renewable supply into the existing electricity grid; geographic or land-use constraints on where renewable generation can be built; changing government policy, subsidies or regulation; public acceptance or opposition to installations; ongoing maintenance requirements and equipment lifespan. Award 1 mark per distinct, correctly explained issue, up to 4 marks.",
+      "markingLevels": {
+        "0": "No valid renewable-energy issue.",
+        "1": "Outlines one distinct valid issue.",
+        "2": "Outlines two distinct valid issues.",
+        "3": "Outlines three distinct valid issues.",
+        "4": "Outlines four distinct valid issues."
+      }
     },
     {
       "id": "q19",
@@ -214,7 +415,13 @@
       "isMultipleChoice": false,
       "isCheckbox": false,
       "marks": 3,
-      "answer": "Accept any three of: responding to a complaint or report about unsafe conditions; investigating a workplace accident, injury or incident; conducting a routine or random compliance inspection; following up on a previously issued notice to check compliance; responding to a request from an employer, worker or union; monitoring compliance with WHS legislation and codes of practice. Award 1 mark per distinct valid reason, up to 3 marks."
+      "answer": "Accept any three of: responding to a complaint or report about unsafe conditions; investigating a workplace accident, injury or incident; conducting a routine or random compliance inspection; following up on a previously issued notice to check compliance; responding to a request from an employer, worker or union; monitoring compliance with WHS legislation and codes of practice. Award 1 mark per distinct valid reason, up to 3 marks.",
+      "markingLevels": {
+        "0": "No valid reason for an inspector visit.",
+        "1": "Identifies one distinct valid reason.",
+        "2": "Identifies two distinct valid reasons.",
+        "3": "Identifies three distinct valid reasons."
+      }
     },
     {
       "id": "q20a",
@@ -224,7 +431,12 @@
       "isMultipleChoice": false,
       "isCheckbox": false,
       "marks": 2,
-      "answer": "Tool: a tap and die set (tap wrench holding a tap, with a set of dies). Purpose: taps are used to cut internal threads (e.g. inside a drilled hole/nut) and dies are used to cut external threads (e.g. onto a rod/bolt), for creating or repairing screw threads. Accept 'tap wrench and dies' or similar close naming."
+      "answer": "Tool: a tap and die set (tap wrench holding a tap, with a set of dies). Purpose: taps are used to cut internal threads (e.g. inside a drilled hole/nut) and dies are used to cut external threads (e.g. onto a rod/bolt), for creating or repairing screw threads. Accept 'tap wrench and dies' or similar close naming.",
+      "markingLevels": {
+        "0": "Neither identifies the tool nor describes a correct purpose.",
+        "1": "Identifies a tap and die set or correctly describes thread cutting, but does not clearly do both.",
+        "2": "Identifies a tap and die set and describes internal-thread cutting by taps and/or external-thread cutting by dies."
+      }
     },
     {
       "id": "q20b",
@@ -234,7 +446,12 @@
       "isMultipleChoice": false,
       "isCheckbox": false,
       "marks": 2,
-      "answer": "Tool: a guillotine (bench-mounted sheet metal shear/guillotine, operated by a hand lever and/or foot pedal). Purpose: used to cut and shear sheet metal (or similar flat material) accurately to size in a workshop. Accept 'bench shear', 'sheet metal shear' or similar close naming for this style of bench-mounted cutting machine."
+      "answer": "Tool: a guillotine (bench-mounted sheet metal shear/guillotine, operated by a hand lever and/or foot pedal). Purpose: used to cut and shear sheet metal (or similar flat material) accurately to size in a workshop. Accept 'bench shear', 'sheet metal shear' or similar close naming for this style of bench-mounted cutting machine.",
+      "markingLevels": {
+        "0": "Neither identifies the tool nor describes a correct purpose.",
+        "1": "Identifies the guillotine/shear or correctly describes sheet-metal cutting, but does not clearly do both.",
+        "2": "Identifies a guillotine or equivalent accepted shear and describes cutting sheet metal accurately to size."
+      }
     },
     {
       "id": "q20c",
@@ -244,7 +461,12 @@
       "isMultipleChoice": false,
       "isCheckbox": false,
       "marks": 2,
-      "answer": "Tool: a steel rule (rigid graduated ruler). Purpose: used to measure and mark out accurate lengths/dimensions on materials before cutting, drilling or forming. Accept 'ruler' or 'measuring rule'."
+      "answer": "Tool: a steel rule (rigid graduated ruler). Purpose: used to measure and mark out accurate lengths/dimensions on materials before cutting, drilling or forming. Accept 'ruler' or 'measuring rule'.",
+      "markingLevels": {
+        "0": "Neither identifies the tool nor describes a correct purpose.",
+        "1": "Identifies a steel rule/ruler or correctly describes measuring/marking, but does not clearly do both.",
+        "2": "Identifies a steel rule or accepted ruler and describes measuring or marking accurate dimensions."
+      }
     },
     {
       "id": "q21a",
@@ -254,7 +476,11 @@
       "isMultipleChoice": false,
       "isCheckbox": false,
       "answers": [
-        { "type": "answer", "text": "4230", "correct": true }
+        {
+          "type": "answer",
+          "text": "4230",
+          "correct": true
+        }
       ]
     },
     {
@@ -265,7 +491,11 @@
       "isMultipleChoice": false,
       "isCheckbox": false,
       "answers": [
-        { "type": "answer", "text": "40", "correct": true }
+        {
+          "type": "answer",
+          "text": "40",
+          "correct": true
+        }
       ]
     },
     {
@@ -276,7 +506,11 @@
       "isMultipleChoice": false,
       "isCheckbox": false,
       "answers": [
-        { "type": "answer", "text": "93", "correct": true }
+        {
+          "type": "answer",
+          "text": "93",
+          "correct": true
+        }
       ]
     },
     {
@@ -287,7 +521,11 @@
       "isMultipleChoice": false,
       "isCheckbox": false,
       "answers": [
-        { "type": "answer", "text": "22.68", "correct": true }
+        {
+          "type": "answer",
+          "text": "22.68",
+          "correct": true
+        }
       ]
     },
     {
@@ -298,7 +536,12 @@
       "isMultipleChoice": false,
       "isCheckbox": false,
       "marks": 2,
-      "answer": "Since R1, R2 and R3 are all in series, an open circuit at R1 breaks the only current path. Total resistance becomes infinite (open circuit / undefined), and total current drops to zero — no current can flow anywhere in the circuit."
+      "answer": "Since R1, R2 and R3 are all in series, an open circuit at R1 breaks the only current path. Total resistance becomes infinite (open circuit / undefined), and total current drops to zero — no current can flow anywhere in the circuit.",
+      "markingLevels": {
+        "0": "No correct consequence of the series open circuit.",
+        "1": "Correctly identifies zero current or infinite/open-circuit resistance, but does not correctly explain both.",
+        "2": "Explains that the only series path is broken, so total current is zero and total resistance is effectively infinite/open circuit."
+      }
     },
     {
       "id": "q23a",
@@ -307,7 +550,17 @@
       "isMultipleChoice": false,
       "isCheckbox": false,
       "marks": 7,
-      "answer": "Participation and consultation are important because workers doing the hands-on electrical work are best placed to identify hazards (e.g. energised fire system circuits, working at height in a high-rise, confined switch rooms), which improves the accuracy and practicality of risk controls; it builds worker buy-in and compliance with safety procedures; it satisfies WHS legislative duties to consult with workers on matters that affect their health and safety; and it improves communication between electricians, supervisors and other trades on a shared high-rise site, reducing the chance of incidents. Good answers give specific electrotechnology examples, such as toolbox talks before isolating fire system circuits, consulting electricians on isolation/lock-out procedures for a live upgrade, or involving the team in a job safety analysis (JSA) / safe work method statement (SWMS) before starting work on the apartment block. Award marks for depth of explanation (why it matters) and for the quality/specificity of industry examples."
+      "answer": "Participation and consultation are important because workers doing the hands-on electrical work are best placed to identify hazards (e.g. energised fire system circuits, working at height in a high-rise, confined switch rooms), which improves the accuracy and practicality of risk controls; it builds worker buy-in and compliance with safety procedures; it satisfies WHS legislative duties to consult with workers on matters that affect their health and safety; and it improves communication between electricians, supervisors and other trades on a shared high-rise site, reducing the chance of incidents. Good answers give specific electrotechnology examples, such as toolbox talks before isolating fire system circuits, consulting electricians on isolation/lock-out procedures for a live upgrade, or involving the team in a job safety analysis (JSA) / safe work method statement (SWMS) before starting work on the apartment block. Award marks for depth of explanation (why it matters) and for the quality/specificity of industry examples.",
+      "markingLevels": {
+        "0": "No relevant explanation of WHS participation or consultation.",
+        "1": "Gives a relevant isolated fact without explaining why participation or consultation matters.",
+        "2": "Identifies relevant benefits but provides little explanation or industry context.",
+        "3": "Outlines benefits with a limited explanation or a general electrical-work example.",
+        "4": "Explains several relevant benefits, but supporting industry examples or the connection between consultation and practical controls is limited.",
+        "5": "Explains why participation and consultation improve hazard identification, practical controls, compliance or communication, with a relevant electrotechnology example; some depth is missing.",
+        "6": "Gives a thorough explanation supported by specific industry examples, with only a minor gap in breadth or depth.",
+        "7": "Gives a comprehensive explanation covering practical hazard identification/control, worker engagement, legal consultation duties and communication, supported by specific electrotechnology/high-rise examples."
+      }
     },
     {
       "id": "q23b",
@@ -316,7 +569,18 @@
       "isMultipleChoice": false,
       "isCheckbox": false,
       "marks": 8,
-      "answer": "Human costs: physical pain, injury or permanent disability to the injured electrician, psychological impacts (stress, anxiety, loss of confidence), reduced quality of life. Social costs: strain on family relationships, loss of income affecting the worker's household, reduced ability to participate in social/community life, burden on the public health system. Economic costs: medical and rehabilitation expenses, workers' compensation payments, lost wages for the injured worker, potential fines/legal costs for the business if found negligent. Organisational costs: lost productivity while the injured worker is off site and while others are retrained/reassigned, cost of hiring/training replacement staff, damage to the company's reputation and ability to win future contracts (e.g. on high-rise fire system upgrades), increased insurance premiums, delays to project completion. Award marks across all four cost categories (human, social, economic, organisational), with credit for specific electrotechnology/high-rise industry examples in each."
+      "answer": "Human costs: physical pain, injury or permanent disability to the injured electrician, psychological impacts (stress, anxiety, loss of confidence), reduced quality of life. Social costs: strain on family relationships, loss of income affecting the worker's household, reduced ability to participate in social/community life, burden on the public health system. Economic costs: medical and rehabilitation expenses, workers' compensation payments, lost wages for the injured worker, potential fines/legal costs for the business if found negligent. Organisational costs: lost productivity while the injured worker is off site and while others are retrained/reassigned, cost of hiring/training replacement staff, damage to the company's reputation and ability to win future contracts (e.g. on high-rise fire system upgrades), increased insurance premiums, delays to project completion. Award marks across all four cost categories (human, social, economic, organisational), with credit for specific electrotechnology/high-rise industry examples in each.",
+      "markingLevels": {
+        "0": "No relevant injury costs.",
+        "1": "Mentions one relevant cost with little description.",
+        "2": "Describes one cost category with an industry example, or outlines relevant costs in two categories.",
+        "3": "Describes two cost categories, with limited industry support.",
+        "4": "Describes two cost categories with industry examples, or outlines all four categories with limited detail.",
+        "5": "Describes costs across three or four categories, but explanations and industry examples are incomplete.",
+        "6": "Describes all four categories with meaningful detail and some industry examples, or gives strong detailed coverage of three categories.",
+        "7": "Describes all four cost categories with specific industry examples; one category has only a minor lack of detail or specificity.",
+        "8": "Describes human, social, economic and organisational costs comprehensively, with specific electrotechnology/high-rise examples supporting each category."
+      }
     }
   ]
 }

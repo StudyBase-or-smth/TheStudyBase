@@ -43,6 +43,36 @@ test('project picker replaces navigation sidebar and theme retains site preferen
   assert.equal(byId('projectState').textContent,'Unsaved project');dom.window.close();
 });
 
+test('Continue studying resumes the exact graph project and records changes in the active account',async()=>{
+  const graph={v:1,expressions:[{id:'f',text:'y = x',color:'#2d70b3'}]};
+  const storage=JSON.stringify({v:1,projects:[{id:'p1',name:'First graph',updatedAt:1,graph},{id:'p2',name:'Latest graph',updatedAt:2,graph}]});
+  const recovery=JSON.stringify({v:1,id:'p2',name:'Other recovery',updatedAt:3,graph});
+  const {dom,w,byId}=fixture('https://studybase.example/graphing.html?project=p1',storage,false,recovery);await settle();
+  assert.equal(byId('projectName').value,'First graph');
+  assert.equal(JSON.parse(w.localStorage.getItem('studybase_graphing_recovery_v1')).id,'p2');
+  w.eval(fs.readFileSync(require.resolve('../qol.js'),'utf8'));
+  w.isGuest=false;w.currentUid='student1';w.dispatchEvent(new w.Event('studybase-account-ready'));
+  let recent=JSON.parse(w.localStorage.getItem('sbq:student1:recent'));assert.equal(recent[0].name,'First graph');assert.equal(new URL(recent[0].href).searchParams.get('project'),'p1');
+  byId('projectName').value='Renamed graph';byId('projectName').dispatchEvent(new w.Event('input'));byId('saveProject').click();
+  recent=JSON.parse(w.localStorage.getItem('sbq:student1:recent'));assert.equal(recent.length,1);assert.equal(recent[0].name,'Renamed graph');
+  byId('deleteProject').click();await settle();recent=JSON.parse(w.localStorage.getItem('sbq:student1:recent'));assert.equal(recent.length,1);assert.equal(new URL(recent[0].href).searchParams.get('project'),'p2');
+  await settle();dom.window.close();
+});
+
+test('compact mobile project actions retain handlers and dismiss with Escape',async()=>{
+  const {dom,w,sessions,byId}=fixture(undefined,undefined,true);await settle();
+  for(const file of ['qol.js','graphing-shell.js'])w.eval(fs.readFileSync(require.resolve('../'+file),'utf8'));
+  const actions=byId('projectActions'),summary=actions.querySelector('summary');
+  actions.open=true;byId('viewProject').click();await settle();
+  assert.equal(sessions.at(-1).options.readOnly,true);assert.equal(actions.open,false);
+  actions.open=true;byId('exportImage').click();
+  assert.equal(byId('imageDialog').open,true);assert.equal(actions.open,false);
+  byId('closeImage').click();actions.open=true;summary.focus();
+  actions.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+  assert.equal(actions.open,false);assert.equal(w.document.activeElement,summary);
+  await settle();dom.window.close();
+});
+
 test('shared profile and settings popovers support keyboard dismissal and scoped preferences',async()=>{
   const {dom,w,byId}=fixture();await settle();
   for(const file of ['qol.js','graphing-shell.js'])w.eval(fs.readFileSync(require.resolve('../'+file),'utf8'));
@@ -53,9 +83,9 @@ test('shared profile and settings popovers support keyboard dismissal and scoped
   profile.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
   assert.equal(profile.inert,true);assert.equal(w.document.activeElement,byId('hdrProfileBtn'));
   settings.click();assert.equal(menu.inert,false);
-  const width=menu.querySelector('select');width.value='wide';width.dispatchEvent(new w.Event('change'));
-  assert.equal(w.document.body.classList.contains('qol-wide'),true);
-  assert.equal(JSON.parse(w.localStorage.getItem('sbq:guest:preferences')).width,'wide');
+  const density=menu.querySelector('select');density.value='compact';density.dispatchEvent(new w.Event('change'));
+  assert.equal(w.document.body.classList.contains('qol-compact'),true);
+  assert.equal(JSON.parse(w.localStorage.getItem('sbq:guest:preferences')).density,'compact');
   menu.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
   assert.equal(menu.inert,true);assert.equal(w.document.activeElement,settings);
   await settle();
@@ -201,7 +231,16 @@ test('dedicated page mounts a real SVG graph, saves it and explores linked value
   const svg=new w.DOMParser().parseFromString(text,'image/svg+xml');
   assert.equal(svg.querySelector('parsererror'),null,svg.querySelector('parsererror')?.textContent);assert.equal(svg.documentElement.getAttribute('width'),'1200');
   assert.ok(svg.querySelector('path'));assert.ok(svg.querySelector('text'));assert.match(w.document.getElementById('imageStatus').textContent,/exported/);
-  w.document.getElementById('imageWidth').value='99999';await w.document.getElementById('downloadImage').onclick();assert.equal(downloads.length,1);
+  // Exercise the browser rasterisation pipeline without requiring a native
+  // canvas in jsdom; SVG geometry above is produced by the real graph editor.
+  let drawn=false;
+  w.Image=class{constructor(){this.width=1200;this.height=900;}set src(value){queueMicrotask(()=>this.onload());}};
+  w.HTMLCanvasElement.prototype.getContext=()=>({drawImage(){drawn=true;}});
+  w.HTMLCanvasElement.prototype.toBlob=function(callback,type){assert.equal(this.width,1200);assert.equal(this.height,900);callback(new w.Blob(['png'],{type}));};
+  w.document.getElementById('imageFormat').value='png';await w.document.getElementById('downloadImage').onclick();
+  assert.equal(drawn,true);assert.equal(downloads.at(-1).type,'image/png');
+  const count=downloads.length;
+  w.document.getElementById('imageWidth').value='99999';await w.document.getElementById('downloadImage').onclick();assert.equal(downloads.length,count);
   assert.match(w.document.getElementById('imageStatus').textContent,/320 to 4096/);
   w.close();
 });

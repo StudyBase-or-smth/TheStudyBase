@@ -6,7 +6,12 @@
       "question": "An engineer needs to analyse signal strength in communications cabling over time. Describe a device that the engineer could use in testing signal strength.",
       "isAICheck": true,
       "marks": 2,
-      "answer": "Full marks (2): describes a device that could be used to test signal strength — e.g. a cathode ray oscilloscope (CRO), which can detect faults, identify losses, or show interference in a circuit, displaying shape, frequency, voltage over time, signal strength and waveform type along with peak voltage. A signal strength meter or spectrum analyser is also acceptable. 1 mark: provides some relevant information without a clear description."
+      "answer": "Full marks (2): describes a device that could be used to test signal strength — e.g. a cathode ray oscilloscope (CRO), which can detect faults, identify losses, or show interference in a circuit, displaying shape, frequency, voltage over time, signal strength and waveform type along with peak voltage. A signal strength meter or spectrum analyser is also acceptable. 1 mark: provides some relevant information without a clear description.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "provides some relevant information without a clear description.",
+        "2": "describes a device that could be used to test signal strength — e.g. a cathode ray oscilloscope (CRO), which can detect faults, identify losses, or show interference in a circuit, displaying shape, frequency, voltage over time, signal strength and waveform type along with peak voltage. A signal strength meter or spectrum analyser is also acceptable."
+      }
     },
     {
       "id": "q21b",
@@ -14,7 +19,13 @@
       "question": "Explain why aluminium alloy wire is used as an electrical transmission medium between communications towers.",
       "isAICheck": true,
       "marks": 3,
-      "answer": "Full marks (3): explains why aluminium alloy is used — its low density means it better supports its own weight over long spans, reducing sag and enabling wider tower spacing, which makes the network more economical (fewer towers required). It is also less expensive than copper and more abundant. 2 marks: outlines relevant features of aluminium alloy wire without a full explanation of why it's chosen. 1 mark: some relevant information."
+      "answer": "Full marks (3): explains why aluminium alloy is used — its low density means it better supports its own weight over long spans, reducing sag and enabling wider tower spacing, which makes the network more economical (fewer towers required). It is also less expensive than copper and more abundant. 2 marks: outlines relevant features of aluminium alloy wire without a full explanation of why it's chosen. 1 mark: some relevant information.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information.",
+        "2": "outlines relevant features of aluminium alloy wire without a full explanation of why it's chosen.",
+        "3": "explains why aluminium alloy is used — its low density means it better supports its own weight over long spans, reducing sag and enabling wider tower spacing, which makes the network more economical (fewer towers required). It is also less expensive than copper and more abundant."
+      }
     },
     {
       "id": "q21c",
@@ -22,7 +33,14 @@
       "question": "Explain how voice signals are transmitted between two mobile phones over a cellular mobile network. Use a labelled sketch to support your answer.",
       "isAICheck": true,
       "marks": 4,
-      "answer": "Full marks (4): explains the full transmission path with a labelled sketch — when a person speaks into Phone A, the microphone converts sound waves into an electrical signal, which is digitised and modulated into a radio frequency (RF) signal. This is transmitted to the nearest cell base station, then through a ground station, via satellite to the other ground station, and on to Phone B's cell base station, where it is demodulated and converted back into sound at Phone B. 3 marks: outlines this process with a sketch. 2 marks: explains the process without a sketch, OR provides only a relevant labelled sketch. 1 mark: some relevant information. Note: this quiz can't collect a hand-drawn sketch, so grade the written description of the transmission process only — do not penalise for the missing sketch."
+      "answer": "Full marks (4): explains the full transmission path with a labelled sketch — when a person speaks into Phone A, the microphone converts sound waves into an electrical signal, which is digitised and modulated into a radio frequency (RF) signal. This is transmitted to the nearest cell base station, then through a ground station, via satellite to the other ground station, and on to Phone B's cell base station, where it is demodulated and converted back into sound at Phone B. 3 marks: outlines this process with a sketch. 2 marks: explains the process without a sketch, OR provides only a relevant labelled sketch. 1 mark: some relevant information. Note: this quiz can't collect a hand-drawn sketch, so grade the written description of the transmission process only — do not penalise for the missing sketch.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information. Note: this quiz can't collect a hand-drawn sketch, so grade the written description of the transmission process only — do not penalise for the missing sketch.",
+        "2": "explains the process without a sketch, OR provides only a relevant labelled sketch.",
+        "3": "outlines this process with a sketch.",
+        "4": "explains the full transmission path with a labelled sketch — when a person speaks into Phone A, the microphone converts sound waves into an electrical signal, which is digitised and modulated into a radio frequency (RF) signal. This is transmitted to the nearest cell base station, then through a ground station, via satellite to the other ground station, and on to Phone B's cell base station, where it is demodulated and converted back into sound at Phone B."
+      }
     },
     {
       "id": "q21d",
@@ -30,7 +48,14 @@
       "question": "Discuss the effect of ONE telecommunications engineering innovation on people's lives.",
       "isAICheck": true,
       "marks": 4,
-      "answer": "Full marks (4): discusses (covers both positive and negative effects, not just one side) the effect of one telecommunications innovation — e.g. the internet has enabled quick access to information, global communication and flexible remote work, but has also led to job displacement through outsourcing to lower-labour-cost countries, and raised cybersecurity/privacy concerns with sensitive data vulnerable to attacks and leaks. Any other real telecommunications innovation (mobile phones, satellite communication, social media, etc.) discussed with genuine positive AND negative effects is acceptable. 3 marks: describes the effect of one innovation (one-sided, not a balanced discussion). 2 marks: demonstrates some understanding of how such innovations have affected people's lives. 1 mark: some relevant information."
+      "answer": "Full marks (4): discusses (covers both positive and negative effects, not just one side) the effect of one telecommunications innovation — e.g. the internet has enabled quick access to information, global communication and flexible remote work, but has also led to job displacement through outsourcing to lower-labour-cost countries, and raised cybersecurity/privacy concerns with sensitive data vulnerable to attacks and leaks. Any other real telecommunications innovation (mobile phones, satellite communication, social media, etc.) discussed with genuine positive AND negative effects is acceptable. 3 marks: describes the effect of one innovation (one-sided, not a balanced discussion). 2 marks: demonstrates some understanding of how such innovations have affected people's lives. 1 mark: some relevant information.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information.",
+        "2": "demonstrates some understanding of how such innovations have affected people's lives.",
+        "3": "describes the effect of one innovation (one-sided, not a balanced discussion).",
+        "4": "discusses (covers both positive and negative effects, not just one side) the effect of one telecommunications innovation — e.g. the internet has enabled quick access to information, global communication and flexible remote work, but has also led to job displacement through outsourcing to lower-labour-cost countries, and raised cybersecurity/privacy concerns with sensitive data vulnerable to attacks and leaks. Any other real telecommunications innovation (mobile phones, satellite communication, social media, etc.) discussed with genuine positive AND negative effects is acceptable."
+      }
     },
     {
       "id": "q22a",
@@ -38,7 +63,12 @@
       "question": "A building is being partially demolished and replaced. Part of the original structure will be retained. Outline a method that could be used to recycle a material from the building.",
       "isAICheck": true,
       "marks": 2,
-      "answer": "Full marks (2): outlines a suitable recycling method for a material from the building — e.g. concrete from demolished structures can be crushed and recycled as aggregate for new construction, reducing waste. Also acceptable: steel from demolished structures (roofing, foundations, framing, fences) melted down and reused in new construction, reducing demand for raw materials; or glass (windows, skylights, mirrors, etc.) crushed into cullet and recycled into new glass products or used as aggregate in concrete or asphalt. 1 mark: some relevant information."
+      "answer": "Full marks (2): outlines a suitable recycling method for a material from the building — e.g. concrete from demolished structures can be crushed and recycled as aggregate for new construction, reducing waste. Also acceptable: steel from demolished structures (roofing, foundations, framing, fences) melted down and reused in new construction, reducing demand for raw materials; or glass (windows, skylights, mirrors, etc.) crushed into cullet and recycled into new glass products or used as aggregate in concrete or asphalt. 1 mark: some relevant information.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information.",
+        "2": "outlines a suitable recycling method for a material from the building — e.g. concrete from demolished structures can be crushed and recycled as aggregate for new construction, reducing waste. Also acceptable: steel from demolished structures (roofing, foundations, framing, fences) melted down and reused in new construction, reducing demand for raw materials; or glass (windows, skylights, mirrors, etc.) crushed into cullet and recycled into new glass products or used as aggregate in concrete or asphalt."
+      }
     },
     {
       "id": "q22b",
@@ -46,7 +76,13 @@
       "question": "Engineers want to retain some steel components of the building. Describe a suitable process which could be used to detect surface cracks in ONE steel component of the building.",
       "isAICheck": true,
       "marks": 3,
-      "answer": "Full marks (3): describes a suitable crack-detection process — e.g. dye penetrant testing: the steel is cleaned, a liquid dye is applied that penetrates any surface cracks and is left to settle, excess dye is wiped off, a developer is applied which draws the dye out of the cracks making them visible under ultraviolet light, and the cracks are then inspected for severity. Magnetic particle inspection, visual inspection, or eddy current testing are also acceptable, described with similar detail. 2 marks: identifies some features of such a process without a full description. 1 mark: some relevant information."
+      "answer": "Full marks (3): describes a suitable crack-detection process — e.g. dye penetrant testing: the steel is cleaned, a liquid dye is applied that penetrates any surface cracks and is left to settle, excess dye is wiped off, a developer is applied which draws the dye out of the cracks making them visible under ultraviolet light, and the cracks are then inspected for severity. Magnetic particle inspection, visual inspection, or eddy current testing are also acceptable, described with similar detail. 2 marks: identifies some features of such a process without a full description. 1 mark: some relevant information.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information.",
+        "2": "identifies some features of such a process without a full description.",
+        "3": "describes a suitable crack-detection process — e.g. dye penetrant testing: the steel is cleaned, a liquid dye is applied that penetrates any surface cracks and is left to settle, excess dye is wiped off, a developer is applied which draws the dye out of the cracks making them visible under ultraviolet light, and the cracks are then inspected for severity. Magnetic particle inspection, visual inspection, or eddy current testing are also acceptable, described with similar detail."
+      }
     },
     {
       "id": "q22ci",
@@ -55,8 +91,16 @@
       "image": "q22c-bracket.png",
       "math": true,
       "answers": [
-        { "type": "working", "text": "10000", "correct": true },
-        { "type": "answer", "text": "49.7", "correct": true }
+        {
+          "type": "working",
+          "text": "10000",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "49.7",
+          "correct": true
+        }
       ]
     },
     {
@@ -65,7 +109,11 @@
       "question": "The shear strength of each connecting bolt is 250 MPa. The support structure must have a factor of safety (FoS) of 2.5. Determine if the M16 bolts used can safely support the 30 kN load. Support your answer with a calculation.",
       "math": true,
       "answers": [
-        { "type": "answer", "text": "100", "correct": true }
+        {
+          "type": "answer",
+          "text": "100",
+          "correct": true
+        }
       ]
     },
     {
@@ -74,7 +122,12 @@
       "question": "A winch is a gear system. It can be used to pull a boat out of the water and up a slipway. Outline the function of the gears in a winch.",
       "isAICheck": true,
       "marks": 2,
-      "answer": "Full marks (2): outlines the function of gears in a winch — to amplify the effort applied (increase mechanical advantage), to increase the velocity ratio, and/or to change the direction of the applied force. 1 mark: some relevant information."
+      "answer": "Full marks (2): outlines the function of gears in a winch — to amplify the effort applied (increase mechanical advantage), to increase the velocity ratio, and/or to change the direction of the applied force. 1 mark: some relevant information.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information.",
+        "2": "outlines the function of gears in a winch — to amplify the effort applied (increase mechanical advantage), to increase the velocity ratio, and/or to change the direction of the applied force."
+      }
     },
     {
       "id": "q23b",
@@ -82,7 +135,12 @@
       "question": "Outline a heat treatment method used during the manufacture of mild carbon steel gears.",
       "isAICheck": true,
       "marks": 2,
-      "answer": "Full marks (2): outlines a heat treatment method — e.g. case hardening: the gears are heated in a carbon-rich environment (carburising), allowing carbon to diffuse into the surface layer to form a high-carbon case, then the gears are quenched and tempered. 1 mark: some relevant information."
+      "answer": "Full marks (2): outlines a heat treatment method — e.g. case hardening: the gears are heated in a carbon-rich environment (carburising), allowing carbon to diffuse into the surface layer to form a high-carbon case, then the gears are quenched and tempered. 1 mark: some relevant information.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information.",
+        "2": "outlines a heat treatment method — e.g. case hardening: the gears are heated in a carbon-rich environment (carburising), allowing carbon to diffuse into the surface layer to form a high-carbon case, then the gears are quenched and tempered."
+      }
     },
     {
       "id": "q23ci",
@@ -91,9 +149,21 @@
       "image": "q23c-boat-winch.png",
       "math": true,
       "answers": [
-        { "type": "working", "text": "12000", "correct": true },
-        { "type": "working", "text": "21.8", "correct": true },
-        { "type": "answer", "text": "9633.87", "correct": true }
+        {
+          "type": "working",
+          "text": "12000",
+          "correct": true
+        },
+        {
+          "type": "working",
+          "text": "21.8",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "9633.87",
+          "correct": true
+        }
       ]
     },
     {
@@ -102,8 +172,16 @@
       "question": "If the velocity ratio (VR) of the winch system is 2, calculate the efficiency.",
       "math": true,
       "answers": [
-        { "type": "working", "text": "1.2456", "correct": true },
-        { "type": "answer", "text": "62.3", "correct": true }
+        {
+          "type": "working",
+          "text": "1.2456",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "62.3",
+          "correct": true
+        }
       ]
     },
     {
@@ -112,7 +190,12 @@
       "question": "Outline the properties of Kevlar that make it suitable for use in an aircraft.",
       "isAICheck": true,
       "marks": 2,
-      "answer": "Full marks (2): outlines the properties of Kevlar suitable for aircraft use — high tensile strength, lightweight nature, heat resistance, and excellent resistance to abrasion and impact. 1 mark: some relevant information."
+      "answer": "Full marks (2): outlines the properties of Kevlar suitable for aircraft use — high tensile strength, lightweight nature, heat resistance, and excellent resistance to abrasion and impact. 1 mark: some relevant information.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information.",
+        "2": "outlines the properties of Kevlar suitable for aircraft use — high tensile strength, lightweight nature, heat resistance, and excellent resistance to abrasion and impact."
+      }
     },
     {
       "id": "q24b",
@@ -120,7 +203,12 @@
       "question": "Describe what may cause an aircraft to stall in flight.",
       "isAICheck": true,
       "marks": 2,
-      "answer": "Full marks (2): describes the cause of a stall — when the angle of attack becomes too steep, air loses laminar flow over the wing. This causes lift to reduce and the aircraft is therefore unable to maintain altitude. 1 mark: some relevant information."
+      "answer": "Full marks (2): describes the cause of a stall — when the angle of attack becomes too steep, air loses laminar flow over the wing. This causes lift to reduce and the aircraft is therefore unable to maintain altitude. 1 mark: some relevant information.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information.",
+        "2": "describes the cause of a stall — when the angle of attack becomes too steep, air loses laminar flow over the wing. This causes lift to reduce and the aircraft is therefore unable to maintain altitude."
+      }
     },
     {
       "id": "q24c",
@@ -128,7 +216,14 @@
       "question": "Describe the operation of a mechanical altimeter. Use a labelled diagram to support your answer.",
       "isAICheck": true,
       "marks": 4,
-      "answer": "Full marks (4): describes the operation of a mechanical altimeter with a labelled diagram — it measures changes in atmospheric pressure as altitude changes. It uses a sealed capsule (aneroid) connected to a static vent that responds to external air pressure. As altitude increases, the external pressure at the static vent decreases, causing the sealed capsule to expand. This expansion is mechanically linked (via a geared mechanism) to a needle or digital display, which indicates the altitude — the greater the altitude, the greater the expansion of the capsule due to lower air pressure. 3 marks: outlines the operation with a diagram. 2 marks: describes the operation without a diagram, OR provides only a relevant labelled sketch. 1 mark: some relevant information. Note: this quiz can't collect a hand-drawn diagram, so grade the written description only — do not penalise for the missing diagram."
+      "answer": "Full marks (4): describes the operation of a mechanical altimeter with a labelled diagram — it measures changes in atmospheric pressure as altitude changes. It uses a sealed capsule (aneroid) connected to a static vent that responds to external air pressure. As altitude increases, the external pressure at the static vent decreases, causing the sealed capsule to expand. This expansion is mechanically linked (via a geared mechanism) to a needle or digital display, which indicates the altitude — the greater the altitude, the greater the expansion of the capsule due to lower air pressure. 3 marks: outlines the operation with a diagram. 2 marks: describes the operation without a diagram, OR provides only a relevant labelled sketch. 1 mark: some relevant information. Note: this quiz can't collect a hand-drawn diagram, so grade the written description only — do not penalise for the missing diagram.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information. Note: this quiz can't collect a hand-drawn diagram, so grade the written description only — do not penalise for the missing diagram.",
+        "2": "describes the operation without a diagram, OR provides only a relevant labelled sketch.",
+        "3": "outlines the operation with a diagram.",
+        "4": "describes the operation of a mechanical altimeter with a labelled diagram — it measures changes in atmospheric pressure as altitude changes. It uses a sealed capsule (aneroid) connected to a static vent that responds to external air pressure. As altitude increases, the external pressure at the static vent decreases, causing the sealed capsule to expand. This expansion is mechanically linked (via a geared mechanism) to a needle or digital display, which indicates the altitude — the greater the altitude, the greater the expansion of the capsule due to lower air pressure."
+      }
     },
     {
       "id": "q25a",
@@ -136,7 +231,12 @@
       "question": "Describe the manufacturing process of powder forming.",
       "isAICheck": true,
       "marks": 2,
-      "answer": "Full marks (2): describes the process of powder forming — metal powder is produced, then the metal powder is pressed/compacted into a mould to shape it, and sintered (heated below its melting point) to bond the particles into a solid part. 1 mark: some relevant information."
+      "answer": "Full marks (2): describes the process of powder forming — metal powder is produced, then the metal powder is pressed/compacted into a mould to shape it, and sintered (heated below its melting point) to bond the particles into a solid part. 1 mark: some relevant information.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information.",
+        "2": "describes the process of powder forming — metal powder is produced, then the metal powder is pressed/compacted into a mould to shape it, and sintered (heated below its melting point) to bond the particles into a solid part."
+      }
     },
     {
       "id": "q25b",
@@ -144,7 +244,13 @@
       "question": "An engineer is deciding whether to use pre-tensioned concrete or post-tensioned concrete to make beams for a railway bridge. Describe features of the manufacture of pre-tensioned and post-tensioned concrete that the engineer should consider.",
       "isAICheck": true,
       "marks": 3,
-      "answer": "Full marks (3): describes features of both — pre-tensioned concrete involves tensioning tendons before pouring the concrete, typically in a factory; it requires less time on-site and is cost-effective for mass production. Post-tensioned concrete involves tensioning tendons after the concrete has cured, usually on-site, offering more flexibility but requiring more time, equipment, and potentially higher costs. 2 marks: outlines features of the manufacture of pre-tensioned and post-tensioned concrete beams without full description. 1 mark: some relevant information."
+      "answer": "Full marks (3): describes features of both — pre-tensioned concrete involves tensioning tendons before pouring the concrete, typically in a factory; it requires less time on-site and is cost-effective for mass production. Post-tensioned concrete involves tensioning tendons after the concrete has cured, usually on-site, offering more flexibility but requiring more time, equipment, and potentially higher costs. 2 marks: outlines features of the manufacture of pre-tensioned and post-tensioned concrete beams without full description. 1 mark: some relevant information.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information.",
+        "2": "outlines features of the manufacture of pre-tensioned and post-tensioned concrete beams without full description.",
+        "3": "describes features of both — pre-tensioned concrete involves tensioning tendons before pouring the concrete, typically in a factory; it requires less time on-site and is cost-effective for mass production. Post-tensioned concrete involves tensioning tendons after the concrete has cured, usually on-site, offering more flexibility but requiring more time, equipment, and potentially higher costs."
+      }
     },
     {
       "id": "q25c",
@@ -153,7 +259,14 @@
       "image": "q25c-circuits.png",
       "isAICheck": true,
       "marks": 4,
-      "answer": "Full marks (4): names the first circuit as half-wave rectification and the second as full-wave rectification; describes the DC waveform after each — half-wave rectification produces only the positive humps of the AC wave with gaps where the negative half-cycles were removed; full-wave rectification (no capacitor) produces continuous positive humps with no gaps (twice the ripple frequency of half-wave); full-wave rectification with the capacitor produces a smoothed, mostly-flat DC level with small ripple, charging at each voltage peak and discharging slightly between peaks; outlines the capacitor's function as smoothing the DC output by reducing ripple — it charges at voltage peaks and discharges during dips, providing a more stable DC supply for electronic devices. 2-3 marks: completes most of the table with appropriate entries. 1 mark: some relevant information. Note: this quiz can't collect a hand-drawn waveform sketch, so grade the described shape of each waveform and the capacitor explanation rather than requiring an actual drawing."
+      "answer": "Full marks (4): names the first circuit as half-wave rectification and the second as full-wave rectification; describes the DC waveform after each — half-wave rectification produces only the positive humps of the AC wave with gaps where the negative half-cycles were removed; full-wave rectification (no capacitor) produces continuous positive humps with no gaps (twice the ripple frequency of half-wave); full-wave rectification with the capacitor produces a smoothed, mostly-flat DC level with small ripple, charging at each voltage peak and discharging slightly between peaks; outlines the capacitor's function as smoothing the DC output by reducing ripple — it charges at voltage peaks and discharges during dips, providing a more stable DC supply for electronic devices. 2-3 marks: completes most of the table with appropriate entries. 1 mark: some relevant information. Note: this quiz can't collect a hand-drawn waveform sketch, so grade the described shape of each waveform and the capacitor explanation rather than requiring an actual drawing.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information. Note: this quiz can't collect a hand-drawn waveform sketch, so grade the described shape of each waveform and the capacitor explanation rather than requiring an actual drawing.",
+        "2": "Correctly completes some substantial table entries: the rectifier identities, waveform descriptions, or capacitor function, but other major entries are missing or wrong.",
+        "3": "Correctly completes most of the rectifier identities, waveform descriptions and capacitor explanation, with one significant omission or error. Do not require a drawn sketch.",
+        "4": "names the first circuit as half-wave rectification and the second as full-wave rectification; describes the DC waveform after each — half-wave rectification produces only the positive humps of the AC wave with gaps where the negative half-cycles were removed; full-wave rectification (no capacitor) produces continuous positive humps with no gaps (twice the ripple frequency of half-wave); full-wave rectification with the capacitor produces a smoothed, mostly-flat DC level with small ripple, charging at each voltage peak and discharging slightly between peaks; outlines the capacitor's function as smoothing the DC output by reducing ripple — it charges at voltage peaks and discharges during dips, providing a more stable DC supply for electronic devices."
+      }
     },
     {
       "id": "q26a",
@@ -161,7 +274,12 @@
       "question": "Outline the importance of engineers working collaboratively during a construction project.",
       "isAICheck": true,
       "marks": 2,
-      "answer": "Full marks (2): outlines the importance of collaboration — engineers must collaborate with other professionals, such as architects and electricians, to ensure safety, efficiency, and compliance for different aspects of a project. This teamwork helps solve problems, prevents delays, and ensures the project meets all requirements. 1 mark: some relevant information."
+      "answer": "Full marks (2): outlines the importance of collaboration — engineers must collaborate with other professionals, such as architects and electricians, to ensure safety, efficiency, and compliance for different aspects of a project. This teamwork helps solve problems, prevents delays, and ensures the project meets all requirements. 1 mark: some relevant information.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information.",
+        "2": "outlines the importance of collaboration — engineers must collaborate with other professionals, such as architects and electricians, to ensure safety, efficiency, and compliance for different aspects of a project. This teamwork helps solve problems, prevents delays, and ensures the project meets all requirements."
+      }
     },
     {
       "id": "q26b",
@@ -169,7 +287,13 @@
       "question": "Explain how the introduction of steel beams in bridge construction has affected people's lives.",
       "isAICheck": true,
       "marks": 3,
-      "answer": "Full marks (3): explains the effect — the introduction of steel beams in bridge construction has made stronger, longer-lasting bridges able to support heavier loads. This improved transportation, trade and connectivity, allowing faster travel and the growth of industries, benefiting communities. 2 marks: demonstrates some understanding of how the introduction of steel beams has affected people's lives. 1 mark: some relevant information."
+      "answer": "Full marks (3): explains the effect — the introduction of steel beams in bridge construction has made stronger, longer-lasting bridges able to support heavier loads. This improved transportation, trade and connectivity, allowing faster travel and the growth of industries, benefiting communities. 2 marks: demonstrates some understanding of how the introduction of steel beams has affected people's lives. 1 mark: some relevant information.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information.",
+        "2": "demonstrates some understanding of how the introduction of steel beams has affected people's lives.",
+        "3": "explains the effect — the introduction of steel beams in bridge construction has made stronger, longer-lasting bridges able to support heavier loads. This improved transportation, trade and connectivity, allowing faster travel and the growth of industries, benefiting communities."
+      }
     },
     {
       "id": "q26c",
@@ -178,9 +302,21 @@
       "image": "q26c-truss.png",
       "math": true,
       "answers": [
-        { "type": "working", "text": "15.615", "correct": true },
-        { "type": "answer", "text": "5869.7", "correct": true },
-        { "type": "answer", "text": "tension", "correct": true }
+        {
+          "type": "working",
+          "text": "15.615",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "5869.7",
+          "correct": true
+        },
+        {
+          "type": "answer",
+          "text": "tension",
+          "correct": true
+        }
       ]
     },
     {
@@ -189,7 +325,13 @@
       "question": "Security cameras are becoming more commonly used in society. Describe the ethical concerns that should be considered when designing and developing telecommunications projects such as security cameras.",
       "isAICheck": true,
       "marks": 3,
-      "answer": "Full marks (3): describes ethical concerns — e.g. privacy invasion, data security risks, and misuse of footage. Facial recognition can lead to bias and discrimination. Additionally, cameras may create a false sense of security and influence people's behaviour, leading to self-censorship or discomfort. 2 marks: describes one ethical concern, or outlines some details of the ethical concerns. 1 mark: some relevant information."
+      "answer": "Full marks (3): describes ethical concerns — e.g. privacy invasion, data security risks, and misuse of footage. Facial recognition can lead to bias and discrimination. Additionally, cameras may create a false sense of security and influence people's behaviour, leading to self-censorship or discomfort. 2 marks: describes one ethical concern, or outlines some details of the ethical concerns. 1 mark: some relevant information.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information.",
+        "2": "describes one ethical concern, or outlines some details of the ethical concerns.",
+        "3": "describes ethical concerns — e.g. privacy invasion, data security risks, and misuse of footage. Facial recognition can lead to bias and discrimination. Additionally, cameras may create a false sense of security and influence people's behaviour, leading to self-censorship or discomfort."
+      }
     },
     {
       "id": "q27b",
@@ -197,7 +339,13 @@
       "question": "Describe the process of artificial age hardening of aluminium alloys.",
       "isAICheck": true,
       "marks": 3,
-      "answer": "Full marks (3): describes the process — artificial age hardening is a heat treatment process where a metal alloy is intentionally heated to a specific temperature after being rapidly cooled from a high temperature (solution treated), allowing dissolved alloying elements to precipitate out of the material, forming tiny particles that significantly increase the material's strength and hardness. 2 marks: outlines some steps in the process. 1 mark: some relevant information."
+      "answer": "Full marks (3): describes the process — artificial age hardening is a heat treatment process where a metal alloy is intentionally heated to a specific temperature after being rapidly cooled from a high temperature (solution treated), allowing dissolved alloying elements to precipitate out of the material, forming tiny particles that significantly increase the material's strength and hardness. 2 marks: outlines some steps in the process. 1 mark: some relevant information.",
+      "markingLevels": {
+        "0": "No relevant correct information addressing this task.",
+        "1": "some relevant information.",
+        "2": "outlines some steps in the process.",
+        "3": "describes the process — artificial age hardening is a heat treatment process where a metal alloy is intentionally heated to a specific temperature after being rapidly cooled from a high temperature (solution treated), allowing dissolved alloying elements to precipitate out of the material, forming tiny particles that significantly increase the material's strength and hardness."
+      }
     }
   ]
 }

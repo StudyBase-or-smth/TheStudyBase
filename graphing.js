@@ -35,13 +35,23 @@
   if(typeof document==='undefined')return;
   const byId=id=>document.getElementById(id),clone=data=>JSON.parse(JSON.stringify(data));
   const RECOVERY_KEY='studybase_graphing_recovery_v1',LAYOUT_KEY='studybase_graphing_layout_v1';
-  let projects=[],current,editor,viewing=false,shared=false,dirty=false,mount=0,loading=false,saveTimer,storageReadable=true,layoutCleanup=()=>{};
+  let projects=[],current,editor,viewing=false,shared=false,dirty=false,mount=0,loading=false,saveTimer,statusTimer,storageReadable=true,layoutCleanup=()=>{};
   const canvas=byId('graphingCanvas'),name=byId('projectName'),status=byId('graphingStatus');
   root.onDarkModeChange=()=>editor?.updateSettings?.();
-  function message(text,error=false){status.textContent=text;status.dataset.error=String(error);}
+  function message(text,error=false){
+    clearTimeout(statusTimer);status.textContent=text;status.dataset.error=String(error);
+    if(!error&&/^(Autosaved|Project saved|Project exported|Project deleted)/.test(text))statusTimer=setTimeout(()=>{status.textContent='';},3000);
+  }
   function uid(){return root.crypto?.randomUUID?.()||'graph-'+Date.now()+'-'+Math.random().toString(36).slice(2);}
   function draft(){return {id:uid(),name:'Untitled project',graph:cleanGraph({v:1,expressions:[{id:'curve',text:'y = x^2',color:'#2d70b3'}]})};}
   function snapshot(){return projectData({name:name.value,graph:!viewing&&editor?editor.getState():current.graph});}
+  function projectURL(id){const url=new URL('graphing.html',location.href);url.searchParams.set('project',id);return url.href;}
+  function recordRecent(){
+    if(shared||!current||!projects.some(p=>p.id===current.id))return;
+    root.SBQoL?.recordActivity(current.name,'','Graphing tool',projectURL(current.id));
+  }
+  root.addEventListener('studybase-account-ready',recordRecent);
+  document.addEventListener('DOMContentLoaded',recordRecent);
   function persist(next){
     if(!storageReadable)throw Error('Saved projects could not be read. Export your graph before repairing browser storage.');
     localStorage.setItem(STORAGE_KEY,JSON.stringify({v:1,projects:next}));projects=next;
@@ -63,7 +73,7 @@
       const data=snapshot(),id=shared?uid():current.id,saved={id,updatedAt:Date.now(),...data};
       persist([...projects.filter(p=>p.id!==id),saved]);current=clone(saved);dirty=false;clearRecovery();
       if(shared){shared=false;viewing=false;history.replaceState(null,'',location.pathname+location.search);mountProject();}
-      else{controls();renderProjects();}
+      else{controls();renderProjects();recordRecent();const url=new URL(location.href);url.searchParams.set('project',current.id);history.replaceState(null,'',url);}
       message(manual?'Project saved on this device.':'Autosaved on this device.');return true;
     }catch(error){message(error.message||'Could not save. Export your project to keep a copy.',true);controls();return false;}
   }
@@ -90,6 +100,7 @@
     byId('viewNote').textContent=viewing?'Explore values without changing the saved formulas.':'Changes autosave on this device. Export a project to keep a portable copy.';
   }
   async function mountProject(){
+    if(!shared){const url=new URL(location.href);url.hash='';if(projects.some(p=>p.id===current.id))url.searchParams.set('project',current.id);else url.searchParams.delete('project');history.replaceState(null,'',url);recordRecent();}
     const token=++mount;layoutCleanup();if(editor){editor.destroy();editor=null;}loading=true;name.value=current.name;controls();renderProjects();
     canvas.replaceChildren();const wait=document.createElement('p');wait.className='graphing-loading';wait.textContent='Loading graph…';canvas.append(wait);
     try{
@@ -108,7 +119,7 @@
   byId('viewProject').onclick=()=>{if(!editor)return;if(!viewing){if(dirty&&!save(false))return;current={...current,...snapshot()};}viewing=!viewing;message('');mountProject();};
   byId('deleteProject').onclick=()=>{
     if(!confirm('Delete “'+current.name+'” from this device?'))return;
-    try{clearTimeout(saveTimer);persist(projects.filter(p=>p.id!==current.id));clearRecovery();current=projects.length?clone(projects[0]):draft();viewing=false;dirty=false;mountProject();message('Project deleted.');}catch(error){message(error.message,true);}
+    try{clearTimeout(saveTimer);persist(projects.filter(p=>p.id!==current.id));root.SBQoL?.removeActivity(projectURL(current.id));clearRecovery();current=projects.length?clone(projects[0]):draft();viewing=false;dirty=false;mountProject();message('Project deleted.');}catch(error){message(error.message,true);}
   };
   function download(blob,filename){const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
   const filename=()=>snapshot().name.replace(/[^\p{L}\p{N} _-]/gu,'').trim().slice(0,80)||'graph';
@@ -144,7 +155,7 @@
     let dragging=false;
     function persistLayout(){try{localStorage.setItem(LAYOUT_KEY,JSON.stringify(layout));}catch{}}
     function apply(){
-      const vertical=!mobile?.matches,max=vertical?Math.max(200,Math.min(600,(canvas.clientWidth||900)-220)):480,key=vertical?'width':'height';
+      const vertical=!mobile?.matches,max=vertical?Math.max(200,Math.min(600,(canvas.clientWidth||900)-220)):Math.max(120,Math.min(480,(canvas.clientHeight||660)-180)),key=vertical?'width':'height';
       layout[key]=Math.max(vertical?200:120,Math.min(max,Number(layout[key])|| (vertical?290:260)));
       panel.hidden=!!layout.hidden;panel.inert=!!layout.hidden;separator.hidden=!!layout.hidden;
       canvas.style.setProperty('--expression-width',layout.width+'px');canvas.style.setProperty('--expression-height',layout.height+'px');
@@ -169,8 +180,10 @@
     const encoded=new URLSearchParams(location.hash.slice(1)).get('graph');
     if(encoded){current={id:uid(),...decodeShare(encoded)};shared=true;viewing=true;}
     else{
-      current=projects.length?clone([...projects].sort((a,b)=>b.updatedAt-a.updatedAt)[0]):draft();
-      try{const recovery=JSON.parse(localStorage.getItem(RECOVERY_KEY)||'null');if(recovery?.v===1&&typeof recovery.id==='string'&&Number.isFinite(recovery.updatedAt)){const saved=projects.find(p=>p.id===recovery.id);if(!saved||recovery.updatedAt>saved.updatedAt){current={id:recovery.id,...projectData(recovery)};dirty=true;message('Recovered your last unsaved graph. Save or export it to keep a copy.');}}}catch{message('A recovery draft could not be read. Saved projects are still available.',true);}
+      const requested=new URLSearchParams(location.search).get('project'),selected=projects.find(p=>p.id===requested);
+      current=requested?(selected?clone(selected):draft()):projects.length?clone([...projects].sort((a,b)=>b.updatedAt-a.updatedAt)[0]):draft();
+      if(requested&&!selected)message('This project is no longer available on this device.',true);
+      try{const recovery=JSON.parse(localStorage.getItem(RECOVERY_KEY)||'null');if(recovery?.v===1&&typeof recovery.id==='string'&&Number.isFinite(recovery.updatedAt)&&(!requested||requested===recovery.id)){const saved=projects.find(p=>p.id===recovery.id);if(!saved||recovery.updatedAt>saved.updatedAt){current={id:recovery.id,...projectData(recovery)};dirty=true;message('Recovered your last unsaved graph. Save or export it to keep a copy.');}}}catch{message('A recovery draft could not be read. Saved projects are still available.',true);}
     }
   }catch(error){current=draft();message(error.message,true);}
   mountProject();

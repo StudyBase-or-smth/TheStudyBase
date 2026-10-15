@@ -128,6 +128,7 @@ function refreshHubLists(){
 
 window.onHubAuthReady = function (uid) {
   window.currentUid = uid;
+  window.SBQoL?.refreshContinue();
   if (typeof applyProfileCache === 'function') applyProfileCache(uid);
   refreshHubLists();
   if (typeof pullProfile === 'function') {

@@ -20,9 +20,30 @@
         <span class="logo-icon2"><img src="icon.png" alt="" width="24" height="24"></span>
         <span><span class="logo-text2">StudyBase</span><span class="logo-sub-txt">EXPERIMENTAL TOOLS</span></span>
       </a>
-      <nav class="hdr-breadcrumb" aria-label="Breadcrumb"><a class="bc-link" href="index.html">Index</a><span class="bc-sep" aria-hidden="true">›</span><h1 class="bc-current">Graphing tool</h1></nav>
+      <h1 class="graphing-sr-only">Graphing tool</h1>
+      <button class="hdr-ghost" id="openProjects" type="button">Projects</button>
+      <div class="graphing-project-title">
+        <label class="graphing-sr-only" for="projectName">Project name</label>
+        <input id="projectName" maxlength="100" value="Untitled project" autocomplete="off">
+        <span id="projectState">Unsaved project</span>
+      </div>
       <div class="hdr-right-row">
-        <button class="hdr-ghost" id="openProjects" type="button">Projects</button>
+        <button type="button" id="viewProject" class="hdr-ghost" disabled>View</button>
+        <button type="button" id="shareProject" class="hdr-ghost" disabled>Share</button>
+        <button type="button" id="saveProject" class="qol-button primary" disabled>Save project</button>
+        <details class="graphing-more" id="projectActions">
+          <summary class="hdr-ghost" aria-label="More project actions">⋯</summary>
+          <div class="graphing-more-panel">
+            <button id="newProject" type="button" class="qol-button">New project</button>
+            <button id="duplicateProject" type="button" class="qol-button" disabled>Duplicate</button>
+            <button id="importProject" type="button" class="qol-button">Import project</button>
+            <button id="exportProject" type="button" class="qol-button" disabled>Export project</button>
+            <button id="exportImage" type="button" class="qol-button" disabled>Export image</button>
+            <button id="toggleExpressions" type="button" class="qol-button" aria-expanded="true">Hide expressions</button>
+            <span id="viewNote" class="qol-muted">Changes autosave on this device.</span>
+            <button id="deleteProject" class="qol-button danger" type="button" hidden>Delete project</button>
+          </div>
+        </details>
         <div class="hdr-notify-wrap" id="hdrNotifyWrap" hidden>
           <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications"><span aria-hidden="true">🔔</span><span class="hdr-notify-badge" id="hdrNotifyBadge" hidden></span></button>
           <div class="hdr-notify-tip" id="hdrNotifyTip"></div>
@@ -39,30 +60,9 @@
   </header>
   <main class="graphing-workspace">
     <section class="graphing-main" aria-label="Graph workspace">
-      <div class="graphing-project-toolbar">
-        <div class="graphing-project-title">
-          <label class="graphing-label" for="projectName">Project name</label>
-          <input id="projectName" maxlength="100" value="Untitled project" autocomplete="off">
-          <span id="projectState">Unsaved project</span>
-        </div>
-        <div class="graphing-actions">
-          <button id="newProject" type="button" class="qol-button">New</button>
-          <button id="duplicateProject" type="button" class="qol-button" disabled>Duplicate</button>
-          <button id="importProject" type="button" class="qol-button">Import</button>
-          <button id="exportProject" type="button" class="qol-button" disabled>Export project</button>
-          <button id="exportImage" type="button" class="qol-button" disabled>Export image</button>
-          <button id="toggleExpressions" type="button" class="qol-button" aria-expanded="true">Hide expressions</button>
-          <button type="button" id="viewProject" class="qol-button" disabled>View</button>
-          <button type="button" id="shareProject" class="qol-button" disabled>Share</button>
-          <button type="button" id="saveProject" class="qol-button primary" disabled>Save project</button>
-        </div>
-      </div>
       <p id="graphingStatus" class="graphing-status" role="status" aria-live="polite"></p>
       <div id="graphingCanvas" class="graphing-canvas"><p class="graphing-loading">Loading graph…</p></div>
-      <div class="graphing-project-footer">
-        <span id="viewNote">Build your graph, then switch to View to explore its values.</span>
-        <button id="deleteProject" class="qol-button danger" type="button" hidden>Delete project</button>
-      </div>
+
     </section>
   </main>
   <input id="projectFile" type="file" accept=".json,application/json" hidden>

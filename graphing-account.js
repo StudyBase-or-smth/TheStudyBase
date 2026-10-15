@@ -19,6 +19,7 @@ function showLocalAccount(message) {
     const link = document.createElement('a'); link.className = 'qol-view-profile graphing-signin'; link.href = 'login.html'; link.textContent = 'Sign in'; tip.append(link);
   }
   window.SBQoL?.applyPreferences();
+  window.dispatchEvent(new Event('studybase-account-ready'));
 }
 
 try {
@@ -47,6 +48,7 @@ try {
       window.userRole = claims.role || 'student';
       window.bootHdrProfile(user, window.userRole);
       window.SBQoL?.applyPreferences();
+      window.dispatchEvent(new Event('studybase-account-ready'));
       window.sbNotifyRefresh?.();
     } catch { showLocalAccount('Account unavailable. Local graphing is still available.'); }
   });

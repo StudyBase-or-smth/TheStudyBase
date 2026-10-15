@@ -83,6 +83,7 @@
         });
       } else if (isGuest) {
         window.isGuest = true;
+        window.SBQoL?.refreshContinue();
         window.sbAccount = { name: 'Guest', email: '', role: 'guest' };
         document.body.classList.add('guest-mode');
         document.getElementById('guest-border').style.display = 'block';
