@@ -3,6 +3,6 @@
 window.BRANCH_VERSION = {
   "date": "23-8-26",
   "branch": "Coolify-Graph",
-  "version": "9.0.0",
+  "version": "9.1.0",
   "colour": "main"
 };
