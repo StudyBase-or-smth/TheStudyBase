@@ -78,6 +78,15 @@ async function start(t, extraEnv = {}) {
   return { child, data, logs: () => logs, request: (url, opts = {}, token = 'student') => fetch('http://127.0.0.1:' + port + url, { ...opts, headers: { ...(token ? { Authorization: 'Bearer ' + token } : {}), ...opts.headers } }) };
 }
 
+test('quiz marking requires an approved caller and its separate TypeSafe configuration', async t => {
+  const c = await start(t, { TYPESAFE_API_KEY: '' });
+  const options = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: 'Question', markingGuidance: 'Guidance', studentAnswer: 'Answer', maxMarks: 2 }) };
+  assert.equal((await c.request('/api/quizGrade', options, null)).status, 401);
+  assert.equal((await c.request('/api/quizGrade', options, 'pending')).status, 403);
+  const response = await c.request('/api/quizGrade', options, 'student');
+  assert.equal(response.status, 503);assert.match((await response.json()).error, /TYPESAFE_API_KEY/);
+});
+
 test('API-only server removes management pages, honors env secrets and shuts down cleanly', async t => {
   const c = await start(t);
   const health = await c.request('/health');

@@ -24,11 +24,18 @@ Runtime environment variables
   DESMOS_API_KEY=<Desmos key>
   CLAUDE_API_KEY=<Anthropic key>
   GEMINI_API_KEY=<Google key>
+  TYPESAFE_API_KEY=<TypeSafe key for Jev quiz marking>
+  TYPESAFE_MODEL=jev-1.13.0
 
 Set these on the backend as available at runtime. Secrets need not be available
 during build. FIREBASE_PRIVATE_KEY accepts real newlines or literal \n escapes.
 Environment values take priority; /data/secrets.json is an optional per-key
 fallback for unset or empty environment values. Credentials are never served.
+Quiz written responses use POST /api/quizGrade with Jev Choice decisions.
+TYPESAFE_MODEL is optional and defaults to the pinned jev-1.13.0 model.
+Deploy this backend together with the matching quiz frontend and set
+TYPESAFE_API_KEY at runtime. Quiz marking generates no feedback text.
+GEMINI_API_KEY remains available for the analyser and topic AI-fill features.
 STUDYBASE_PUBLIC_URL is an HTTP(S) origin, with no path or credentials. It is
 used for every newly generated upload/photo URL; existing saved URLs are not
 rewritten. Without it, local development defaults to http://127.0.0.1:PORT.

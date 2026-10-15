@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const { runProgramCommand } = require('./program-commands');
 const { handleCors } = require('./cors');
+const { gradeQuiz } = require('./quiz-grade');
 
 const ALLOWED_ROLES_SIGNUP = ['student', 'teacher'];
 const ALLOWED_ROLES_ASSIGN = ['student', 'teacher', 'dev'];
@@ -40,6 +41,8 @@ function loadSecrets(dataDir) {
     DESMOS_API_KEY: process.env.DESMOS_API_KEY || '',
     CLAUDE_API_KEY: process.env.CLAUDE_API_KEY || '',
     GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
+    TYPESAFE_API_KEY: process.env.TYPESAFE_API_KEY || '',
+    TYPESAFE_MODEL: process.env.TYPESAFE_MODEL || '',
   };
   const file = path.join(dataDir, 'secrets.json');
   try {
@@ -402,6 +405,13 @@ async function handleGrade(req, res, secrets, readBody) {
   return sendJson(res, 400, { error: 'Unknown provider: ' + provider });
 }
 
+async function handleQuizGrade(req, res, secrets, readBody) {
+  const decoded = await requireCaller(req, secrets);
+  if (decoded.status !== 'active') return sendJson(res, 403, { error: 'Account must be approved before using quiz marking.' });
+  const body = await parseJsonBody(req, readBody);
+  return sendJson(res, 200, await gradeQuiz(body, secrets));
+}
+
 async function handleRegisterRole(req, res, secrets, readBody) {
   const body = await parseJsonBody(req, readBody);
   const { uid, requestedRole } = body;
@@ -584,6 +594,7 @@ async function handleApi(req, res, url, opts) {
     if (name === 'firebaseConfig' && method === 'GET') return handleFirebaseConfig(res, secrets);
     if (name === 'avatar' && method === 'GET') return await handleAvatar(url, res);
     if (name === 'grade' && method === 'POST') return await handleGrade(req, res, secrets, readBody);
+    if (name === 'quizGrade' && method === 'POST') return await handleQuizGrade(req, res, secrets, readBody);
     if (name === 'registerRole' && method === 'POST') return await handleRegisterRole(req, res, secrets, readBody);
     if (name === 'resolveSignIn' && method === 'POST') return await handleResolveSignIn(req, res, secrets, readBody);
     if ((name === 'getAllUsers') && (method === 'GET' || method === 'POST')) return await handleGetAllUsers(req, res, secrets);
