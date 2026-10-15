@@ -662,9 +662,15 @@ process.on('unhandledRejection', (reason) => {
 });
 
 let shuttingDown = false;
+const reminderTimer = setInterval(() => {
+  try { require('./study-reminders').runReminders({jsonDir:JSON_DIR,readKey,writeKey}); }
+  catch(error) { console.error('Study reminder check failed:',error.message||error); }
+},60000);
+reminderTimer.unref();
 function shutdown(reason) {
   if (shuttingDown) return;
   shuttingDown = true;
+  clearInterval(reminderTimer);
   console.log('StudyBaseProgram shutting down: ' + reason);
   const deadline = setTimeout(() => {
     server.closeAllConnections();

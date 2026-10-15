@@ -229,6 +229,27 @@ test('notifications and lobbies cannot be forged by another approved user', asyn
   assert.equal((await post('_kc_lobby_ABCDEF', { ...lobby, players: [...lobby.players, { uid: 'otheruser', score: 0 }] }, 'other')).status, 200);
 });
 
+test('card images are shared for reading and only staff can assign or reset them', async t => {
+  const c=await start(t),key='card_subject_eco',value={v:1,image:'data:image/jpeg;base64,AQ==',updatedAt:1};
+  const post=(data,token)=>c.request('/sync',{method:'POST',body:new URLSearchParams({key,data:JSON.stringify(data)})},token);
+  assert.equal((await post(value,'student')).status,403);
+  assert.equal((await post(value,'teacher')).status,200);
+  assert.deepEqual((await (await c.request('/sync?key='+key,{},'other')).json()).data,value);
+  for(const image of ['javascript:alert(1)','data:image/svg+xml;base64,AQ==','https://example.com/image.png'])assert.equal((await post({...value,image},'teacher')).status,400);
+  assert.equal((await post({...value,image:''},'dev')).status,200);
+});
+
+test('flashcard progress round-trips through authenticated sync and is private', async t => {
+  const c=await start(t),key='_flashcards_testuser';
+  const state={v:1,cards:{'phy:t:qa:a':{hidden:true,updatedAt:1}},sessions:{},goals:{},days:{}};
+  const post=(value,token='student')=>c.request('/sync',{method:'POST',body:new URLSearchParams({key,data:JSON.stringify(value)})},token);
+  assert.equal((await post(state)).status,200);
+  assert.deepEqual((await (await c.request('/sync?key='+key)).json()).data,state);
+  assert.equal((await c.request('/sync?key='+key,{},'other')).status,403);
+  assert.equal((await post(state,'other')).status,403);
+  assert.equal((await post({v:1})).status,400);
+});
+
 test('topic collisions and reserved metadata IDs are rejected without altering notes', async t => {
   const c = await start(t);
   const post = (value, token = 'student') => c.request('/sync', { method: 'POST', body: new URLSearchParams({ key: 'eng_topics', data: JSON.stringify(value) }) }, token);

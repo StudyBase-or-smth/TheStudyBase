@@ -4,7 +4,7 @@ const fail = (message = 'Not permitted for this account') => { throw { statusCod
 const validUid = uid => typeof uid === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(uid);
 const isStaff = user => ['teacher', 'dev'].includes(user.role);
 const own = (uid, user) => { if (!validUid(uid) || uid !== user.uid) fail(); };
-const personal = key => key.match(/^_(?:profile_|analyser_draft_|analyser_|kc_games_|up_avatar_|ur_avatar_)(.+)$/);
+const personal = key => key.match(/^_(?:profile_|flashcards_|analyser_draft_|analyser_|kc_games_|up_avatar_|ur_avatar_)(.+)$/);
 const without = (obj, fields) => Object.fromEntries(Object.entries(obj || {}).filter(([k]) => !fields.includes(k)));
 const items = value => Array.isArray(value) ? value : (value && Array.isArray(value.items) ? value.items : []);
 function audience(item, user) {
@@ -29,6 +29,7 @@ function authorizeKey(key, user, write, getOwner) {
     return;
   }
   if (/^tnotes_[A-Za-z0-9-]+$/.test(key)) { if (write && !isStaff(user)) fail(); return; }
+  if (/^card_(subject|class)_[A-Za-z0-9-]+$/.test(key)) { if(write && !isStaff(user)) fail('Only teachers and developers may change card images'); return; }
   if (['studybase_events', 'studybase_suggestions', 'studybase_notifications', '_kc_public', 'tetris_leaderboard'].includes(key) || /^_kc_lobby_[A-Z0-9]{6}$/.test(key)) return;
   if (key === 'kc_settings') { if (write && user.role !== 'dev') fail(); return; }
   fail('Unknown or restricted storage key');
@@ -49,6 +50,11 @@ function readable(key, value, user) {
 }
 
 function writable(key, value, previous, user, readKey) {
+  if(/^card_(subject|class)_/.test(key)) {
+    if(!isStaff(user)) fail('Only teachers and developers may change card images');
+    if(!value || value.v!==1 || typeof value.image!=='string' || value.image.length>900000 || (value.image!=='' && !/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(value.image)) || !Number.isFinite(value.updatedAt) || value.updatedAt<0 || Object.keys(value).some(k=>!['v','image','updatedAt'].includes(k))) throw {statusCode:400,message:'Invalid card image settings'};
+  }
+  if(key.startsWith('_flashcards_')) require('./study-reminders').validateStudyState(value);
   if (/_topics$/.test(key)) {
     if (!Array.isArray(value)) throw { statusCode: 400, message: 'Topics must be an array' };
     const ids = new Set();
