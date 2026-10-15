@@ -12,8 +12,8 @@
 <script src="../sync-config.js"></script>
 <link rel="stylesheet" href="skins.css?v=dark">
 <style>
-  /* Knowledge Competition — same subject-page shell as HSC, with hub-style tiles
-     and the HSC multiple-choice question chrome for live rounds. */
+  /* Knowledge Competition — same subject-page shell as Quiz Tool, with hub-style tiles
+     and the Quiz Tool multiple-choice question chrome for live rounds. */
   .kc-wrap {
     max-width: 720px;
     margin: 0 auto;
@@ -642,7 +642,7 @@
   }
   .kc-ans-del:hover { color: #dc2626; }
 
-  /* HSC-style live question */
+  /* Quiz Tool-style live question */
   .quiz-progress {
     font-size: 12px;
     letter-spacing: .04em;
@@ -742,6 +742,9 @@
   .kc-modal p { font-size: 13px; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
 </style>
 <link rel="stylesheet" href="../qol.css">
+<script src="../site-config.js"></script>
+<script src="../site-tools.js"></script>
+<script src="../site-branding.js" defer></script>
 </head>
 <body class="subject-page kc-page kc-skin-stage kc-dark">
 
@@ -811,10 +814,10 @@
   <div class="hdr-main">
     <div class="hdr-top">
       <div class="logo-block">
-        <div class="logo-icon2">🏆</div>
+        <div class="logo-icon2"><img src="../icon.png" alt="" width="28" height="28"></div>
         <div>
-          <div class="logo-text2">StudyBase</div>
-          <span class="logo-sub-txt">EXPERIMENTAL TOOLS</span>
+          <div class="logo-text2" data-brand-name>StudyBase</div>
+          <span class="logo-sub-txt" data-brand-subtitle>EXPERIMENTAL TOOLS</span>
         </div>
       </div>
       <div class="hdr-breadcrumb">
@@ -872,6 +875,7 @@
 
 
 <script src="../profile-store.js"></script>
+<script src="../profile-tooltip.js"></script>
 <script src="../notifications.js"></script>
 <script src="kc.js"></script>
 <script src="../subjects.js"></script>

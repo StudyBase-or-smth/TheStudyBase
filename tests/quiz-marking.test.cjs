@@ -3,13 +3,13 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const {JSDOM}=require('jsdom');
-const html=fs.readFileSync(require.resolve('../HSC/HSC.html'),'utf8');
+const html=fs.readFileSync(require.resolve('../quiz-tool/quiz-tool.html'),'utf8');
 const q={question:'Identify an effect and a reduction strategy.',answer:'Credit both parts.',marks:2,isAICheck:true,markingLevels:{0:'Neither',1:'One part',2:'Both'},completionGuide:'Address both parts. <script>text only</script>'};
 function fixture(){
- const dom=new JSDOM('<div id="hscCanvas"><textarea id="quizAIAnswerInput">A response</textarea><div id="quizFeedback"></div><button id="quizSubmitBtn">Submit</button><button id="quizNextBtn"></button></div>',{url:'https://studybase.example/HSC/HSC.html',runScripts:'outside-only'}),w=dom.window;
+ const dom=new JSDOM('<div id="quizCanvas"><textarea id="quizAIAnswerInput">A response</textarea><div id="quizFeedback"></div><button id="quizSubmitBtn">Submit</button><button id="quizNextBtn"></button></div>',{url:'https://studybase.example/quiz-tool/quiz-tool.html',runScripts:'outside-only'}),w=dom.window;
  w.__sbAuth={currentUser:{getIdToken:async()=> 'test-token'}};
  w.sbApiUrl=path=>'https://backend.example'+path;
- w.eval(fs.readFileSync(require.resolve('../HSC/quiz-marking.js'),'utf8'));
+ w.eval(fs.readFileSync(require.resolve('../quiz-tool/quiz-marking.js'),'utf8'));
  const engine=html.slice(html.indexOf('function setAICheckBusy'),html.indexOf('/* ── Shared ── */',html.indexOf('function setAICheckBusy')));
  const feedback=html.slice(html.indexOf('function showFeedback'),html.indexOf('function submitAnswer()',html.indexOf('function showFeedback')));
  w.fixtureState={questions:[q],index:0,perQuestion:[]};w.saved=0;
@@ -32,8 +32,8 @@ test('guest requests and stale marking responses cannot modify quiz progress',as
  resolve({ok:true,headers:new Headers({'content-type':'application/json'}),json:async()=>({earned:2,total:2,provider:'jev',confidence:1})});await pending;assert.equal(w.saved,0);assert.equal(next.perQuestion[0],undefined);dom.window.close();
 });
 test('completion guidance is optional and every current written question has complete Jev bands',()=>{
- const {dom,w}=fixture();w.StudyQuizMarking.showCompletionGuide(w.document.getElementById('hscCanvas'),{});assert.equal(w.document.querySelector('.quiz-completion-guide'),null);dom.window.close();
- for(const file of fs.readdirSync('HSC/storage').filter(f=>f.endsWith('.json'))){const data=JSON.parse(fs.readFileSync('HSC/storage/'+file,'utf8'));for(const item of data.questions||[])if(item.isAICheck)for(let i=0;i<=item.marks;i++)assert.ok(item.markingLevels[i],file+': '+item.id+' band '+i);}
+ const {dom,w}=fixture();w.StudyQuizMarking.showCompletionGuide(w.document.getElementById('quizCanvas'),{});assert.equal(w.document.querySelector('.quiz-completion-guide'),null);dom.window.close();
+ for(const file of fs.readdirSync('quiz-tool/storage').filter(f=>f.endsWith('.json'))){const data=JSON.parse(fs.readFileSync('quiz-tool/storage/'+file,'utf8'));for(const item of data.questions||[])if(item.isAICheck)for(let i=0;i<=item.marks;i++)assert.ok(item.markingLevels[i],file+': '+item.id+' band '+i);}
  assert.doesNotMatch(html,/gemini|generativelanguage|359-|369-|callAI\(/i);
  const parsed=new JSDOM(html);for(const script of parsed.window.document.querySelectorAll('script:not([src]):not([type="module"])'))new vm.Script(script.textContent);parsed.window.close();
 });

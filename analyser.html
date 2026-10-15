@@ -10,6 +10,7 @@
   <script src="sync-config.generated.js"></script>
   <script src="sync-config.js"></script>
   <script src="profile-store.js"></script>
+<script src="profile-tooltip.js"></script>
   <script src="vendor/pdfjs/pdf.min.js"></script>
   <script src="vendor/mammoth/mammoth.browser.min.js"></script>
   <script src="vendor/simple-pdf.js"></script>
@@ -538,6 +539,9 @@
     }
   </style>
 <link rel="stylesheet" href="qol.css">
+<script src="site-config.js"></script>
+<script src="site-tools.js"></script>
+<script src="site-branding.js" defer></script>
 </head>
 <body>
 
@@ -546,7 +550,8 @@
   <a class="accent-bar" href="index.html" title="Back to Index"></a>
 
   <div class="hdr-inner">
-    <span class="logo-text">StudyBase</span>
+    <span class="logo-icon2"><img src="icon.png" alt="" width="28" height="28"></span>
+    <span class="logo-text" data-brand-name>StudyBase</span>
     <div class="branch-badge" id="branch-badge">Loading…</div>
     <div class="hdr-right">
       <span class="date-pill">Today — <strong id="todayDate"></strong></span>

@@ -544,7 +544,12 @@ function normalizeTopic(raw){
     parentId,
     order: typeof raw.order === 'number' && Number.isFinite(raw.order) ? raw.order : null,
     relatedTerms: Array.isArray(raw.relatedTerms) ? raw.relatedTerms.slice() : [],
-    flashcardQA: Array.isArray(raw.flashcardQA) ? raw.flashcardQA.slice() : [],
+    flashcardEnabled: raw.flashcardEnabled !== false,
+    flashcardQA: (Array.isArray(raw.flashcardQA) ? raw.flashcardQA : []).filter(qa=>qa && typeof qa === 'object').map((qa,i)=>({
+      id: typeof qa.id === 'string' && qa.id ? qa.id : 'qa_'+i,
+      q: String(qa.q||''), a: String(qa.a||''), enabled: qa.enabled !== false,
+      acceptedAnswers: Array.isArray(qa.acceptedAnswers) ? qa.acceptedAnswers.filter(a=>typeof a==='string' && a.trim()) : []
+    })),
     addedBy: raw.addedBy || null,
     createdAt: raw.createdAt || new Date().toISOString(),
     updatedAt: raw.updatedAt || raw.createdAt || new Date().toISOString(),
@@ -589,6 +594,7 @@ function serializeTopic(t){
   if(n.order != null) out.order = n.order;
   if(n.relatedTerms.length) out.relatedTerms = n.relatedTerms;
   if(n.flashcardQA.length) out.flashcardQA = n.flashcardQA;
+  if(!n.flashcardEnabled) out.flashcardEnabled = false;
   if(n.addedBy) out.addedBy = n.addedBy;
   if(n.createdAt) out.createdAt = n.createdAt;
   if(n.updatedAt) out.updatedAt = n.updatedAt;

@@ -32,12 +32,10 @@
       });
       document.getElementById('imageDialog')?.addEventListener('close', () => summary.focus());
     }
-    const profile = document.querySelector('.hdr-profile-wrap');
     const settings = document.querySelector('.qol-settings-wrap');
     // Canvas width is always maximised; spacing and motion remain meaningful.
     settings?.querySelector('[data-qol-preference="width"]')?.closest('label')?.remove();
     for (const [wrap, button, panel, openClass] of [
-      [profile, document.getElementById('hdrProfileBtn'), document.getElementById('hdrProfileTip'), 'qol-profile-open'],
       [settings, settings?.querySelector('button'), settings?.querySelector('.qol-settings-menu'), 'open']
     ]) {
       if (!wrap || !button || !panel) continue;

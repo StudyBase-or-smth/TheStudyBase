@@ -28,7 +28,8 @@ body{background:#f5f2ed;background:var(--bg,#f5f2ed);color:#1c1917;color:var(--t
 .hdr-right,.hdr-right-row{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
 .hdr-top{display:flex;align-items:center;padding:0 20px;height:44px;gap:10px}
 .logo-block{display:flex;align-items:center;gap:9px;padding-right:14px;border-right:1px solid var(--border);flex-shrink:0}
-.logo-icon2{width:24px;height:24px;background:none;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.logo-icon2{width:28px;height:28px;background:none;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.logo-icon2 img,.wordmark-icon img{width:28px;height:28px;object-fit:contain;flex-shrink:0}
 .logo-text2{font-size:13px;font-weight:700;color:var(--text);font-family:'Source Serif 4',serif;letter-spacing:-.2px;white-space:nowrap}
 .logo-sub-txt{font-size:9px;color:var(--muted2);letter-spacing:.5px;display:block;line-height:1;margin-top:1px}
 .hdr-date-pill{font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap}
@@ -856,6 +857,10 @@ body.subject-page .bc-current{font-size:var(--fs-xs);font-weight:600;color:var(-
 .tools-list{display:flex;flex-direction:column;gap:6px}
 .tool-btn{display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:9px 11px;font-size:13px;color:var(--text);cursor:pointer;text-align:left;width:100%;text-decoration:none;box-sizing:border-box}
 .tool-btn:hover{border-color:var(--border2)}
+.tool-icon{width:24px;height:24px;object-fit:contain;flex-shrink:0;vertical-align:middle}
+.tool-btn.is-disabled{opacity:.5;cursor:default}.tool-disabled-label{margin-left:auto;font-size:10px;color:var(--muted)}
+.tools-show-more{align-self:center;padding:5px 10px;border:none;background:transparent;color:var(--muted);font:inherit;font-size:12px;cursor:pointer}.tools-show-more:hover{color:var(--accent)}
+.qol-result.is-disabled{opacity:.5;cursor:default}.qol-result .tool-icon{width:16px;height:16px}
 
 /* subject/class pages — header, sidebar */
 body.subject-page .hdr-top{height:52px;gap:14px}
@@ -898,7 +903,7 @@ body.dark.subject-page .subtopic-sidebar-item.active .unsynced-title{color:#e4c4
 /* topic/question list rows sat with zero inset, so each row's rounded
    corners and active-state left border ran flush against the sidebar's
    edge — the mockup's equivalent container (.sidebar-scroll) has 10px
-   padding on all sides, which HSC.html's quiz sidebar inherits too since
+   padding on all sides, which quiz-tool.html's quiz sidebar inherits too since
    it deliberately reuses this same topic-list markup for its question list */
 body.subject-page .topic-list,
 body.subject-page .class-sections{padding:10px}
@@ -1127,3 +1132,24 @@ body.subject-page .inline-edit-root .section[data-block="formula"] .section-head
 body.subject-page .inline-edit-root .section[data-block="formula"] .rich-editor-wrap{position:static}
 body.subject-page .inline-edit-root .section[data-block="formula"] .rich-toolbar.mini{position:absolute;right:12px;top:4px;padding:0;background:transparent;border:0}
 @media(max-width:600px){.graph-editor{flex-direction:column;height:auto!important}.graph-expressions{width:100%;max-height:220px;border-right:0;border-bottom:1px solid var(--border,#ddd)}.graph-right{min-height:320px}}
+
+/* The StudyBase brand icon stays the same on every page and in both themes. */
+body.subject-page .logo-icon2,body.auth-page .wordmark-icon,body.dark.auth-page .wordmark-icon{background:transparent}
+
+[data-brand-subtitle][hidden]{display:none}
+/* Image cards: tinted cover, raised information panel, and teacher settings. */
+.image-subj-card{padding:0!important;border-radius:15px;min-width:0}
+.subj-card-link{display:block;color:inherit;text-decoration:none;height:100%}.subj-card-link:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;border-radius:15px}
+.subj-cover{height:88px;position:relative;overflow:hidden;background:var(--card-accent,#0f4c81);isolation:isolate}
+.subj-cover img{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(1);opacity:.8}
+.subj-cover-tint{position:absolute;inset:0;background:var(--card-accent,#0f4c81);mix-blend-mode:color;opacity:.9;pointer-events:none}
+.subj-cover::after{content:'';position:absolute;inset:0;background:var(--card-accent,#0f4c81);opacity:.26;pointer-events:none}
+.subj-card-info{position:relative;margin-top:-10px;min-height:68px;padding:12px 100px 12px 16px;background:var(--card);border-radius:14px 14px 0 0}
+.image-subj-card .subj-name{font-size:16px;font-weight:600;line-height:1.3;overflow-wrap:anywhere;margin-bottom:3px}
+.image-subj-card .subj-meta{font-size:11px;line-height:1.5}.subj-class-meta{font-size:10px;line-height:1.5;color:var(--muted);margin-top:4px}
+.image-subj-card:not(.can-edit) .subj-card-info{padding-right:62px}
+.subj-card-actions{position:absolute;bottom:19px;right:14px;display:flex;align-items:center;gap:8px}
+.image-subj-card .subj-count{position:static;min-width:30px;height:30px;border-radius:50%;padding:0 5px;background:var(--card-accent);color:white;font-size:12px;text-shadow:0 1px 2px #0005}
+.subj-card-settings{display:flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--muted);cursor:pointer}.subj-card-settings:hover{background:var(--card2);border-color:var(--border);color:var(--text)}
+.subj-cover-preview{height:160px;border-radius:10px;margin-bottom:12px}.card-image-label{display:flex;flex-direction:column;gap:8px;font-size:13px;margin-top:16px}.card-image-label input{font:inherit;max-width:100%}.card-image-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-top:16px}
+@media(max-width:500px){.subjects-grid,.classes-grid{grid-template-columns:1fr}.subj-cover{height:85px}.subj-cover-preview{height:140px}.subj-card-info{padding:10px 94px 10px 14px;min-height:64px}.image-subj-card .subj-name{font-size:16px}.subj-card-actions{right:12px;gap:6px;bottom:16px}.image-subj-card .subj-count{min-width:28px;height:28px;font-size:11px}.subj-card-settings{width:32px;height:32px}}

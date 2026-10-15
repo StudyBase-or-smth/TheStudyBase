@@ -79,7 +79,6 @@ function applySubjectTheme(){
   document.body.style.setProperty('--ac-b', `rgba(${r},${g},${b},.22)`);
 
   document.getElementById('accentBar').style.background = c;
-  document.getElementById('hdrEmoji').textContent = SUBJECT.emoji || '📚';
   document.getElementById('hdrSubjectName').textContent = SUBJECT.name;
   document.title = SUBJECT.name + ' — StudyBase';
 
@@ -862,7 +861,7 @@ function buildInlineEditHtml(){
     <details class="edit-more-panel">
       <summary class="edit-more-summary">More</summary>
       <div class="edit-more-body">
-        ${inlineEditSection('basic math', 'flashcardQA', '🎴', 'Flashcard Questions', `<div class="fqa-list" id="fqaList"></div><button type="button" class="btn-add-kp" onclick="addFqaRow()">+ Add question</button>`)}
+        ${inlineEditSection('basic overview math text pdf table', 'flashcardQA', '🎴', 'Flashcard Questions', `<div class="fqa-list" id="fqaList"></div><button type="button" class="btn-add-kp" onclick="addFqaRow()">+ Add question</button>`)}
         ${inlineEditSection('basic overview text math pdf table', 'relatedTerms', '🔗', 'Related Terms', `<div class="tags-wrap" id="tagsWrap" onclick="document.getElementById('tagsInput').focus()"><input type="text" class="tags-i" id="tagsInput" placeholder="Type a topic… Tab to autofill" autocomplete="off"></div>`)}
       </div>
     </details>
@@ -1810,10 +1809,8 @@ function captureEditDraft(){
       if(ti) terms.push(ti);
       return terms;
     })(),
-    flashcardQA: Array.from(document.getElementById('fqaList')?.querySelectorAll('.fqa-row') || []).map(row => {
-      const inputs = row.querySelectorAll('.fqa-input');
-      return { q: (inputs[0]?.value||'').trim(), a: (inputs[1]?.value||'').trim() };
-    }).filter(qa => qa.q),
+    flashcardEnabled: document.getElementById('fFlashcardBase')?.checked !== false,
+    flashcardQA: readFlashcardRows(),
     subtopicRows: Array.from(document.getElementById('subtopicEditorList')?.children || []).map(row => {
       const name = row.querySelector('.subtopic-name-i')?.value.trim();
       const childId = row.dataset.childId ? String(row.dataset.childId) : null;
@@ -1858,6 +1855,7 @@ function draftIsDirty(draft){
   const exLayout = LAYOUTS.includes(ex.layout) ? ex.layout : subjectDefaultLayout();
   if(draftLayout !== exLayout) return true;
   if(draftStableJson(draft.relatedTerms || []) !== draftStableJson(ex.relatedTerms || [])) return true;
+  if((draft.flashcardEnabled !== false) !== (ex.flashcardEnabled !== false)) return true;
   if(draftStableJson(draft.flashcardQA || []) !== draftStableJson(ex.flashcardQA || [])) return true;
   const draftTable = draft.tableData || { columns: [], rows: [] };
   const exTable = ex.tableData || { columns: [], rows: [] };
@@ -1950,8 +1948,8 @@ function populateTopicForm(id, draft){
     } else {
       topicsSrc().filter(c => c.parentId === t.id).forEach(c => addSubtopicRow(c));
     }
-    document.getElementById('fqaList').innerHTML = '';
-    (t.flashcardQA||[]).forEach(qa => addFqaRow(qa.q, qa.a));
+    initFlashcardEditor(t);
+    (t.flashcardQA||[]).forEach(qa => addFqaRow(qa.q, qa.a, qa));
     buildTableEditor(t.tableData);
     desmosState = t.desmosState || null;
     currentLayout = LAYOUTS.includes(t.layout) ? t.layout : subjectDefaultLayout();
@@ -1968,7 +1966,7 @@ function populateTopicForm(id, draft){
     ['fName','fDefinition'].forEach(i => document.getElementById(i).value = '');
     ['fFormula','fMaterials','fProcess','fSafety','fExamTip','fBodyText'].forEach(clearRich);
     document.getElementById('fUnit').value = '';
-    document.getElementById('fqaList').innerHTML = '';
+    initFlashcardEditor({});
     buildTableEditor(null);
     currentLayout = subjectDefaultLayout();
     pendingPdfData = null; pendingPdfName = null; pendingPdfUploading = false;
@@ -2204,22 +2202,6 @@ function addKpRow(val){
   if(!val) inp.focus();
 }
 
-function addFqaRow(q, a){
-  q = q || ''; a = a || '';
-  const uid = 'fqa_' + Date.now() + '_' + Math.floor(Math.random()*9999);
-  const row = document.createElement('div'); row.className = 'fqa-row'; row.id = uid;
-  const top = document.createElement('div'); top.className = 'fqa-row-top';
-  const inputs = document.createElement('div'); inputs.className = 'fqa-inputs';
-  const qInp = document.createElement('input'); qInp.type='text'; qInp.className='fqa-input'; qInp.placeholder='Question — e.g. What is the formula for stress?'; qInp.value=q;
-  const aInp = document.createElement('input'); aInp.type='text'; aInp.className='fqa-input answer'; aInp.placeholder='Answer — e.g. σ = F/A'; aInp.value=a;
-  const del = document.createElement('button'); del.className='btn-fqa-del'; del.textContent='✕';
-  del.onclick = () => document.getElementById(uid).remove();
-  inputs.appendChild(qInp); inputs.appendChild(aInp);
-  top.appendChild(inputs); top.appendChild(del);
-  row.appendChild(top);
-  document.getElementById('fqaList').appendChild(row); qInp.focus();
-}
-
 function addSubtopicRow(s){
   s = s || {};
   const uid = 'sub_' + Date.now() + '_' + Math.floor(Math.random()*9999);
@@ -2446,6 +2428,7 @@ function applyDraftToTopicList(topics, draft){
     desmosState: draft.desmosState || null,
     layout: draft.layout || subjectDefaultLayout(),
     relatedTerms: draft.relatedTerms || [],
+    flashcardEnabled: draft.flashcardEnabled !== false,
     flashcardQA: draft.flashcardQA || [],
     notes: draft.notes || existing.notes || {},
     parentId: draft.parentId || null,
@@ -2548,10 +2531,7 @@ function saveTopic(){
     .map(i => i.value.trim()).filter(Boolean);
   const relatedTerms = [...tempTags];
   const ti = document.getElementById('tagsInput').value.trim(); if(ti) relatedTerms.push(ti);
-  const flashcardQA = Array.from(document.getElementById('fqaList').querySelectorAll('.fqa-row')).map(row => {
-    const inputs = row.querySelectorAll('.fqa-input');
-    return { q: (inputs[0]?.value||'').trim(), a: (inputs[1]?.value||'').trim() };
-  }).filter(qa => qa.q);
+  const flashcardQA = readFlashcardRows();
   const subtopicRows = Array.from(document.getElementById('subtopicEditorList').children).map(row => {
     const name = row.querySelector('.subtopic-name-i').value.trim();
     const childId = row.dataset.childId ? String(row.dataset.childId) : null;
@@ -2583,6 +2563,7 @@ function saveTopic(){
     desmosState: newDesmosState !== null ? newDesmosState : (ex.desmosState || null),
     layout:    currentLayout,
     relatedTerms,
+    flashcardEnabled: document.getElementById('fFlashcardBase')?.checked !== false,
     flashcardQA,
     parentId: ex.parentId || null,
     notes: ex.notes || {},
@@ -2816,6 +2797,7 @@ async function syncPull(){
     if(activeId) viewTopic(activeId, activeOrigin ? activeOrigin.id : null);
     setSyncStatus(unsyncedTopicBuckets().length ? 'err' : 'ok');
     refreshUnsyncedUI();
+    window.dispatchEvent(new Event('studybase-topics-ready'));
   } catch(e){ setSyncStatus('err'); }
   _nextSync = Date.now() + 60000;
 }

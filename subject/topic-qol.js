@@ -224,9 +224,9 @@
       const fc = new URL('subject/flashcards.html',ui.root); fc.hash = origin.id; fc.searchParams.set('topic',activeId); if(topic?.unit) fc.searchParams.set('unit',topic.unit);
       const a = ui.node('a','qol-button primary','Practice flashcards'); a.href = fc.href; content.append(a);
       const supported = {eng2:'Engineering',mth:'Maths'}; const subjectId = origin.subjectId || origin.id;
-      const hsc = new URL('HSC/HSC.html',ui.root); if(supported[subjectId]) hsc.searchParams.set('subject',supported[subjectId]);
-      const quiz = ui.node('a','qol-button','HSC practice'); quiz.href = hsc.href; content.append(quiz);
-      content.append(ui.node('p','qol-muted',supported[subjectId] ? 'HSC practice opens your subject. Flashcards focus on this topic and its subtopics.' : 'Flashcards focus on this topic and its subtopics. Choose an available subject in HSC practice.'));
+      const quizURL = new URL('quiz-tool/quiz-tool.html',ui.root); if(supported[subjectId]) quizURL.searchParams.set('subject',supported[subjectId]);
+      const quiz = ui.node('a','qol-button','Quiz Tool'); quiz.href = quizURL.href; content.append(quiz);
+      content.append(ui.node('p','qol-muted',supported[subjectId] ? 'Quiz Tool opens your subject. Flashcards focus on this topic and its subtopics.' : 'Flashcards focus on this topic and its subtopics. Choose an available subject in Quiz Tool.'));
     });
   }
   function boot() {

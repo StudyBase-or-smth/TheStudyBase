@@ -11,8 +11,12 @@
   <script src="sync-config.generated.js"></script>
   <script src="sync-config.js"></script>
 <link rel="stylesheet" href="qol.css">
+<link rel="stylesheet" href="image-editor.css">
+<script src="site-config.js"></script>
+<script src="site-tools.js"></script>
+<script src="site-branding.js" defer></script>
 </head>
-<body>
+<body class="index-page">
 
   <!-- ── Firebase Auth ── -->
   <script type="module">
@@ -113,11 +117,11 @@
         <div class="hub-header-left">
         <div class="logo-block">
           <div class="logo-icon2">
-            <img src="icon.png" alt="Logo" style="width:28px;height:28px;object-fit:contain;">
+            <img src="icon.png" alt="" width="28" height="28">
           </div>
           <div>
-            <div class="logo-text2">StudyBase</div>
-            <span class="logo-sub-txt">EXPERIMENTAL TOOLS</span>
+            <div class="logo-text2" data-brand-name>StudyBase</div>
+            <span class="logo-sub-txt" data-brand-subtitle>EXPERIMENTAL TOOLS</span>
           </div>
         </div>
         <div id="branch-badge" hidden style="font-size:11px;color:var(--muted);white-space:nowrap;">Loading…</div>
@@ -315,8 +319,11 @@
 
   <script src="suggestions.js"></script>
   <script src="profile-store.js"></script>
+<script src="profile-tooltip.js"></script>
   <script src="notifications.js"></script>
   <script src="BranchVersion.js"></script>
+  <script src="image-editor.js"></script>
+  <script src="subject-cards.js"></script>
   <script src="mainapp.js"></script>
   <script src="qol.js"></script>
   <script src="calendar-qol.js"></script>

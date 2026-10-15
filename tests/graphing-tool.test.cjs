@@ -24,6 +24,7 @@ function fixture(url='https://studybase.example/graphing.html',storage,mobile=fa
   w.matchMedia=()=>({matches:mobile,addEventListener(){}});
   w.isGuest=true;
   w.eval(fs.readFileSync(require.resolve('../profile-store.js'),'utf8'));
+  w.eval(fs.readFileSync(require.resolve('../profile-tooltip.js'),'utf8'));
   if(storage)w.localStorage.setItem('studybase_graphing_projects_v1',storage);
   if(recovery)w.localStorage.setItem('studybase_graphing_recovery_v1',recovery);
   w.StudyGraph={async create(container,options){container.innerHTML='<div class="graph-expressions"></div><div class="graph-right"></div>';const data=JSON.parse(JSON.stringify(options.state));const editor={data,options,getState(){return data;},destroy(){}};sessions.push(editor);return editor;}};
@@ -75,6 +76,12 @@ test('compact mobile project actions retain handlers and dismiss with Escape',as
 
 test('shared profile and settings popovers support keyboard dismissal and scoped preferences',async()=>{
   const {dom,w,byId}=fixture();await settle();
+  // The tooltip works independently of the general page utilities.
+  w.initProfileTooltip();w.initProfileTooltip();w.bootHdrProfile(null,'guest');await settle();
+  assert.equal(byId('hdrProfileTip').querySelectorAll('.qol-view-profile').length,1);
+  assert.equal(byId('hdrProfileTip').querySelector('.qol-view-profile').href,'https://studybase.example/profile.html');
+  assert.match(byId('hdrProfileTip').textContent,/Guest/);
+  assert.ok(byId('hdrProfileTip').contains(byId('hdrNotifyWrap')));
   for(const file of ['qol.js','graphing-shell.js'])w.eval(fs.readFileSync(require.resolve('../'+file),'utf8'));
   const profile=byId('hdrProfileTip'),settings=w.document.querySelector('.qol-settings-button'),menu=w.document.querySelector('.qol-settings-menu');
   assert.equal(profile.inert,true);assert.equal(menu.inert,true);

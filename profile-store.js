@@ -414,53 +414,5 @@ window.toggleDark = toggleDark;
 window.applyTheme = applyTheme;
 window.applyStoredTheme = applyStoredTheme;
 
-function updateHdrProfile(){
-  const btn = document.getElementById('hdrProfileBtn');
-  if(!btn) return;
-  const face = btn.querySelector('.hdr-profile-face') || btn;
-  const tip = document.getElementById('hdrProfileTip');
-  const p = window.sbProfile || {};
-  const img = profilePhotoImgHtml(p.photoThumb || p.photoUrl);
-  if(img) face.innerHTML = img;
-  else face.textContent = '👤';
-
-  const acct = window.sbAccount || {};
-  const name = acct.name || localStorage.getItem('studybase_display_name') || (window.isGuest ? 'Guest' : 'Profile');
-  const email = acct.email || localStorage.getItem('studybase_email') || '';
-  const role = acct.role || window.userRole || (window.isGuest ? 'guest' : 'student');
-  const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
-  if(tip){
-    const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const darkIcon = currentDarkIcon();
-    tip.innerHTML = '<div class="pt-top"><div class="pt-name">' + esc(name) + '</div>' +
-      '<div class="pt-actions">' +
-      '<button type="button" class="pt-dark" onclick="event.stopPropagation();toggleDark()" aria-label="Toggle dark mode">' + darkIcon + '</button>' +
-      '<button type="button" class="pt-signout" onclick="event.stopPropagation();sbSignOut()">Sign out</button>' +
-      '</div></div>' +
-      '<div class="pt-role">' + esc(roleLabel) + '</div>' +
-      (email ? '<div class="pt-email">' + esc(email) + '</div>' : '');
-  }
-}
-
-function bootHdrProfile(user, role){
-  const isUser = !!(user && user.uid);
-  const displayName = isUser
-    ? (user.displayName || (user.email || '').split('@')[0].split('.').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '))
-    : 'Guest';
-  const r = role || (isUser ? (window.userRole || 'student') : 'guest');
-  window.sbAccount = { name: displayName, email: isUser ? (user.email || '') : '', role: r };
-  if(isUser){
-    window.currentUid = user.uid;
-    localStorage.setItem('studybase_uid', user.uid);
-    localStorage.setItem('studybase_display_name', displayName);
-    localStorage.setItem('studybase_email', user.email || '');
-    applyProfileCache(user.uid);
-    updateHdrProfile();
-    pullProfile(user.uid).then(() => updateHdrProfile());
-  } else {
-    applyProfileCache('guest');
-    updateHdrProfile();
-  }
-}
 
 applyStoredTheme();

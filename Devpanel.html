@@ -122,6 +122,9 @@ body.dark .console-log .c-warn{color:#fbbf24}
   .ur-actions{max-width:220px}
 }
 </style>
+<script src="site-config.js"></script>
+<script src="site-tools.js"></script>
+<script src="site-branding.js" defer></script>
 </head>
 <body class="dev-page">
 
@@ -134,7 +137,8 @@ body.dark .console-log .c-warn{color:#fbbf24}
   <div class="hdr-outer">
     <a class="accent-bar is-back" href="index.html" title="Back to Hub" aria-label="Back to Hub"></a>
     <header class="bar">
-      <h1>StudyBase</h1>
+      <span class="logo-icon2"><img src="icon.png" alt="" width="28" height="28"></span>
+      <h1 data-brand-name>StudyBase</h1>
       <span class="tag" onclick="window.location.href='devbackend.html'">Dev Panel</span>
       <div class="bar-right">
         <div class="hdr-notify-wrap" id="hdrNotifyWrap">
@@ -221,6 +225,7 @@ body.dark .console-log .c-warn{color:#fbbf24}
 <script src="sync-config.generated.js"></script>
 <script src="sync-config.js"></script>
 <script src="profile-store.js"></script>
+<script src="profile-tooltip.js"></script>
 <script src="notifications.js"></script>
 
 <script type="module">

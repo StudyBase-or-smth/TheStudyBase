@@ -1,9 +1,21 @@
 // Shared navigation, dialogs and reading preferences for StudyBase pages.
 (function () {
   'use strict';
-  const root = new URL(location.pathname.includes('/subject/') || location.pathname.includes('/HSC/') || location.pathname.includes('/KnowledgeCompetition/') ? '../' : './', location.href);
+  const root = new URL(location.pathname.includes('/subject/') || location.pathname.includes('/quiz-tool/') || location.pathname.includes('/KnowledgeCompetition/') ? '../' : './', location.href);
   const scope = () => (window.isGuest || (typeof sbIsGuestSession === 'function' && sbIsGuestSession())) ? 'guest' : (typeof sbCurrentUser === 'function' && sbCurrentUser()?.uid) || window.currentUid || localStorage.getItem('studybase_uid') || 'guest';
-  function read(key, fallback) { try { return JSON.parse(localStorage.getItem('sbq:' + scope() + ':' + key)) ?? fallback; } catch (_) { return fallback; } }
+  function read(key, fallback) {
+    try {
+      const value = JSON.parse(localStorage.getItem('sbq:' + scope() + ':' + key)) ?? fallback;
+      if(key === 'recent' && Array.isArray(value)) return value.map(entry => {
+        try {
+          const url = new URL(entry.href,root);
+          if(url.origin === location.origin && url.pathname.endsWith('/HSC/HSC.html')) url.pathname = url.pathname.replace(/HSC\/HSC\.html$/, 'quiz-tool/quiz-tool.html');
+          return {...entry,href:url.href,tool:entry.tool === 'HSC practice' ? 'Quiz Tool' : entry.tool};
+        } catch (_) { return entry; }
+      });
+      return value;
+    } catch (_) { return fallback; }
+  }
   function write(key, value) { try { localStorage.setItem('sbq:' + scope() + ':' + key, JSON.stringify(value)); return true; } catch (_) { return false; } }
   function node(tag, cls, text) { const el = document.createElement(tag); if (cls) el.className = cls; if (text != null) el.textContent = text; return el; }
   function button(text, fn, cls = 'qol-button') { const el = node('button', cls, text); el.type = 'button'; el.addEventListener('click', fn); return el; }
@@ -115,14 +127,15 @@
     for(const r of recent) {
       const a = node('a','qol-result'); let tool = r.tool;
       try { const u = new URL(r.href); if(u.origin !== location.origin) continue; a.href = u.href;
-        if(!tool) tool = u.pathname.includes('graphing.html') ? 'Graphing tool' : u.pathname.includes('flashcards') ? 'Flashcards' : u.pathname.includes('/HSC/') ? 'HSC practice' : u.pathname.includes('analyser') ? 'Analyser Tool' : u.pathname.includes('class.html') ? 'Class topics' : 'Topics';
+        if(!tool) tool = u.pathname.includes('graphing.html') ? 'Graphing tool' : u.pathname.includes('flashcards') ? 'Flashcards' : u.pathname.includes('/quiz-tool/') ? 'Quiz Tool' : u.pathname.includes('analyser') ? 'Analyser Tool' : u.pathname.includes('class.html') ? 'Class topics' : 'Topics';
       } catch(_) { continue; }
-      const toolSource = /^(Graphing tool|Graphing)$/i.test(tool) ? {icon:'📈',name:'Graphing tool'} : /^(Analyser|Analyser Tool)$/i.test(tool) ? {icon:'📍',name:'Analyser Tool'} : null;
+      const toolSource = window.SBTools?.forURL(a.href) || (/^(Graphing tool|Graphing)$/i.test(tool) ? {icon:'icons/tools/graphing.svg',name:'Graphing Tool'} : /^(Analyser|Analyser Tool)$/i.test(tool) ? {icon:'icons/tools/analyser.svg',name:'Analyser Tool'} : tool === 'Quiz Tool' ? {icon:'icons/tools/quiz.svg',name:'Quiz Tool'} : null);
+      if(toolSource?.disabled) { a.removeAttribute('href'); a.setAttribute('aria-disabled','true'); a.classList.add('is-disabled'); }
       const source = node('span','qol-muted',toolSource ? '' : [r.subject,tool === 'Topics' || tool === 'Class topics' ? '' : tool].filter(Boolean).join(' · '));
-      if(toolSource) { const icon = node('span','qol-continue-tool-icon',toolSource.icon); icon.setAttribute('aria-hidden','true'); source.append(icon,document.createTextNode(' ' + toolSource.name)); }
+      if(toolSource) { const icon = window.SBTools ? window.SBTools.image(toolSource) : node('img','tool-icon',''); if(!window.SBTools) { icon.src = new URL(toolSource.icon,root).href; icon.alt = ''; } source.append(icon,document.createTextNode(' ' + toolSource.name)); }
       const subject = catalogs().find(s => s.name === r.subject);
-      const hscSubject = {Engineering:'eng2',Maths:'mth',Math:'mth',English:'eng',Economics:'eco'}[r.subject];
-      const colour = subject?.colour || catalogs().find(s => s.id === hscSubject)?.colour;
+      const quizSubject = {Engineering:'eng2',Maths:'mth',Math:'mth',English:'eng',Economics:'eco'}[r.subject];
+      const colour = subject?.colour || catalogs().find(s => s.id === quizSubject)?.colour;
       if(colour && !toolSource) source.style.color = colour;
       const heading = node('div','qol-continue-heading'); heading.append(node('strong','',r.name));
       if(r.time && Number.isFinite(new Date(r.time).getTime())) {
@@ -165,33 +178,8 @@
       document.addEventListener('click',e => { if(!settingsWrap.contains(e.target)) { settingsWrap.classList.remove('open'); settings.setAttribute('aria-expanded','false'); } });
       settingsWrap.addEventListener('keydown',e => { if(e.key === 'Escape') { settingsWrap.classList.remove('open'); settings.setAttribute('aria-expanded','false'); settings.focus(); } });
       settings.setAttribute('aria-label','Settings');
-      settings.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="m10 3-1 3-3 1-3 2 2 3-1 3 3 2 3-1 2 3 3-1 1-3 3-1 1-3-2-3-3-1-1-3z"/><circle cx="12" cy="12" r="3"/></svg>';
+      const settingsIcon = node('img','settings-icon',''); settingsIcon.src = new URL('icons/settings.svg',root).href; settingsIcon.alt = ''; settingsIcon.width = 16; settingsIcon.height = 16; settings.append(settingsIcon);
       const wrap = profileButton?.closest('.hdr-profile-wrap'); if(wrap) wrap.after(settingsWrap); else header.append(settingsWrap);
-    }
-    if(profileMenu) {
-      const notifications = document.getElementById('hdrNotifyWrap');
-      const addProfileActions = () => {
-        if(!profileMenu.querySelector('.qol-view-profile')) {
-          const link = node('a','qol-view-profile','View profile'); link.href = new URL('profile.html',root).href; profileMenu.append(link);
-        }
-        if(notifications && !profileMenu.contains(notifications)) profileMenu.append(notifications);
-        document.getElementById('hdrNotifyBtn')?.remove();
-        if(notifications && !notifications.querySelector('.qol-notifications-title')) notifications.prepend(node('div','qol-notifications-title','Notifications'));
-      };
-      addProfileActions(); new MutationObserver(addProfileActions).observe(profileMenu,{childList:true});
-      const wrap = profileButton?.closest('.hdr-profile-wrap');
-      if(profileButton && wrap) {
-        const openNotifications = () => {
-          if(typeof sbNotifyOpenAndRead === 'function' && !(typeof _sbNotifyOpen !== 'undefined' && _sbNotifyOpen)) sbNotifyOpenAndRead().catch(() => {});
-        };
-        wrap.addEventListener('mouseenter',openNotifications);
-        wrap.addEventListener('mouseleave',() => { wrap.classList.remove('qol-profile-open'); profileButton.setAttribute('aria-expanded','false'); if(typeof sbNotifyClose === 'function') sbNotifyClose(); });
-        wrap.addEventListener('focusout',e => { if(!wrap.contains(e.relatedTarget)) { wrap.classList.remove('qol-profile-open'); profileButton.setAttribute('aria-expanded','false'); } });
-        profileButton.onclick = null; profileButton.setAttribute('aria-expanded','false'); profileButton.setAttribute('aria-label','Profile and notifications');
-        profileButton.addEventListener('click',e => { e.preventDefault(); e.stopPropagation(); const open = wrap.classList.toggle('qol-profile-open'); profileButton.setAttribute('aria-expanded',String(open)); if(open) openNotifications(); });
-        document.addEventListener('click',e => { if(!wrap.contains(e.target)) { wrap.classList.remove('qol-profile-open'); profileButton.setAttribute('aria-expanded','false'); } });
-        if(notifications) new MutationObserver(() => wrap.classList.toggle('qol-has-notifications',notifications.classList.contains('has-unread'))).observe(notifications,{attributes:true,attributeFilter:['class']});
-      }
     }
     document.querySelectorAll('button').forEach(el => { if(!el.getAttribute('aria-label') && !el.textContent.trim()) el.setAttribute('aria-label',el.title || el.dataset.tip || 'Action'); });
     continueCard();

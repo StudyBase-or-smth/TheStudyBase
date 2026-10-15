@@ -78,6 +78,7 @@ body.subject-page .dh-editing .dh-actions-btns .qol-duplicate-icon{width:31px;pa
 .qol-drop-after{box-shadow:inset 0 -3px var(--accent)}
 .qol-profile-open .hdr-profile-tip{opacity:1;pointer-events:auto}
 .hdr-profile-tip{visibility:hidden}
+.hdr-profile-wrap .hdr-profile-tip[inert]{visibility:hidden;opacity:0;pointer-events:none}
 .hdr-profile-wrap:hover .hdr-profile-tip,.qol-profile-open .hdr-profile-tip{visibility:visible}
 .qol-view-profile{display:inline-block;margin-top:8px;color:var(--muted);font-size:11px;text-decoration:none}
 .qol-view-profile:hover{color:var(--text);text-decoration:underline}
@@ -119,6 +120,7 @@ body.subject-page .subtopic-sidebar-item .ssi-label{flex:1;min-width:0}
 .qol-settings-menu .qol-setting select{min-width:0;min-height:28px;padding:4px 6px;font-size:11px;border-radius:5px}
 .qol-settings-menu .qol-muted{font-size:10px;margin-top:12px}
 .qol-settings-button::before,.qol-settings-button::after{display:none!important}
+.settings-icon{display:block;width:18px;height:18px;object-fit:contain}.qol-settings-button .settings-icon{width:16px;height:16px}body.dark .settings-icon{filter:brightness(0) invert(.8)}
 #hubSidebar .side-card{margin-bottom:8px}
 #hubSidebar .side-card:last-child{margin-bottom:0}
 #hubSidebar .collapsible-body{transition:none}

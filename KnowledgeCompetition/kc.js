@@ -1,5 +1,5 @@
 // Knowledge Competition — lobby quiz tool.
-// Games use the same question shape as HSC (isMultipleChoice + answers[].correct).
+// Games use the same question shape as Quiz Tool (isMultipleChoice + answers[].correct).
 // Lobbies and games are stored on the StudyBase sync store so other signed-in
 // players can join by code or from the public list.
 
@@ -764,7 +764,7 @@
       <div class="kc-wrap">
         <div class="kc-kicker">Games</div>
         <h1 class="kc-title">Create game</h1>
-        <p class="kc-lead">Start a new quiz, or edit / copy one you already have. Each question has several answers and exactly one that is right — same structure as the HSC tool.</p>
+        <p class="kc-lead">Start a new quiz, or edit / copy one you already have. Each question has several answers and exactly one that is right — same structure as the Quiz Tool.</p>
         <div class="kc-actions left" style="margin-top:0;margin-bottom:12px">
           <button type="button" class="kc-btn kc-btn-primary" id="kcNewGame">New game</button>
           <button type="button" class="kc-btn" id="kcSample">Copy sample game</button>

@@ -14,8 +14,10 @@ test('Continue studying shows tool icons under project/task titles while retaini
   const rows=[...w.document.querySelectorAll('#qol-continue .qol-result')];
   assert.equal(rows.length,3);assert.equal(rows[0].querySelector('.qol-muted').textContent,'Physics');
   assert.equal(rows[1].querySelector('strong').textContent,'Essay task');
-  assert.equal(rows[1].querySelector('.qol-muted').textContent,'📍 Analyser Tool');
-  assert.equal(rows[2].querySelector('.qol-muted').textContent,'📈 Graphing tool');
+  assert.equal(rows[1].querySelector('.qol-muted').textContent,' Analyser Tool');
+  assert.equal(rows[2].querySelector('.qol-muted').textContent,' Graphing Tool');
+  assert.match(rows[1].querySelector('img').src,/icons\/tools\/analyser.svg$/);
+  assert.match(rows[2].querySelector('img').src,/icons\/tools\/graphing.svg$/);
   assert.equal(new URL(rows[2].href).searchParams.get('project'),'p1');
   w.isGuest=false;w.currentUid='student1';w.SBQoL.refreshContinue();assert.equal(w.document.querySelectorAll('#qol-continue .qol-result').length,0);
   dom.window.close();

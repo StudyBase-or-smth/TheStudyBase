@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="quiz-marking.js"></script>
-<title>HSC — StudyBase</title>
+<title>Quiz Tool — StudyBase</title>
 <!-- Favicon -->
 <link rel="icon" href="../icon.png" type="image/png">
 <link rel="apple-touch-icon" href="../icon.png">
@@ -541,6 +541,9 @@
   }
 </style>
 <link rel="stylesheet" href="../qol.css">
+<script src="../site-config.js"></script>
+<script src="../site-tools.js"></script>
+<script src="../site-branding.js" defer></script>
 </head>
 <body class="subject-page">
 
@@ -596,16 +599,16 @@
   <div class="hdr-main">
     <div class="hdr-top">
       <div class="logo-block">
-        <div class="logo-icon2">🎓</div>
+        <div class="logo-icon2"><img src="../icon.png" alt="" width="28" height="28"></div>
         <div>
-          <div class="logo-text2">StudyBase</div>
-          <span class="logo-sub-txt">EXPERIMENTAL TOOLS</span>
+          <div class="logo-text2" data-brand-name>StudyBase</div>
+          <span class="logo-sub-txt" data-brand-subtitle>EXPERIMENTAL TOOLS</span>
         </div>
       </div>
       <div class="hdr-breadcrumb" id="hdrBreadcrumb">
         <a class="bc-link" href="../index.html">Index</a>
         <span class="bc-sep">›</span>
-        <span class="bc-current" id="hdrCurrent">HSC</span>
+        <span class="bc-current" id="hdrCurrent">Quiz Tool</span>
       </div>
       <div class="hdr-right-row">
         <div class="hdr-notify-wrap" id="hdrNotifyWrap">
@@ -630,20 +633,21 @@
      .detail-panel (current question) — same shell as subject.html, not a one-off layout. -->
 <div class="app-body">
   <nav class="sidebar" id="quizSidebar"></nav>
-  <div class="detail-panel" id="hscCanvas"></div>
+  <div class="detail-panel" id="quizCanvas"></div>
 </div>
 
 <!-- Guest overlays -->
 <div id="guest-border"></div>
 <div id="guest-nudge">
   <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Viewing as guest</div>
-  <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Sign in to add and edit HSC content.</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Sign in to add and edit quiz content.</div>
   <button onclick="window.location.href='../login.html'" style="background:var(--text);color:var(--card);border:none;border-radius:6px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;transition:opacity .15s">Sign In</button>
   <button onclick="document.getElementById('guest-nudge').style.display='none'" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;margin-top:6px;width:100%;font-family:'Inter',sans-serif">Dismiss</button>
 </div>
 
 
 <script src="../profile-store.js"></script>
+<script src="../profile-tooltip.js"></script>
 <script src="../notifications.js"></script>
 <script>
 (function(){
@@ -687,7 +691,7 @@ const SUBJECT_META = {
 let quizState = null;
 let quizManifest = []; // [{file, name, subject, section, questionCount, totalMarks}, ...]
 const dictionaryCache = Object.create(null);
-const QUIZ_PROGRESS_KEY = 'studybase_hsc_progress';
+const QUIZ_PROGRESS_KEY = 'studybase_hsc_progress'; // Preserve saved progress through the Quiz Tool rename.
 
 function subjectMeta(name) {
   return SUBJECT_META[name] || { emoji: '📚', colour: '#4f46e5' };
@@ -748,7 +752,7 @@ function dictionaryCorrectNumbers(q) {
 }
 
 function paintQuiz(wrapHtml, q) {
-  const canvas = document.getElementById('hscCanvas');
+  const canvas = document.getElementById('quizCanvas');
   if (q && q.dictionary) {
     canvas.innerHTML = `<div class="quiz-stage has-dictionary">${wrapHtml}<aside class="quiz-dictionary" id="quizDictionary"></aside></div>`;
     fillDictionaryPanel(q);
@@ -821,7 +825,7 @@ function fillDictionaryPanel(q) {
 // textbox, a matching multiple-choice option, or the focused/next math box.
 function insertDictionaryNumber(id) {
   if (!quizState || quizState.perQuestion[quizState.index]) return;
-  const canvas = document.getElementById('hscCanvas');
+  const canvas = document.getElementById('quizCanvas');
   if (!canvas) return;
   const num = String(id);
   const q = quizState.questions[quizState.index];
@@ -858,7 +862,7 @@ function insertDictionaryNumber(id) {
 }
 
 function syncDictionaryPicked() {
-  const canvas = document.getElementById('hscCanvas');
+  const canvas = document.getElementById('quizCanvas');
   if (!canvas || !quizState) return;
   const picked = new Set();
   const dictInput = canvas.querySelector('#dictNumberInput');
@@ -919,7 +923,7 @@ function quizHashFile() {
 function setQuizHash(file) {
   if(file && window.SBQoL){
     const entry = quizManifest.find(m => m.file === file);
-    if(entry) window.SBQoL.recordActivity(entry.name || file,entry.subject || '', 'HSC practice',location.pathname + location.search + '#' + encodeURIComponent(file));
+    if(entry) window.SBQoL.recordActivity(entry.name || file,entry.subject || '', 'Quiz Tool',location.pathname + location.search + '#' + encodeURIComponent(file));
   }
   const desired = file
     ? location.pathname + location.search + '#' + encodeURIComponent(file)
@@ -929,8 +933,8 @@ function setQuizHash(file) {
   }
 }
 
-async function bootHsc() {
-  const canvas = document.getElementById('hscCanvas');
+async function bootQuiz() {
+  const canvas = document.getElementById('quizCanvas');
   canvas.innerHTML = '<div class="quiz-status">Loading quizzes…</div>';
   try {
     await loadManifest();
@@ -1090,13 +1094,13 @@ function showQuizHome() {
   if (currentQuizHasProgress()) persistCurrentQuiz();
   quizState = null;
   setQuizHash('');
-  updateHscBreadcrumb(null);
+  updateQuizBreadcrumb(null);
   renderHomePage();
   renderHomeSidebar();
 }
 
 function renderHomePage() {
-  const canvas = document.getElementById('hscCanvas');
+  const canvas = document.getElementById('quizCanvas');
   const requestedSubject = new URLSearchParams(location.search).get('subject');
   const availableSubjects = uniqueSubjects();
   const subjects = requestedSubject && availableSubjects.includes(requestedSubject) ? [requestedSubject] : availableSubjects;
@@ -1247,7 +1251,7 @@ function filterHomeNav(query) {
   });
 }
 
-function updateHscBreadcrumb(entry) {
+function updateQuizBreadcrumb(entry) {
   const el = document.getElementById('hdrBreadcrumb');
   if (!el) return;
   el.innerHTML = '';
@@ -1269,18 +1273,18 @@ function updateHscBreadcrumb(entry) {
   if (!entry) {
     const current = document.createElement('span');
     current.className = 'bc-current';
-    current.textContent = 'HSC';
+    current.textContent = 'Quiz Tool';
     el.appendChild(current);
     return;
   }
 
-  const hscBtn = document.createElement('button');
-  hscBtn.type = 'button';
-  hscBtn.className = 'bc-link';
-  hscBtn.id = 'bcHscHome';
-  hscBtn.textContent = 'HSC';
-  hscBtn.addEventListener('click', showQuizHome);
-  el.appendChild(hscBtn);
+  const quizHomeBtn = document.createElement('button');
+  quizHomeBtn.type = 'button';
+  quizHomeBtn.className = 'bc-link';
+  quizHomeBtn.id = 'bcQuizHome';
+  quizHomeBtn.textContent = 'Quiz Tool';
+  quizHomeBtn.addEventListener('click', showQuizHome);
+  el.appendChild(quizHomeBtn);
   addSep();
 
   const quizName = entry.name || entry.subject || 'Quiz';
@@ -1307,7 +1311,7 @@ function updateHscBreadcrumb(entry) {
 }
 
 async function loadQuizByFile(file, name, opts = {}) {
-  const canvas = document.getElementById('hscCanvas');
+  const canvas = document.getElementById('quizCanvas');
   canvas.innerHTML = '<div class="quiz-status">Loading quiz…</div>';
   try {
     const quizRes = await fetch(`${STORAGE_FOLDER}/${file}`);
@@ -1354,7 +1358,7 @@ async function loadQuizByFile(file, name, opts = {}) {
     await Promise.all(dictIds.map(id => ensureDictionary(id).catch(() => { dictionaryCache[id] = 'failed'; })));
 
     setQuizHash(file);
-    updateHscBreadcrumb(entry || { subject: name, section: '', name });
+    updateQuizBreadcrumb(entry || { subject: name, section: '', name });
     if (atSummary) {
       renderSidebar();
       renderSummary();
@@ -1502,7 +1506,7 @@ function jumpToQuestion(i) {
 /* ── Multiple choice / checkbox ── */
 
 function renderChoiceQuestion(q, index, total, prior) {
-  const canvas = document.getElementById('hscCanvas');
+  const canvas = document.getElementById('quizCanvas');
   // Radios for single-answer questions (native, mutually exclusive via shared `name`),
   // checkboxes for multi-answer questions (native, independent toggles).
   const inputType = q.isCheckbox ? 'checkbox' : 'radio';
@@ -1608,7 +1612,7 @@ function submitAnswer() {
 
   const selectedIdxs = new Set([...checkedInputs].map(inp => parseInt(inp.value, 10)));
   const q = quizState.questions[quizState.index];
-  const canvas = document.getElementById('hscCanvas');
+  const canvas = document.getElementById('quizCanvas');
 
   const earned = applyChoiceGrading(canvas, q, selectedIdxs);
   quizState.perQuestion[quizState.index] = { earned, total: 1, selected: [...selectedIdxs] };
@@ -1627,7 +1631,7 @@ function submitAnswer() {
    renderChoiceQuestion; this path is the simple numeric textbox. */
 
 function renderDictionaryNumberQuestion(q, index, total, prior) {
-  const canvas = document.getElementById('hscCanvas');
+  const canvas = document.getElementById('quizCanvas');
   paintQuiz(`
     <div class="quiz-wrap">
       <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
@@ -1707,7 +1711,7 @@ function submitDictionaryNumber() {
   if (quizState.perQuestion[quizState.index]) return;
 
   const q = quizState.questions[quizState.index];
-  const canvas = document.getElementById('hscCanvas');
+  const canvas = document.getElementById('quizCanvas');
   const input = canvas.querySelector('#dictNumberInput');
   const given = (input && input.value || '').trim();
   if (given === '') return;
@@ -1742,7 +1746,7 @@ function groupMathAnswers(answers) {
 }
 
 function renderMathQuestion(q, index, total, prior) {
-  const canvas = document.getElementById('hscCanvas');
+  const canvas = document.getElementById('quizCanvas');
   // Each entry defaults to type "answer" if not set (keeps older question files working
   // unchanged). "working" entries behave identically for grading — same textbox, same
   // numeric-aware matching, same 1 mark — just grouped/labeled as working steps.
@@ -1928,7 +1932,7 @@ function submitMathAnswer() {
   if (quizState.perQuestion[quizState.index]) return; // already answered — ignore stray resubmits
 
   const q = quizState.questions[quizState.index];
-  const canvas = document.getElementById('hscCanvas');
+  const canvas = document.getElementById('quizCanvas');
 
   const valuesFlat = new Array(q.answers.length).fill('');
   canvas.querySelectorAll('.quiz-math-input-row').forEach(row => {
@@ -1956,7 +1960,7 @@ function setAICheckBusy(canvas, busy) {
 }
 
 function renderAICheckQuestion(q, index, total, prior) {
-  const canvas = document.getElementById('hscCanvas');
+  const canvas = document.getElementById('quizCanvas');
   const markWord = q.marks === 1 ? 'mark' : 'marks';
 
   paintQuiz(`
@@ -1996,7 +2000,7 @@ async function submitAICheck() {
   if (state.perQuestion[index]) return;
 
   const q = state.questions[index];
-  const canvas = document.getElementById('hscCanvas');
+  const canvas = document.getElementById('quizCanvas');
   const textarea = canvas.querySelector('#quizAIAnswerInput');
   if (textarea.disabled) return;
   const studentAnswer = (textarea.value || '').trim();
@@ -2096,7 +2100,7 @@ async function continueToNextSection() {
 function renderSummary() {
   quizState.atSummary = true;
   persistCurrentQuiz();
-  const canvas = document.getElementById('hscCanvas');
+  const canvas = document.getElementById('quizCanvas');
   const earnedMarks = getEarnedMarks();
   const { totalMarks, quizName } = quizState;
   const { correct, incorrect, partial, unanswered } = questionOutcomes();
@@ -2125,7 +2129,7 @@ function renderSummary() {
   canvas.querySelector('#quizSummaryNext').addEventListener('click', continueToNextSection);
 }
 
-document.addEventListener('DOMContentLoaded', bootHsc);
+document.addEventListener('DOMContentLoaded', bootQuiz);
 window.addEventListener('beforeunload', () => {
   if (currentQuizHasProgress()) persistCurrentQuiz();
 });

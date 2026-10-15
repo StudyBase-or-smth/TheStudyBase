@@ -92,6 +92,7 @@ function sbNotifyNormalizeItem(raw){
       : [];
   }
   if(raw.sourceAskId) item.sourceAskId = String(raw.sourceAskId);
+  if(typeof raw.href==='string' && /^subject\/flashcards\.html#[A-Za-z0-9%_.-]+$/.test(raw.href)) item.href=raw.href;
   return item;
 }
 
@@ -251,7 +252,9 @@ function sbNotifyRenderList(items, emptyText, me){
     const meta = [n.id, n.fromName || 'StudyBase', sbNotifyFormatTime(n.createdAt)].filter(Boolean).join(' · ');
     const answered = n.kind === 'ask' && !!(me && n.answers && n.answers[me.uid]);
     const options = sbNotifyRenderOptions(n, me, answered);
-    const body = '<div class="hdr-notify-item-text">' + sbNotifyEsc(n.text) + '</div>' +
+    const base = window.SBQoL?.root || new URL(location.pathname.includes('/subject/')||location.pathname.includes('/quiz-tool/')||location.pathname.includes('/KnowledgeCompetition/')?'../':'./',location.href);
+    const resume = n.href ? '<a class="qol-view-profile" href="'+sbNotifyEsc(new URL(n.href,base).href)+'">Study now →</a>' : '';
+    const body = '<div class="hdr-notify-item-text">' + sbNotifyEsc(n.text) + '</div>' + resume +
       options +
       (meta ? '<div class="hdr-notify-item-meta">' + sbNotifyEsc(meta) + '</div>' : '');
     if(answered){

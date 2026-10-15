@@ -11,6 +11,11 @@
 <script src="sync-config.generated.js"></script>
 <script src="sync-config.js"></script>
 <link rel="stylesheet" href="qol.css">
+<link rel="stylesheet" href="image-editor.css">
+<script src="image-editor.js"></script>
+<script src="site-config.js"></script>
+<script src="site-tools.js"></script>
+<script src="site-branding.js" defer></script>
 </head>
 <body class="profile-page">
 
@@ -88,10 +93,10 @@
   <div class="hdr-main">
     <div class="hdr-top">
       <div class="logo-block">
-        <div class="logo-icon2"><img src="icon.png" style="width:24px;height:24px;object-fit:contain"></div>
+        <div class="logo-icon2"><img src="icon.png" alt="" width="28" height="28"></div>
         <div>
-          <div class="logo-text2">StudyBase</div>
-          <span class="logo-sub-txt">SCHOOL REFERENCE</span>
+          <div class="logo-text2" data-brand-name>StudyBase</div>
+          <span class="logo-sub-txt" data-brand-subtitle>EXPERIMENTAL TOOLS</span>
         </div>
       </div>
       <div class="hdr-breadcrumb">
@@ -117,7 +122,7 @@
   <div style="color:var(--muted);font-size:13px;padding:40px 0;text-align:center">Loading profile…</div>
 </div>
 
-<input type="file" id="profilePhotoInput" accept="image/*" style="display:none">
+<input type="file" id="profilePhotoInput" accept="image/jpeg,image/png,image/webp" style="display:none">
 <div id="sb-toast-c"></div>
 <div class="so-overlay" id="signOutOverlay" onclick="if(event.target===this) closeSignOutPopup()">
   <div class="so-modal" role="dialog" aria-modal="true" aria-labelledby="soTitle">
@@ -142,6 +147,7 @@
 <script src="subjects.js"></script>
 
 <script src="profile-store.js"></script>
+<script src="profile-tooltip.js"></script>
 <script src="notifications.js"></script>
 <script>
 function getInitials(name){
@@ -178,6 +184,7 @@ function showToast(msg, type){
 let profileCtx = null;
 let editDraft = null;
 let photoUploading = false;
+let photoEditToken = 0;
 
 function bootProfile(displayName, email, uid, isGuest, role, status){
   const keepEditing = profileCtx && profileCtx.editing && profileCtx.uid === uid;
@@ -222,6 +229,7 @@ function canEditClasses(role){
 
 function startEdit(){
   if(!profileCtx || profileCtx.isGuest) return;
+  photoEditToken++;photoUploading=false;
   const p = profileCtx.profile || defaultProfile(profileCtx.uid);
   editDraft = {
     photoUrl: p.photoUrl || '',
@@ -234,6 +242,7 @@ function startEdit(){
 }
 
 function cancelEdit(){
+  photoEditToken++;
   editDraft = null;
   photoUploading = false;
   if(profileCtx) profileCtx.editing = false;
@@ -269,19 +278,30 @@ async function onProfilePhotoPicked(input){
   const file = input.files && input.files[0];
   input.value = '';
   if(!file || !editDraft) return;
-  if(!file.type.startsWith('image/')){ showToast('Please choose an image', 'error'); return; }
+  return adjustProfilePhoto(file);
+}
+
+async function adjustProfilePhoto(source){
+  if(!editDraft || !profileCtx || profileCtx.isGuest || photoUploading) return;
+  const draft=editDraft,uid=profileCtx.uid,token=++photoEditToken;
+  source=source || profilePhotoSrc(draft.photoUrl || draft.photoThumb);
+  if(!source) return;
+  const active=()=>token===photoEditToken && editDraft===draft && profileCtx?.uid===uid && profileCtx.editing;
   photoUploading = true;
   buildProfile();
   try {
-    const up = await uploadProfilePhoto(file);
-    editDraft.photoUrl = up.url || up;
-    editDraft.photoThumb = up.thumb || '';
+    const edited=await SBImageEditor.open(source,{title:'Adjust profile image',aspect:1,width:512,circle:true,maxLength:400000});
+    if(!edited || !active()) return;
+    const up = await uploadProfilePhoto(SBImageEditor.toFile(edited,'profile.jpg'));
+    if(!active()) return;
+    draft.photoUrl = up.url || up;
+    draft.photoThumb = up.thumb || '';
     showToast('Photo uploaded');
   } catch(e) {
-    showToast(e.message || 'Photo upload failed', 'error');
+    if(active())showToast(e.message || 'Photo upload failed', 'error');
+  } finally {
+    if(token===photoEditToken){photoUploading=false;buildProfile();}
   }
-  photoUploading = false;
-  buildProfile();
 }
 
 function avatarHtml(photoUrl, photoThumb, initials, color, editing){
@@ -290,7 +310,8 @@ function avatarHtml(photoUrl, photoThumb, initials, color, editing){
   if(!editing) return `<div class="profile-avatar" style="background:${color}">${inner}</div>`;
   return `<div class="avatar-edit">
     <div class="profile-avatar" style="background:${color}">${inner}</div>
-    <button type="button" class="avatar-change" onclick="document.getElementById('profilePhotoInput').click()" ${photoUploading ? 'disabled' : ''}>${photoUploading ? 'Uploading…' : 'Change'}</button>
+    <button type="button" class="avatar-change" onclick="document.getElementById('profilePhotoInput').click()" ${photoUploading ? 'disabled' : ''}>${photoUploading ? 'Working…' : 'Change'}</button>
+    ${photoUrl || photoThumb ? `<button type="button" class="avatar-adjust" onclick="adjustProfilePhoto()" ${photoUploading ? 'disabled' : ''}>Adjust image</button>` : ''}
   </div>`;
 }
 

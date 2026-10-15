@@ -9,9 +9,14 @@
 <link rel="apple-touch-icon" href="../icon.png">
 <link rel="stylesheet" href="../fonts.css">
 <link rel="stylesheet" href="../mainstyle.css?v=editbtns2">
+<link rel="stylesheet" href="flashcards-editor.css">
+<script src="../flashcards-core.js"></script>
 <script src="../sync-config.generated.js"></script>
 <script src="../sync-config.js"></script>
 <link rel="stylesheet" href="../qol.css">
+<script src="../site-config.js"></script>
+<script src="../site-tools.js"></script>
+<script src="../site-branding.js" defer></script>
 </head>
 <body class="subject-page">
 
@@ -62,6 +67,7 @@
           document.body.classList.add('teacher-mode');
         }
         if (typeof bootHdrProfile === 'function') bootHdrProfile(user, role);
+        window.dispatchEvent(new Event('studybase-auth-ready'));
       }).catch(() => {
         window.isGuest = true;
         document.body.classList.add('guest-mode');
@@ -96,11 +102,11 @@
   <div class="hdr-main">
     <div class="hdr-top">
       <div class="logo-block">
-        <div class="logo-icon2" id="hdrEmoji"></div>
+        <div class="logo-icon2" id="hdrEmoji"><img src="../icon.png" alt="" width="28" height="28"></div>
         
         <div>
-          <div class="logo-text2">StudyBase</div>
-          <span class="logo-sub-txt">EXPERIMENTAL TOOLS</span>
+          <div class="logo-text2" data-brand-name>StudyBase</div>
+          <span class="logo-sub-txt" data-brand-subtitle>EXPERIMENTAL TOOLS</span>
         </div>
       </div>
       <div class="hdr-breadcrumb">
@@ -337,7 +343,7 @@
       <div class="subtopic-editor-list" id="subtopicEditorList"></div>
       <button class="btn-add-kp" onclick="addSubtopicRow()">+ Add subtopic</button>
     </div>
-    <div class="form-g" data-layout-group="basic math">
+    <div class="form-g" data-layout-group="basic overview math text pdf table">
       <label class="form-l">Flashcard Questions <span>— custom Q&amp;A for this topic's cards</span></label>
       <div class="fqa-list" id="fqaList"></div>
       <button class="btn-add-kp" onclick="addFqaRow()">+ Add question</button>
@@ -420,11 +426,13 @@
 
 <script src="../suggestions.js"></script>
 <script src="../profile-store.js"></script>
+<script src="../profile-tooltip.js"></script>
 <script src="../notifications.js"></script>
 <script>window.TOPIC_APP_MODE = 'subject';</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.11.1/distrib/jsxgraph.css">
 <script src="graph-editor.js?v=linked-values3"></script>
 <script src="topicapp.js?v=qol1"></script>
+<script src="flashcards-editor.js"></script>
 <script src="../qol.js"></script>
 <script src="topic-qol.js"></script>
 

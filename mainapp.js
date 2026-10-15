@@ -128,6 +128,7 @@ function refreshHubLists(){
 
 window.onHubAuthReady = function (uid) {
   window.currentUid = uid;
+  window.SBSubjectCards.load(subjectsData.subjects,classesData.subjects);
   window.SBQoL?.refreshContinue();
   if (typeof applyProfileCache === 'function') applyProfileCache(uid);
   refreshHubLists();
@@ -187,18 +188,7 @@ function renderSubjects() {
       '<p class="empty-note" style="grid-column:1/-1;padding:8px 0">No subjects enabled — turn them on in Profile.</p>';
     return;
   }
-  document.getElementById('subjectsGrid').innerHTML = subjects.map(s => {
-    const topics = getTopics(s), units = getUnits(s);
-    const meta = topics.length
-      ? `${topics.length} topic${topics.length !== 1 ? 's' : ''} · ${units.length} unit${units.length !== 1 ? 's' : ''}`
-      : 'No topics yet';
-    return `<a href="subject/subject.html#${s.id}" class="subj-card" style="border-top:4px solid ${s.colour}">
-      <div class="subj-emoji">${s.emoji || '📚'}</div>
-      <div class="subj-count" style="background:${s.colour}">${topics.length}</div>
-      <div class="subj-name">${s.name}</div>
-      <div class="subj-meta">${meta}</div>
-    </a>`;
-  }).join('');
+  window.SBSubjectCards.render(document.getElementById('subjectsGrid'),subjects,false,getTopics,getUnits);
 }
 // ── class cards ──
 // Classes are teacher/dev-only content (per-class rosters, aggregated into
@@ -225,25 +215,7 @@ function renderClasses() {
     el.innerHTML = '<p class="empty-note" style="grid-column:1/-1;padding:8px 0">No classes enabled — turn them on in Profile.</p>';
     return;
   }
-  el.innerHTML = classes.map(s => {
-    const topics = getTopics(s), units = getUnits(s);
-    const meta = topics.length
-      ? `${topics.length} topic${topics.length !== 1 ? 's' : ''} · ${units.length} unit${units.length !== 1 ? 's' : ''}`
-      : 'No topics yet';
-    return `<a href="subject/class.html#${s.id}" class="subj-card class-card" style="border-top:4px solid ${s.colour}">
-      <div class="subj-emoji">${s.emoji || '🏫'}</div>
-      <div class="subj-count" style="background:${s.colour}">${topics.length}</div>
-      <div class="subj-name" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-      <span>${s.name}</span>
-      ${s.class ? `<span style="font-size:11px;font-weight:400;color:var(--muted);white-space:nowrap">${s.teacher}</span>` : ''}
-      </div>
-      <div class="subj-name" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-      <div class="subj-meta">${meta}</div>
-      ${s.class ? `<span style="font-size:11px;font-weight:400;color:var(--muted);white-space:nowrap">${s.class}</span>` : ''}
-      </div>
-      </div>
-    </a>`;
-  }).join('');
+  window.SBSubjectCards.render(el,classes,true,getTopics,getUnits);
 }
 
 
@@ -295,7 +267,7 @@ function renderSidebar() {
   document.getElementById('recentList').innerHTML = recent.length === 0
     ? '<div class="feed-note">No topics added yet.</div>'
     : recent.map(t => `
-      <a class="feed-item" href="${t.sFile}" style="text-decoration:none;display:flex;align-items:flex-start;gap:10px;padding:9px 6px;border-bottom:1px solid var(--border);border-radius:4px;margin:0 -6px;transition:background .12s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
+      <a class="feed-item" href="${t.sFile}" style="text-decoration:none;display:flex;align-items:flex-start;gap:10px;padding:9px 6px;border-bottom:none;border-radius:4px;margin:0 -6px;transition:background .12s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
         <div class="feed-dot" style="background:${t.sColour};flex-shrink:0;margin-top:5px"></div>
         <div>
           <div class="feed-name">${t.name}</div>
@@ -311,7 +283,7 @@ function renderSidebar() {
     units.forEach(u => {
       const n = unitTopicCount(topics, u);
       const href = 'subject/subject.html?unit=' + encodeURIComponent(u.id) + '#' + s.id;
-      unitsHtml += `<a class="feed-item" href="${href}" style="text-decoration:none;display:flex;align-items:flex-start;gap:10px;padding:9px 6px;border-bottom:1px solid var(--border);border-radius:4px;margin:0 -6px;transition:background .12s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
+      unitsHtml += `<a class="feed-item" href="${href}" style="text-decoration:none;display:flex;align-items:flex-start;gap:10px;padding:9px 6px;border-bottom:none;border-radius:4px;margin:0 -6px;transition:background .12s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
         <div class="feed-dot" style="background:${s.colour};flex-shrink:0;margin-top:5px"></div>
         <div>
           <div class="feed-name" style="font-size:12px">${u.name}</div>
@@ -322,16 +294,8 @@ function renderSidebar() {
   });
   document.getElementById('unitsList').innerHTML = unitsHtml || '<div class="empty-note">No units created yet.</div>';
 
-  // Marker tool link
-  if (document.getElementById('markerSection')) {
-    document.getElementById('markerSection').innerHTML = `
-      <div class="tools-list">
-        <a href="graphing.html" class="tool-btn">📈 Graphing tool</a>
-        <a href="analyser.html" class="tool-btn">📍 Analyser Tool</a>
-        <a href="HSC/HSC.html" class="tool-btn">🎓 HSC Quiz Tool</a>
-        <a href="KnowledgeCompetition/KnowledgeCompetition.html" class="tool-btn">🏆 Knowledge Competition</a>
-      </div>`;
-  }
+  window.SBTools.renderSidebar(document.getElementById('markerSection'));
+
 }
 
 // ── Calendar ──
@@ -553,6 +517,7 @@ async function syncAllSubjectsAndUnits() {
   try {
     const subjects = subjectsData.subjects || [];
     const classes = (typeof classesData !== 'undefined' && classesData.subjects) ? classesData.subjects : [];
+    window.SBSubjectCards.load(subjects,classes);
     for (const s of [...subjects, ...classes]) {
       const tKey = s.storageKey || (s.id + '_topics');
       const uKey = s.unitsKey || (s.id + '_units');

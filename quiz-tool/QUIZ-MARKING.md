@@ -1,5 +1,7 @@
 # Quiz marking with Jev
 
+The tool entry point is `quiz-tool/quiz-tool.html`. Keep the legacy progress storage key so the rename preserves saved quiz sessions. Existing Continue studying entries resolve to the renamed page.
+
 Written questions (`isAICheck: true`) use the authenticated backend endpoint
 `POST /api/quizGrade`. There is no Gemini call, direct-browser provider call,
 generated feedback, or fallback provider in the quiz tool. Multiple choice and
