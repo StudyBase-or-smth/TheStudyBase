@@ -12,6 +12,30 @@
     "section": "Section II"
   },
   {
+    "file": "Engineering-2024-S1.json",
+    "name": "2024 HSC Engineering Studies",
+    "subject": "Engineering",
+    "section": "Section I"
+  },
+  {
+    "file": "Engineering-2024-S2.json",
+    "name": "2024 HSC Engineering Studies",
+    "subject": "Engineering",
+    "section": "Section II"
+  },
+  {
+    "file": "Engineering-2023-S1.json",
+    "name": "2023 HSC Engineering Studies",
+    "subject": "Engineering",
+    "section": "Section I"
+  },
+  {
+    "file": "Engineering-2023-S2.json",
+    "name": "2023 HSC Engineering Studies",
+    "subject": "Engineering",
+    "section": "Section II"
+  },
+  {
     "file": "EngineeringWhichFormula.json",
     "name": "Which Formula?",
     "subject": "Engineering",

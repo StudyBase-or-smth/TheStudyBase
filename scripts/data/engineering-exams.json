@@ -1,0 +1,2043 @@
+{
+  "2023": {
+    "diagrams": [
+      4,
+      6,
+      10,
+      12,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "questions": {
+      "10": "A bogie pin is shown. What is the expression for the shear stress in the pin?",
+      "19": "A loaded truss is shown. Which of the following is the redundant member?",
+      "22bi": "The diagram shows a child with a mass of 45 kg hanging 2 metres from the left end of a structure, and an adult with a mass of 85 kg hanging 1 metre from the right end. Calculate the reactions at R_L and R_R.",
+      "26c": "A truss is loaded as shown. Complete the table. Use the space provided below and on page 33 for working.",
+      "27b": "A portion of a roller coaster wheel sub-assembly is shown. An exploded pictorial of the wheel sub-assembly is shown. Complete an assembled sectioned front view of the wheel sub-assembly at scale 1 : 2. Apply AS 1100 drawing standards. Do NOT add dimensions.",
+      "22bii": "The diagram shows a child with a mass of 45 kg hanging 2 metres from the left end of a structure, and an adult with a mass of 85 kg hanging 1 metre from the right end. Complete the shear force and bending moment diagrams of the scenario described on the previous page."
+    },
+    "options": {
+      "4": [
+        "Outline | Concealed | Centre | Break",
+        "Solid | Hidden detail | Chain | End",
+        "Outline | Hidden detail | Centre | Break",
+        "Development | Stitch line | Reference | Section"
+      ],
+      "10": [
+        "4P / (π × d)",
+        "4P / (π ÷ d)",
+        "4P / (π × d²)",
+        "4P / (π ÷ d²)"
+      ],
+      "16": [
+        "Lift: 29.8 kN; Drag: 2.7 kN; Thrust: 5.8 kN",
+        "Lift: 29.8 kN; Drag: 2.7 kN; Thrust: 3.1 kN",
+        "Lift: 2.7 kN; Drag: 3.1 kN; Thrust: 5.8 kN",
+        "Lift: 2.7 kN; Drag: 3.1 kN; Thrust: 29.8 kN"
+      ],
+      "17": [
+        "Counterbore | Spotface | Countersink",
+        "Spotface | Countersink | Counterbore",
+        "Countersink | Spotface | Counterbore",
+        "Countersink | Counterbore | Spotface"
+      ],
+      "18": null
+    },
+    "marks": {
+      "21a": 2,
+      "21b": 3,
+      "21c": 3,
+      "21d": 3,
+      "22ai": 2,
+      "22aii": 3,
+      "22bi": 3,
+      "22bii": 3,
+      "23a": 3,
+      "23b": 3,
+      "23c": 3,
+      "23d": 3,
+      "24a": 2,
+      "24b": 2,
+      "24c": 3,
+      "24di": 2,
+      "24dii": 3,
+      "25a": 3,
+      "25b": 3,
+      "25c": 2,
+      "25d": 4,
+      "26a": 3,
+      "26b": 3,
+      "26c": 6,
+      "27a": 4,
+      "27b": 6
+    },
+    "layouts": {
+      "4": [
+        {
+          "page": 3,
+          "box": [
+            55,
+            90,
+            550,
+            150
+          ],
+          "after": "Which row"
+        }
+      ],
+      "10": [
+        {
+          "page": 4,
+          "box": [
+            55,
+            395,
+            550,
+            520
+          ],
+          "after": "What is the expression"
+        }
+      ],
+      "12": [
+        {
+          "page": 5,
+          "box": [
+            55,
+            231,
+            550,
+            528
+          ],
+          "after": "What is the calculated"
+        }
+      ],
+      "16": [
+        {
+          "page": 7,
+          "box": [
+            55,
+            85,
+            550,
+            230
+          ],
+          "after": "Which row"
+        }
+      ],
+      "17": [
+        {
+          "page": 7,
+          "box": [
+            55,
+            435,
+            550,
+            550
+          ],
+          "after": "Which row"
+        }
+      ],
+      "18": [
+        {
+          "page": 8,
+          "box": [
+            55,
+            87,
+            550,
+            225
+          ],
+          "after": "Which free body"
+        },
+        {
+          "page": 8,
+          "box": [
+            55,
+            258,
+            550,
+            540
+          ],
+          "after": ""
+        }
+      ],
+      "19": [
+        {
+          "page": 9,
+          "box": [
+            55,
+            87,
+            550,
+            230
+          ],
+          "after": "Which of the following"
+        }
+      ],
+      "20": [
+        {
+          "page": 10,
+          "box": [
+            55,
+            87,
+            550,
+            375
+          ],
+          "after": "What is the true angle"
+        }
+      ],
+      "21c": [
+        {
+          "page": 15,
+          "box": [
+            55,
+            115,
+            550,
+            343
+          ],
+          "after": "Construct a freehand"
+        }
+      ],
+      "22bi": [
+        {
+          "page": 18,
+          "box": [
+            55,
+            143,
+            550,
+            374
+          ],
+          "after": "Calculate the reactions"
+        }
+      ],
+      "22bii": [
+        {
+          "page": 18,
+          "box": [
+            55,
+            143,
+            550,
+            374
+          ],
+          "after": "Complete the shear force"
+        }
+      ],
+      "23a": [
+        {
+          "table": {
+            "caption": "Electronic component symbols",
+            "columns": [
+              "Component",
+              "Symbol"
+            ],
+            "rows": [
+              [
+                {
+                  "text": "Open switch",
+                  "header": true
+                },
+                {
+                  "text": "",
+                  "input": true,
+                  "placeholder": "Sketch on paper or add notes"
+                }
+              ],
+              [
+                {
+                  "text": "Power cell",
+                  "header": true
+                },
+                {
+                  "text": "",
+                  "input": true,
+                  "placeholder": "Sketch on paper or add notes"
+                }
+              ],
+              [
+                {
+                  "text": "Light emitting diode",
+                  "header": true
+                },
+                {
+                  "text": "",
+                  "input": true,
+                  "placeholder": "Sketch on paper or add notes"
+                }
+              ],
+              [
+                {
+                  "text": "Resistor",
+                  "header": true
+                },
+                {
+                  "text": "",
+                  "input": true,
+                  "placeholder": "Sketch on paper or add notes"
+                }
+              ],
+              [
+                {
+                  "text": "Light dependent resistor",
+                  "header": true
+                },
+                {
+                  "text": "",
+                  "input": true,
+                  "placeholder": "Sketch on paper or add notes"
+                }
+              ],
+              [
+                {
+                  "text": "NPN transistor",
+                  "header": true
+                },
+                {
+                  "text": "",
+                  "input": true,
+                  "placeholder": "Sketch on paper or add notes"
+                }
+              ],
+              [
+                {
+                  "text": "Capacitor",
+                  "header": true
+                },
+                {
+                  "text": "",
+                  "input": true,
+                  "placeholder": "Sketch on paper or add notes"
+                }
+              ]
+            ]
+          },
+          "after": ""
+        }
+      ],
+      "23d": [
+        {
+          "page": 22,
+          "box": [
+            55,
+            125,
+            550,
+            527
+          ],
+          "after": "With reference"
+        }
+      ],
+      "24a": [
+        {
+          "page": 23,
+          "box": [
+            55,
+            115,
+            550,
+            521
+          ],
+          "after": "Compare the properties"
+        }
+      ],
+      "24b": [
+        {
+          "page": 24,
+          "box": [
+            55,
+            130,
+            550,
+            259
+          ],
+          "after": "The diagram shows"
+        },
+        {
+          "page": 24,
+          "box": [
+            55,
+            308,
+            550,
+            579
+          ],
+          "after": "Complete the microstructure"
+        }
+      ],
+      "24c": [
+        {
+          "page": 25,
+          "box": [
+            55,
+            115,
+            550,
+            290
+          ],
+          "after": "Determine the height"
+        }
+      ],
+      "24di": [
+        {
+          "page": 26,
+          "box": [
+            55,
+            267,
+            550,
+            490
+          ],
+          "after": "What is the purpose"
+        }
+      ],
+      "24dii": [
+        {
+          "page": 26,
+          "box": [
+            55,
+            267,
+            550,
+            490
+          ],
+          "after": "Complete the truth table"
+        },
+        {
+          "table": {
+            "caption": "Roller coaster safety truth table",
+            "columns": [
+              "Safety harnesses secure",
+              "Track is clear",
+              "Ride gates are locked",
+              "Operator warning light"
+            ],
+            "rows": [
+              [
+                "0",
+                "0",
+                "0",
+                {
+                  "text": "",
+                  "input": true
+                }
+              ],
+              [
+                "0",
+                "0",
+                "1",
+                {
+                  "text": "",
+                  "input": true
+                }
+              ],
+              [
+                "0",
+                "1",
+                "0",
+                {
+                  "text": "",
+                  "input": true
+                }
+              ],
+              [
+                "0",
+                "1",
+                "1",
+                {
+                  "text": "",
+                  "input": true
+                }
+              ],
+              [
+                "1",
+                "0",
+                "0",
+                {
+                  "text": "",
+                  "input": true
+                }
+              ],
+              [
+                "1",
+                "0",
+                "1",
+                {
+                  "text": "",
+                  "input": true
+                }
+              ],
+              [
+                "1",
+                "1",
+                "0",
+                {
+                  "text": "",
+                  "input": true
+                }
+              ],
+              [
+                "1",
+                "1",
+                "1",
+                {
+                  "text": "",
+                  "input": true
+                }
+              ]
+            ]
+          },
+          "after": ""
+        }
+      ],
+      "25d": [
+        {
+          "page": 29,
+          "box": [
+            55,
+            130,
+            550,
+            336
+          ],
+          "after": "Determine the minimum"
+        }
+      ],
+      "26a": [
+        {
+          "page": 30,
+          "box": [
+            55,
+            131,
+            550,
+            453
+          ],
+          "after": "Calculate the shear force"
+        }
+      ],
+      "26c": [
+        {
+          "page": 32,
+          "box": [
+            55,
+            115,
+            550,
+            286
+          ],
+          "after": "Complete the table."
+        },
+        {
+          "table": {
+            "caption": "Internal reactions",
+            "columns": [
+              "Member",
+              "Magnitude (kN)",
+              "Nature of force (T or C)"
+            ],
+            "rows": [
+              [
+                "Internal reaction of member EF",
+                {
+                  "text": "",
+                  "input": true
+                },
+                {
+                  "text": "",
+                  "input": true
+                }
+              ],
+              [
+                "Internal reaction of CH",
+                {
+                  "text": "",
+                  "input": true
+                },
+                {
+                  "text": "",
+                  "input": true
+                }
+              ]
+            ]
+          },
+          "after": "Use the space"
+        }
+      ],
+      "27b": [
+        {
+          "page": 36,
+          "box": [
+            55,
+            115,
+            550,
+            306
+          ],
+          "after": "An exploded pictorial"
+        },
+        {
+          "page": 36,
+          "box": [
+            55,
+            339,
+            550,
+            745
+          ],
+          "after": "Complete an assembled"
+        },
+        {
+          "page": 37,
+          "box": [
+            55,
+            130,
+            550,
+            460
+          ],
+          "after": ""
+        }
+      ]
+    },
+    "answerTables": {
+      "4": {
+        "caption": "Line types according to AS 1100",
+        "columns": [
+          "Line 1",
+          "Line 2",
+          "Line 3",
+          "Line 4"
+        ],
+        "rows": [
+          [
+            "Outline",
+            "Concealed",
+            "Centre",
+            "Break"
+          ],
+          [
+            "Solid",
+            "Hidden detail",
+            "Chain",
+            "End"
+          ],
+          [
+            "Outline",
+            "Hidden detail",
+            "Centre",
+            "Break"
+          ],
+          [
+            "Development",
+            "Stitch line",
+            "Reference",
+            "Section"
+          ]
+        ]
+      },
+      "16": {
+        "caption": "Aircraft forces",
+        "columns": [
+          "Lift",
+          "Drag",
+          "Thrust"
+        ],
+        "rows": [
+          [
+            "29.8 kN",
+            "2.7 kN",
+            "5.8 kN"
+          ],
+          [
+            "29.8 kN",
+            "2.7 kN",
+            "3.1 kN"
+          ],
+          [
+            "2.7 kN",
+            "3.1 kN",
+            "5.8 kN"
+          ],
+          [
+            "2.7 kN",
+            "3.1 kN",
+            "29.8 kN"
+          ]
+        ]
+      },
+      "17": {
+        "caption": "AS 1100 standard representations",
+        "columns": [
+          "Part 1",
+          "Part 2",
+          "Part 3"
+        ],
+        "rows": [
+          [
+            "Counterbore",
+            "Spotface",
+            "Countersink"
+          ],
+          [
+            "Spotface",
+            "Countersink",
+            "Counterbore"
+          ],
+          [
+            "Countersink",
+            "Spotface",
+            "Counterbore"
+          ],
+          [
+            "Countersink",
+            "Counterbore",
+            "Spotface"
+          ]
+        ]
+      }
+    },
+    "drawingTasks": [
+      "21c",
+      "21d",
+      "22bii",
+      "23a",
+      "24b",
+      "27b"
+    ]
+  },
+  "2024": {
+    "diagrams": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      10,
+      12,
+      16,
+      18,
+      20
+    ],
+    "questions": {
+      "2": "A load-extension diagram for a mild steel specimen is shown. Which letters indicate the area under the curve in which the specimen will permanently change its size and shape?",
+      "4": "Which row of the table correctly identifies characteristics of analogue and digital communications?",
+      "8": "The cross-section of a tapered tube is shown. What are the pressure readings at both gauge A and at gauge B as the air flows through the tube?",
+      "20": "A cross-section of a beam is shown. Which of the following is the maximum stress in the beam if the maximum bending moment is 200 kN m and Iₓₓ is 168.75 × 10⁻⁶ m⁴?",
+      "21d": "An orthogonal drawing of a strap brace tensioner is shown. With reference to the orthogonal drawing and modified title block, complete the table.",
+      "25c": "A pin-jointed truss is shown. Member AB has been determined to be 250 N in compression. Complete the table. You must use the method specified to solve each component.",
+      "26ci": "A drawing of a scale model aircraft flying at constant velocity in level flight is shown. Assume that the lift acts as a point load only on each wing and is located as shown in the drawing. In the box below, draw the free body diagram of the forces acting on the aircraft.",
+      "26cii": "A drawing of a scale model aircraft flying at constant velocity in level flight is shown. Assume that the lift acts as a point load only on each wing and is located as shown in the drawing. Draw both a shear force diagram and a bending moment diagram of the aircraft as the forces act across the wingspan of the aircraft.",
+      "26b": "To avoid overloading a cellular network, a logic gate is used to control the activation of a signal booster. The signal booster will only activate when both of the following conditions are met: • the signal strength falls below an acceptable level • the network traffic flow falls below an acceptable level. Complete a truth table for this scenario and identify a suitable logic gate."
+    },
+    "options": {
+      "4": [
+        "Analogue: Continuous (varying) signal, less susceptible to signal degradation; Digital: Discrete (binary) signal, more susceptible to signal degradation",
+        "Analogue: Continuous (varying) signal, more susceptible to signal degradation; Digital: Discrete (binary) signal, less susceptible to signal degradation",
+        "Analogue: Discrete (binary) signal, less susceptible to signal degradation; Digital: Continuous (varying) signal, more susceptible to signal degradation",
+        "Analogue: Discrete (binary) signal, more susceptible to signal degradation; Digital: Continuous (varying) signal, less susceptible to signal degradation"
+      ],
+      "5": null,
+      "7": [
+        "Coaxial | Fibre optic | High voltage transmission | Twisted pair",
+        "High voltage transmission | Twisted pair | Fibre optic | Coaxial",
+        "Coaxial | Twisted pair | High voltage transmission | Fibre optic",
+        "High voltage transmission | Fibre optic | Coaxial | Twisted pair"
+      ],
+      "8": [
+        "Gauge A: High; Gauge B: High",
+        "Gauge A: High; Gauge B: Low",
+        "Gauge A: Low; Gauge B: Low",
+        "Gauge A: Low; Gauge B: High"
+      ],
+      "12": [
+        "Lift: Decreases; Induced drag: Decreases",
+        "Lift: Decreases; Induced drag: Increases",
+        "Lift: Increases; Induced drag: Decreases",
+        "Lift: Increases; Induced drag: Increases"
+      ],
+      "18": null
+    },
+    "marks": {
+      "21a": 2,
+      "21b": 3,
+      "21c": 3,
+      "21d": 3,
+      "22a": 2,
+      "22b": 3,
+      "22c": 3,
+      "22d": 3,
+      "23a": 3,
+      "23b": 3,
+      "23c": 3,
+      "23d": 4,
+      "24a": 2,
+      "24b": 3,
+      "24c": 3,
+      "24d": 4,
+      "25a": 2,
+      "25b": 3,
+      "25c": 6,
+      "26a": 2,
+      "26b": 3,
+      "26ci": 1,
+      "26cii": 5,
+      "27a": 2,
+      "27b": 3,
+      "27c": 6
+    },
+    "layouts": {
+      "1": [
+        {
+          "page": 2,
+          "box": [
+            55,
+            210,
+            550,
+            322
+          ],
+          "after": "Which forming process"
+        }
+      ],
+      "2": [
+        {
+          "page": 3,
+          "box": [
+            55,
+            90,
+            550,
+            330
+          ],
+          "after": "Which letters"
+        }
+      ],
+      "3": [
+        {
+          "page": 4,
+          "box": [
+            55,
+            90,
+            550,
+            280
+          ],
+          "after": "If a cyclist"
+        }
+      ],
+      "5": [
+        {
+          "page": 5,
+          "box": [
+            55,
+            90,
+            550,
+            330
+          ],
+          "after": ""
+        }
+      ],
+      "6": [
+        {
+          "page": 5,
+          "box": [
+            55,
+            364,
+            550,
+            531
+          ],
+          "after": "Which of the following"
+        }
+      ],
+      "7": [
+        {
+          "page": 6,
+          "box": [
+            55,
+            90,
+            550,
+            160
+          ],
+          "after": ""
+        }
+      ],
+      "8": [
+        {
+          "page": 6,
+          "box": [
+            55,
+            350,
+            550,
+            517
+          ],
+          "after": "What are the pressure"
+        }
+      ],
+      "10": [
+        {
+          "page": 7,
+          "box": [
+            55,
+            251,
+            550,
+            403
+          ],
+          "after": "Assuming no friction"
+        }
+      ],
+      "16": [
+        {
+          "page": 9,
+          "box": [
+            55,
+            90,
+            550,
+            325
+          ],
+          "after": "The load is then increased"
+        }
+      ],
+      "18": [
+        {
+          "page": 10,
+          "box": [
+            55,
+            90,
+            550,
+            398
+          ],
+          "after": "Which is the correct shape"
+        },
+        {
+          "page": 10,
+          "box": [
+            55,
+            434,
+            550,
+            740
+          ],
+          "after": ""
+        }
+      ],
+      "20": [
+        {
+          "page": 11,
+          "box": [
+            55,
+            235,
+            550,
+            440
+          ],
+          "after": "Which of the following"
+        }
+      ],
+      "21a": [
+        {
+          "page": 15,
+          "box": [
+            55,
+            115,
+            550,
+            364
+          ],
+          "after": "Outline how innovations"
+        }
+      ],
+      "21b": [
+        {
+          "page": 16,
+          "box": [
+            55,
+            115,
+            550,
+            285
+          ],
+          "after": "Why are geotextiles"
+        }
+      ],
+      "21c": [
+        {
+          "page": 17,
+          "box": [
+            55,
+            130,
+            550,
+            246
+          ],
+          "after": "A 6 mm diameter"
+        }
+      ],
+      "21d": [
+        {
+          "page": 18,
+          "box": [
+            55,
+            115,
+            550,
+            630
+          ],
+          "after": "With reference"
+        },
+        {
+          "table": {
+            "caption": "Strap brace tensioner drawing questions",
+            "columns": [],
+            "rows": [
+              [
+                {
+                  "text": "What does ‘M’ stand for in M5 × 0.8?",
+                  "input": true
+                },
+                {
+                  "text": "What is the allowable range for the R2.5 ±0.5 dimension?",
+                  "input": true
+                }
+              ],
+              [
+                {
+                  "text": "Which dimension is not to AS1100?",
+                  "input": true
+                },
+                {
+                  "text": "What does the 0.8 refer to in the expression M5 × 0.8?",
+                  "input": true
+                }
+              ],
+              [
+                {
+                  "text": "Name the tensioner material.",
+                  "input": true
+                },
+                {
+                  "text": "What is the unit of measurement used in this drawing?",
+                  "input": true
+                }
+              ],
+              [
+                {
+                  "text": "What is the name of the curve indicated by letter A?",
+                  "input": true
+                },
+                {
+                  "text": "State ONE radial dimension.",
+                  "input": true
+                }
+              ],
+              [
+                {
+                  "text": "What is the angle of projection?",
+                  "input": true
+                },
+                {
+                  "text": "Which line type is missing from the SIDE VIEW?",
+                  "input": true
+                }
+              ]
+            ]
+          },
+          "after": ""
+        }
+      ],
+      "23c": [
+        {
+          "page": 23,
+          "box": [
+            55,
+            115,
+            550,
+            415
+          ],
+          "after": "Construct a freehand"
+        }
+      ],
+      "23d": [
+        {
+          "page": 24,
+          "box": [
+            55,
+            115,
+            550,
+            568
+          ],
+          "after": "Complete the table."
+        },
+        {
+          "table": {
+            "caption": "Telephone booth materials",
+            "columns": [
+              "Part",
+              "Material",
+              "Justification of material",
+              "Manufacturing method"
+            ],
+            "rows": [
+              [
+                {
+                  "text": "Screen",
+                  "header": true
+                },
+                {
+                  "text": "",
+                  "input": true
+                },
+                "Needs to be impact resistant",
+                {
+                  "text": "",
+                  "input": true
+                }
+              ],
+              [
+                {
+                  "text": "Hand receiver",
+                  "header": true
+                },
+                "ABS",
+                {
+                  "text": "",
+                  "input": true
+                },
+                {
+                  "text": "",
+                  "input": true
+                }
+              ],
+              [
+                {
+                  "text": "Shelf",
+                  "header": true
+                },
+                {
+                  "text": "",
+                  "input": true
+                },
+                {
+                  "text": "",
+                  "input": true
+                },
+                "Cold rolled and pressed"
+              ]
+            ]
+          },
+          "after": ""
+        }
+      ],
+      "25b": [
+        {
+          "page": 29,
+          "box": [
+            55,
+            244,
+            550,
+            425
+          ],
+          "after": "Use Ohm’s Law"
+        }
+      ],
+      "25c": [
+        {
+          "page": 30,
+          "box": [
+            55,
+            129,
+            550,
+            350
+          ],
+          "after": "Complete the table."
+        },
+        {
+          "table": {
+            "caption": "Truss reactions",
+            "columns": [
+              "Determine",
+              "Method to use",
+              "Working"
+            ],
+            "rows": [
+              [
+                {
+                  "text": "External reaction at E",
+                  "header": true
+                },
+                "Mathematical",
+                {
+                  "text": "",
+                  "input": true,
+                  "placeholder": "Working, magnitude (N) and direction"
+                }
+              ],
+              [
+                {
+                  "text": "Internal reaction of member CF",
+                  "header": true
+                },
+                "Methods of section",
+                {
+                  "text": "",
+                  "input": true,
+                  "placeholder": "Working, magnitude (N) and nature (T or C)"
+                }
+              ],
+              [
+                {
+                  "text": "Internal reaction of member BG",
+                  "header": true
+                },
+                "Graphical",
+                {
+                  "text": "",
+                  "input": true,
+                  "placeholder": "Complete the graphical solution on paper; record magnitude and nature"
+                }
+              ]
+            ]
+          },
+          "after": ""
+        }
+      ],
+      "26b": [
+        {
+          "table": {
+            "caption": "Truth table",
+            "columns": [
+              "Acceptable signal strength",
+              "Acceptable traffic flow",
+              "Activate booster"
+            ],
+            "rows": [
+              [
+                {
+                  "text": "",
+                  "input": true
+                },
+                {
+                  "text": "",
+                  "input": true
+                },
+                {
+                  "text": "",
+                  "input": true
+                }
+              ],
+              [
+                {
+                  "text": "",
+                  "input": true
+                },
+                {
+                  "text": "",
+                  "input": true
+                },
+                {
+                  "text": "",
+                  "input": true
+                }
+              ],
+              [
+                {
+                  "text": "",
+                  "input": true
+                },
+                {
+                  "text": "",
+                  "input": true
+                },
+                {
+                  "text": "",
+                  "input": true
+                }
+              ],
+              [
+                {
+                  "text": "",
+                  "input": true
+                },
+                {
+                  "text": "",
+                  "input": true
+                },
+                {
+                  "text": "",
+                  "input": true
+                }
+              ]
+            ]
+          },
+          "after": ""
+        }
+      ],
+      "26ci": [
+        {
+          "page": 34,
+          "box": [
+            55,
+            129,
+            550,
+            320
+          ],
+          "after": "Assume that the lift"
+        }
+      ],
+      "26cii": [
+        {
+          "page": 34,
+          "box": [
+            55,
+            129,
+            550,
+            320
+          ],
+          "after": "Assume that the lift"
+        }
+      ],
+      "27a": [
+        {
+          "page": 37,
+          "box": [
+            55,
+            117,
+            550,
+            327
+          ],
+          "after": "The hitch is exposed"
+        }
+      ],
+      "27b": [
+        {
+          "page": 37,
+          "box": [
+            55,
+            117,
+            550,
+            327
+          ],
+          "after": "Explain why hot forging"
+        }
+      ],
+      "27c": [
+        {
+          "page": 37,
+          "box": [
+            55,
+            117,
+            550,
+            327
+          ],
+          "after": "An exploded pictorial"
+        },
+        {
+          "page": 38,
+          "box": [
+            55,
+            115,
+            550,
+            580
+          ],
+          "after": "Complete an assembled"
+        },
+        {
+          "page": 39,
+          "box": [
+            55,
+            150,
+            550,
+            722
+          ],
+          "after": ""
+        }
+      ]
+    },
+    "answerTables": {
+      "4": {
+        "caption": "Analogue and digital communications",
+        "columns": [
+          "Analogue",
+          "Digital"
+        ],
+        "rows": [
+          [
+            "Continuous (varying) signal\nLess susceptible to signal degradation",
+            "Discrete (binary) signal\nMore susceptible to signal degradation"
+          ],
+          [
+            "Continuous (varying) signal\nMore susceptible to signal degradation",
+            "Discrete (binary) signal\nLess susceptible to signal degradation"
+          ],
+          [
+            "Discrete (binary) signal\nLess susceptible to signal degradation",
+            "Continuous (varying) signal\nMore susceptible to signal degradation"
+          ],
+          [
+            "Discrete (binary) signal\nMore susceptible to signal degradation",
+            "Continuous (varying) signal\nLess susceptible to signal degradation"
+          ]
+        ]
+      },
+      "7": {
+        "caption": "Cable types",
+        "columns": [
+          "Cable 1",
+          "Cable 2",
+          "Cable 3",
+          "Cable 4"
+        ],
+        "rows": [
+          [
+            "Coaxial",
+            "Fibre optic",
+            "High voltage transmission",
+            "Twisted pair"
+          ],
+          [
+            "High voltage transmission",
+            "Twisted pair",
+            "Fibre optic",
+            "Coaxial"
+          ],
+          [
+            "Coaxial",
+            "Twisted pair",
+            "High voltage transmission",
+            "Fibre optic"
+          ],
+          [
+            "High voltage transmission",
+            "Fibre optic",
+            "Coaxial",
+            "Twisted pair"
+          ]
+        ]
+      },
+      "8": {
+        "caption": "Pressure readings",
+        "columns": [
+          "Pressure at gauge A",
+          "Pressure at gauge B"
+        ],
+        "rows": [
+          [
+            "High",
+            "High"
+          ],
+          [
+            "High",
+            "Low"
+          ],
+          [
+            "Low",
+            "Low"
+          ],
+          [
+            "Low",
+            "High"
+          ]
+        ]
+      },
+      "12": {
+        "caption": "Lift and induced drag",
+        "columns": [
+          "Lift",
+          "Induced drag"
+        ],
+        "rows": [
+          [
+            "Decreases",
+            "Decreases"
+          ],
+          [
+            "Decreases",
+            "Increases"
+          ],
+          [
+            "Increases",
+            "Decreases"
+          ],
+          [
+            "Increases",
+            "Increases"
+          ]
+        ]
+      }
+    },
+    "drawingTasks": [
+      "23c",
+      "24d",
+      "26ci",
+      "26cii",
+      "27c"
+    ],
+    "questionOptions": {
+      "21d": {
+        "showWrittenAnswer": false
+      }
+    }
+  },
+  "2025": {
+    "diagrams": [
+      1,
+      2,
+      3,
+      5,
+      6,
+      7,
+      9,
+      12,
+      13,
+      14,
+      15,
+      16,
+      19
+    ],
+    "questions": {
+      "17": "An aircraft is flying at a cruising altitude where the external atmospheric pressure is 20 kPa. Inside the aircraft’s fuel tank, a column of aviation fuel has a density of 800 kg/m³ with a height of 1.5 m. What is the pressure at the bottom of the fuel column?",
+      "20": "A cable with an initial length of 15 m and a cross-sectional area of 300 × 10⁻⁶ m² is subjected to a tensile force of 75 000 N, causing an elongation of 0.01 m and a decrease in cross-sectional area to 280 × 10⁻⁶ m². Assuming the deformation occurs within the elastic region, what is the Young’s Modulus of the cable?",
+      "26c": "A truss is loaded as shown. Determine the magnitude and nature of the force in member M."
+    },
+    "options": {
+      "2": [
+        "Cast",
+        "Forged",
+        "Machined",
+        "Rolled"
+      ],
+      "7": null,
+      "8": [
+        "It ensures consistency in drawings across different teams and industries.",
+        "It reduces the cost of materials in design and manufacture of engineering parts.",
+        "It simplifies the manufacturing process by eliminating the need for detailed drawings.",
+        "It allows for the use of advanced 3D printing technologies in all stages of production."
+      ],
+      "13": [
+        "White cast iron | High carbon steel | Grey cast iron | Mild steel",
+        "High carbon steel | Mild steel | Grey cast iron | White cast iron",
+        "Mild steel | High carbon steel | White cast iron | Grey cast iron",
+        "Mild steel | Grey cast iron | High carbon steel | White cast iron"
+      ],
+      "14": null,
+      "16": [
+        "Shear force: Minimum; Bending moment: Maximum",
+        "Shear force: Maximum; Bending moment: Maximum",
+        "Shear force: Maximum; Bending moment: Minimum",
+        "Shear force: Minimum; Bending moment: Minimum"
+      ],
+      "18": [
+        "38 Ω",
+        "42 Ω",
+        "138 Ω",
+        "180 Ω"
+      ]
+    },
+    "marks": {
+      "21a": 2,
+      "21b": 3,
+      "21c": 4,
+      "21d": 4,
+      "22a": 2,
+      "22b": 3,
+      "22ci": 3,
+      "22cii": 3,
+      "23a": 2,
+      "23b": 2,
+      "23ci": 5,
+      "23cii": 3,
+      "24a": 2,
+      "24b": 2,
+      "24c": 4,
+      "24d": 4,
+      "25a": 2,
+      "25b": 3,
+      "25c": 4,
+      "26a": 2,
+      "26b": 3,
+      "26c": 6,
+      "27a": 3,
+      "27b": 3,
+      "27c": 6
+    },
+    "legacyQuestionIds": [
+      "q21a",
+      "q21b",
+      "q21c",
+      "q21d",
+      "q22a",
+      "q22b",
+      "q22ci",
+      "q22cii",
+      "q23a",
+      "q23b",
+      "q23ci",
+      "q23cii",
+      "q24a",
+      "q24b",
+      "q24c",
+      "q25a",
+      "q25b",
+      "q25c",
+      "q26a",
+      "q26b",
+      "q26c",
+      "q27a",
+      "q27b"
+    ],
+    "markingSupplements": {
+      "22ci": "Readable calculation: Each bolt carries 30,000 / 3 = 10,000 N. Single-shear area = π × 16² / 4 = 201.1 mm². Shear stress = 49.7 N/mm² = 49.7 MPa. Credit relevant working for partial marks.",
+      "22cii": "Readable calculation: allowable stress = 250 / 2.5 = 100 MPa. Actual shear stress is 49.7 MPa, below the allowable value, so the bolts are safe. Alternatively actual factor of safety = 250 / 49.7 ≈ 5.03, exceeding 2.5.",
+      "23ci": "Readable sample calculation: cable tension T = 12,000 × sin(51.8°) / sin(78.2°) = 9,633.87 N (about 9.63 kN). Accept equivalent force-equilibrium or scaled graphical solutions and reasonable rounding.",
+      "23cii": "Readable sample calculation: mechanical advantage = 12,000 / 9,633.87 = 1.2456. Efficiency = MA / VR × 100 = 1.2456 / 2 × 100 = 62.3%. Allow correct follow-through using the student’s earlier cable force when the method is valid.",
+      "26c": "Transcription of the graphical sample solution: the truss has a 9 kN downward load and a 15 kN load at 60° to the horizontal, span 2800 mm, height 700 mm and half-span 1400 mm. θ = atan(700/1400) = 26.565°. Taking moments about A: R_B = (9×1.4 + 15sin60°×2.8 − 15cos60°×0.7)/2.8 = 15.615 kN upward. On the right side of a section through member M, vertical equilibrium gives F_M sinθ = 15.615 − 15sin60° = 2.625 kN. F_M = 5.8697 kN = 5869.7 N, in tension. These are equivalent units; accept sensible rounding and alternative valid methods. The final line of the printed sample has an inconsistent unit rendering; use 5.8697 kN or 5869.7 N."
+    },
+    "layouts": {
+      "1": [
+        {
+          "page": 2,
+          "box": [
+            55,
+            207,
+            550,
+            337
+          ],
+          "after": "What type of engine",
+          "erase": [
+            [
+              55,
+              320,
+              345,
+              337
+            ]
+          ]
+        }
+      ],
+      "2": [
+        {
+          "page": 2,
+          "box": [
+            55,
+            470,
+            550,
+            642
+          ],
+          "after": "Based on the grain structure"
+        }
+      ],
+      "3": [
+        {
+          "table": {
+            "caption": "Logic gate truth table",
+            "columns": [
+              "Input A",
+              "Input B",
+              "Output"
+            ],
+            "rows": [
+              [
+                "1",
+                "1",
+                "1"
+              ],
+              [
+                "1",
+                "0",
+                "1"
+              ],
+              [
+                "0",
+                "1",
+                "1"
+              ],
+              [
+                "0",
+                "0",
+                "0"
+              ]
+            ]
+          },
+          "after": "What is the logic gate"
+        }
+      ],
+      "5": [
+        {
+          "page": 4,
+          "box": [
+            55,
+            90,
+            550,
+            231
+          ],
+          "after": "Which manufacturing process"
+        }
+      ],
+      "6": [
+        {
+          "page": 4,
+          "box": [
+            55,
+            441,
+            550,
+            580
+          ],
+          "after": "What is the work"
+        }
+      ],
+      "7": [
+        {
+          "page": 5,
+          "box": [
+            55,
+            93,
+            550,
+            375
+          ],
+          "after": ""
+        }
+      ],
+      "9": [
+        {
+          "page": 6,
+          "box": [
+            55,
+            85,
+            550,
+            402
+          ],
+          "after": "Which letter indicates"
+        }
+      ],
+      "12": [
+        {
+          "page": 7,
+          "box": [
+            55,
+            225,
+            550,
+            444
+          ],
+          "after": "The screw jack has a pitch"
+        }
+      ],
+      "13": [
+        {
+          "page": 8,
+          "box": [
+            55,
+            107,
+            550,
+            181
+          ],
+          "after": ""
+        }
+      ],
+      "14": [
+        {
+          "page": 8,
+          "box": [
+            55,
+            325,
+            550,
+            480
+          ],
+          "after": "Which drawing correctly"
+        },
+        {
+          "page": 8,
+          "box": [
+            55,
+            515,
+            550,
+            755
+          ],
+          "after": ""
+        }
+      ],
+      "15": [
+        {
+          "page": 9,
+          "box": [
+            55,
+            90,
+            550,
+            377
+          ],
+          "after": "What type of modulation"
+        }
+      ],
+      "16": [
+        {
+          "page": 10,
+          "box": [
+            55,
+            90,
+            550,
+            200
+          ],
+          "after": "Which row"
+        }
+      ],
+      "19": [
+        {
+          "page": 11,
+          "box": [
+            55,
+            90,
+            550,
+            284
+          ],
+          "after": "What is the total number"
+        }
+      ],
+      "22ci": [
+        {
+          "page": 18,
+          "box": [
+            55,
+            115,
+            550,
+            307
+          ],
+          "after": "The section consists"
+        }
+      ],
+      "22cii": [
+        {
+          "page": 18,
+          "box": [
+            55,
+            115,
+            550,
+            307
+          ],
+          "after": "The section consists"
+        }
+      ],
+      "23ci": [
+        {
+          "page": 20,
+          "box": [
+            55,
+            463,
+            550,
+            694
+          ],
+          "after": "The coefficient of friction"
+        }
+      ],
+      "23cii": [
+        {
+          "page": 20,
+          "box": [
+            55,
+            463,
+            550,
+            694
+          ],
+          "after": "The coefficient of friction"
+        }
+      ],
+      "25c": [
+        {
+          "table": {
+            "caption": "Rectification circuits",
+            "columns": [
+              "Feature",
+              "Circuit 1",
+              "Circuit 2",
+              "Circuit 3"
+            ],
+            "rows": [
+              [
+                {
+                  "text": "Rectification circuit",
+                  "header": true
+                },
+                {
+                  "image": {
+                    "path": "engineering/2025/table-25c-circuit1.png",
+                    "alt": "Rectification circuit 1, AC input and DC output"
+                  }
+                },
+                {
+                  "image": {
+                    "path": "engineering/2025/table-25c-circuit2.png",
+                    "alt": "Rectification circuit 2, AC input and DC output"
+                  }
+                },
+                {
+                  "image": {
+                    "path": "engineering/2025/table-25c-circuit3.png",
+                    "alt": "Rectification circuit 3, AC input and DC output"
+                  }
+                }
+              ],
+              [
+                {
+                  "text": "Name of rectification process",
+                  "header": true
+                },
+                {
+                  "text": "",
+                  "input": true
+                },
+                {
+                  "text": "",
+                  "input": true,
+                  "colSpan": 2
+                }
+              ],
+              [
+                {
+                  "text": "AC waveform before rectification",
+                  "header": true
+                },
+                {
+                  "image": {
+                    "path": "engineering/2025/table-25c-waveform.png",
+                    "alt": "Alternating-current waveform before rectification"
+                  },
+                  "colSpan": 3
+                }
+              ],
+              [
+                {
+                  "text": "Sketch of DC waveform after rectification",
+                  "header": true
+                },
+                "Sketch on paper",
+                "Sketch on paper",
+                "Sketch on paper"
+              ],
+              [
+                {
+                  "text": "Function of the capacitor in the circuit",
+                  "header": true
+                },
+                {
+                  "text": "",
+                  "input": true,
+                  "colSpan": 3
+                }
+              ]
+            ]
+          },
+          "after": ""
+        }
+      ],
+      "26c": [
+        {
+          "page": 28,
+          "box": [
+            55,
+            115,
+            550,
+            326
+          ],
+          "after": "Determine the magnitude"
+        }
+      ],
+      "27c": [
+        {
+          "page": 31,
+          "box": [
+            55,
+            131,
+            550,
+            420
+          ],
+          "after": ""
+        }
+      ]
+    },
+    "imageUnavailable": {
+      "24d": "The diagram for this task is omitted from the supplied PDF. Refer to the official exam resources using the information button."
+    },
+    "answerTables": {
+      "13": {
+        "caption": "Materials represented by the microstructures",
+        "columns": [
+          "Microstructure 1",
+          "Microstructure 2",
+          "Microstructure 3",
+          "Microstructure 4"
+        ],
+        "rows": [
+          [
+            "White cast iron",
+            "High carbon steel",
+            "Grey cast iron",
+            "Mild steel"
+          ],
+          [
+            "High carbon steel",
+            "Mild steel",
+            "Grey cast iron",
+            "White cast iron"
+          ],
+          [
+            "Mild steel",
+            "High carbon steel",
+            "White cast iron",
+            "Grey cast iron"
+          ],
+          [
+            "Mild steel",
+            "Grey cast iron",
+            "High carbon steel",
+            "White cast iron"
+          ]
+        ]
+      },
+      "16": {
+        "caption": "Shear force and bending moment at A",
+        "columns": [
+          "Shear force",
+          "Bending moment"
+        ],
+        "rows": [
+          [
+            "Minimum",
+            "Maximum"
+          ],
+          [
+            "Maximum",
+            "Maximum"
+          ],
+          [
+            "Maximum",
+            "Minimum"
+          ],
+          [
+            "Minimum",
+            "Minimum"
+          ]
+        ]
+      }
+    },
+    "tableImages": [
+      {
+        "filename": "table-25c-circuit1.png",
+        "page": 26,
+        "box": [
+          145,
+          230,
+          270,
+          312
+        ]
+      },
+      {
+        "filename": "table-25c-circuit2.png",
+        "page": 26,
+        "box": [
+          272,
+          230,
+          397,
+          312
+        ]
+      },
+      {
+        "filename": "table-25c-circuit3.png",
+        "page": 26,
+        "box": [
+          399,
+          230,
+          523,
+          312
+        ]
+      },
+      {
+        "filename": "table-25c-waveform.png",
+        "page": 26,
+        "box": [
+          145,
+          375,
+          523,
+          458
+        ]
+      }
+    ],
+    "drawingTasks": [
+      "21c",
+      "24c",
+      "24d",
+      "25c",
+      "27c"
+    ]
+  }
+}

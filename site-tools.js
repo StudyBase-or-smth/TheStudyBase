@@ -6,7 +6,10 @@
     try { const result = new URL(value, root); return ['http:','https:','file:'].includes(result.protocol) ? result : null; } catch { return null; }
   }
   function list() {
-    return (Array.isArray(window.STUDYBASE_CONFIG?.tools) ? window.STUDYBASE_CONFIG.tools : []).filter(tool => tool && typeof tool.id === 'string' && typeof tool.name === 'string' && typeof tool.href === 'string' && url(tool.href));
+    const order = tool => Number.isFinite(tool.order) ? tool.order : Infinity;
+    return (Array.isArray(window.STUDYBASE_CONFIG?.tools) ? window.STUDYBASE_CONFIG.tools : [])
+      .filter(tool => tool && typeof tool.id === 'string' && typeof tool.name === 'string' && typeof tool.href === 'string' && url(tool.href))
+      .sort((a, b) => order(a) - order(b));
   }
   function forURL(value) {
     const target = url(value); return target && list().find(tool => { const page = url(tool.href); return page.origin === target.origin && page.pathname === target.pathname; });

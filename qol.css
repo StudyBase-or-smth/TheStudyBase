@@ -181,6 +181,10 @@ body.dark .calendar-deadline.overdue{color:#ff9a91}
 body.qol-no-animation *,body.qol-no-animation *::before,body.qol-no-animation *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 body.qol-no-animation .hdr-profile-tip,body.qol-no-animation .qol-settings-menu,body.qol-no-animation .subj-card:hover{transform:none!important}
 .qol-settings-menu .qol-setting input[type=checkbox]{justify-self:start;accent-color:var(--accent);width:15px;height:15px}
+.qol-setting.qol-api-key{grid-template-columns:minmax(0,1fr);gap:6px;margin-top:12px}
+.qol-api-key input{box-sizing:border-box;min-width:0;width:100%;padding:6px 8px;border:1px solid var(--border2);border-radius:5px;background:var(--card2);color:var(--text);font:inherit}
+.qol-api-key-actions{display:flex;gap:6px;margin-bottom:6px}
+.qol-api-key-actions button{padding:4px 10px;font-size:12px}
 @media(max-width:700px){.calendar-agenda-row{gap:8px;flex-wrap:wrap}.calendar-deadline{margin-left:26px}.calendar-event-details{flex-basis:calc(100% - 40px)}}
 
 @media(max-width:700px){.hub-section-header{flex-wrap:wrap;gap:8px}.hub-date-time{font-size:11px}.hub-section-header .hub-info-title{display:none}}

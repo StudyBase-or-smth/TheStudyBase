@@ -17,6 +17,10 @@
     } catch (_) { return fallback; }
   }
   function write(key, value) { try { localStorage.setItem('sbq:' + scope() + ':' + key, JSON.stringify(value)); return true; } catch (_) { return false; } }
+  function getJevApiKey() {
+    const key = read('jevApiKey', '');
+    return typeof key === 'string' ? key.trim() : '';
+  }
   function node(tag, cls, text) { const el = document.createElement(tag); if (cls) el.className = cls; if (text != null) el.textContent = text; return el; }
   function button(text, fn, cls = 'qol-button') { const el = node('button', cls, text); el.type = 'button'; el.addEventListener('click', fn); return el; }
   function linkFor(subject, topic, isClass) {
@@ -68,12 +72,44 @@
       });
     });
   }
+  let quizSearchRows = null;
+  let quizSearchRequest = null;
+  let quizSearchIncomplete = false;
+  async function loadQuizSearch() {
+    if (quizSearchRows) return quizSearchRows;
+    if (quizSearchRequest) return quizSearchRequest;
+    quizSearchRequest = (async () => {
+      const base = new URL('quiz-tool/storage/', root);
+      const response = await fetch(new URL('manifest.json', base));
+      if (!response.ok) throw new Error('Quiz catalogue unavailable');
+      const manifest = await response.json();
+      if (!Array.isArray(manifest)) throw new Error('Invalid quiz catalogue');
+      const rows = [];
+      const loaded = await Promise.allSettled(manifest.map(async entry => {
+        if (typeof entry === 'string') entry = {file:entry,name:entry};
+        if (!entry || typeof entry.file !== 'string' || !/^[\w.-]+\.json$/.test(entry.file)) throw new Error('Invalid quiz filename');
+        const paper = {file:entry.file,name:entry.name || entry.file,subject:entry.subject || '',section:entry.section || ''};
+        const res = await fetch(new URL(entry.file, base));
+        if (!res.ok) throw new Error('Quiz unavailable');
+        const data = await res.json();
+        if (!Array.isArray(data.questions)) throw new Error('Invalid quiz');
+        const cellText = cell => String(cell && typeof cell === 'object' ? cell.text ?? '' : cell ?? '');
+        return [paper, ...data.questions.map((q,i) => ({...paper,questionId:String(q.id ?? i),name:q.name || `Question ${i+1}`,text:String(q.question || ''),choices:q.isMultipleChoice && Array.isArray(q.answers) ? q.answers.map(a => a.text || '').join(' ') : '',tables:[q.answerTable,...(q.questionContent || []).filter(block => block.type === 'table')].filter(Boolean).map(table => [table.caption,...(table.columns || []).map(cellText),...(table.rows || []).flat().map(cellText)].join(' ')).join(' ')}))];
+      }));
+      for (const result of loaded) if (result.status === 'fulfilled') rows.push(...result.value);
+      quizSearchIncomplete = loaded.some(result => result.status === 'rejected');
+      // Partial results remain useful; a later search retries any failed catalogue load.
+      if (!quizSearchIncomplete) quizSearchRows = rows;
+      return rows;
+    })();
+    try { return await quizSearchRequest; } finally { quizSearchRequest = null; }
+  }
   function search() {
     dialog('Search StudyBase', (content, close) => {
-      const input = node('input', 'qol-search'); input.type = 'search'; input.placeholder = 'Find topics, notes or /commands…'; input.setAttribute('aria-label', 'Search all subjects and classes');
-      const hint = node('p', 'qol-muted', 'Search all loaded subjects and classes. Type / for actions.');
+      const input = node('input', 'qol-search'); input.type = 'search'; input.placeholder = 'Find topics, notes, quizzes or /commands…'; input.setAttribute('aria-label', 'Search all subjects, classes, tools and quiz questions');
+      const hint = node('p', 'qol-muted', 'Search subjects, classes, tools and quiz questions. Type / for actions.');
       const results = node('div', 'qol-search-results'); content.append(input, hint, results);
-      let selected = -1; let entries = [];
+      let selected = -1; let entries = []; let quizzes = []; let quizzesLoading = false;
       function render() {
         const query = input.value.trim().toLowerCase(); results.replaceChildren(); selected = -1;
         if(query.startsWith('/')) {
@@ -81,21 +117,63 @@
           commands.filter(c => c.name.toLowerCase().includes(query.slice(1))).forEach(c => results.append(button(c.name, () => { close(); c.run(); }, 'qol-result')));
         } else {
           const words = query.split(/\s+/).filter(Boolean);
+          const tools = (window.SBTools?.list() || []).filter(tool => words.every(word =>
+            (tool.name + ' ' + tool.id + (tool.id === 'quiz' ? ' HSC practice exams' : '')).toLowerCase().includes(word)));
+          for (const tool of tools) {
+            const row = node(tool.disabled ? 'span' : 'a', 'qol-result');
+            if (tool.disabled) row.setAttribute('aria-disabled', 'true');
+            else row.href = new URL(tool.href, root).href;
+            row.append(window.SBTools.image(tool), node('strong', '', tool.name), node('span', 'qol-muted', tool.disabled ? 'Tool · Disabled' : 'Tool'));
+            results.append(row);
+          }
           const matches = index().filter(r => words.every(w => (r.topic.name + ' ' + r.path + ' ' + r.text).toLowerCase().includes(w))).sort((a,b) => Number(b.topic.name.toLowerCase().startsWith(query)) - Number(a.topic.name.toLowerCase().startsWith(query))).slice(0, 40);
           for(const r of matches) { const a = node('a', 'qol-result'); a.href = linkFor(r.subject, r.topic.id, r.subject.isClass); a.append(node('strong','',r.topic.name), node('span','qol-muted',r.path));
             const pos = query ? Math.max(0, r.text.toLowerCase().indexOf(words[0]) - 35) : 0; if(r.text) a.append(node('span','qol-excerpt',r.text.slice(pos,pos+150))); results.append(a); }
-          if(!matches.length) results.append(node('p','qol-muted','No matching topics. Try another phrase.'));
+          const quizTool = window.SBTools?.list().find(tool => tool.id === 'quiz');
+          const quizMatches = !quizTool || quizTool.disabled ? [] : quizzes.filter(r =>
+            (!r.questionId || query) && words.every(word => [quizTool.name,r.name,r.subject,r.section,r.file,r.text,r.choices,r.tables,r.questionId].join(' ').toLowerCase().includes(word))).slice(0,40);
+          for (const r of quizMatches) {
+            const a = node('a', 'qol-result'); const target = new URL(quizTool.href,root);
+            target.hash = new URLSearchParams({file:r.file,...(r.questionId ? {question:r.questionId} : {})}).toString();
+            a.href = target.href;
+            const paperName = quizzes.find(p => p.file === r.file && !p.questionId)?.name || r.file;
+            a.append(node('strong','',r.name),node('span','qol-muted',[quizTool.name,r.subject,paperName === r.name ? '' : paperName,r.section].filter(Boolean).join(' / ')));
+            if (r.text) { const pos = Math.max(0,r.text.toLowerCase().indexOf(words[0] || '')-35); a.append(node('span','qol-excerpt',r.text.slice(pos,pos+150))); }
+            results.append(a);
+          }
+          if(!matches.length && !tools.length && !quizMatches.length) results.append(node('p','qol-muted',quizzesLoading ? 'Searching quiz content…' : 'No matching topics, tools or quiz questions. Try another phrase.'));
         }
         entries = [...results.querySelectorAll('a,button')];
       }
       input.addEventListener('input', render);
       input.addEventListener('keydown', e => { if(e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if(!entries.length) return; selected = (selected + (e.key === 'ArrowDown' ? 1 : -1) + entries.length) % entries.length; entries.forEach((el,i) => el.classList.toggle('selected',i === selected)); entries[selected].scrollIntoView({block:'nearest'}); } else if(e.key === 'Enter' && entries.length) { e.preventDefault(); entries[Math.max(0,selected)].click(); } });
       render();
+      const quizTool = window.SBTools?.list().find(tool => tool.id === 'quiz');
+      if (quizTool && !quizTool.disabled) {
+        quizzesLoading = true;
+        render();
+        loadQuizSearch().then(rows => { quizzes = rows; quizzesLoading = false; if(input.isConnected) { if(quizSearchIncomplete) hint.textContent = 'Some quiz content could not load. Showing available results.'; render(); } })
+          .catch(() => { quizzesLoading = false; if(input.isConnected) { hint.textContent = 'Quiz content is unavailable. Other search results are still available.'; render(); } });
+      }
       if(typeof sbLoadAllContentKeys === 'function' && !window.isGuest && !(typeof sbIsGuestSession === 'function' && sbIsGuestSession())) sbLoadAllContentKeys().then(() => { if(input.isConnected) render(); }).catch(() => { hint.textContent = 'Showing cached topics. Server content is currently unavailable.'; });
     });
   }
   function motionEnabled() { const p = read('preferences',{}); return p.animations === true || (p.animations !== false && !(typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches)); }
-  function applyPreferences() { const p = read('preferences', {}); document.querySelectorAll('[data-qol-preference]').forEach(control => { const key = control.dataset.qolPreference; if(key === 'animations') control.checked = motionEnabled(); else control.value = p[key] || control.options[0].value; }); document.body.classList.toggle('qol-wide', p.width === 'wide'); document.body.classList.toggle('qol-compact', p.density === 'compact'); document.body.classList.toggle('qol-allow-animation',p.animations === true); document.body.classList.toggle('qol-no-animation',!motionEnabled()); if(!motionEnabled()) document.getAnimations?.().forEach(animation => animation.cancel()); }
+  function applyPreferences() {
+    const p = read('preferences', {});
+    document.querySelectorAll('[data-qol-preference]').forEach(control => {
+      const key = control.dataset.qolPreference;
+      if(key === 'animations') control.checked = motionEnabled();
+      else if(key === 'matchDarkImages') control.checked = p.matchDarkImages !== false;
+      else control.value = p[key] || control.options[0].value;
+    });
+    document.body.classList.toggle('qol-original-images', p.matchDarkImages === false);
+    document.body.classList.toggle('qol-wide', p.width === 'wide');
+    document.body.classList.toggle('qol-compact', p.density === 'compact');
+    document.body.classList.toggle('qol-allow-animation',p.animations === true);
+    document.body.classList.toggle('qol-no-animation',!motionEnabled());
+    if(!motionEnabled()) document.getAnimations?.().forEach(animation => animation.cancel());
+  }
   function renderPreferences(content) {
       for(const [key,label,options] of [['width','Content width',[['standard','Comfortable'],['wide','Wide — tables and diagrams']]],['density','Spacing',[['comfortable','Comfortable'],['compact','Compact']]]]) {
         const row = node('label','qol-setting'); row.append(node('span','',label)); const select = node('select');
@@ -106,6 +184,26 @@
       const toggle = node('input'); toggle.type = 'checkbox'; toggle.dataset.qolPreference = 'animations'; toggle.checked = motionEnabled();
       toggle.addEventListener('change',() => { write('preferences',{...read('preferences',{}),animations:toggle.checked}); applyPreferences(); });
       motion.append(toggle); content.append(motion);
+      const images = node('label','qol-setting'); images.append(node('span','','Match images to dark mode'));
+      const imageToggle = node('input'); imageToggle.type = 'checkbox'; imageToggle.dataset.qolPreference = 'matchDarkImages'; imageToggle.checked = read('preferences',{}).matchDarkImages !== false;
+      imageToggle.addEventListener('change',() => { write('preferences',{...read('preferences',{}),matchDarkImages:imageToggle.checked}); applyPreferences(); });
+      images.append(imageToggle); content.append(images);
+      const keyRow = node('label','qol-setting qol-api-key'); keyRow.append(node('span','','Jev API key (optional)'));
+      const keyInput = node('input'); keyInput.type = 'password'; keyInput.autocomplete = 'off'; keyInput.spellcheck = false; keyInput.maxLength = 2048;
+      keyInput.placeholder = 'Use site key'; keyInput.value = getJevApiKey(); keyRow.append(keyInput);
+      const keyHint = node('p','qol-muted','Saved in this browser. Use npm run local for standalone quiz marking with your key, without StudyBase sign-in or a hosted backend. Internet access to Jev is required. Leave blank to use the site backend.');
+      const keyStatus = node('span','qol-muted'); keyStatus.setAttribute('role','status');
+      const keyActions = node('div','qol-api-key-actions');
+      keyActions.append(button('Save', () => {
+        const key = keyInput.value.trim();
+        if (/[\s\x00-\x1f\x7f]/.test(key)) { keyStatus.textContent = 'Key cannot contain spaces or control characters.'; return; }
+        if (write('jevApiKey', key)) { keyInput.value = key; keyStatus.textContent = key ? 'Key saved.' : 'Using site key.'; }
+        else keyStatus.textContent = 'Could not save key in this browser.';
+      }),button('Clear', () => {
+        if (write('jevApiKey', '')) { keyInput.value = ''; keyStatus.textContent = 'Using site key.'; }
+        else keyStatus.textContent = 'Could not clear saved key.';
+      }));
+      content.append(keyRow,keyActions,keyStatus,keyHint);
   }
   function preferences() {
     const wrap = document.querySelector('.qol-settings-wrap');
@@ -184,7 +282,7 @@
     document.querySelectorAll('button').forEach(el => { if(!el.getAttribute('aria-label') && !el.textContent.trim()) el.setAttribute('aria-label',el.title || el.dataset.tip || 'Action'); });
     continueCard();
   }
-  window.SBQoL = { read, write, node, button, dialog, notify, linkFor, root, record, recordActivity, removeActivity, refreshContinue:continueCard, search, preferences, catalogs, motionEnabled, applyPreferences };
+  window.SBQoL = { read, write, getJevApiKey, node, button, dialog, notify, linkFor, root, record, recordActivity, removeActivity, refreshContinue:continueCard, search, preferences, catalogs, motionEnabled, applyPreferences };
   window.openHubStat = function(kind){
     const subjects = typeof hubSubjects === 'function' ? hubSubjects() : catalogs().filter(s => !s.isClass);
     dialog({topics:'Topics',units:'Units',subjects:'Subjects'}[kind] || 'Overview',content => {

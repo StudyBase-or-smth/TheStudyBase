@@ -1,0 +1,1020 @@
+{
+  "studyMode": "exam-questions",
+  "source": {
+    "publisher": "NSW Education Standards Authority",
+    "year": 2024,
+    "origin": "User-supplied exam paper and marking guidelines",
+    "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+    "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+    "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024"
+  },
+  "description": "Original exam wording with diagram-only crops placed between the relevant text, from the supplied NESA PDFs. Official source links are retained.",
+  "questions": [
+    {
+      "id": "eng2024-q21a",
+      "name": "Question 21 (a)",
+      "question": "Two piers from different eras, used to support civil structures, are shown. Outline how innovations in engineering materials have improved the inservice properties of piers.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Two piers from different eras, used to support civil structures, are shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-21a-1.png",
+          "page": 15,
+          "alt": "Question 21 (a) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Outline how innovations in engineering materials have improved the inservice properties of piers."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Outlines how innovations in engineering materials have improved the\n2\ninservice properties of piers\n• Provides some relevant information 1\nSample answer:\nThe concrete pier better resists insect attack and is less susceptible to environmental\nconditions.\nAnswers could include:\n• Treated timbers are more durable and resistant due to the application of chemicals\n• Enhanced service properties: increased strength and durability; less maintenance with\nceramic blocks\n• Lightweight, high-strength materials simplify construction and reduce load stresses.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q21b",
+      "name": "Question 21 (b)",
+      "question": "A geotextile used in the construction of a retaining wall is shown. Why are geotextiles used in the construction of retaining walls?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A geotextile used in the construction of a retaining wall is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-21b-1.png",
+          "page": 16,
+          "alt": "Question 21 (b) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Why are geotextiles used in the construction of retaining walls?"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Explains why geotextiles are used in the construction of retaining walls 3\n• Demonstrates some understanding of why geotextiles are used in the\n2\nconstruction of retaining walls\n• Provides some relevant information 1\nSample answer:\nGeotextiles are used to provide and/or improve drainage where water flow might occur. They\ndistribute the load and improve the overall performance of the structure. It can distribute the\nload more evenly. It helps to prevent soil erosion by providing a stable base to prevent soil\nfrom being washed away.\nAnswers could include:\n• Help improve drainage by allowing water to pass through while preventing soil erosion\nand therefore, pressure behind the wall\n• Geotextiles enhance soil stability, by preventing mixing of different soil layers and\nimproving load-bearing capacity\n• They reinforce the soil mass, by increasing the overall strength and longevity of the\nretaining wall system.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q21c",
+      "name": "Question 21 (c)",
+      "question": "Strap bracing is used in the construction of many residential structures. It has holes punched along its length to allow tensioners to be applied as shown. A 6 mm diameter hole is to be punched into mild steel strap bracing. If the shear strength of the bracing is 380 MPa and the shear force required to punch the hole is 5.73 kN, what is the maximum allowable thickness of the strap bracing?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Strap bracing is used in the construction of many residential structures. It has holes punched along its length to allow tensioners to be applied as shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-21c-1.png",
+          "page": 17,
+          "alt": "Question 21 (c) diagram"
+        },
+        {
+          "type": "text",
+          "text": "A 6 mm diameter hole is to be punched into mild steel strap bracing. If the shear strength of the bracing is 380 MPa and the shear force required to punch the hole is 5.73 kN, what is the maximum allowable thickness of the strap bracing?"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Shows relevant working in calculating the maximum thickness of the\n3\nstrap bracing\n• Makes progress towards calculating the maximum thickness of the strap\n2\nbracing\n• Provides some relevant information 1\nSample answer:\nShear force\nShear stress =\nShear area\n5730 N\n6\n380 ´ 10 Pa =\nShear area\n5730\nShear area =\n6\n380 ´ 10\n2\n= 0.00001508 m\nShear area = π ´ diameter ´ thickness\nShear area\nThickness =\nπ ´ diameter\n0.00001508\n=\nπ ´ 0.006\n= 0.0008 m\n= 0.8 mm",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q21d",
+      "name": "Question 21 (d)",
+      "question": "An orthogonal drawing of a strap brace tensioner is shown. With reference to the orthogonal drawing and modified title block, complete the table.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "An orthogonal drawing of a strap brace tensioner is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-21d-1.png",
+          "page": 18,
+          "alt": "Question 21 (d) diagram"
+        },
+        {
+          "type": "text",
+          "text": "With reference to the orthogonal drawing and modified title block, complete the table."
+        },
+        {
+          "type": "table",
+          "caption": "Strap brace tensioner drawing questions",
+          "columns": [],
+          "rows": [
+            [
+              {
+                "text": "What does ‘M’ stand for in M5 × 0.8?",
+                "input": true
+              },
+              {
+                "text": "What is the allowable range for the R2.5 ±0.5 dimension?",
+                "input": true
+              }
+            ],
+            [
+              {
+                "text": "Which dimension is not to AS1100?",
+                "input": true
+              },
+              {
+                "text": "What does the 0.8 refer to in the expression M5 × 0.8?",
+                "input": true
+              }
+            ],
+            [
+              {
+                "text": "Name the tensioner material.",
+                "input": true
+              },
+              {
+                "text": "What is the unit of measurement used in this drawing?",
+                "input": true
+              }
+            ],
+            [
+              {
+                "text": "What is the name of the curve indicated by letter A?",
+                "input": true
+              },
+              {
+                "text": "State ONE radial dimension.",
+                "input": true
+              }
+            ],
+            [
+              {
+                "text": "What is the angle of projection?",
+                "input": true
+              },
+              {
+                "text": "Which line type is missing from the SIDE VIEW?",
+                "input": true
+              }
+            ]
+          ]
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Completes the table using correct terminology 3\n• Completes most of the table using some correct terminology 2\n• Provides some relevant information 1\nSample answer:\nWhat does ‘M’ stand for in M5 ´ 0.8? What is the allowable range for the\nR2.5 !0.5 dimension?\nMetric From 2 mm to 3 mm (or 1 mm)\nWhich dimension is not to AS1100? What does the 0.8 refer to in the\nexpression M5 ´ 0.8?\n2.5 mm Pitch of thread\nName the tensioner material What is the unit of measurement\nused in this drawing?\n(GALVANISED Steel) GALZ275 Millimetres (mm)\nWhat is the name of the curve State ONE radial dimension\nindicated by letter A?\nFillet R18 or R2.5\nWhat is the angle of projection? Which line type is missing from the\nSIDE VIEW?\n3rd Hidden detail",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      },
+      "showWrittenAnswer": false
+    },
+    {
+      "id": "eng2024-q22a",
+      "name": "Question 22 (a)",
+      "question": "Outline the environmental responsibilities of an aeronautical engineer.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Outline the environmental responsibilities of an aeronautical engineer."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Outlines the environmental responsibilities of an aeronautical engineer 2\n• Provides some relevant information 1\nSample answer:\nEngineers must comply with environmental regulations and legislation that may impact on\naspects of their work.\nAnswers could include:\n• Ensure that waste is disposed of correctly to ensure that the environmental impact is\nminimised\n• Design, test and ensure environmental compliance of regulations of aircraft components\n(eg noise levels).",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q22b",
+      "name": "Question 22 (b)",
+      "question": "The mass of a single-engine propeller aeroplane, without pilot or passengers, is 906 kg. It has a maximum lift to drag ratio of 10.5. When fully loaded, the plane needs to produce 1050 N of thrust to maintain cruising speed and altitude. What is the maximum total allowable mass for the pilot and passengers in kilograms?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The mass of a single-engine propeller aeroplane, without pilot or passengers, is 906 kg. It has a maximum lift to drag ratio of 10.5. When fully loaded, the plane needs to produce 1050 N of thrust to maintain cruising speed and altitude. What is the maximum total allowable mass for the pilot and passengers in kilograms?"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Shows relevant working in calculating the allowable maximum total mass\n3\nof the pilot and passengers\n• Makes progress towards calculating the allowable maximum total mass\n2\nof the pilot and passengers\n• Provides some relevant information 1\nSample answer:\nMass of empty plane = 906 kg\n\\ mg of empty plane = 9060 N\nRequired thrust for full plane: 1050 N\nMax Lift to Drag ratio: 10.5\nWhen the plane is cruising, the force system is in equilibrium. \\ thrust = drag = 1050 N\nLift\n= 10.5\nDrag\nMax Lift = Drag ´ 10.5\nMax Lift = 1050 N ´ 10.5\nMax Lift = 11 025 N\nMax mg of pilot and passengers = 11 025 N – 9060 N = 1965 N",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q22c",
+      "name": "Question 22 (c)",
+      "question": "Discuss the use of computer-aided drawing (CAD) in aeronautical engineering.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Discuss the use of computer-aided drawing (CAD) in aeronautical engineering."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Provides a discussion on the use of CAD in aeronautical engineering 3\n• Demonstrates some understanding of the use of CAD in aeronautical\n2\nengineering\n• Provides some relevant information 1\nSample answer:\nCAD models form the basis for physical prototypes, using techniques like 3D printing or\ntraditional manufacturing. Digital models provide precise geometry for CNC machining and\nother processes, ensuring final product accuracy.\nHowever, CAD requires training and time to become proficient, and CAD can be expensive\nto implement.\nAnswers could include:\nSimulation and analysis: CAD can be used to analyse aircraft component performance under\nvarious conditions, including bending stress of airframes. Simulation results refine CAD\ndesigns, ensuring compliance with safety and performance standards.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q22d",
+      "name": "Question 22 (d)",
+      "question": "How does fibre metal laminate (FML) contribute to enhanced structural performance in aircraft?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "How does fibre metal laminate (FML) contribute to enhanced structural performance in aircraft?"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Demonstrates a sound understanding of how fibre metal laminate (FML)\n3\ncontributes to enhanced structural performance\n• Demonstrates some understanding of how fibre metal laminate (FML) is\n2\nused in aircraft\n• Provides some relevant information 1\nSample answer:\nFML is used in the manufacture of aircraft to improve the structural performance due to the\nimproved impact resistance, better fatigue and corrosion resistance, and weight advantages\nin comparison to aluminium alloys traditionally used in aircraft construction. FML is a robust\nmaterial that can resist higher degrees of cyclic loading because it is manufactured with\ndirectionality that can be tailored to the specific area of the aircraft. FML can be\nmanufactured to tailor the inservice properties of the material suitable to a variety of\napplications.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q23a",
+      "name": "Question 23 (a)",
+      "question": "Outline a use of semiconductors in the telecommunications industry. Include an example in your response.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Outline a use of semiconductors in the telecommunications industry. Include an example in your response."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Outlines a use of semiconductors in the telecommunications industry\n3\nwith an example\n• Outlines a use of semiconductors 2\n• Provides some relevant information 1\nSample answer:\nSemiconductor amplifiers can be used to enhance signal processing in wireless\ncommunication. In smart phones they facilitate the amplification and improvement in signal\nstrength resulting in clear and reliable mobile transmission. In ICs they are used for\nmodulating and demodulating signals, allowing efficient wireless communication.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q23b",
+      "name": "Question 23 (b)",
+      "question": "Telecommunications engineers face many work health and safety risks while carrying out their duties. With reference to ONE issue, describe strategies that can be implemented to reduce the risk for the engineer.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Telecommunications engineers face many work health and safety risks while carrying out their duties. With reference to ONE issue, describe strategies that can be implemented to reduce the risk for the engineer."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Describes strategies to reduce the risk for the engineer with reference to\n3\nan issue\n• Describes a strategy or outlines strategies to reduce the risk for the\n2\nengineer with reference to an issue\n• Provides some relevant information 1\nSample answer:\nTelecommunications engineers work on satellite dishes and other structures at height. To\nminimise the risk, they must ensure that they wear safety harnesses that prevent injuries\nfrom falling from heights. The engineer should have completed relevant safety training before\nundertaking the task so that they are aware of the possible risks and how to avoid them.\nAnswers could include:\n• UV/EMR exposure during installation and maintenance of equipment; PPE training,\nwarning signage and barriers\n• Electrocution; training and safe work practices, work site inspections, SWMSs, emergency\nmanagement plans/drills\n• Operating equipment within guidance specifications.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q23c",
+      "name": "Question 23 (c)",
+      "question": "An orthogonal drawing of a wi-fi router is shown. Construct a freehand pictorial sketch of the wi-fi router as viewed in the direction of the arrow.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "An orthogonal drawing of a wi-fi router is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-23c-1.png",
+          "page": 23,
+          "alt": "Question 23 (c) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Construct a freehand pictorial sketch of the wi-fi router as viewed in the direction of the arrow."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Provides an appropriate freehand pictorial sketch of the wi-fi router 3\n• Demonstrates substantial progress towards a pictorial sketch of the wi-fi\n2\nrouter\n• Provides some aspects of a pictorial sketch 1\nSample answer:\nAnswers could include:\n• Oblique view in the direction of the arrow\n• Perspective view in the direction of the arrow\n• Planometric view in the direction of the arrow.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      },
+      "responseFormat": "drawing-description"
+    },
+    {
+      "id": "eng2024-q23d",
+      "name": "Question 23 (d)",
+      "question": "A public telephone booth is assembled using a variety of parts. Complete the table.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A public telephone booth is assembled using a variety of parts."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-23d-1.png",
+          "page": 24,
+          "alt": "Question 23 (d) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Complete the table."
+        },
+        {
+          "type": "table",
+          "caption": "Telephone booth materials",
+          "columns": [
+            "Part",
+            "Material",
+            "Justification of material",
+            "Manufacturing method"
+          ],
+          "rows": [
+            [
+              {
+                "text": "Screen",
+                "header": true
+              },
+              {
+                "text": "",
+                "input": true
+              },
+              "Needs to be impact resistant",
+              {
+                "text": "",
+                "input": true
+              }
+            ],
+            [
+              {
+                "text": "Hand receiver",
+                "header": true
+              },
+              "ABS",
+              {
+                "text": "",
+                "input": true
+              },
+              {
+                "text": "",
+                "input": true
+              }
+            ],
+            [
+              {
+                "text": "Shelf",
+                "header": true
+              },
+              {
+                "text": "",
+                "input": true
+              },
+              {
+                "text": "",
+                "input": true
+              },
+              "Cold rolled and pressed"
+            ]
+          ]
+        }
+      ],
+      "marks": 4,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Completes the table with appropriate entries 4\n• Completes the table with appropriate entries and some minor errors 3\n• Completes the table with some appropriate entries 2\n• Provides some relevant information 1\nSample answer:\nPart Material Justification of Manufacturing\nmaterial method\nNeeds to be impact\nScreen Acrylic Cast\nresistant\nComplex shaped,\nHand receiver ABS Injection moulded\neasily moulded\nCorrosion\nresistance, Cold rolled and\nShelf Stainless steel\nhardness, pressed\ncleanability",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q24a",
+      "name": "Question 24 (a)",
+      "question": "How would impact testing be used during the design and development of a motorcycle helmet?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "How would impact testing be used during the design and development of a motorcycle helmet?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Demonstrates how impact testing would be used during the design and\n2\ndevelopment of a motorcycle helmet\n• Provides some relevant information 1\nSample answer:\nImpact tests simulate real-world crash conditions. These tests can help to determine a\nhelmet’s energy absorption, its structural integrity as well as compliance with relevant safety\nstandards or regulations.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q24b",
+      "name": "Question 24 (b)",
+      "question": "Brushless DC motors are used to power electric-powered bicycles. Why are these types of motors so well suited to this application?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Brushless DC motors are used to power electric-powered bicycles. Why are these types of motors so well suited to this application?"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Explains how brushless DC motors are suitable for electric powered\n3\nbicycles\n• Describes brushless DC motors 2\n• Provides some relevant information 1\nSample answer:\nBrushless DC motors are easy to control because they use electronic commutation which\nmeans more efficient motor operation. This is crucial for applications like electric powered\nbicycles where precise speed and torque control are important. The absence of brushes\nmeans that the motor has less wear over time. Brushless DC motors can provide high torque\nat low speeds, which is beneficial for starting and climbing hills.\nAnswers may include:\n• Regenerative braking\n• Efficiency\n• Compact size and lightweight.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q24c",
+      "name": "Question 24 (c)",
+      "question": "An escalator is used to move people from the first floor to the second floor. The second floor is located 5.2 metres above the first floor. The average person’s mass is 64.8 kg. Determine the power requirement of the escalator in order to move 10 people from the first floor to the second floor in one minute.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "An escalator is used to move people from the first floor to the second floor. The second floor is located 5.2 metres above the first floor. The average person’s mass is 64.8 kg. Determine the power requirement of the escalator in order to move 10 people from the first floor to the second floor in one minute."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Shows relevant working in the correct calculation of the power\n3\nrequirement of the escalator, including correct units\n• Makes some progress towards calculating the power requirement of the\n2\nescalator\n• Provides some relevant information 1\nSample answer:\nW = mgh\n1 passenger\n2\nW = (64.8 kg ´ 10 m/s ) ´ 5.2 m = 3369.6 J\n1 passenger\nW = 33696 J (rounded)\n10 passengers\nW 10 passengers 33696 J\nP = =\nTime 60 s\nP = 561.6 W",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q24d",
+      "name": "Question 24 (d)",
+      "question": "Explain why a fully hardened steel would need to be tempered. Support your answer with a labelled sketch of the resulting tempered microstructure.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Explain why a fully hardened steel would need to be tempered. Support your answer with a labelled sketch of the resulting tempered microstructure."
+        }
+      ],
+      "marks": 4,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Explains with a labelled sketch why tempering is necessary 4\n• Explains why tempering is necessary\nOR\n3\n• Describes tempering and provides a labelled sketch that represents the\nresulting microstructure\n• Describes tempering 2\n• Identifies an appropriate reason\nOR 1\n• Provides a sketch that represents the resulting microstructure\nSample answer:\nFully hardened steel tends to be very brittle. This brittleness can make it prone to cracking or\nbreaking under certain conditions, particularly when subjected to sudden impacts or stresses.\nTempering is crucial to achieving the desired balance of hardness, toughness, and other\nmechanical properties necessary for specific applications, ensuring that the material can\nperform reliably under various operating conditions.\naddress the issue of brittleness. During tempering, the fully hardened steel is reheated to a\nlower temperature (below its critical temperature) and then cooled again. This controlled\nheating and cooling process helps to relieve some of the internal stresses induced during\nquenching and allows for the adjustment of the steel’s hardness and toughness properties.\n• Reducing brittleness\n• Improving toughness\n• Reducing internal stresses\n• Enhancing machinability.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      },
+      "responseFormat": "drawing-description"
+    },
+    {
+      "id": "eng2024-q25a",
+      "name": "Question 25 (a)",
+      "question": "Outline how ‘Black Box’ flight data recorders have led to improved aviation safety.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Outline how ‘Black Box’ flight data recorders have led to improved aviation safety."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Outlines how flight data recorders have improved aviation safety 2\n• Provides some relevant information 1\nSample answer:\nAfter an incident the aeronautical engineer is able to review the data and determine possible\ncauses of the incident and make improvements based on findings.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q25b",
+      "name": "Question 25 (b)",
+      "question": "A circuit diagram is shown. Use Ohm’s Law to determine the current in the circuit.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A circuit diagram is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-25b-1.png",
+          "page": 29,
+          "alt": "Question 25 (b) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Use Ohm’s Law to determine the current in the circuit."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Calculates the required current value with relevant working 3\n• Demonstrates some understanding of the steps required to calculate the\n2\nrequired current value\n• Provides some relevant information 1\nSample answer:\nE\nI =\nR\n1\nR = 10 Ω +\ntotal 1 1\n+\n20 Ω 25 Ω\nR = 21.11 Ω\ntotal\n12 V\n\\ Current (I) =\n21.11 Ω\nI = 0.57 Amps",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q25c",
+      "name": "Question 25 (c)",
+      "question": "A pin-jointed truss is shown. Member AB has been determined to be 250 N in compression. Complete the table. You must use the method specified to solve each component.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A pin-jointed truss is shown. Member AB has been determined to be 250 N in compression."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-25c-1.png",
+          "page": 30,
+          "alt": "Question 25 (c) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Complete the table. You must use the method specified to solve each component."
+        },
+        {
+          "type": "table",
+          "caption": "Truss reactions",
+          "columns": [
+            "Determine",
+            "Method to use",
+            "Working"
+          ],
+          "rows": [
+            [
+              {
+                "text": "External reaction at E",
+                "header": true
+              },
+              "Mathematical",
+              {
+                "text": "",
+                "input": true,
+                "placeholder": "Working, magnitude (N) and direction"
+              }
+            ],
+            [
+              {
+                "text": "Internal reaction of member CF",
+                "header": true
+              },
+              "Methods of section",
+              {
+                "text": "",
+                "input": true,
+                "placeholder": "Working, magnitude (N) and nature (T or C)"
+              }
+            ],
+            [
+              {
+                "text": "Internal reaction of member BG",
+                "header": true
+              },
+              "Graphical",
+              {
+                "text": "",
+                "input": true,
+                "placeholder": "Complete the graphical solution on paper; record magnitude and nature"
+              }
+            ]
+          ]
+        }
+      ],
+      "marks": 6,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Uses the specified method in the correct calculation of the external\nreaction and internal reactions 6\n• States their magnitude and direction/nature\n• Uses the specified method to make substantial progress towards the\ncalculation of the external reaction and/or internal reactions\n4–5\nOR\n• States their magnitude and direction/nature\n• Makes progress towards calculating the reactions 3\n• Makes progress towards calculating a reaction 2\n• Provides some relevant information 1\nSample answer:\nDetermine Method to\nsolve\nExternal Mathematical\nreaction\nat E\n58.33 N\nDirection: ↑\nInternal Method of\nreaction sections\nof\nmember\nCF\n19.25 N\nNature of force (T or C): T\nmember\nBG",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Award 4 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "5": "Award 5 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "6": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q26a",
+      "name": "Question 26 (a)",
+      "question": "Outline ways in which satellite services have benefited people living and working in rural areas.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Outline ways in which satellite services have benefited people living and working in rural areas."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Outlines ways in which satellite services have benefited people in rural\n2\nareas\n• Provides some relevant information 1\nSample answer:\nSatellites allow for communication to occur even if people in rural areas are out of the cellular\ntelecommunications network area. Satellite services are provided over an expansive\ngeographical area as they are not dependent on proximity from an exchange or node.\nAnswer could include:\n• Portability\n• Relatively cost effective\n• Uses existing infrastructure.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q26b",
+      "name": "Question 26 (b)",
+      "question": "To avoid overloading a cellular network, a logic gate is used to control the activation of a signal booster. The signal booster will only activate when both of the following conditions are met: • the signal strength falls below an acceptable level • the network traffic flow falls below an acceptable level. Complete a truth table for this scenario and identify a suitable logic gate.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "To avoid overloading a cellular network, a logic gate is used to control the activation of a signal booster. The signal booster will only activate when both of the following conditions are met: • the signal strength falls below an acceptable level • the network traffic flow falls below an acceptable level. Complete a truth table for this scenario and identify a suitable logic gate."
+        },
+        {
+          "type": "table",
+          "caption": "Truth table",
+          "columns": [
+            "Acceptable signal strength",
+            "Acceptable traffic flow",
+            "Activate booster"
+          ],
+          "rows": [
+            [
+              {
+                "text": "",
+                "input": true
+              },
+              {
+                "text": "",
+                "input": true
+              },
+              {
+                "text": "",
+                "input": true
+              }
+            ],
+            [
+              {
+                "text": "",
+                "input": true
+              },
+              {
+                "text": "",
+                "input": true
+              },
+              {
+                "text": "",
+                "input": true
+              }
+            ],
+            [
+              {
+                "text": "",
+                "input": true
+              },
+              {
+                "text": "",
+                "input": true
+              },
+              {
+                "text": "",
+                "input": true
+              }
+            ],
+            [
+              {
+                "text": "",
+                "input": true
+              },
+              {
+                "text": "",
+                "input": true
+              },
+              {
+                "text": "",
+                "input": true
+              }
+            ]
+          ]
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Correctly completes the truth table and identifies the logic gate 3\n• Completes the truth table and identifies the logic gate with error 2\n• Provides some relevant information 1\nSample answer:\nTruth table:\nAcceptable signal Acceptable traffic Activate booster\nstrength flow\n1 1 0\n1 0 0\n0 1 0\n0 0 1\nLogic gate: NOR",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q26ci",
+      "name": "Question 26 (c) (i)",
+      "question": "A drawing of a scale model aircraft flying at constant velocity in level flight is shown. Assume that the lift acts as a point load only on each wing and is located as shown in the drawing. In the box below, draw the free body diagram of the forces acting on the aircraft.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A drawing of a scale model aircraft flying at constant velocity in level flight is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-26ci-1.png",
+          "page": 34,
+          "alt": "Question 26 (c) (i) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Assume that the lift acts as a point load only on each wing and is located as shown in the drawing. In the box below, draw the free body diagram of the forces acting on the aircraft."
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Draws an appropriate free body diagram 1\nSample answer:",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      },
+      "responseFormat": "drawing-description"
+    },
+    {
+      "id": "eng2024-q26cii",
+      "name": "Question 26 (c) (ii)",
+      "question": "A drawing of a scale model aircraft flying at constant velocity in level flight is shown. Assume that the lift acts as a point load only on each wing and is located as shown in the drawing. Draw both a shear force diagram and a bending moment diagram of the aircraft as the forces act across the wingspan of the aircraft.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A drawing of a scale model aircraft flying at constant velocity in level flight is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-26cii-1.png",
+          "page": 34,
+          "alt": "Question 26 (c) (ii) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Assume that the lift acts as a point load only on each wing and is located as shown in the drawing. Draw both a shear force diagram and a bending moment diagram of the aircraft as the forces act across the wingspan of the aircraft."
+        }
+      ],
+      "marks": 5,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Produces correct and labelled shear force and bending moment\n5\ndiagrams\n• Produces a labelled shear force diagram and bending moment diagram 4\n• Produces a substantially correct shear force diagram OR bending\n3\nmoment diagram\n• Applies an appropriate method that shows some understanding of shear\n2\nforce diagram or bending moment diagram\n• Demonstrates an understanding of shear force diagrams or bending\n1\nmoment diagrams\nSample answer:",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 5 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 5 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 5 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Award 4 of 5 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "5": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      },
+      "responseFormat": "drawing-description"
+    },
+    {
+      "id": "eng2024-q27a",
+      "name": "Question 27 (a)",
+      "question": "A towbar hitch and shear pin is shown. The hitch is exposed to various environmental conditions. Outline a method to protect against corrosion.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A towbar hitch and shear pin is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-27a-1.png",
+          "page": 37,
+          "alt": "Question 27 (a) diagram"
+        },
+        {
+          "type": "text",
+          "text": "The hitch is exposed to various environmental conditions. Outline a method to protect against corrosion."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Outlines a method of corrosion protection 2\n• Provides some relevant information 1\nSample answer:\nThe use of protective coatings such as painting or powder coating would give this component\nprotection from corrosion, sealing it from the effects of oxygen, water or pollutants.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q27b",
+      "name": "Question 27 (b)",
+      "question": "A towbar hitch and shear pin is shown. Explain why hot forging would be used to manufacture the shear pin.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A towbar hitch and shear pin is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-27b-1.png",
+          "page": 37,
+          "alt": "Question 27 (b) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Explain why hot forging would be used to manufacture the shear pin."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Explains why hot forging would be used to manufacture the shear pin 3\n• Makes progress towards explaining why hot forging would be used to\n2\nmanufacture the shear pin\n• Provides some relevant information 1\nSample answer:\nHot forging results in a material that is stronger than cast or machined parts. Hot forging is\nalso able to produce parts that are more complex in shape. Produces optimal yield strength,\nlow hardness and high ductility.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2024-q27c",
+      "name": "Question 27 (c)",
+      "question": "A towbar hitch and shear pin is shown. An exploded pictorial drawing of a towbar hitch assembly is shown. Complete an assembled front sectional view of the towbar hitch assembly. Do NOT dimension.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A towbar hitch and shear pin is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-27c-1.png",
+          "page": 37,
+          "alt": "Question 27 (c) diagram"
+        },
+        {
+          "type": "text",
+          "text": "An exploded pictorial drawing of a towbar hitch assembly is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-27c-2.png",
+          "page": 38,
+          "alt": "Question 27 (c) diagram 2"
+        },
+        {
+          "type": "text",
+          "text": "Complete an assembled front sectional view of the towbar hitch assembly. Do NOT dimension."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-27c-3.png",
+          "page": 39,
+          "alt": "Question 27 (c) diagram 3"
+        }
+      ],
+      "marks": 6,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Demonstrates detailed application of knowledge and understanding\n6\nwhen sectioning the assembled front view to AS1100\n• Demonstrates substantial application of knowledge and understanding\n5\nwhen sectioning the assembled front view to AS1100\n• Demonstrates adequate application of knowledge and understanding of\n3–4\nthe front view to AS1100 standards\n• Makes progress towards a front view drawing 2\n• Provides some relevant information 1",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Award 4 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "5": "Award 5 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "6": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      },
+      "responseFormat": "drawing-description"
+    }
+  ]
+}

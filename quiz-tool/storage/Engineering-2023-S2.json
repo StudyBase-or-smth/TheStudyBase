@@ -1,0 +1,1010 @@
+{
+  "studyMode": "exam-questions",
+  "source": {
+    "publisher": "NSW Education Standards Authority",
+    "year": 2023,
+    "origin": "User-supplied exam paper and marking guidelines",
+    "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+    "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+    "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023"
+  },
+  "description": "Original exam wording with diagram-only crops placed between the relevant text, from the supplied NESA PDFs. Official source links are retained.",
+  "questions": [
+    {
+      "id": "eng2023-q21a",
+      "name": "Question 21 (a)",
+      "question": "How can computer graphics be utilised as a tool in aeronautical engineering?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "How can computer graphics be utilised as a tool in aeronautical engineering?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Demonstrates an understanding of how computer graphics are used in\n2\naeronautical engineering\n• Provides some relevant information 1\nSample answer:\nComputer graphics such as 3D visualisations can create a detailed and accurate visual\nmodel or simulation of aircraft components being designed in order to convey information\nand ideas.\nAnswer could include:\n• To create interactive user interfaces\n• Providing a means of artistic expression for engineers\n• Visualisation, simulation and analysis\n• Present data in the analysis of flight dynamics and servicing of aircraft\n• Manufacturing and prototyping.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q21b",
+      "name": "Question 21 (b)",
+      "question": "You are part of a team of engineers working collaboratively on the design of a new aircraft. Explain the benefits of collaboration when completing the engineering report.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "You are part of a team of engineers working collaboratively on the design of a new aircraft. Explain the benefits of collaboration when completing the engineering report."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Explains the benefits of collaboration when completing the engineering\n3\nreport\n• Provides some explanation of the benefits of collaboration when\n2\ncompleting the engineering report\n• Provides some relevant information 1\nSample answer:\nA collaborative approach allows for the pooling of expert knowledge of aircraft industry\nprofessionals and their expertise resulting in a more comprehensive report and reducing the\nrisk of errors.\nAnswers could include:\n• Promotes teamwork and ownership of the report where inventive design concepts, new\nangles, ideas and insights foster a culture of innovation\n• Time efficiency – dividing tasks among multiple team contributors can expedite the\ncompletion of the report\n• Cross-validation – multiple team members can independently verify and validate design\ncalculations and recommendations\n• Professional development – team members learn from each other, build professional\nrelationships and enhance their own skill sets.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q21c",
+      "name": "Question 21 (c)",
+      "question": "An orthogonal view of a rib in an aircraft wing is shown. Construct a freehand isometric sketch of the wing rib as viewed in the direction of the arrow.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "An orthogonal view of a rib in an aircraft wing is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-21c-1.png",
+          "page": 15,
+          "alt": "Question 21 (c) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Construct a freehand isometric sketch of the wing rib as viewed in the direction of the arrow."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Constructs a proportioned freehand isometric sketch of the wing rib 3\n• Demonstrates substantial progress towards producing an appropriate\n2\nisometric sketch of the wing rib\n• Provides some aspects of a pictorial sketch 1\nSample answer:\nAnswers could include:",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      },
+      "responseFormat": "drawing-description"
+    },
+    {
+      "id": "eng2023-q21d",
+      "name": "Question 21 (d)",
+      "question": "Draw, label and describe the microstructure of a thermosetting polymer.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Draw, label and describe the microstructure of a thermosetting polymer."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Describes the microstructure and provides an appropriately labelled\n3\ndrawing of the microstructure\n• Describes the microstructure and provides a partially correct drawing\nOR\n2\n• Outlines the microstructure and provides an appropriately labelled\ndrawing\n• Provides some relevant information 1\nSample answer:\nThermosetting polymers have a three-dimensional network structure, where polymer chains\nare cross-linked by covalent bonds in a network of polymer chains.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      },
+      "responseFormat": "drawing-description"
+    },
+    {
+      "id": "eng2023-q22ai",
+      "name": "Question 22 (a) (i)",
+      "question": "Previously, children’s playground structures were constructed from ‘treated pine’ logs. The logs were treated with a copper chromium arsenate (CCA) solution which resisted fungi, insect attack and decay. Outline why new materials are being used to replace CCA treated logs in children’s playground structures.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Previously, children’s playground structures were constructed from ‘treated pine’ logs. The logs were treated with a copper chromium arsenate (CCA) solution which resisted fungi, insect attack and decay. Outline why new materials are being used to replace CCA treated logs in children’s playground structures."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Outlines why new materials have been used 2\n• Provides some relevant information 1\nSample answer:\nCCA materials contain arsenic and are not considered suitable for use in children’s\nplayground structures.\nAnswers could include:\n• Manufactured timbers incorporating recycled plastics have better resistance to insect\nattack. CCA being toxic/carcinogenic, harmful, hazardous to health, safety hazard,\nentering the bloodstream\n• Environmental concerns.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q22aii",
+      "name": "Question 22 (a) (ii)",
+      "question": "Previously, children’s playground structures were constructed from ‘treated pine’ logs. The logs were treated with a copper chromium arsenate (CCA) solution which resisted fungi, insect attack and decay. Justify a suitable material to use for a playground structure which will be exposed to the weather at all times.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Previously, children’s playground structures were constructed from ‘treated pine’ logs. The logs were treated with a copper chromium arsenate (CCA) solution which resisted fungi, insect attack and decay. Justify a suitable material to use for a playground structure which will be exposed to the weather at all times."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Justifies the choice of a suitable material to use if a structure will be\n3\nexposed to the weather at all times\n• Describes an appropriate material to use if a structure will be exposed to\n2\nthe weather at all times\n• Provides some relevant information 1\nSample answer:\nA suitable material could be untreated finished hardwood, which is resistant to corrosion and\ndegradation in bright sunlight. It is also very tough and wear resistant.\nAnswers could include:\n• UV stabilised High Density Polyethylene is a suitable material to use, which offers bright\ncolours, formability of complex shapes and low maintenance\n• Stainless Steel or Galvanised Steel, which offers good corrosion resistance, strength and\nwear resistance\n• Compact Laminate is another suitable material made of softwood and phenolic binder\ngives high dimensional stability over time and good abrasion resistance\n• Creosote-treated pine and hardwood, both of which are weather resistant; precast\nreinforced concrete with smooth finish again being weather resistant and strong in tension\n• Another suitable material is UV Stabilised ABS. This polymer is strong, light weight,\nimpact resistant and has good resistance to water swell.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q22bi",
+      "name": "Question 22 (b) (i)",
+      "question": "The diagram shows a child with a mass of 45 kg hanging 2 metres from the left end of a structure, and an adult with a mass of 85 kg hanging 1 metre from the right end. Calculate the reactions at R_L and R_R.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The diagram shows a child with a mass of 45 kg hanging 2 metres from the left end of a structure, and an adult with a mass of 85 kg hanging 1 metre from the right end."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-22bi-1.png",
+          "page": 18,
+          "alt": "Question 22 (b) (i) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Calculate the reactions at R_L and R_R."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Shows relevant working in the correct calculation of the left and right\n3\nreactions (magnitude and direction)\n• Makes progress towards the calculation of the left and/or right reactions 2\n• Provides some relevant calculations 1\nSample answer:",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q22bii",
+      "name": "Question 22 (b) (ii)",
+      "question": "The diagram shows a child with a mass of 45 kg hanging 2 metres from the left end of a structure, and an adult with a mass of 85 kg hanging 1 metre from the right end. Complete the shear force and bending moment diagrams of the scenario described on the previous page.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The diagram shows a child with a mass of 45 kg hanging 2 metres from the left end of a structure, and an adult with a mass of 85 kg hanging 1 metre from the right end."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-22bii-1.png",
+          "page": 18,
+          "alt": "Question 22 (b) (ii) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Complete the shear force and bending moment diagrams of the scenario described on the previous page."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Produces correct diagrams using appropriate scale 3\n• Produces partially correct diagrams\nOR 2\n• Produces one correct diagram\n• Provides some relevant information 1\nSample answer:",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      },
+      "responseFormat": "drawing-description"
+    },
+    {
+      "id": "eng2023-q23a",
+      "name": "Question 23 (a)",
+      "question": "Draw the symbols which match the electronic components named in the table.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Draw the symbols which match the electronic components named in the table."
+        },
+        {
+          "type": "table",
+          "caption": "Electronic component symbols",
+          "columns": [
+            "Component",
+            "Symbol"
+          ],
+          "rows": [
+            [
+              {
+                "text": "Open switch",
+                "header": true
+              },
+              {
+                "text": "",
+                "input": true,
+                "placeholder": "Sketch on paper or add notes"
+              }
+            ],
+            [
+              {
+                "text": "Power cell",
+                "header": true
+              },
+              {
+                "text": "",
+                "input": true,
+                "placeholder": "Sketch on paper or add notes"
+              }
+            ],
+            [
+              {
+                "text": "Light emitting diode",
+                "header": true
+              },
+              {
+                "text": "",
+                "input": true,
+                "placeholder": "Sketch on paper or add notes"
+              }
+            ],
+            [
+              {
+                "text": "Resistor",
+                "header": true
+              },
+              {
+                "text": "",
+                "input": true,
+                "placeholder": "Sketch on paper or add notes"
+              }
+            ],
+            [
+              {
+                "text": "Light dependent resistor",
+                "header": true
+              },
+              {
+                "text": "",
+                "input": true,
+                "placeholder": "Sketch on paper or add notes"
+              }
+            ],
+            [
+              {
+                "text": "NPN transistor",
+                "header": true
+              },
+              {
+                "text": "",
+                "input": true,
+                "placeholder": "Sketch on paper or add notes"
+              }
+            ],
+            [
+              {
+                "text": "Capacitor",
+                "header": true
+              },
+              {
+                "text": "",
+                "input": true,
+                "placeholder": "Sketch on paper or add notes"
+              }
+            ]
+          ]
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Demonstrates a thorough understanding of symbols used for electronic\n3\ncomponents\n• Demonstrates some understanding of symbols used for electronic\n2\ncomponents\n• Provides some relevant information 1\nSample answer:\nComponent Symbol\nOpen switch\nPower cell\nLight emitting diode\nResistor\nLight dependent resistor\nNPN transistor\nCapacitor",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      },
+      "responseFormat": "drawing-description"
+    },
+    {
+      "id": "eng2023-q23b",
+      "name": "Question 23 (b)",
+      "question": "Describe the responsibilities of the engineer when considering security issues of telecommunications devices.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Describe the responsibilities of the engineer when considering security issues of telecommunications devices."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Describes the responsibilities of the engineer regarding security issues of\n3\ntelecommunications devices\n• Demonstrates some understanding of the responsibilities of the engineer\n2\nregarding security issues of telecommunications devices\n• Provides some relevant information 1\nSample answer:\nThe engineer’s responsibilities include ensuring the ongoing integrity of telecommunications\nnetworks and integration of service devices. They need to ensure that the data of the\nconsumer is protected and cannot be intercepted by others.\nAnswers could include:\n• Conducting threat analysis\n• Keeping devices up to date so that they are protected from potential threat\n• Design and implement protocols into the devices to protect the consumer. Eg encryption,\npassword protection\n• Identifying service impacts and difficulties.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q23c",
+      "name": "Question 23 (c)",
+      "question": "How are insulating materials used in the telecommunications industry? Include an example in your answer.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "How are insulating materials used in the telecommunications industry? Include an example in your answer."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Provides how insulating materials are used in the telecommunications\n3\nindustry, with an example\n• Describes insulating materials, with an example\nOR 2\n• Provides how an insulating material is used\n• Provides some relevant information 1\nSample answer:\nIn the telecommunications industry, insulating materials are necessary to reduce or eliminate\naccidental electrocution and unwanted current loss. For example, Polyethylene is a polymer\nthat is used as a cable insulation, commonly as a wrap around copper wires. Polymers have\nthe necessary properties to prevent or reduce the current flow.\nAnswer could include:\n• Epoxy resin on printed circuit board\n• Polymer casing for telecommunication devices.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q23d",
+      "name": "Question 23 (d)",
+      "question": "The diagram shows the relative placement of 4G and 5G telecommunication bands within the electromagnetic spectrum. With reference to the diagram, explain why 5G networks need more cellular antennae and closer positioning of antennae than 4G networks.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The diagram shows the relative placement of 4G and 5G telecommunication bands within the electromagnetic spectrum."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-23d-1.png",
+          "page": 22,
+          "alt": "Question 23 (d) diagram"
+        },
+        {
+          "type": "text",
+          "text": "With reference to the diagram, explain why 5G networks need more cellular antennae and closer positioning of antennae than 4G networks."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Explains why 5G networks need more cellular antennae, positioned\n3\ncloser than 4G networks, with reference to the diagram\n• Describes the difference between the 5G and 4G networks with\n2\nreference to the diagram\n• Provides some relevant information 1\nSample answer:\nAs seen in the diagram, 5G networks employ shorter wavelengths and are a higher\nfrequency band than 4G networks. The short wavelength means that the signal cannot travel\nas far as the signal in the 4G Network. Given that there is shorter signal range and the signal\ncannot travel as far there needs to be antennae positioned closer together. As the antennae\nare closer together, they require more antennae to cover the same distances.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q24a",
+      "name": "Question 24 (a)",
+      "question": "Roller coaster support structures can be made from either timber or steel. Compare the properties of the two materials in roller coaster support structures.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Roller coaster support structures can be made from either timber or steel."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-24a-1.png",
+          "page": 23,
+          "alt": "Question 24 (a) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Compare the properties of the two materials in roller coaster support structures."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Provides a comparison of the properties of timber and steel in roller\n2\ncoaster support structures\n• Provides some relevant information 1\nSample answer:\nUnlike steel, timber has the ability to flex and bend, which can absorb some of the forces\nexerted by the roller coaster. However, timber has less mechanical strength than steel and is\nmore susceptible to rot and insect damage over time.\nAnswers could include:\n• Steel frames are much more easily fabricated and assembled than timber frames, which\ncan save time and costs in the construction process.\n• Steel is much more resistant to fire than timber, which makes it a safer material to use in\nroller coasters.\n• Steel is a more suitable material for roller coaster support structures due to its strength,\ndurability, fire resistance, and ease of fabrication. Timber is not as strong as steel and has\nless durability, but it does have some advantages such as low cost, and ability to flex and\nbend.\n• Steel has greater mechanical strength and is a more durable material than timber. It is\nable to withstand the higher stresses and forces exerted on a roller coaster.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q24b",
+      "name": "Question 24 (b)",
+      "question": "A roller coaster component is fabricated using cold rolled steel. Two webs are welded onto a base plate as shown. The diagram shows a partially completed microstructure of the parent and weld metals. Complete the microstructure by drawing and labelling the following grain types in the heat-affected zone for ONE of the webs: • chill crystals • equi-axed grains • columnar grains.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A roller coaster component is fabricated using cold rolled steel. Two webs are welded onto a base plate as shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-24b-1.png",
+          "page": 24,
+          "alt": "Question 24 (b) diagram"
+        },
+        {
+          "type": "text",
+          "text": "The diagram shows a partially completed microstructure of the parent and weld metals."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-24b-2.png",
+          "page": 24,
+          "alt": "Question 24 (b) diagram 2"
+        },
+        {
+          "type": "text",
+          "text": "Complete the microstructure by drawing and labelling the following grain types in the heat-affected zone for ONE of the webs: • chill crystals • equi-axed grains • columnar grains."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Draws and labels the resulting microstructure of the parent and weld\n2\nmetal\n• Provides some relevant information 1\nSample answer:",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      },
+      "responseFormat": "drawing-description"
+    },
+    {
+      "id": "eng2023-q24c",
+      "name": "Question 24 (c)",
+      "question": "A roller coaster car is at rest at point A as shown. Determine the height, h, of the roller coaster at point B if it is travelling at 30 m/s at that point. Assume no energy losses.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A roller coaster car is at rest at point A as shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-24c-1.png",
+          "page": 25,
+          "alt": "Question 24 (c) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Determine the height, h, of the roller coaster at point B if it is travelling at 30 m/s at that point. Assume no energy losses."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Shows relevant working in calculating the height of the roller coaster car\n3\nat point B\n• Makes progress towards calculating the height of the roller coaster car at\n2\npoint B\n• Provides some relevant information 1\nSample answer:\nConservation of energy\nmgh + ½mv2 = mgh + ½mv2\nA A B B\n550 + ½02 = 10h + ½.302\nB\n550 = 10h + 450\nB\nh = (550 – 450) ÷ 10\nB\nh = 10 metres\nB",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q24di",
+      "name": "Question 24 (d) (i)",
+      "question": "One of several fail-safe systems incorporated into a roller coaster design uses the following safety protocol. Before a roller coaster car brake can be released to allow the roller coaster to commence its ride, ALL of the following conditions must be met: • passenger safety harnesses must be secured into place • the sensors must indicate the track is clear of obstructions • the ride entry and exit gates are locked. A logic gate schematic is shown. What is the purpose of the NAND gate in this schematic?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "One of several fail-safe systems incorporated into a roller coaster design uses the following safety protocol. Before a roller coaster car brake can be released to allow the roller coaster to commence its ride, ALL of the following conditions must be met: • passenger safety harnesses must be secured into place • the sensors must indicate the track is clear of obstructions • the ride entry and exit gates are locked. A logic gate schematic is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-24di-1.png",
+          "page": 26,
+          "alt": "Question 24 (d) (i) diagram"
+        },
+        {
+          "type": "text",
+          "text": "What is the purpose of the NAND gate in this schematic?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Provides the purpose of the NAND gate in the schematic given 2\n• Provides some relevant information 1\nSample answer:\nThe NAND gate ensures that if any or all of the inputs are zero the output will result in a 1\nand thus turn on the warning light.\nAnswers could include:\nThe NAND gate ensures that the warning light will remain ON until all conditions for safe\noperation are met.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q24dii",
+      "name": "Question 24 (d) (ii)",
+      "question": "One of several fail-safe systems incorporated into a roller coaster design uses the following safety protocol. Before a roller coaster car brake can be released to allow the roller coaster to commence its ride, ALL of the following conditions must be met: • passenger safety harnesses must be secured into place • the sensors must indicate the track is clear of obstructions • the ride entry and exit gates are locked. A logic gate schematic is shown. Complete the truth table for the logic gate schematic.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "One of several fail-safe systems incorporated into a roller coaster design uses the following safety protocol. Before a roller coaster car brake can be released to allow the roller coaster to commence its ride, ALL of the following conditions must be met: • passenger safety harnesses must be secured into place • the sensors must indicate the track is clear of obstructions • the ride entry and exit gates are locked. A logic gate schematic is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-24dii-1.png",
+          "page": 26,
+          "alt": "Question 24 (d) (ii) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Complete the truth table for the logic gate schematic."
+        },
+        {
+          "type": "table",
+          "caption": "Roller coaster safety truth table",
+          "columns": [
+            "Safety harnesses secure",
+            "Track is clear",
+            "Ride gates are locked",
+            "Operator warning light"
+          ],
+          "rows": [
+            [
+              "0",
+              "0",
+              "0",
+              {
+                "text": "",
+                "input": true
+              }
+            ],
+            [
+              "0",
+              "0",
+              "1",
+              {
+                "text": "",
+                "input": true
+              }
+            ],
+            [
+              "0",
+              "1",
+              "0",
+              {
+                "text": "",
+                "input": true
+              }
+            ],
+            [
+              "0",
+              "1",
+              "1",
+              {
+                "text": "",
+                "input": true
+              }
+            ],
+            [
+              "1",
+              "0",
+              "0",
+              {
+                "text": "",
+                "input": true
+              }
+            ],
+            [
+              "1",
+              "0",
+              "1",
+              {
+                "text": "",
+                "input": true
+              }
+            ],
+            [
+              "1",
+              "1",
+              "0",
+              {
+                "text": "",
+                "input": true
+              }
+            ],
+            [
+              "1",
+              "1",
+              "1",
+              {
+                "text": "",
+                "input": true
+              }
+            ]
+          ]
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Completes the truth table 3\n• Partially completes the truth table 2\n• Provides some relevant information 1\nSample answer:\nSafety\nTrack Ride gates Operator\nharnesses\nis clear are locked warning light\nsecure\n0 0 0 1\n0 0 1 1\n0 1 0 1\n0 1 1 1\n1 0 0 1\n1 0 1 1\n1 1 0 1\n1 1 1 0",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q25a",
+      "name": "Question 25 (a)",
+      "question": "Describe the process of compression moulding when used to manufacture aircraft components.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Describe the process of compression moulding when used to manufacture aircraft components."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Describes the process of compression moulding 3\n• Outlines some steps in the process of compression moulding 2\n• Provides some relevant information 1\nSample answer:\nCompression moulding of aircraft components is a process that begins by feeding a polymer\ninto an open, heated mould cavity. The polymer is softened and the mould is then closed and\ncompressed. Compression allows the material to make contact with all areas of the mould.\nThe charge cures within the heated mould. When the piece is cured it is removed. The mould\ncan be reused.\nAnswers could include:\nMoulds can be used in the manufacture of composites.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q25b",
+      "name": "Question 25 (b)",
+      "question": "Explain the functions of a transistor in an electrical circuit.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Explain the functions of a transistor in an electrical circuit."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Explains the functions of a transistor in an electrical circuit 3\n• Describes the functions of a transistor in an electrical circuit\nOR 2\n• Explains one function of a transistor in an electrical circuit\n• Provides some relevant information 1\nSample answer:\nA transistor can operate as an amplifier. It magnifies the signal by allowing a current to flow\nfrom the emitter to the collector when a small current passes through the base. It also\noperates as a switch by allowing current to flow if conditions are met.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q25c",
+      "name": "Question 25 (c)",
+      "question": "Outline how GPS satellites determine a position on the planet.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Outline how GPS satellites determine a position on the planet."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Outlines how GPS satellites determine a position on the planet 2\n• Provides some relevant information 1\nSample answer:\nPosition is determined when a GPS triangulates signals, measuring the time it takes signals\nto travel from satellites to the GPS receiver and calculating the difference.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q25d",
+      "name": "Question 25 (d)",
+      "question": "A uniform 8-metre ladder with a mass of 12 kg has been placed against a smooth wall. Determine the minimum coefficient of static friction between the ground and the ladder. Assume there is no friction between the ladder and the wall.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A uniform 8-metre ladder with a mass of 12 kg has been placed against a smooth wall."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-25d-1.png",
+          "page": 29,
+          "alt": "Question 25 (d) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Determine the minimum coefficient of static friction between the ground and the ladder. Assume there is no friction between the ladder and the wall."
+        }
+      ],
+      "marks": 4,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Shows relevant working in the correct calculation of the minimum\n4\ncoefficient of friction between the ground and ladder\n• Makes progress towards calculating the minimum coefficient of friction\n3\nusing a substantially correct method\n• Makes some progress towards calculating the minimum coefficient of\n2\nfriction\n• Provides some relevant information 1\nSample answer:",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q26a",
+      "name": "Question 26 (a)",
+      "question": "A component of a roller coaster car bogie is to be punched out from a 10 mm thick rectangular plate of mild steel as shown. Calculate the shear force of the punching die if the shear stress is 345 MPa.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A component of a roller coaster car bogie is to be punched out from a 10 mm thick rectangular plate of mild steel as shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-26a-1.png",
+          "page": 30,
+          "alt": "Question 26 (a) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Calculate the shear force of the punching die if the shear stress is 345 MPa."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Calculates the shear force of the punching die 3\n• Makes progress towards calculating the shear force using an appropriate\n2\nmethod\n• Provides some relevant information 1\nSample answer:\nF\nσ =\ns A\ns\nShear Area A = perimeter of punch-out shape x thickness of plate\ns\nPerimeter = (112 ´ 2) + (15 ´ 4) + (p ´ 60)\n= 472.4 mm\nShear Area A = 472.4 mm ´ 10 mm\ns\n= 4 725 mm2\n= 4 725 ´ 10–6 m2\nShear force = shear stress x shear area\n= 345 ´ 106 Pa ´ 4 725 ´ 10–6 m2\n= 1 630 125 N\nShear force = 1 630 kN",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q26b",
+      "name": "Question 26 (b)",
+      "question": "A team of engineers is working together to develop a new aeronautical device for a company. An engineer takes the design and produces the device without permission. Describe the implications for the individual engineer and the company.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A team of engineers is working together to develop a new aeronautical device for a company. An engineer takes the design and produces the device without permission. Describe the implications for the individual engineer and the company."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Describes the implications for the individual engineer and the company 3\n• Outlines the implications for the individual engineer and/or the company 2\n• Provides some relevant information 1\nSample answer:\nThe engineer has not worked ethically, the design is the intellectual property of the company\nand the engineer has stolen the property of the team and the company. This could also have\nlegal implications for the individual as the engineer has not sought permission to produce the\ndevice.\nThe financial implications for the company if the device is produced is that they are not able\nto recoup the costs of development and unable to receive the economic benefit of the\nproduct on the market.\nAnswers could include:\n• Legal and ethical implications\n• Health and safety factors\n• Financial ramifications\n• Logistical considerations\n• Profits for the individual rather than the company\n• Employment ramifications.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q26c",
+      "name": "Question 26 (c)",
+      "question": "A truss is loaded as shown. Complete the table. Use the space provided below and on page 33 for working.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A truss is loaded as shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-26c-1.png",
+          "page": 32,
+          "alt": "Question 26 (c) diagram"
+        },
+        {
+          "type": "text",
+          "text": "Complete the table."
+        },
+        {
+          "type": "table",
+          "caption": "Internal reactions",
+          "columns": [
+            "Member",
+            "Magnitude (kN)",
+            "Nature of force (T or C)"
+          ],
+          "rows": [
+            [
+              "Internal reaction of member EF",
+              {
+                "text": "",
+                "input": true
+              },
+              {
+                "text": "",
+                "input": true
+              }
+            ],
+            [
+              "Internal reaction of CH",
+              {
+                "text": "",
+                "input": true
+              },
+              {
+                "text": "",
+                "input": true
+              }
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "Use the space provided below and on page 33 for working."
+        }
+      ],
+      "marks": 6,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Shows relevant working in the correct calculation of the two internal\nreactions 6\n• States their nature\n• Makes substantial progress towards the calculation of the two internal\nreactions using a correct method 4–5\n• States their nature\n• Makes progress towards calculating the two internal reactions 3\n• Makes progress towards calculating a reaction 2\n• Provides some relevant information 1\nSample answer:",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Award 4 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "5": "Award 5 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "6": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q27a",
+      "name": "Question 27 (a)",
+      "question": "Discuss the use of composite materials in aircraft construction. Support your answer with specific examples.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Discuss the use of composite materials in aircraft construction. Support your answer with specific examples."
+        }
+      ],
+      "marks": 4,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Discusses the use of composite materials in aircraft construction, with\n4\nspecific examples\n• Describes how composite materials are used in aircraft construction 3\n• Identifies composites used in aircraft construction 2\n• Provides some relevant information 1\nSample answer:\nFiber-Reinforced Polymer (FRP) composites are used in the aeronautical industry due to\ntheir high strength-to-weight ratio. This is important as reducing weight leads to lower fuel\nconsumption and increased payload capabilities.\nComposites are used for aircraft structural components due to their energy absorption\nproperties in order to avoid failure of components.\nHowever, composite materials can suffer brittle failure. In aircraft, the failed composite\ncomponent cannot be repaired and it would need to be replaced.\nAnswers could include:\n• Composites used to:\n– improve fatigue resistance\n– increase corrosion resistance\n• Composite materials have high strength-to-weight ratios, which means they can withstand\nlarge loads while being lightweight. An example of a sandwich composite material is a\nhoneycomb core sandwich panel made of two thin, stiff facing sheets (such as fibreglass\nor aluminium) and a lightweight, honeycomb core material (such as Nomex, paper). This\ntype of composite material is used in many aero applications due to its high strength-to-\nweight ratio and improved stiffness\n• Composite materials components can be time consuming to manufacture.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "eng2023-q27b",
+      "name": "Question 27 (b)",
+      "question": "A portion of a roller coaster wheel sub-assembly is shown. An exploded pictorial of the wheel sub-assembly is shown. Complete an assembled sectioned front view of the wheel sub-assembly at scale 1 : 2. Apply AS 1100 drawing standards. Do NOT add dimensions.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A portion of a roller coaster wheel sub-assembly is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-27b-1.png",
+          "page": 36,
+          "alt": "Question 27 (b) diagram"
+        },
+        {
+          "type": "text",
+          "text": "An exploded pictorial of the wheel sub-assembly is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-27b-2.png",
+          "page": 36,
+          "alt": "Question 27 (b) diagram 2"
+        },
+        {
+          "type": "text",
+          "text": "Complete an assembled sectioned front view of the wheel sub-assembly at scale 1 : 2. Apply AS 1100 drawing standards. Do NOT add dimensions."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-27b-3.png",
+          "page": 37,
+          "alt": "Question 27 (b) diagram 3"
+        }
+      ],
+      "marks": 6,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Demonstrates detailed application of knowledge and understanding\n6\nwhen sectioning the assembled front view to AS 1100 standards\n• Demonstrates substantial application of knowledge and understanding\n5\nwhen sectioning the assembled front view to AS 1100 standards\n• Demonstrates adequate application of knowledge and understanding of\n3–4\nthe front view to AS 1100 standards\n• Makes some progress towards producing a front view drawing 2\n• Provides some relevant information 1\nSample answer:",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Award 4 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "5": "Award 5 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "6": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      },
+      "responseFormat": "drawing-description"
+    }
+  ]
+}

@@ -1,6 +1,27 @@
 # Quiz marking with Jev
 
+For the full paper-conversion workflow, content/table schemas and verification steps,
+see [HSC conversion instructions](HSC-CONVERSION.md).
+
 The tool entry point is `quiz-tool/quiz-tool.html`. Keep the legacy progress storage key so the rename preserves saved quiz sessions. Existing Continue studying entries resolve to the renamed page.
+
+Search StudyBase loads the quiz manifest and question JSON when the search dialog
+opens, caches successful loads for the page session, and finds paper titles,
+subjects, sections, question text and visible multiple-choice options. Marking
+guidance and solutions are excluded. Disabled Quiz Tool content is not loaded.
+Question results use `#file=<filename>&question=<question-id>` and restore saved
+answers before opening the selected question. Legacy `#<filename>` links still
+work. The current question URL updates as students navigate; summaries use a
+paper link so refreshing restores the summary.
+
+The question breadcrumb shows the current question/subpart instead of the section
+label. Question views omit the redundant progress sentence above the heading.
+Completion offers Redo quiz (reset the current section) and Redo failed questions
+(repeat missed, partially correct and unanswered items). Failed-question review
+preserves fully correct answers and the overall section score, limits navigation
+to the retry items, and saves the review queue by question ID for resuming. Other
+sections are not reset. The failed-question action is disabled when all items have
+full marks.
 
 Written questions (`isAICheck: true`) use the authenticated backend endpoint
 `POST /api/quizGrade`. There is no Gemini call, direct-browser provider call,
@@ -53,3 +74,78 @@ References: [TypeSafe HTTP API](https://docs.typesafe.ai/api),
 [model versions](https://docs.typesafe.ai/models).
 Mocked integration tests verify the contract; live grading quality requires
 comparison against teacher-marked responses using a configured TypeSafe account.
+
+## Engineering Studies exam papers
+
+The 2023, 2024 and 2025 datasets now contain actual questions and answer choices
+transcribed from the user-supplied NESA exam PDFs. Each has 20 Section I questions
+worth 20 marks and 80 Section II marks. Section II has 26 subquestions for 2023/2024
+and 25 for 2025. The previously omitted 2025 drawing tasks 24(d) and 27(c) are included.
+
+Diagram-only crops under storage/engineering/<year>/ preserve diagrams,
+formula notation and graphical answer options without repeating question wording.
+Tables are native HTML, including selectable multiple-choice rows and written
+response cells. Each questionContent array interleaves text, image and table blocks in paper order, so an
+introduction can appear above a diagram and the actual task below it. Images display
+directly, without an original-question disclosure. Shared stimuli are included for
+all dependent subparts, including tasks continued on another page. The full question
+string remains available for search and grading. Question 24(d) in the supplied 2025
+paper omits its diagram; this task shows an unavailable notice instead of a fake image.
+Attribution and official paper, marking-guide and exam-pack links remain visible.
+The supplied PDFs remain unchanged outside the repository.
+
+Skip sits before Submit and advances without recording a mark. It is disabled
+while marking and hidden once an answer is graded. A flag toggle beside exam
+information marks a question for review; the sidebar shows the flag and progress
+saves it by stable question ID, independently for each section. Flags do not alter
+marks. Resetting paper progress clears them.
+
+Settings includes an optional masked Jev API key with Save/Clear controls. It is
+stored separately from reading preferences in account-scoped browser storage.
+For standalone use, run `npm run local` and open
+`http://127.0.0.1:8888/quiz-tool/quiz-tool.html`. Enter the key in Settings on
+that origin (storage from a file URL is separate). The loopback-only launcher
+serves the site and forwards marking requests to Jev without StudyBase sign-in
+or a hosted backend. It neither stores nor logs the key. Keep it running while
+marking. It requires Node 20+ and internet access to Jev, with no npm dependencies.
+
+Jev's API was verified to reject browser preflights from `null` (local files),
+`http://localhost:8000` and `http://127.0.0.1:5500` with HTTP 400 and
+`Disallowed CORS origin`. Its console origin succeeds. Serving static files alone
+is insufficient. The local launcher handles the provider request outside the
+browser; do not disable browser security or send keys via a public CORS proxy.
+
+Without the launcher, a personal key attempts the provider's direct API path and
+shows launcher instructions on connection failure. Blank keys retain the ordinary
+approved-account StudyBase backend path. Both modes validate typed whole-number
+marks and never save generated text as feedback.
+
+Section I uses the official A–D answer key. All three Section II papers use Jev
+with the question's NESA marking criteria, sample response and complete mark bands.
+There is no student-selected mark. Previously self-assigned scores are discarded
+when restoring progress and must be submitted to Jev again.
+Table responses are sent with labelled rows/cells and saved with the Jev result;
+submitted responses restore locked. Unsaved drafts are not autosaved.
+Drawing tasks accept a written description, labels, dimensions and working. The
+current endpoint accepts text only: it cannot assess an unseen sketch. Jev must
+credit only submitted evidence, never assume a drawing is correct. There are no
+generated answer responses and no manual-marking fallback on API failure.
+
+The legacy 2025 filenames EngineeringS-S1.json and EngineeringS-S2.json are retained.
+Old Section II saved answers are matched by question ID when restoring the expanded
+paper; answers whose mark totals or assessment mode changed must be answered again.
+Newly added tasks remain unanswered. A formerly completed paper with missing tasks
+resumes at its first unanswered task instead of displaying a completed summary.
+
+Rebuild from supplied PDFs with Python (pdfplumber, pypdfium2, Pillow):
+
+```powershell
+python scripts/import-engineering-exams.py --source-dir "path/to/supplied/pdfs"
+```
+
+The importer expects all six files using the supplied filenames. Reviewed text,
+table-option corrections, diagram crop coordinates and text split points, mark
+allocations and readable calculation references are
+in scripts/data/engineering-exams.json. It writes the six quiz datasets and PNG
+layouts, with intermediate extraction data in tmp/pdfs. Review any new source PDF
+visually after import. Keep source attribution and original copyright notices.

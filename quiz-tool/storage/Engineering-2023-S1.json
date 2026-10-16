@@ -1,0 +1,895 @@
+{
+  "studyMode": "exam-questions",
+  "source": {
+    "publisher": "NSW Education Standards Authority",
+    "year": 2023,
+    "origin": "User-supplied exam paper and marking guidelines",
+    "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+    "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+    "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023"
+  },
+  "description": "Original exam wording with diagram-only crops placed between the relevant text, from the supplied NESA PDFs. Official source links are retained.",
+  "questions": [
+    {
+      "id": "eng2023-q1",
+      "name": "Question 1",
+      "question": "Which of the following is a recognised impact test?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Which of the following is a recognised impact test?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Brinell",
+          "correct": false
+        },
+        {
+          "text": "B. Erichsen",
+          "correct": false
+        },
+        {
+          "text": "C. Notch",
+          "correct": true
+        },
+        {
+          "text": "D. Punch",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q2",
+      "name": "Question 2",
+      "question": "Why did steel replace cast iron in bridges built after 1850?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Why did steel replace cast iron in bridges built after 1850?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. It is lighter in weight.",
+          "correct": false
+        },
+        {
+          "text": "B. It is easier to produce.",
+          "correct": false
+        },
+        {
+          "text": "C. It has greater tensile strength.",
+          "correct": true
+        },
+        {
+          "text": "D. It has greater compressive strength.",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q3",
+      "name": "Question 3",
+      "question": "Why is pure copper preferred over a copper alloy in telecommunications applications?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Why is pure copper preferred over a copper alloy in telecommunications applications?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. It has higher stiffness.",
+          "correct": false
+        },
+        {
+          "text": "B. It has better conductivity.",
+          "correct": true
+        },
+        {
+          "text": "C. It can be precipitation hardened.",
+          "correct": false
+        },
+        {
+          "text": "D. It has a better strength to weight ratio.",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q4",
+      "name": "Question 4",
+      "question": "Four types of lines are shown. Which row of the table correctly identifies the typical application of each line type according to AS 1100?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Four types of lines are shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-4-1.png",
+          "page": 3,
+          "alt": "Question 4 diagram"
+        },
+        {
+          "type": "text",
+          "text": "Which row of the table correctly identifies the typical application of each line type according to AS 1100?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Outline | Concealed | Centre | Break",
+          "correct": false
+        },
+        {
+          "text": "B. Solid | Hidden detail | Chain | End",
+          "correct": false
+        },
+        {
+          "text": "C. Outline | Hidden detail | Centre | Break",
+          "correct": true
+        },
+        {
+          "text": "D. Development | Stitch line | Reference | Section",
+          "correct": false
+        }
+      ],
+      "answerTable": {
+        "caption": "Line types according to AS 1100",
+        "columns": [
+          "Line 1",
+          "Line 2",
+          "Line 3",
+          "Line 4"
+        ],
+        "rows": [
+          [
+            "Outline",
+            "Concealed",
+            "Centre",
+            "Break"
+          ],
+          [
+            "Solid",
+            "Hidden detail",
+            "Chain",
+            "End"
+          ],
+          [
+            "Outline",
+            "Hidden detail",
+            "Centre",
+            "Break"
+          ],
+          [
+            "Development",
+            "Stitch line",
+            "Reference",
+            "Section"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "eng2023-q5",
+      "name": "Question 5",
+      "question": "Why does signal loss occur in optical glass fibres?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Why does signal loss occur in optical glass fibres?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Flaws in the glass fibres scatter the light.",
+          "correct": true
+        },
+        {
+          "text": "B. Twisted cables affect the transmission of light.",
+          "correct": false
+        },
+        {
+          "text": "C. External electromagnetic noise affects signal quality.",
+          "correct": false
+        },
+        {
+          "text": "D. Pressure affects signal transmission in submarine cables.",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q6",
+      "name": "Question 6",
+      "question": "The landing gear on an aircraft uses a hydraulic braking system. A force of 60 N is applied at the master cylinder with a piston diameter of 12 mm. What is the force at the brake calliper with a piston diameter of 42 mm?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The landing gear on an aircraft uses a hydraulic braking system. A force of 60 N is applied at the master cylinder with a piston diameter of 12 mm. What is the force at the brake calliper with a piston diameter of 42 mm?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. 4.9 N",
+          "correct": false
+        },
+        {
+          "text": "B. 17.14 N",
+          "correct": false
+        },
+        {
+          "text": "C. 210 N",
+          "correct": false
+        },
+        {
+          "text": "D. 735 N",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q7",
+      "name": "Question 7",
+      "question": "Why is cast iron preferred to steel when used as a heavy machine base?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Why is cast iron preferred to steel when used as a heavy machine base?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. It is less brittle.",
+          "correct": false
+        },
+        {
+          "text": "B. It is more malleable.",
+          "correct": false
+        },
+        {
+          "text": "C. It has a lower damping capacity.",
+          "correct": false
+        },
+        {
+          "text": "D. It has a higher damping capacity.",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q8",
+      "name": "Question 8",
+      "question": "Why were steam trains replaced with electric trains in underground rail systems?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Why were steam trains replaced with electric trains in underground rail systems?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Electric trains are faster than steam trains.",
+          "correct": false
+        },
+        {
+          "text": "B. Electric trains have better traction than steam trains.",
+          "correct": false
+        },
+        {
+          "text": "C. Electric trains produce less emissions than steam trains.",
+          "correct": true
+        },
+        {
+          "text": "D. Electric trains require less infrastructure than steam trains.",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q9",
+      "name": "Question 9",
+      "question": "In the process of manufacturing a concrete slab, cables are placed in ducting. After the concrete is poured and cured, the cables are stretched, anchored and released. What type of concrete slab is this?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "In the process of manufacturing a concrete slab, cables are placed in ducting. After the concrete is poured and cured, the cables are stretched, anchored and released. What type of concrete slab is this?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Meshed",
+          "correct": false
+        },
+        {
+          "text": "B. Reinforced",
+          "correct": false
+        },
+        {
+          "text": "C. Pre-tensioned",
+          "correct": false
+        },
+        {
+          "text": "D. Post-tensioned",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q10",
+      "name": "Question 10",
+      "question": "A bogie pin is shown. What is the expression for the shear stress in the pin?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A bogie pin is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-10-1.png",
+          "page": 4,
+          "alt": "Question 10 diagram"
+        },
+        {
+          "type": "text",
+          "text": "What is the expression for the shear stress in the pin?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. 4P / (π × d)",
+          "correct": false
+        },
+        {
+          "text": "B. 4P / (π ÷ d)",
+          "correct": false
+        },
+        {
+          "text": "C. 4P / (π × d²)",
+          "correct": true
+        },
+        {
+          "text": "D. 4P / (π ÷ d²)",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q11",
+      "name": "Question 11",
+      "question": "Which manufacturing process is used to make soft drink bottles out of polyethylene terephthalate (PET)?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Which manufacturing process is used to make soft drink bottles out of polyethylene terephthalate (PET)?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Stamping",
+          "correct": false
+        },
+        {
+          "text": "B. Extrusion",
+          "correct": false
+        },
+        {
+          "text": "C. Blow moulding",
+          "correct": true
+        },
+        {
+          "text": "D. Rotational moulding",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q12",
+      "name": "Question 12",
+      "question": "A rail switch lever is shown. What is the calculated mechanical advantage when operating this rail switch lever?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A rail switch lever is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-12-1.png",
+          "page": 5,
+          "alt": "Question 12 diagram"
+        },
+        {
+          "type": "text",
+          "text": "What is the calculated mechanical advantage when operating this rail switch lever?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. 3.7",
+          "correct": false
+        },
+        {
+          "text": "B. 6.3",
+          "correct": false
+        },
+        {
+          "text": "C. 14.7",
+          "correct": false
+        },
+        {
+          "text": "D. 16.0",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q13",
+      "name": "Question 13",
+      "question": "Which mechanical property describes an object that is under load and follows Hooke’s Law?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Which mechanical property describes an object that is under load and follows Hooke’s Law?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Ductility",
+          "correct": false
+        },
+        {
+          "text": "B. Elasticity",
+          "correct": true
+        },
+        {
+          "text": "C. Malleability",
+          "correct": false
+        },
+        {
+          "text": "D. Plasticity",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q14",
+      "name": "Question 14",
+      "question": "A piece of 0.8% C steel is heated to above its recrystallisation temperature and then normalised. In what medium is this piece of steel cooled?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A piece of 0.8% C steel is heated to above its recrystallisation temperature and then normalised. In what medium is this piece of steel cooled?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Air",
+          "correct": true
+        },
+        {
+          "text": "B. Brine",
+          "correct": false
+        },
+        {
+          "text": "C. Sand",
+          "correct": false
+        },
+        {
+          "text": "D. Water",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q15",
+      "name": "Question 15",
+      "question": "What is the primary benefit of placing a satellite in a low earth orbit rather than a higher earth orbit?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "What is the primary benefit of placing a satellite in a low earth orbit rather than a higher earth orbit?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Longer lifespan",
+          "correct": false
+        },
+        {
+          "text": "B. Less atmospheric drag",
+          "correct": false
+        },
+        {
+          "text": "C. Faster data transmission",
+          "correct": true
+        },
+        {
+          "text": "D. Cover larger areas on Earth",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q16",
+      "name": "Question 16",
+      "question": "An aircraft weighing 3 tonne is ascending as shown. The lift to drag ratio is 11 : 1. Which row of the table correctly identifies the lift, drag and thrust values for the aircraft?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "An aircraft weighing 3 tonne is ascending as shown. The lift to drag ratio is 11 : 1."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-16-1.png",
+          "page": 7,
+          "alt": "Question 16 diagram"
+        },
+        {
+          "type": "text",
+          "text": "Which row of the table correctly identifies the lift, drag and thrust values for the aircraft?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Lift: 29.8 kN; Drag: 2.7 kN; Thrust: 5.8 kN",
+          "correct": true
+        },
+        {
+          "text": "B. Lift: 29.8 kN; Drag: 2.7 kN; Thrust: 3.1 kN",
+          "correct": false
+        },
+        {
+          "text": "C. Lift: 2.7 kN; Drag: 3.1 kN; Thrust: 5.8 kN",
+          "correct": false
+        },
+        {
+          "text": "D. Lift: 2.7 kN; Drag: 3.1 kN; Thrust: 29.8 kN",
+          "correct": false
+        }
+      ],
+      "answerTable": {
+        "caption": "Aircraft forces",
+        "columns": [
+          "Lift",
+          "Drag",
+          "Thrust"
+        ],
+        "rows": [
+          [
+            "29.8 kN",
+            "2.7 kN",
+            "5.8 kN"
+          ],
+          [
+            "29.8 kN",
+            "2.7 kN",
+            "3.1 kN"
+          ],
+          [
+            "2.7 kN",
+            "3.1 kN",
+            "5.8 kN"
+          ],
+          [
+            "2.7 kN",
+            "3.1 kN",
+            "29.8 kN"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "eng2023-q17",
+      "name": "Question 17",
+      "question": "Three machined parts drawn to AS 1100 are shown. Which row of the table correctly identifies the AS 1100 standard representations?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Three machined parts drawn to AS 1100 are shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-17-1.png",
+          "page": 7,
+          "alt": "Question 17 diagram"
+        },
+        {
+          "type": "text",
+          "text": "Which row of the table correctly identifies the AS 1100 standard representations?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Counterbore | Spotface | Countersink",
+          "correct": false
+        },
+        {
+          "text": "B. Spotface | Countersink | Counterbore",
+          "correct": false
+        },
+        {
+          "text": "C. Countersink | Spotface | Counterbore",
+          "correct": true
+        },
+        {
+          "text": "D. Countersink | Counterbore | Spotface",
+          "correct": false
+        }
+      ],
+      "answerTable": {
+        "caption": "AS 1100 standard representations",
+        "columns": [
+          "Part 1",
+          "Part 2",
+          "Part 3"
+        ],
+        "rows": [
+          [
+            "Counterbore",
+            "Spotface",
+            "Countersink"
+          ],
+          [
+            "Spotface",
+            "Countersink",
+            "Counterbore"
+          ],
+          [
+            "Countersink",
+            "Spotface",
+            "Counterbore"
+          ],
+          [
+            "Countersink",
+            "Counterbore",
+            "Spotface"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "eng2023-q18",
+      "name": "Question 18",
+      "question": "A diagram of a block being pulled by a rope up an inclined plane is shown. Which free body diagram correctly represents the diagram given?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A diagram of a block being pulled by a rope up an inclined plane is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-18-1.png",
+          "page": 8,
+          "alt": "Question 18 diagram"
+        },
+        {
+          "type": "text",
+          "text": "Which free body diagram correctly represents the diagram given?"
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-18-2.png",
+          "page": 8,
+          "alt": "Question 18 diagram 2"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. See diagram A in the original question.",
+          "correct": false
+        },
+        {
+          "text": "B. See diagram B in the original question.",
+          "correct": false
+        },
+        {
+          "text": "C. See diagram C in the original question.",
+          "correct": true
+        },
+        {
+          "text": "D. See diagram D in the original question.",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q19",
+      "name": "Question 19",
+      "question": "A loaded truss is shown. Which of the following is the redundant member?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A loaded truss is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-19-1.png",
+          "page": 9,
+          "alt": "Question 19 diagram"
+        },
+        {
+          "type": "text",
+          "text": "Which of the following is the redundant member?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. AB",
+          "correct": false
+        },
+        {
+          "text": "B. BD",
+          "correct": false
+        },
+        {
+          "text": "C. BE",
+          "correct": true
+        },
+        {
+          "text": "D. CD",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2023-q20",
+      "name": "Question 20",
+      "question": "A transition duct is shown. What is the true angle of the line 1–a to the horizontal plane?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2023-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2023",
+      "sourceYear": 2023,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A transition duct is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2023/diagram-20-1.png",
+          "page": 10,
+          "alt": "Question 20 diagram"
+        },
+        {
+          "type": "text",
+          "text": "What is the true angle of the line 1–a to the horizontal plane?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. 69°",
+          "correct": true
+        },
+        {
+          "text": "B. 81°",
+          "correct": false
+        },
+        {
+          "text": "C. 90°",
+          "correct": false
+        },
+        {
+          "text": "D. 101°",
+          "correct": false
+        }
+      ]
+    }
+  ]
+}

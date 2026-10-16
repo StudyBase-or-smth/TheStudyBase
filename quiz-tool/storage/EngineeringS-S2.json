@@ -1,350 +1,789 @@
 {
+  "studyMode": "exam-questions",
+  "source": {
+    "publisher": "NSW Education Standards Authority",
+    "year": 2025,
+    "origin": "User-supplied exam paper and marking guidelines",
+    "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+    "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+    "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025"
+  },
+  "description": "Original exam wording with diagram-only crops placed between the relevant text, from the supplied NESA PDFs. Official source links are retained.",
+  "legacyQuestionIds": [
+    "q21a",
+    "q21b",
+    "q21c",
+    "q21d",
+    "q22a",
+    "q22b",
+    "q22ci",
+    "q22cii",
+    "q23a",
+    "q23b",
+    "q23ci",
+    "q23cii",
+    "q24a",
+    "q24b",
+    "q24c",
+    "q25a",
+    "q25b",
+    "q25c",
+    "q26a",
+    "q26b",
+    "q26c",
+    "q27a",
+    "q27b"
+  ],
   "questions": [
     {
       "id": "q21a",
       "name": "Question 21 (a)",
       "question": "An engineer needs to analyse signal strength in communications cabling over time. Describe a device that the engineer could use in testing signal strength.",
-      "isAICheck": true,
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "An engineer needs to analyse signal strength in communications cabling over time. Describe a device that the engineer could use in testing signal strength."
+        }
+      ],
       "marks": 2,
-      "answer": "Full marks (2): describes a device that could be used to test signal strength — e.g. a cathode ray oscilloscope (CRO), which can detect faults, identify losses, or show interference in a circuit, displaying shape, frequency, voltage over time, signal strength and waveform type along with peak voltage. A signal strength meter or spectrum analyser is also acceptable. 1 mark: provides some relevant information without a clear description.",
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Describes a device that could be used to test signal strength 2\n• Provides some relevant information 1\nSample answer:\nOne device that could be used is a cathode ray oscilloscope (CRO) which can be used for\ndetecting faults, identifying losses or showing interference in a circuit. The CRO shows\nshape, frequency, voltage over time, signal strength and the type of wave form along with\npeak voltage.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "provides some relevant information without a clear description.",
-        "2": "describes a device that could be used to test signal strength — e.g. a cathode ray oscilloscope (CRO), which can detect faults, identify losses, or show interference in a circuit, displaying shape, frequency, voltage over time, signal strength and waveform type along with peak voltage. A signal strength meter or spectrum analyser is also acceptable."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q21b",
       "name": "Question 21 (b)",
       "question": "Explain why aluminium alloy wire is used as an electrical transmission medium between communications towers.",
-      "isAICheck": true,
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Explain why aluminium alloy wire is used as an electrical transmission medium between communications towers."
+        }
+      ],
       "marks": 3,
-      "answer": "Full marks (3): explains why aluminium alloy is used — its low density means it better supports its own weight over long spans, reducing sag and enabling wider tower spacing, which makes the network more economical (fewer towers required). It is also less expensive than copper and more abundant. 2 marks: outlines relevant features of aluminium alloy wire without a full explanation of why it's chosen. 1 mark: some relevant information.",
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Explains why aluminium alloy wire is used as an electrical transmission\n3\nmedium\n• Outlines relevant features of aluminium alloy wire 2\n• Provides some relevant information 1\nSample answer:\nAluminium is commonly used in transmission lines because its low density allows it to better\nsupport its own weight over long spans, reducing sag and enabling wider tower spacing. This\nmakes infrastructure more economical with fewer towers required in the transmission\nnetwork. Aluminium is also less expensive than copper and more abundant in nature.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information.",
-        "2": "outlines relevant features of aluminium alloy wire without a full explanation of why it's chosen.",
-        "3": "explains why aluminium alloy is used — its low density means it better supports its own weight over long spans, reducing sag and enabling wider tower spacing, which makes the network more economical (fewer towers required). It is also less expensive than copper and more abundant."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q21c",
       "name": "Question 21 (c)",
       "question": "Explain how voice signals are transmitted between two mobile phones over a cellular mobile network. Use a labelled sketch to support your answer.",
-      "isAICheck": true,
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Explain how voice signals are transmitted between two mobile phones over a cellular mobile network. Use a labelled sketch to support your answer."
+        }
+      ],
       "marks": 4,
-      "answer": "Full marks (4): explains the full transmission path with a labelled sketch — when a person speaks into Phone A, the microphone converts sound waves into an electrical signal, which is digitised and modulated into a radio frequency (RF) signal. This is transmitted to the nearest cell base station, then through a ground station, via satellite to the other ground station, and on to Phone B's cell base station, where it is demodulated and converted back into sound at Phone B. 3 marks: outlines this process with a sketch. 2 marks: explains the process without a sketch, OR provides only a relevant labelled sketch. 1 mark: some relevant information. Note: this quiz can't collect a hand-drawn sketch, so grade the written description of the transmission process only — do not penalise for the missing sketch.",
+      "isAICheck": true,
+      "responseFormat": "drawing-description",
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Explains how voice signals are transmitted between mobile phones\n4\nsupported by a relevant labelled sketch\n• Outlines how voice signals are transmitted between mobile phones\n3\nsupported by a relevant labelled sketch\n• Explains how voice signals are transmitted between mobile phones\nOR 2\n• Provides a relevant labelled sketch\n• Provides some relevant information 1\nSample answer:\nWhen a person speaks into Phone A, the microphone converts sound waves into electrical\nsignals, which are then digitised and modulated into a radio frequency (RF) signal. This\nsignal is transmitted to the nearest cell base station and then through the ground station. The\nsignal is then transmitted via satellite to the other ground station, and on to the Phone B cell\nbase station to be demodulated and converted back to sound waves at Phone B.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information. Note: this quiz can't collect a hand-drawn sketch, so grade the written description of the transmission process only — do not penalise for the missing sketch.",
-        "2": "explains the process without a sketch, OR provides only a relevant labelled sketch.",
-        "3": "outlines this process with a sketch.",
-        "4": "explains the full transmission path with a labelled sketch — when a person speaks into Phone A, the microphone converts sound waves into an electrical signal, which is digitised and modulated into a radio frequency (RF) signal. This is transmitted to the nearest cell base station, then through a ground station, via satellite to the other ground station, and on to Phone B's cell base station, where it is demodulated and converted back into sound at Phone B."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q21d",
       "name": "Question 21 (d)",
-      "question": "Discuss the effect of ONE telecommunications engineering innovation on people's lives.",
-      "isAICheck": true,
+      "question": "Discuss the effect of ONE telecommunications engineering innovation on people’s lives.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Discuss the effect of ONE telecommunications engineering innovation on people’s lives."
+        }
+      ],
       "marks": 4,
-      "answer": "Full marks (4): discusses (covers both positive and negative effects, not just one side) the effect of one telecommunications innovation — e.g. the internet has enabled quick access to information, global communication and flexible remote work, but has also led to job displacement through outsourcing to lower-labour-cost countries, and raised cybersecurity/privacy concerns with sensitive data vulnerable to attacks and leaks. Any other real telecommunications innovation (mobile phones, satellite communication, social media, etc.) discussed with genuine positive AND negative effects is acceptable. 3 marks: describes the effect of one innovation (one-sided, not a balanced discussion). 2 marks: demonstrates some understanding of how such innovations have affected people's lives. 1 mark: some relevant information.",
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Discusses the effect of ONE telecommunications engineering innovation\n4\non people’s lives\n• Describes the effect of ONE telecommunications engineering innovation\n3\non people’s lives\n• Demonstrates some understanding of how telecommunications\n2\nengineering innovations have affected people’s lives\n• Provides some relevant information 1\nSample answer:\nThe internet has enabled quick access to information, allowing global communication and\nremote working offering flexibility. However, the internet has also led to job displacement as\ncompanies can now outsource to countries with lower labour costs, impacting job security.\nOn a personal level, while social media use allows people to stay connected, it raises\nconcerns about cybersecurity, with sensitive data being vulnerable to attacks and data leaks,\nputting individuals and companies at risk of blackmail.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information.",
-        "2": "demonstrates some understanding of how such innovations have affected people's lives.",
-        "3": "describes the effect of one innovation (one-sided, not a balanced discussion).",
-        "4": "discusses (covers both positive and negative effects, not just one side) the effect of one telecommunications innovation — e.g. the internet has enabled quick access to information, global communication and flexible remote work, but has also led to job displacement through outsourcing to lower-labour-cost countries, and raised cybersecurity/privacy concerns with sensitive data vulnerable to attacks and leaks. Any other real telecommunications innovation (mobile phones, satellite communication, social media, etc.) discussed with genuine positive AND negative effects is acceptable."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q22a",
       "name": "Question 22 (a)",
       "question": "A building is being partially demolished and replaced. Part of the original structure will be retained. Outline a method that could be used to recycle a material from the building.",
-      "isAICheck": true,
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A building is being partially demolished and replaced. Part of the original structure will be retained. Outline a method that could be used to recycle a material from the building."
+        }
+      ],
       "marks": 2,
-      "answer": "Full marks (2): outlines a suitable recycling method for a material from the building — e.g. concrete from demolished structures can be crushed and recycled as aggregate for new construction, reducing waste. Also acceptable: steel from demolished structures (roofing, foundations, framing, fences) melted down and reused in new construction, reducing demand for raw materials; or glass (windows, skylights, mirrors, etc.) crushed into cullet and recycled into new glass products or used as aggregate in concrete or asphalt. 1 mark: some relevant information.",
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Outlines a suitable method for recycling a material 2\n• Provides some relevant information 1\nSample answer:\nConcrete from demolished structures can be crushed and recycled as aggregate for new\nconstruction projects, reducing waste.\nAnswers could include:\nSteel from demolished structures (roofing, foundations, framing and fences) can be melted\ndown and reused in new construction, reducing the demand for raw materials.\nGlass (windows, skylights, backsplashes, shower screens, mirrors, light fixtures) can be\ncrushed into cullet and recycled into new glass products or used as aggregate in concrete or\nasphalt.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information.",
-        "2": "outlines a suitable recycling method for a material from the building — e.g. concrete from demolished structures can be crushed and recycled as aggregate for new construction, reducing waste. Also acceptable: steel from demolished structures (roofing, foundations, framing, fences) melted down and reused in new construction, reducing demand for raw materials; or glass (windows, skylights, mirrors, etc.) crushed into cullet and recycled into new glass products or used as aggregate in concrete or asphalt."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q22b",
       "name": "Question 22 (b)",
-      "question": "Engineers want to retain some steel components of the building. Describe a suitable process which could be used to detect surface cracks in ONE steel component of the building.",
-      "isAICheck": true,
+      "question": "A building is being partially demolished and replaced. Part of the original structure will be retained. Engineers want to retain some steel components of the building. Describe a suitable process which could be used to detect surface cracks in ONE steel component of the building.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A building is being partially demolished and replaced. Part of the original structure will be retained. Engineers want to retain some steel components of the building. Describe a suitable process which could be used to detect surface cracks in ONE steel component of the building."
+        }
+      ],
       "marks": 3,
-      "answer": "Full marks (3): describes a suitable crack-detection process — e.g. dye penetrant testing: the steel is cleaned, a liquid dye is applied that penetrates any surface cracks and is left to settle, excess dye is wiped off, a developer is applied which draws the dye out of the cracks making them visible under ultraviolet light, and the cracks are then inspected for severity. Magnetic particle inspection, visual inspection, or eddy current testing are also acceptable, described with similar detail. 2 marks: identifies some features of such a process without a full description. 1 mark: some relevant information.",
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Describes a suitable process for detecting surface cracks in one steel\n3\ncomponent\n• Identifies some features of a process for detecting surface cracks in one\n2\nsteel component\n• Provides some relevant information 1\nSample answer:\nDye penetrant testing can be used for detecting surface cracks in steel brackets. It involves\ncleaning the steel, applying a liquid dye that penetrates any surface cracks, and allowing it to\nsettle. After wiping off the excess dye, a developer is applied, drawing the dye out of cracks,\nmaking them visible under ultraviolet light. The cracks are then inspected for severity.\nAnswers could include:\n• Magnetic particle inspection\n• Visual inspection\n• Eddy current testing.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information.",
-        "2": "identifies some features of such a process without a full description.",
-        "3": "describes a suitable crack-detection process — e.g. dye penetrant testing: the steel is cleaned, a liquid dye is applied that penetrates any surface cracks and is left to settle, excess dye is wiped off, a developer is applied which draws the dye out of the cracks making them visible under ultraviolet light, and the cracks are then inspected for severity. Magnetic particle inspection, visual inspection, or eddy current testing are also acceptable, described with similar detail."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q22ci",
       "name": "Question 22 (c) (i)",
-      "question": "A section of a building support structure is shown, consisting of a vertical 12 mm thick steel member connected to a 12 mm thick horizontal member with three M16 bolts. A vertical tensile load of 30 kN acts on the bolts. Assuming the load is evenly distributed across the three bolts, calculate the shear stress on each bolt.",
-      "image": "q22c-bracket.png",
-      "math": true,
-      "answers": [
+      "question": "A building is being partially demolished and replaced. Part of the original structure will be retained. A section of a building support structure is shown. The section consists of a vertical 12 mm thick steel member connected to a 12 mm thick horizontal member with three M16 bolts. A vertical tensile load of 30 kN acts on the bolts. Assuming the load is evenly distributed across the three bolts, calculate the shear stress on each bolt.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
         {
-          "type": "working",
-          "text": "10000",
-          "correct": true
+          "type": "text",
+          "text": "A building is being partially demolished and replaced. Part of the original structure will be retained. A section of a building support structure is shown."
         },
         {
-          "type": "answer",
-          "text": "49.7",
-          "correct": true
+          "type": "image",
+          "path": "engineering/2025/diagram-22ci-1.png",
+          "page": 18,
+          "alt": "Question 22 (c) (i) diagram"
+        },
+        {
+          "type": "text",
+          "text": "The section consists of a vertical 12 mm thick steel member connected to a 12 mm thick horizontal member with three M16 bolts. A vertical tensile load of 30 kN acts on the bolts. Assuming the load is evenly distributed across the three bolts, calculate the shear stress on each bolt."
         }
-      ]
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Correctly calculates the shear stress for one bolt 3\n• Makes progress towards calculating the shear stress for one bolt 2\n• Provides some relevant information 1\nSample answer:\n3\n30 ´ 10\nForce on 1 bolt =\n3\n3\nForce on 1 bolt = 10 ´ 10 N\n2\nF πd\nσ = , A =\nA 4\n3\n10 ´ 10\nσ =\n–3 2\nπ (16 ´ 10 )\n4\n3\n10 ´ 10\nσ =\n–6\n201.1 ´ 10\nσ = 49.7 MPa for each bolt\nAnswers could include:\n2 2\nF πd F πd\nσ = , A = ´ 3 bolts σ = , A =\nA 4 A 4\n3 3\n30 ´ 10 30 ´ 10\nσ = σ =\n–3 2 –3 2\n3π (16 ´ 10 ) π (16 ´ 10 )\n4 4\n3 3\n30 ´ 10 30 ´ 10\nσ = σ =\n–6 –6\n603.2 ´ 10 201.1 ´ 10\nσ = 49.7 MPa for each bolt σ = 149.2 MPa for all three bolts\n149.2\nσ =\n3\nσ = 49.7 MPa for each bolt\nReadable calculation: Each bolt carries 30,000 / 3 = 10,000 N. Single-shear area = π × 16² / 4 = 201.1 mm². Shear stress = 49.7 N/mm² = 49.7 MPa. Credit relevant working for partial marks.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
     },
     {
       "id": "q22cii",
       "name": "Question 22 (c) (ii)",
-      "question": "The shear strength of each connecting bolt is 250 MPa. The support structure must have a factor of safety (FoS) of 2.5. Determine if the M16 bolts used can safely support the 30 kN load. Support your answer with a calculation.",
-      "math": true,
-      "answers": [
+      "question": "A building is being partially demolished and replaced. Part of the original structure will be retained. A section of a building support structure is shown. The section consists of a vertical 12 mm thick steel member connected to a 12 mm thick horizontal member with three M16 bolts. A vertical tensile load of 30 kN acts on the bolts. The shear strength of each connecting bolt is 250 MPa. The support structure must have a factor of safety (FoS) of 2.5. Determine if the M16 bolts used can safely support the 30 kN load. Support your answer with a calculation.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
         {
-          "type": "answer",
-          "text": "100",
-          "correct": true
+          "type": "text",
+          "text": "A building is being partially demolished and replaced. Part of the original structure will be retained. A section of a building support structure is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2025/diagram-22cii-1.png",
+          "page": 18,
+          "alt": "Question 22 (c) (ii) diagram"
+        },
+        {
+          "type": "text",
+          "text": "The section consists of a vertical 12 mm thick steel member connected to a 12 mm thick horizontal member with three M16 bolts. A vertical tensile load of 30 kN acts on the bolts. The shear strength of each connecting bolt is 250 MPa. The support structure must have a factor of safety (FoS) of 2.5. Determine if the M16 bolts used can safely support the 30 kN load. Support your answer with a calculation."
         }
-      ]
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Determines if the bolt can safely support the load with relevant\n3\ncalculation\n• Provides some recommendation and relevant calculation 2\n• Provides some relevant information 1\nSample answer:\nσ\nyield\nσ =\nAllowable FoS\n6\n250 ´ 10\nσ =\nAllowable 2.5\nσ = 100 MPa\nAllowable\nSince the calculated shear stress (49.7 MPa) is less than the allowable shear stress\n(100 MPa), the selected M16 bolts can safely support the 30 kN load with the required factor\nof safety of 2.5.\nAnswers could include:\nσ\nyield\nFoS =\nσ\nAllowable\n6\n250 ´ 10\nFoS =\n6\n49.7 ´ 10\nFoS = 5\nThe factor of safety for the described conditions is 5. This is greater than the required 2.5,\ntherefore the M16 bolts can safely support the load.\nReadable calculation: allowable stress = 250 / 2.5 = 100 MPa. Actual shear stress is 49.7 MPa, below the allowable value, so the bolts are safe. Alternatively actual factor of safety = 250 / 49.7 ≈ 5.03, exceeding 2.5.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
     },
     {
       "id": "q23a",
       "name": "Question 23 (a)",
       "question": "A winch is a gear system. It can be used to pull a boat out of the water and up a slipway. Outline the function of the gears in a winch.",
-      "isAICheck": true,
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A winch is a gear system. It can be used to pull a boat out of the water and up a slipway. Outline the function of the gears in a winch."
+        }
+      ],
       "marks": 2,
-      "answer": "Full marks (2): outlines the function of gears in a winch — to amplify the effort applied (increase mechanical advantage), to increase the velocity ratio, and/or to change the direction of the applied force. 1 mark: some relevant information.",
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Outlines the function of gears in a winch 2\n• Provides some relevant information 1\nSample answer:\nA winch gear system can be used to amplify the effort (mechanical advantage) or to increase\nthe velocity ratio. It can also be used to change the direction of the force applied.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information.",
-        "2": "outlines the function of gears in a winch — to amplify the effort applied (increase mechanical advantage), to increase the velocity ratio, and/or to change the direction of the applied force."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q23b",
       "name": "Question 23 (b)",
-      "question": "Outline a heat treatment method used during the manufacture of mild carbon steel gears.",
-      "isAICheck": true,
+      "question": "A winch is a gear system. It can be used to pull a boat out of the water and up a slipway. Outline a heat treatment method used during the manufacture of mild carbon steel gears.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A winch is a gear system. It can be used to pull a boat out of the water and up a slipway. Outline a heat treatment method used during the manufacture of mild carbon steel gears."
+        }
+      ],
       "marks": 2,
-      "answer": "Full marks (2): outlines a heat treatment method — e.g. case hardening: the gears are heated in a carbon-rich environment (carburising), allowing carbon to diffuse into the surface layer to form a high-carbon case, then the gears are quenched and tempered. 1 mark: some relevant information.",
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Outlines a method of heat treatment used during the manufacture of mild\n2\ncarbon steel gears\n• Provides some relevant information 1\nSample answer:\nThe gears could be case hardened which involves heating the gears in a carbon rich\nenvironment (carburising) allowing carbon to diffuse into the surface layer and form a high\ncarbon layer. The gears are then quenched and then tempered.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information.",
-        "2": "outlines a heat treatment method — e.g. case hardening: the gears are heated in a carbon-rich environment (carburising), allowing carbon to diffuse into the surface layer to form a high-carbon case, then the gears are quenched and tempered."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q23ci",
       "name": "Question 23 (c) (i)",
-      "question": "A 1.2-tonne boat inclined at 30 degrees to the horizontal plane is being pulled up a slipway by a winch, as shown. The coefficient of friction between the boat and the slipway is 0.4 and the winch cable is positioned 40 degrees below the horizontal. Calculate the minimum force required in the winch cable to pull the boat up the slipway.",
-      "image": "q23c-boat-winch.png",
-      "math": true,
-      "answers": [
+      "question": "A winch is a gear system. It can be used to pull a boat out of the water and up a slipway. A 1.2-tonne boat inclined at 30 degrees to the horizontal plane is being pulled up a slipway by a winch, as shown. The coefficient of friction between the boat and the slipway is 0.4 and the winch cable is positioned 40 degrees below the horizontal. Calculate the minimum force required in the winch cable to pull the boat up the slipway.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
         {
-          "type": "working",
-          "text": "12000",
-          "correct": true
+          "type": "text",
+          "text": "A winch is a gear system. It can be used to pull a boat out of the water and up a slipway. A 1.2-tonne boat inclined at 30 degrees to the horizontal plane is being pulled up a slipway by a winch, as shown."
         },
         {
-          "type": "working",
-          "text": "21.8",
-          "correct": true
+          "type": "image",
+          "path": "engineering/2025/diagram-23ci-1.png",
+          "page": 20,
+          "alt": "Question 23 (c) (i) diagram"
         },
         {
-          "type": "answer",
-          "text": "9633.87",
-          "correct": true
+          "type": "text",
+          "text": "The coefficient of friction between the boat and the slipway is 0.4 and the winch cable is positioned 40 degrees below the horizontal. Calculate the minimum force required in the winch cable to pull the boat up the slipway."
         }
-      ]
+      ],
+      "marks": 5,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Shows relevant working and correct calculation of the minimum force\n5\nrequired in the winch cable\n• Makes substantial progress towards the calculation of the minimum force\n4\nrequired in the winch cable\n• Makes some progress towards the calculation of the minimum force\n2–3\nrequired in the winch cable\n• Provides some relevant information 1\nSample answer:\nT 12000\n=\nsin 51.8° sin 78.2°\n12000 ´ sin 51.8°\nT =\nsin 78.2°\n= 9633.87 N\nReadable sample calculation: cable tension T = 12,000 × sin(51.8°) / sin(78.2°) = 9,633.87 N (about 9.63 kN). Accept equivalent force-equilibrium or scaled graphical solutions and reasonable rounding.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 5 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 5 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 5 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Award 4 of 5 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "5": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
     },
     {
       "id": "q23cii",
       "name": "Question 23 (c) (ii)",
-      "question": "If the velocity ratio (VR) of the winch system is 2, calculate the efficiency.",
-      "math": true,
-      "answers": [
+      "question": "A winch is a gear system. It can be used to pull a boat out of the water and up a slipway. A 1.2-tonne boat inclined at 30 degrees to the horizontal plane is being pulled up a slipway by a winch, as shown. The coefficient of friction between the boat and the slipway is 0.4 and the winch cable is positioned 40 degrees below the horizontal. If the velocity ratio (VR) of the system is 2, calculate the efficiency.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
         {
-          "type": "working",
-          "text": "1.2456",
-          "correct": true
+          "type": "text",
+          "text": "A winch is a gear system. It can be used to pull a boat out of the water and up a slipway. A 1.2-tonne boat inclined at 30 degrees to the horizontal plane is being pulled up a slipway by a winch, as shown."
         },
         {
-          "type": "answer",
-          "text": "62.3",
-          "correct": true
+          "type": "image",
+          "path": "engineering/2025/diagram-23cii-1.png",
+          "page": 20,
+          "alt": "Question 23 (c) (ii) diagram"
+        },
+        {
+          "type": "text",
+          "text": "The coefficient of friction between the boat and the slipway is 0.4 and the winch cable is positioned 40 degrees below the horizontal. If the velocity ratio (VR) of the system is 2, calculate the efficiency."
         }
-      ]
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Calculates the efficiency 3\n• Makes some progress towards calculating the efficiency 2\n• Provides some relevant information 1\nSample answer:\nL\nMA =\nE\n12000\n=\n9633.87\n= 1.2456\nMA\nη = ´ 100%\nVR\n1.2456\n= ´ 100%\n2\n= 62.3%\nReadable sample calculation: mechanical advantage = 12,000 / 9,633.87 = 1.2456. Efficiency = MA / VR × 100 = 1.2456 / 2 × 100 = 62.3%. Allow correct follow-through using the student’s earlier cable force when the method is valid.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
     },
     {
       "id": "q24a",
       "name": "Question 24 (a)",
       "question": "Outline the properties of Kevlar that make it suitable for use in an aircraft.",
-      "isAICheck": true,
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Outline the properties of Kevlar that make it suitable for use in an aircraft."
+        }
+      ],
       "marks": 2,
-      "answer": "Full marks (2): outlines the properties of Kevlar suitable for aircraft use — high tensile strength, lightweight nature, heat resistance, and excellent resistance to abrasion and impact. 1 mark: some relevant information.",
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Outlines the properties that make Kevlar suitable for use in an aircraft 2\n• Provides some relevant information 1\nSample answer:\nKevlar is suitable for use in an aircraft because of its exceptional combination of high tensile\nstrength, lightweight nature, heat resistance, and excellent resistance to abrasion and\nimpact.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information.",
-        "2": "outlines the properties of Kevlar suitable for aircraft use — high tensile strength, lightweight nature, heat resistance, and excellent resistance to abrasion and impact."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q24b",
       "name": "Question 24 (b)",
       "question": "Describe what may cause an aircraft to stall in flight.",
-      "isAICheck": true,
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Describe what may cause an aircraft to stall in flight."
+        }
+      ],
       "marks": 2,
-      "answer": "Full marks (2): describes the cause of a stall — when the angle of attack becomes too steep, air loses laminar flow over the wing. This causes lift to reduce and the aircraft is therefore unable to maintain altitude. 1 mark: some relevant information.",
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Describes what may cause an aircraft to stall in flight 2\n• Provides some relevant information 1\nSample answer:\nWhen the angle of attack is too steep, air loses laminar flow over the wing. This causes lift to\nreduce and the aircraft is therefore unable to maintain altitude.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information.",
-        "2": "describes the cause of a stall — when the angle of attack becomes too steep, air loses laminar flow over the wing. This causes lift to reduce and the aircraft is therefore unable to maintain altitude."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q24c",
       "name": "Question 24 (c)",
       "question": "Describe the operation of a mechanical altimeter. Use a labelled diagram to support your answer.",
-      "isAICheck": true,
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Describe the operation of a mechanical altimeter. Use a labelled diagram to support your answer."
+        }
+      ],
       "marks": 4,
-      "answer": "Full marks (4): describes the operation of a mechanical altimeter with a labelled diagram — it measures changes in atmospheric pressure as altitude changes. It uses a sealed capsule (aneroid) connected to a static vent that responds to external air pressure. As altitude increases, the external pressure at the static vent decreases, causing the sealed capsule to expand. This expansion is mechanically linked (via a geared mechanism) to a needle or digital display, which indicates the altitude — the greater the altitude, the greater the expansion of the capsule due to lower air pressure. 3 marks: outlines the operation with a diagram. 2 marks: describes the operation without a diagram, OR provides only a relevant labelled sketch. 1 mark: some relevant information. Note: this quiz can't collect a hand-drawn diagram, so grade the written description only — do not penalise for the missing diagram.",
+      "isAICheck": true,
+      "responseFormat": "drawing-description",
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Describes the operation of a mechanical altimeter\n4\n• Supports answer with a relevant labelled diagram\n• Outlines the operation of a mechanical altimeter\n3\n• Includes a relevant labelled diagram\n• Describes the operation of a mechanical altimeter\nOR 2\n• Provides a relevant labelled sketch\n• Provides some relevant information 1\nSample answer:\nAn altimeter operates by measuring changes in atmospheric pressure as altitude changes. It\nuses a sealed capsule (aneroid) that responds to external air pressure. As the altitude\nincreases, the external pressure connected to the static vent decreases, causing the sealed\ncapsule to expand. This expansion is mechanically linked to a needle or a digital display,\nwhich indicates the altitude. The greater the altitude, the greater the expansion of the sealed\ncapsule due to lower air pressure around the capsule.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information. Note: this quiz can't collect a hand-drawn diagram, so grade the written description only — do not penalise for the missing diagram.",
-        "2": "describes the operation without a diagram, OR provides only a relevant labelled sketch.",
-        "3": "outlines the operation with a diagram.",
-        "4": "describes the operation of a mechanical altimeter with a labelled diagram — it measures changes in atmospheric pressure as altitude changes. It uses a sealed capsule (aneroid) connected to a static vent that responds to external air pressure. As altitude increases, the external pressure at the static vent decreases, causing the sealed capsule to expand. This expansion is mechanically linked (via a geared mechanism) to a needle or digital display, which indicates the altitude — the greater the altitude, the greater the expansion of the capsule due to lower air pressure."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "q24d",
+      "name": "Question 24 (d)",
+      "question": "A pictorial drawing of a bracket is shown. Draw the front view in the direction of the arrow at scale 1 : 2. Include TWO overall dimensions and hidden detail correct to AS 1100.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A pictorial drawing of a bracket is shown. Draw the front view in the direction of the arrow at scale 1 : 2. Include TWO overall dimensions and hidden detail correct to AS 1100."
+        }
+      ],
+      "marks": 4,
+      "imageUnavailable": "The diagram for this task is omitted from the supplied PDF. Refer to the official exam resources using the information button.",
+      "isAICheck": true,
+      "responseFormat": "drawing-description",
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Draws front view to scale with dimensions and hidden detail correct to\n4\nAS 1100\n• Makes substantial progress towards drawing front view to scale with\n3\ndimensions or hidden detail\n• Makes some progress towards producing front view 2\n• Demonstrates some understanding of orthogonal drawing 1\nSample answer:",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q25a",
       "name": "Question 25 (a)",
       "question": "Describe the manufacturing process of powder forming.",
-      "isAICheck": true,
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Describe the manufacturing process of powder forming."
+        }
+      ],
       "marks": 2,
-      "answer": "Full marks (2): describes the process of powder forming — metal powder is produced, then the metal powder is pressed/compacted into a mould to shape it, and sintered (heated below its melting point) to bond the particles into a solid part. 1 mark: some relevant information.",
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Describes the process of powder forming 2\n• Provides some relevant information 1\nSample answer:\nPowder forming is a manufacturing process that shapes metal powders into solid parts. It\ninvolves powder production and the metal powder is pressed into a mould and sintered to\nbond the particles.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information.",
-        "2": "describes the process of powder forming — metal powder is produced, then the metal powder is pressed/compacted into a mould to shape it, and sintered (heated below its melting point) to bond the particles into a solid part."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q25b",
       "name": "Question 25 (b)",
       "question": "An engineer is deciding whether to use pre-tensioned concrete or post-tensioned concrete to make beams for a railway bridge. Describe features of the manufacture of pre-tensioned and post-tensioned concrete that the engineer should consider.",
-      "isAICheck": true,
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "An engineer is deciding whether to use pre-tensioned concrete or post-tensioned concrete to make beams for a railway bridge. Describe features of the manufacture of pre-tensioned and post-tensioned concrete that the engineer should consider."
+        }
+      ],
       "marks": 3,
-      "answer": "Full marks (3): describes features of both — pre-tensioned concrete involves tensioning tendons before pouring the concrete, typically in a factory; it requires less time on-site and is cost-effective for mass production. Post-tensioned concrete involves tensioning tendons after the concrete has cured, usually on-site, offering more flexibility but requiring more time, equipment, and potentially higher costs. 2 marks: outlines features of the manufacture of pre-tensioned and post-tensioned concrete beams without full description. 1 mark: some relevant information.",
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Describes the features of the manufacture of pre-tensioned and\n3\npost-tensioned concrete to make beams\n• Outlines features of the manufacture of pre-tensioned and\n2\npost-tensioned concrete beams\n• Provides some relevant information 1\nSample answer:\nPre-tensioned concrete involves tensioning tendons before pouring the concrete, typically in\na factory. It requires less time on-site and is cost-effective for mass production.\nPost-tensioned concrete involves tensioning tendons after curing the concrete, usually\nonsite, offering flexibility but requiring more time, equipment, and potentially higher costs.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information.",
-        "2": "outlines features of the manufacture of pre-tensioned and post-tensioned concrete beams without full description.",
-        "3": "describes features of both — pre-tensioned concrete involves tensioning tendons before pouring the concrete, typically in a factory; it requires less time on-site and is cost-effective for mass production. Post-tensioned concrete involves tensioning tendons after the concrete has cured, usually on-site, offering more flexibility but requiring more time, equipment, and potentially higher costs."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q25c",
       "name": "Question 25 (c)",
-      "question": "The table shows three different rectification circuits (a half-wave rectifier with one diode, a full-wave bridge rectifier with four diodes, and the same full-wave bridge rectifier with a smoothing capacitor added across the output), alongside the AC waveform before rectification. Complete the table by: naming the rectification process for each of the first two circuits; describing the DC waveform shape you would sketch after rectification for each of the three circuits; and outlining the function of the capacitor in the third circuit.",
-      "image": "q25c-circuits.png",
-      "isAICheck": true,
+      "question": "The table below shows three different rectification circuits. Complete the table by: • naming the rectification process • sketching DC waveform after rectification • outlining the function of the capacitor in the circuit.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The table below shows three different rectification circuits. Complete the table by: • naming the rectification process • sketching DC waveform after rectification • outlining the function of the capacitor in the circuit."
+        },
+        {
+          "type": "table",
+          "caption": "Rectification circuits",
+          "columns": [
+            "Feature",
+            "Circuit 1",
+            "Circuit 2",
+            "Circuit 3"
+          ],
+          "rows": [
+            [
+              {
+                "text": "Rectification circuit",
+                "header": true
+              },
+              {
+                "image": {
+                  "path": "engineering/2025/table-25c-circuit1.png",
+                  "alt": "Rectification circuit 1, AC input and DC output"
+                }
+              },
+              {
+                "image": {
+                  "path": "engineering/2025/table-25c-circuit2.png",
+                  "alt": "Rectification circuit 2, AC input and DC output"
+                }
+              },
+              {
+                "image": {
+                  "path": "engineering/2025/table-25c-circuit3.png",
+                  "alt": "Rectification circuit 3, AC input and DC output"
+                }
+              }
+            ],
+            [
+              {
+                "text": "Name of rectification process",
+                "header": true
+              },
+              {
+                "text": "",
+                "input": true
+              },
+              {
+                "text": "",
+                "input": true,
+                "colSpan": 2
+              }
+            ],
+            [
+              {
+                "text": "AC waveform before rectification",
+                "header": true
+              },
+              {
+                "image": {
+                  "path": "engineering/2025/table-25c-waveform.png",
+                  "alt": "Alternating-current waveform before rectification"
+                },
+                "colSpan": 3
+              }
+            ],
+            [
+              {
+                "text": "Sketch of DC waveform after rectification",
+                "header": true
+              },
+              "Sketch on paper",
+              "Sketch on paper",
+              "Sketch on paper"
+            ],
+            [
+              {
+                "text": "Function of the capacitor in the circuit",
+                "header": true
+              },
+              {
+                "text": "",
+                "input": true,
+                "colSpan": 3
+              }
+            ]
+          ]
+        }
+      ],
       "marks": 4,
-      "answer": "Full marks (4): names the first circuit as half-wave rectification and the second as full-wave rectification; describes the DC waveform after each — half-wave rectification produces only the positive humps of the AC wave with gaps where the negative half-cycles were removed; full-wave rectification (no capacitor) produces continuous positive humps with no gaps (twice the ripple frequency of half-wave); full-wave rectification with the capacitor produces a smoothed, mostly-flat DC level with small ripple, charging at each voltage peak and discharging slightly between peaks; outlines the capacitor's function as smoothing the DC output by reducing ripple — it charges at voltage peaks and discharges during dips, providing a more stable DC supply for electronic devices. 2-3 marks: completes most of the table with appropriate entries. 1 mark: some relevant information. Note: this quiz can't collect a hand-drawn waveform sketch, so grade the described shape of each waveform and the capacitor explanation rather than requiring an actual drawing.",
+      "isAICheck": true,
+      "responseFormat": "drawing-description",
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Completes the table with appropriate entries 4\n• Completes most of the table with appropriate entries 3\n• Provides some appropriate entries 2\n• Provides some relevant information 1\nSample answer:\nName of Half Wave rectification Full Wave rectification\nrectification\nprocess\nAC waveform\nbefore\nrectification\nSketch of DC\nwaveform\nafter\nrectification\nFunction of In a full-wave rectification circuit, the capacitor smooths the DC output by\nthe capacitor reducing ripple. It charges at voltage peaks and discharges during dips,\nin the circuit providing a more stable DC supply for electronic devices.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information. Note: this quiz can't collect a hand-drawn waveform sketch, so grade the described shape of each waveform and the capacitor explanation rather than requiring an actual drawing.",
-        "2": "Correctly completes some substantial table entries: the rectifier identities, waveform descriptions, or capacitor function, but other major entries are missing or wrong.",
-        "3": "Correctly completes most of the rectifier identities, waveform descriptions and capacitor explanation, with one significant omission or error. Do not require a drawn sketch.",
-        "4": "names the first circuit as half-wave rectification and the second as full-wave rectification; describes the DC waveform after each — half-wave rectification produces only the positive humps of the AC wave with gaps where the negative half-cycles were removed; full-wave rectification (no capacitor) produces continuous positive humps with no gaps (twice the ripple frequency of half-wave); full-wave rectification with the capacitor produces a smoothed, mostly-flat DC level with small ripple, charging at each voltage peak and discharging slightly between peaks; outlines the capacitor's function as smoothing the DC output by reducing ripple — it charges at voltage peaks and discharges during dips, providing a more stable DC supply for electronic devices."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 4 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q26a",
       "name": "Question 26 (a)",
       "question": "Outline the importance of engineers working collaboratively during a construction project.",
-      "isAICheck": true,
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Outline the importance of engineers working collaboratively during a construction project."
+        }
+      ],
       "marks": 2,
-      "answer": "Full marks (2): outlines the importance of collaboration — engineers must collaborate with other professionals, such as architects and electricians, to ensure safety, efficiency, and compliance for different aspects of a project. This teamwork helps solve problems, prevents delays, and ensures the project meets all requirements. 1 mark: some relevant information.",
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Outlines the importance of engineers working collaboratively 2\n• Provides some relevant information 1\nSample answer:\nEngineers must collaborate with other professionals, such as architects and electricians, to\nensure safety, efficiency, and compliance for different aspects of a project. This teamwork\nhelps solve problems, prevents delays, and ensures the project meets all requirements.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information.",
-        "2": "outlines the importance of collaboration — engineers must collaborate with other professionals, such as architects and electricians, to ensure safety, efficiency, and compliance for different aspects of a project. This teamwork helps solve problems, prevents delays, and ensures the project meets all requirements."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 2 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q26b",
       "name": "Question 26 (b)",
-      "question": "Explain how the introduction of steel beams in bridge construction has affected people's lives.",
-      "isAICheck": true,
+      "question": "Explain how the introduction of steel beams in bridge construction has affected people’s lives.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Explain how the introduction of steel beams in bridge construction has affected people’s lives."
+        }
+      ],
       "marks": 3,
-      "answer": "Full marks (3): explains the effect — the introduction of steel beams in bridge construction has made stronger, longer-lasting bridges able to support heavier loads. This improved transportation, trade and connectivity, allowing faster travel and the growth of industries, benefiting communities. 2 marks: demonstrates some understanding of how the introduction of steel beams has affected people's lives. 1 mark: some relevant information.",
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Explains how the introduction of steel beams has affected people’s lives 3\n• Demonstrates some understanding of how the introduction of steel\n2\nbeams has affected people’s lives\n• Provides some relevant information 1\nSample answer:\nThe introduction of steel beams in bridge construction has made stronger and longer lasting\nbridges, able to support heavier loads. This improved transportation, trade and connectivity,\nallows for faster travel and the growth of industries, benefiting communities.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information.",
-        "2": "demonstrates some understanding of how the introduction of steel beams has affected people's lives.",
-        "3": "explains the effect — the introduction of steel beams in bridge construction has made stronger, longer-lasting bridges able to support heavier loads. This improved transportation, trade and connectivity, allowing faster travel and the growth of industries, benefiting communities."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q26c",
       "name": "Question 26 (c)",
-      "question": "A truss is loaded as shown, with a 9 kN vertical load and a 15 kN load at 60° to the horizontal applied at the joints, spanning a 2800 mm truss supported by a pin at A and a roller at B. Determine the magnitude and nature of the force in member M.",
-      "image": "q26c-truss.png",
-      "math": true,
-      "answers": [
+      "question": "A truss is loaded as shown. Determine the magnitude and nature of the force in member M.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
         {
-          "type": "working",
-          "text": "15.615",
-          "correct": true
+          "type": "text",
+          "text": "A truss is loaded as shown."
         },
         {
-          "type": "answer",
-          "text": "5869.7",
-          "correct": true
+          "type": "image",
+          "path": "engineering/2025/diagram-26c-1.png",
+          "page": 28,
+          "alt": "Question 26 (c) diagram"
         },
         {
-          "type": "answer",
-          "text": "tension",
-          "correct": true
+          "type": "text",
+          "text": "Determine the magnitude and nature of the force in member M."
         }
-      ]
+      ],
+      "marks": 6,
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Calculates the magnitude of the force and states its nature 6\n• Makes substantial progress towards calculating the magnitude of the\n5\nforce and states its nature\n• Makes some progress towards calculating the magnitude 3–4\n• Provides some relevant calculation 2\n• Provides some relevant information 1\nSample answer:\nTranscription of the graphical sample solution: the truss has a 9 kN downward load and a 15 kN load at 60° to the horizontal, span 2800 mm, height 700 mm and half-span 1400 mm. θ = atan(700/1400) = 26.565°. Taking moments about A: R_B = (9×1.4 + 15sin60°×2.8 − 15cos60°×0.7)/2.8 = 15.615 kN upward. On the right side of a section through member M, vertical equilibrium gives F_M sinθ = 15.615 − 15sin60° = 2.625 kN. F_M = 5.8697 kN = 5869.7 N, in tension. These are equivalent units; accept sensible rounding and alternative valid methods. The final line of the printed sample has an inconsistent unit rendering; use 5.8697 kN or 5869.7 N.",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Award 4 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "5": "Award 5 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "6": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
     },
     {
       "id": "q27a",
       "name": "Question 27 (a)",
       "question": "Security cameras are becoming more commonly used in society. Describe the ethical concerns that should be considered when designing and developing telecommunications projects such as security cameras.",
-      "isAICheck": true,
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Security cameras are becoming more commonly used in society. Describe the ethical concerns that should be considered when designing and developing telecommunications projects such as security cameras."
+        }
+      ],
       "marks": 3,
-      "answer": "Full marks (3): describes ethical concerns — e.g. privacy invasion, data security risks, and misuse of footage. Facial recognition can lead to bias and discrimination. Additionally, cameras may create a false sense of security and influence people's behaviour, leading to self-censorship or discomfort. 2 marks: describes one ethical concern, or outlines some details of the ethical concerns. 1 mark: some relevant information.",
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Describes the ethical concerns of telecommunications projects such as\n3\nsecurity cameras\n• Describes an ethical concern or outlines some details of the ethical\n2\nconcerns of telecommunications projects such as security cameras\n• Provides some relevant information 1\nSample answer:\nSecurity cameras raise ethical concerns such as privacy invasion, data security risks, and\nmisuse of footage. Facial recognition can lead to bias and discrimination. Additionally,\ncameras may create a false sense of security and influence people's behaviour, leading to\nself-censorship or discomfort.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information.",
-        "2": "describes one ethical concern, or outlines some details of the ethical concerns.",
-        "3": "describes ethical concerns — e.g. privacy invasion, data security risks, and misuse of footage. Facial recognition can lead to bias and discrimination. Additionally, cameras may create a false sense of security and influence people's behaviour, leading to self-censorship or discomfort."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     },
     {
       "id": "q27b",
       "name": "Question 27 (b)",
       "question": "Describe the process of artificial age hardening of aluminium alloys.",
-      "isAICheck": true,
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Describe the process of artificial age hardening of aluminium alloys."
+        }
+      ],
       "marks": 3,
-      "answer": "Full marks (3): describes the process — artificial age hardening is a heat treatment process where a metal alloy is intentionally heated to a specific temperature after being rapidly cooled from a high temperature (solution treated), allowing dissolved alloying elements to precipitate out of the material, forming tiny particles that significantly increase the material's strength and hardness. 2 marks: outlines some steps in the process. 1 mark: some relevant information.",
+      "isAICheck": true,
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Describes the process of artificial age hardening of aluminium alloys 3\n• Outlines some steps in the process of artificial age hardening of\n2\naluminium alloys\n• Provides some relevant information 1\nSample answer:\nArtificial age hardening is a heat treatment process where a metal alloy is intentionally\nheated to a specific temperature after being rapidly cooled from a high temperature, allowing\ndissolved alloying elements to precipitate out of the material, forming tiny particles that\nsignificantly increase the material's strength and hardness.",
       "markingLevels": {
-        "0": "No relevant correct information addressing this task.",
-        "1": "some relevant information.",
-        "2": "outlines some steps in the process.",
-        "3": "describes the process — artificial age hardening is a heat treatment process where a metal alloy is intentionally heated to a specific temperature after being rapidly cooled from a high temperature (solution treated), allowing dissolved alloying elements to precipitate out of the material, forming tiny particles that significantly increase the material's strength and hardness."
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 3 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
+      }
+    },
+    {
+      "id": "q27c",
+      "name": "Question 27 (c)",
+      "question": "The orthographic views of a security camera cover, manufactured from sheet metal, are shown. Complete a half pattern development of the camera cover.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2026-04/2025-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-12/2025-hsc-engineering-studies-mg_0.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2025",
+      "sourceYear": 2025,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The orthographic views of a security camera cover, manufactured from sheet metal, are shown. Complete a half pattern development of the camera cover."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2025/diagram-27c-1.png",
+          "page": 31,
+          "alt": "Question 27 (c) diagram"
+        }
+      ],
+      "marks": 6,
+      "isAICheck": true,
+      "responseFormat": "drawing-description",
+      "answer": "Use the following NESA marking criteria and sample answer. Accept equivalent correct engineering reasoning and working; do not require the sample wording. Only credit evidence present in the submitted response. Never assume an unsubmitted drawing or calculation is correct.\n• Constructs a correct half pattern development of the security camera\n6\ncover\n• Correctly determines the true length (TL) of non-TL lines and constructs\n5\na substantially correct half development\n• Correctly determines the TL of non-TL lines and makes an attempt to\n4\ncomplete a half development drawing\n• Demonstrates some understanding of the requirements of a\n2–3\ndevelopment drawing\n• Provides some relevant information 1",
+      "markingLevels": {
+        "0": "No relevant correct response.",
+        "1": "Award 1 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "2": "Award 2 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "3": "Award 3 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "4": "Award 4 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "5": "Award 5 of 6 marks only for the corresponding partial-credit criteria and demonstrated progress in the supplied NESA guidance.",
+        "6": "Satisfies the full-mark criteria in the supplied NESA marking guidance."
       }
     }
   ]

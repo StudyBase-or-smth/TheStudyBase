@@ -1,0 +1,932 @@
+{
+  "studyMode": "exam-questions",
+  "source": {
+    "publisher": "NSW Education Standards Authority",
+    "year": 2024,
+    "origin": "User-supplied exam paper and marking guidelines",
+    "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+    "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+    "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024"
+  },
+  "description": "Original exam wording with diagram-only crops placed between the relevant text, from the supplied NESA PDFs. Official source links are retained.",
+  "questions": [
+    {
+      "id": "eng2024-q1",
+      "name": "Question 1",
+      "question": "A common house brick is shown. Which forming process was used to manufacture the brick?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A common house brick is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-1-1.png",
+          "page": 2,
+          "alt": "Question 1 diagram"
+        },
+        {
+          "type": "text",
+          "text": "Which forming process was used to manufacture the brick?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Forging",
+          "correct": false
+        },
+        {
+          "text": "B. Extrusion",
+          "correct": true
+        },
+        {
+          "text": "C. Slip casting",
+          "correct": false
+        },
+        {
+          "text": "D. Shell moulding",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2024-q2",
+      "name": "Question 2",
+      "question": "A load-extension diagram for a mild steel specimen is shown. Which letters indicate the area under the curve in which the specimen will permanently change its size and shape?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A load-extension diagram for a mild steel specimen is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-2-1.png",
+          "page": 3,
+          "alt": "Question 2 diagram"
+        },
+        {
+          "type": "text",
+          "text": "Which letters indicate the area under the curve in which the specimen will permanently change its size and shape?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. AB",
+          "correct": false
+        },
+        {
+          "text": "B. AC",
+          "correct": false
+        },
+        {
+          "text": "C. BD",
+          "correct": false
+        },
+        {
+          "text": "D. CD",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "eng2024-q3",
+      "name": "Question 3",
+      "question": "A simplified image of a bicycle chain drive is shown. If a cyclist is pedalling at 70 revolutions per minute (RPM), what is the RPM of the driven wheel?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A simplified image of a bicycle chain drive is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-3-1.png",
+          "page": 4,
+          "alt": "Question 3 diagram"
+        },
+        {
+          "type": "text",
+          "text": "If a cyclist is pedalling at 70 revolutions per minute (RPM), what is the RPM of the driven wheel?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. 3.2",
+          "correct": false
+        },
+        {
+          "text": "B. 21.7",
+          "correct": false
+        },
+        {
+          "text": "C. 226.2",
+          "correct": true
+        },
+        {
+          "text": "D. 546.0",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2024-q4",
+      "name": "Question 4",
+      "question": "Which row of the table correctly identifies characteristics of analogue and digital communications?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Which row of the table correctly identifies characteristics of analogue and digital communications?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Analogue: Continuous (varying) signal, less susceptible to signal degradation; Digital: Discrete (binary) signal, more susceptible to signal degradation",
+          "correct": false
+        },
+        {
+          "text": "B. Analogue: Continuous (varying) signal, more susceptible to signal degradation; Digital: Discrete (binary) signal, less susceptible to signal degradation",
+          "correct": true
+        },
+        {
+          "text": "C. Analogue: Discrete (binary) signal, less susceptible to signal degradation; Digital: Continuous (varying) signal, more susceptible to signal degradation",
+          "correct": false
+        },
+        {
+          "text": "D. Analogue: Discrete (binary) signal, more susceptible to signal degradation; Digital: Continuous (varying) signal, less susceptible to signal degradation",
+          "correct": false
+        }
+      ],
+      "answerTable": {
+        "caption": "Analogue and digital communications",
+        "columns": [
+          "Analogue",
+          "Digital"
+        ],
+        "rows": [
+          [
+            "Continuous (varying) signal\nLess susceptible to signal degradation",
+            "Discrete (binary) signal\nMore susceptible to signal degradation"
+          ],
+          [
+            "Continuous (varying) signal\nMore susceptible to signal degradation",
+            "Discrete (binary) signal\nLess susceptible to signal degradation"
+          ],
+          [
+            "Discrete (binary) signal\nLess susceptible to signal degradation",
+            "Continuous (varying) signal\nMore susceptible to signal degradation"
+          ],
+          [
+            "Discrete (binary) signal\nMore susceptible to signal degradation",
+            "Continuous (varying) signal\nLess susceptible to signal degradation"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "eng2024-q5",
+      "name": "Question 5",
+      "question": "Which waveform diagram depicts an AM radio signal?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Which waveform diagram depicts an AM radio signal?"
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-5-1.png",
+          "page": 5,
+          "alt": "Question 5 diagram"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. See diagram A in the original question.",
+          "correct": false
+        },
+        {
+          "text": "B. See diagram B in the original question.",
+          "correct": false
+        },
+        {
+          "text": "C. See diagram C in the original question.",
+          "correct": true
+        },
+        {
+          "text": "D. See diagram D in the original question.",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2024-q6",
+      "name": "Question 6",
+      "question": "A shear force diagram is shown. Which of the following beams is represented in the shear force diagram?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A shear force diagram is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-6-1.png",
+          "page": 5,
+          "alt": "Question 6 diagram"
+        },
+        {
+          "type": "text",
+          "text": "Which of the following beams is represented in the shear force diagram?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. A cantilevered beam with a point load",
+          "correct": false
+        },
+        {
+          "text": "B. A simply supported beam with a point load",
+          "correct": false
+        },
+        {
+          "text": "C. A cantilevered beam with a uniformly distributed load",
+          "correct": false
+        },
+        {
+          "text": "D. A simply supported beam with a uniformly distributed load",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "eng2024-q7",
+      "name": "Question 7",
+      "question": "Which row of the table correctly identifies the types of cables?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Which row of the table correctly identifies the types of cables?"
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-7-1.png",
+          "page": 6,
+          "alt": "Question 7 diagram"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Coaxial | Fibre optic | High voltage transmission | Twisted pair",
+          "correct": true
+        },
+        {
+          "text": "B. High voltage transmission | Twisted pair | Fibre optic | Coaxial",
+          "correct": false
+        },
+        {
+          "text": "C. Coaxial | Twisted pair | High voltage transmission | Fibre optic",
+          "correct": false
+        },
+        {
+          "text": "D. High voltage transmission | Fibre optic | Coaxial | Twisted pair",
+          "correct": false
+        }
+      ],
+      "answerTable": {
+        "caption": "Cable types",
+        "columns": [
+          "Cable 1",
+          "Cable 2",
+          "Cable 3",
+          "Cable 4"
+        ],
+        "rows": [
+          [
+            "Coaxial",
+            "Fibre optic",
+            "High voltage transmission",
+            "Twisted pair"
+          ],
+          [
+            "High voltage transmission",
+            "Twisted pair",
+            "Fibre optic",
+            "Coaxial"
+          ],
+          [
+            "Coaxial",
+            "Twisted pair",
+            "High voltage transmission",
+            "Fibre optic"
+          ],
+          [
+            "High voltage transmission",
+            "Fibre optic",
+            "Coaxial",
+            "Twisted pair"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "eng2024-q8",
+      "name": "Question 8",
+      "question": "The cross-section of a tapered tube is shown. What are the pressure readings at both gauge A and at gauge B as the air flows through the tube?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The cross-section of a tapered tube is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-8-1.png",
+          "page": 6,
+          "alt": "Question 8 diagram"
+        },
+        {
+          "type": "text",
+          "text": "What are the pressure readings at both gauge A and at gauge B as the air flows through the tube?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Gauge A: High; Gauge B: High",
+          "correct": false
+        },
+        {
+          "text": "B. Gauge A: High; Gauge B: Low",
+          "correct": true
+        },
+        {
+          "text": "C. Gauge A: Low; Gauge B: Low",
+          "correct": false
+        },
+        {
+          "text": "D. Gauge A: Low; Gauge B: High",
+          "correct": false
+        }
+      ],
+      "answerTable": {
+        "caption": "Pressure readings",
+        "columns": [
+          "Pressure at gauge A",
+          "Pressure at gauge B"
+        ],
+        "rows": [
+          [
+            "High",
+            "High"
+          ],
+          [
+            "High",
+            "Low"
+          ],
+          [
+            "Low",
+            "Low"
+          ],
+          [
+            "Low",
+            "High"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "eng2024-q9",
+      "name": "Question 9",
+      "question": "When producing glass, what molten material is the glass floated on in order to obtain a smooth surface?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "When producing glass, what molten material is the glass floated on in order to obtain a smooth surface?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Aluminium",
+          "correct": false
+        },
+        {
+          "text": "B. Bronze",
+          "correct": false
+        },
+        {
+          "text": "C. Steel",
+          "correct": false
+        },
+        {
+          "text": "D. Tin",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "eng2024-q10",
+      "name": "Question 10",
+      "question": "An inclined plane is 5 metres long and 2 metres high. A force of 50 N is required to push a box up along the length of the slope. Assuming no friction and 100% efficiency, what is the mass of the box to the nearest kilogram?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "An inclined plane is 5 metres long and 2 metres high. A force of 50 N is required to push a box up along the length of the slope."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-10-1.png",
+          "page": 7,
+          "alt": "Question 10 diagram"
+        },
+        {
+          "type": "text",
+          "text": "Assuming no friction and 100% efficiency, what is the mass of the box to the nearest kilogram?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. 5",
+          "correct": false
+        },
+        {
+          "text": "B. 13",
+          "correct": true
+        },
+        {
+          "text": "C. 20",
+          "correct": false
+        },
+        {
+          "text": "D. 125",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2024-q11",
+      "name": "Question 11",
+      "question": "Why are gap joints strategically placed in pedestrian footpaths?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Why are gap joints strategically placed in pedestrian footpaths?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. To improve visual appeal",
+          "correct": false
+        },
+        {
+          "text": "B. To improve wheelchair access",
+          "correct": false
+        },
+        {
+          "text": "C. To allow for contraction and movement",
+          "correct": true
+        },
+        {
+          "text": "D. To allow for movement of debris and water",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2024-q12",
+      "name": "Question 12",
+      "question": "What is the effect of increasing the angle of attack on the lift and induced drag of an aircraft?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "What is the effect of increasing the angle of attack on the lift and induced drag of an aircraft?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Lift: Decreases; Induced drag: Decreases",
+          "correct": false
+        },
+        {
+          "text": "B. Lift: Decreases; Induced drag: Increases",
+          "correct": false
+        },
+        {
+          "text": "C. Lift: Increases; Induced drag: Decreases",
+          "correct": false
+        },
+        {
+          "text": "D. Lift: Increases; Induced drag: Increases",
+          "correct": true
+        }
+      ],
+      "answerTable": {
+        "caption": "Lift and induced drag",
+        "columns": [
+          "Lift",
+          "Induced drag"
+        ],
+        "rows": [
+          [
+            "Decreases",
+            "Decreases"
+          ],
+          [
+            "Decreases",
+            "Increases"
+          ],
+          [
+            "Increases",
+            "Decreases"
+          ],
+          [
+            "Increases",
+            "Increases"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "eng2024-q13",
+      "name": "Question 13",
+      "question": "What is the primary function of GPS satellites?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "What is the primary function of GPS satellites?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Receiving magnetic field data for accuracy of location",
+          "correct": false
+        },
+        {
+          "text": "B. Receiving signals from GPS devices to determine distance",
+          "correct": false
+        },
+        {
+          "text": "C. Transmitting signals that provide accurate timing and positioning data",
+          "correct": true
+        },
+        {
+          "text": "D. Transmitting weather system data to ground-based stations for tracking",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2024-q14",
+      "name": "Question 14",
+      "question": "Which propulsion system requires fuel and an oxidiser such as liquid oxygen to be carried on board?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Which propulsion system requires fuel and an oxidiser such as liquid oxygen to be carried on board?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Ramjet",
+          "correct": false
+        },
+        {
+          "text": "B. Rocket",
+          "correct": true
+        },
+        {
+          "text": "C. Turbofan",
+          "correct": false
+        },
+        {
+          "text": "D. Turboprop",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2024-q15",
+      "name": "Question 15",
+      "question": "Which property is necessary in the manufacture of a sheet steel car door panel?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Which property is necessary in the manufacture of a sheet steel car door panel?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. Fatigue",
+          "correct": false
+        },
+        {
+          "text": "B. Ductility",
+          "correct": true
+        },
+        {
+          "text": "C. Elasticity",
+          "correct": false
+        },
+        {
+          "text": "D. Corrosion resistance",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2024-q16",
+      "name": "Question 16",
+      "question": "An I-beam is loaded as shown. The load is then increased. Which increase in dimension would provide the most resistance to bending?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "An I-beam is loaded as shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-16-1.png",
+          "page": 9,
+          "alt": "Question 16 diagram"
+        },
+        {
+          "type": "text",
+          "text": "The load is then increased. Which increase in dimension would provide the most resistance to bending?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. A",
+          "correct": false
+        },
+        {
+          "text": "B. B",
+          "correct": false
+        },
+        {
+          "text": "C. C",
+          "correct": false
+        },
+        {
+          "text": "D. D",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "eng2024-q17",
+      "name": "Question 17",
+      "question": "Why is single-mode cable used for long distance telecommunications rather than other fibre optic cables?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Why is single-mode cable used for long distance telecommunications rather than other fibre optic cables?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. It has lower power consumption.",
+          "correct": false
+        },
+        {
+          "text": "B. It has greater attenuation over distance.",
+          "correct": false
+        },
+        {
+          "text": "C. It has a higher transmission rate and bandwidth.",
+          "correct": true
+        },
+        {
+          "text": "D. It has a greater change to the index of refraction.",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2024-q18",
+      "name": "Question 18",
+      "question": "A transition duct in an aircraft air conditioning system is shown. Which is the correct shape and size for side 1, a, b, 2 of the transition piece?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A transition duct in an aircraft air conditioning system is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-18-1.png",
+          "page": 10,
+          "alt": "Question 18 diagram"
+        },
+        {
+          "type": "text",
+          "text": "Which is the correct shape and size for side 1, a, b, 2 of the transition piece?"
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-18-2.png",
+          "page": 10,
+          "alt": "Question 18 diagram 2"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. See diagram A in the original question.",
+          "correct": true
+        },
+        {
+          "text": "B. See diagram B in the original question.",
+          "correct": false
+        },
+        {
+          "text": "C. See diagram C in the original question.",
+          "correct": false
+        },
+        {
+          "text": "D. See diagram D in the original question.",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2024-q19",
+      "name": "Question 19",
+      "question": "Which is the correct angle of repose for rock fill, used on a highway construction, that has a coefficient of friction of 0.84?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Which is the correct angle of repose for rock fill, used on a highway construction, that has a coefficient of friction of 0.84?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. 20°",
+          "correct": false
+        },
+        {
+          "text": "B. 30°",
+          "correct": false
+        },
+        {
+          "text": "C. 40°",
+          "correct": true
+        },
+        {
+          "text": "D. 50°",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "eng2024-q20",
+      "name": "Question 20",
+      "question": "A cross-section of a beam is shown. Which of the following is the maximum stress in the beam if the maximum bending moment is 200 kN m and Iₓₓ is 168.75 × 10⁻⁶ m⁴?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-engineering-studies-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/engineering-studies/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A cross-section of a beam is shown."
+        },
+        {
+          "type": "image",
+          "path": "engineering/2024/diagram-20-1.png",
+          "page": 11,
+          "alt": "Question 20 diagram"
+        },
+        {
+          "type": "text",
+          "text": "Which of the following is the maximum stress in the beam if the maximum bending moment is 200 kN m and Iₓₓ is 168.75 × 10⁻⁶ m⁴?"
+        }
+      ],
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A. 177.8 MPa",
+          "correct": true
+        },
+        {
+          "text": "B. 177.8 GPa",
+          "correct": false
+        },
+        {
+          "text": "C. 355.6 MPa",
+          "correct": false
+        },
+        {
+          "text": "D. 355.6 GPa",
+          "correct": false
+        }
+      ]
+    }
+  ]
+}

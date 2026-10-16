@@ -2,6 +2,7 @@
   "name": "thestudybase",
   "private": true,
   "scripts": {
+    "local": "node scripts/serve-local.cjs",
     "build": "node scripts/build-config.js",
     "test": "node --test tests"
   },

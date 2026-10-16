@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="quiz-marking.js"></script>
+<script src="quiz-content.js"></script>
+<script src="../local-quiz-runtime.js"></script>
 <title>Quiz Tool — StudyBase</title>
 <!-- Favicon -->
 <link rel="icon" href="../icon.png" type="image/png">
@@ -27,16 +29,14 @@
      page matches subject.html instead of looking like a bolted-on quiz widget.
 
      The only genuinely new pieces are the per-question mark-delta badges, styled after
-     the ▲/▼ score-change indicators on the analyser page (.strip-delta there). Colors are
-     copied from analyser.html's palette; "partial" is a same-family addition it doesn't
-     have (that page only shows full deltas, never partial-credit ones). */
+     the score-change indicators on the analyser page (.strip-delta there).
+     Each badge shows earned marks minus missed marks. */
   .quiz-nav-delta { font-size: 10px; font-weight: 700; white-space: nowrap; }
   .quiz-nav-delta.up { color: #15803d; }
   .quiz-nav-delta.down { color: #dc2626; }
-  .quiz-nav-delta.partial { color: #b45309; }
+  .quiz-nav-delta.neutral { color: var(--muted2); }
   body.dark .quiz-nav-delta.up { color: #4ade80; }
   body.dark .quiz-nav-delta.down { color: #f87171; }
-  body.dark .quiz-nav-delta.partial { color: #fbbf24; }
 
   .quiz-wrap {
     max-width: 640px;
@@ -78,11 +78,20 @@
     border-bottom: 1px solid var(--border, #e0e0e0);
   }
   .quiz-heading-marks {
+    margin-left: auto;
     font-weight: 400;
     font-size: 13px;
     color: var(--muted2, #999);
     white-space: nowrap;
   }
+  .quiz-source-info.quiz-btn { width: 32px; height: 32px; padding: 0; font: 16px Arial, sans-serif; flex-shrink: 0; align-self: center; }
+  .quiz-flag-btn[aria-pressed="true"] { color: var(--accent); background: var(--card2); }
+  .quiz-flag-btn svg, .quiz-nav-flag svg { display: block; width: 16px; height: 16px; }
+  .quiz-flag-btn { display: inline-flex; align-items: center; justify-content: center; }
+  .quiz-nav-flag { display: inline-flex; color: var(--accent); margin-left: 6px; vertical-align: middle; }
+  .quiz-source-links { padding: 12px; margin: 0 0 16px; border: 1px solid var(--border, #ddd); border-radius: 8px; font-size: 13px; line-height: 1.6; }
+  .quiz-source-links[hidden] { display: none; }
+  .quiz-source-links a { display: block; }
   /* Question stem — the actual wording, styled like exam-paper body text rather
      than a UI label. Falls back to holding the full question text on older quiz
      files that don't have a separate `question` field. */
@@ -100,6 +109,27 @@
     margin-bottom: 14px;
   }
   .quiz-image-wrap:empty { display: none; }
+  .quiz-exam-layout { margin: 14px 0; }
+  .quiz-exam-layout summary { cursor: pointer; color: var(--accent); font-size: 14px; }
+  .quiz-exam-layout figure { margin: 12px 0; }
+  .quiz-exam-layout figcaption { color: var(--muted); font-size: 12px; margin: 4px 0; }
+  .quiz-diagram { margin: 16px 0; }
+  .quiz-question-text { margin: 0 0 16px; white-space: pre-line; }
+  .quiz-table-wrap { overflow-x: auto; max-width: 100%; margin: 16px 0; }
+  .quiz-table { border-collapse: collapse; width: 100%; font: 13px/1.5 'Inter', sans-serif; color: var(--text); }
+  .quiz-table caption { text-align: left; color: var(--muted); font-size: 12px; padding-bottom: 8px; }
+  .quiz-table th, .quiz-table td { border: 1px solid var(--border); padding: 10px 12px; min-width: 80px; vertical-align: top; white-space: pre-line; }
+  .quiz-table th { background: var(--card2); font-weight: 600; }
+  .quiz-table td { background: var(--card); }
+  .quiz-table .quiz-image { margin: 4px 0; border: 0; border-radius: 0; }
+  .quiz-table .quiz-table-image-cell { min-width: 160px; }
+  .quiz-answer-table .quiz-answer:hover:not(.locked) { background: var(--card2); }
+  .quiz-answer-table .quiz-answer { display: table-row; padding: 0; border: 0; border-radius: 0; }
+  .quiz-answer-table .quiz-answer td { background: transparent; }
+  .quiz-answer-table .quiz-answer td:first-child, .quiz-answer-table th:first-child { min-width: 52px; width: 52px; }
+  .quiz-answer-table label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .quiz-table-input { display: block; width: 100%; min-width: 100px; margin-top: 8px; padding: 7px; border: 1px solid var(--border); border-radius: 4px; background: var(--card); color: var(--text); font: inherit; resize: vertical; box-sizing: border-box; }
+  .quiz-table-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
   .quiz-image-wrap { margin-bottom: 16px; background: var(--card, #fff); border-radius: 8px; }
   .quiz-image {
     display: block;
@@ -365,7 +395,7 @@
     flex-shrink: 0;
     margin-left: auto;
   }
-  .quiz-restart-btn,
+  .quiz-reset-btn,
   .quiz-continue-btn {
     padding: 0;
     border: none;
@@ -375,8 +405,8 @@
     font-weight: 600;
     cursor: pointer;
   }
-  .quiz-restart-btn { color: var(--muted, #666); }
-  .quiz-restart-btn:hover { color: var(--text, #1a1a1a); }
+  .quiz-reset-btn { color: var(--muted, #666); }
+  .quiz-reset-btn:hover { color: var(--text, #1a1a1a); }
   .quiz-continue-btn { color: var(--accent, #4f46e5); }
   .quiz-paper-meta { display: none; }
   .quiz-section-row {
@@ -553,6 +583,7 @@
   import { getAuth, onAuthStateChanged, signOut }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { loadFirebaseConfig } from "../firebase-config.js";
+  if (!window.SB_LOCAL_JEV_RELAY) {
   const auth = getAuth(initializeApp(await loadFirebaseConfig()));
   window.__sbAuth = auth; // used by the authenticated Jev quiz-marking client
   onAuthStateChanged(auth, user => {
@@ -591,6 +622,7 @@
     }
     signOut(auth).then(() => window.location.href = "../login.html");
   };
+  }
 </script>
 
 <!-- Header (same structure as subject.html, minus the Flashcards button) -->
@@ -705,7 +737,8 @@ function normalizeManifestEntry(entry) {
     file: entry.file,
     name: entry.name || entry.file,
     subject: entry.subject || 'Other',
-    section: entry.section || ''
+    section: entry.section || '',
+    sourceLinked: entry.sourceLinked === true
   };
 }
 
@@ -917,16 +950,24 @@ async function loadManifest() {
 }
 
 function quizHashFile() {
-  return decodeURIComponent((location.hash || '').replace(/^#/, ''));
+  const hash = (location.hash || '').replace(/^#/, '');
+  if (hash.startsWith('file=')) return new URLSearchParams(hash).get('file') || '';
+  try { return decodeURIComponent(hash); } catch { return ''; }
 }
 
-function setQuizHash(file) {
+function quizHashQuestion() {
+  const hash = (location.hash || '').replace(/^#/, '');
+  return hash.startsWith('file=') ? new URLSearchParams(hash).get('question') : null;
+}
+
+function setQuizHash(file, questionId) {
   if(file && window.SBQoL){
     const entry = quizManifest.find(m => m.file === file);
     if(entry) window.SBQoL.recordActivity(entry.name || file,entry.subject || '', 'Quiz Tool',location.pathname + location.search + '#' + encodeURIComponent(file));
   }
+  const hash = questionId != null ? new URLSearchParams({file,question:String(questionId)}).toString() : encodeURIComponent(file);
   const desired = file
-    ? location.pathname + location.search + '#' + encodeURIComponent(file)
+    ? location.pathname + location.search + '#' + hash
     : location.pathname + location.search;
   if (location.pathname + location.search + location.hash !== desired) {
     history.replaceState(null, '', desired);
@@ -940,7 +981,7 @@ async function bootQuiz() {
     await loadManifest();
     const hashFile = quizHashFile();
     const entry = hashFile && quizManifest.find(m => m.file === hashFile);
-    if (entry) await loadQuizByFile(entry.file, entry.name, { resume: true });
+    if (entry) await loadQuizByFile(entry.file, entry.name, { resume: true, questionId:quizHashQuestion() });
     else showQuizHome();
   } catch (err) {
     canvas.innerHTML = `<div class="quiz-status quiz-error">Error loading quizzes: ${escapeHtml(err.message)}</div>`;
@@ -1018,6 +1059,8 @@ function cloneSavedAnswers(saved, length) {
 function paperHasProgress(paper) {
   const prog = getPaperProgress(paper);
   if (!prog) return false;
+  if (Object.values(prog.flaggedQuestionIdsByFile || {}).some(ids => Array.isArray(ids) && ids.length)) return true;
+  if (Object.values(prog.reviewQuestionIdsByFile || {}).some(ids => Array.isArray(ids) && ids.length)) return true;
   if (prog.atSummary) return true;
   if ((prog.index || 0) > 0) return true;
   const byFile = prog.perQuestionByFile || {};
@@ -1028,6 +1071,8 @@ function paperHasProgress(paper) {
 
 function currentQuizHasProgress() {
   if (!quizState) return false;
+  if (quizState.flaggedQuestionIds?.length) return true;
+  if (quizState.reviewIndices?.length) return true;
   if (quizState.atSummary) return true;
   if (quizState.index > 0) return true;
   if (quizState.perQuestion.some(Boolean)) return true;
@@ -1035,6 +1080,10 @@ function currentQuizHasProgress() {
   if (!entry) return false;
   const first = quizManifest.find(m => m.subject === entry.subject && m.name === entry.name);
   return !!(first && first.file !== quizState.filename);
+}
+
+function questionIndices() {
+  return quizState.reviewIndices || quizState.questions.map((q,i) => i);
 }
 
 function persistCurrentQuiz() {
@@ -1048,6 +1097,14 @@ function persistCurrentQuiz() {
     file: quizState.filename,
     index: quizState.index,
     atSummary: !!quizState.atSummary,
+    flaggedQuestionIdsByFile: {
+      ...(prev.flaggedQuestionIdsByFile || {}),
+      [quizState.filename]: quizState.flaggedQuestionIds || []
+    },
+    reviewQuestionIdsByFile: {
+      ...(prev.reviewQuestionIdsByFile || {}),
+      [quizState.filename]: (quizState.reviewIndices || []).map(i => String(quizState.questions[i].id ?? i))
+    },
     perQuestionByFile: {
       ...(prev.perQuestionByFile || {}),
       [quizState.filename]: quizState.perQuestion
@@ -1070,10 +1127,10 @@ function startPaper(paper) {
   loadQuizByFile(start.file, start.name);
 }
 
-function restartPaper(paper) {
-  const start = paper.sections[0];
-  if (!start || start.loadError) return;
-  loadQuizByFile(start.file, start.name, { reset: true });
+function resetPaper(paper) {
+  clearPaperProgress(paper);
+  renderHomePage();
+  renderHomeSidebar();
 }
 
 function continuePaper(paper) {
@@ -1121,7 +1178,7 @@ function renderHomePage() {
         ? `<div class="quiz-paper-head is-split">
             <div class="quiz-paper-name"></div>
             <div class="quiz-paper-actions">
-              <button type="button" class="quiz-restart-btn">Restart</button>
+              <button type="button" class="quiz-reset-btn">Reset</button>
               <button type="button" class="quiz-continue-btn">Continue →</button>
             </div>
           </div>`
@@ -1162,10 +1219,10 @@ function renderHomePage() {
     block.querySelector('.quiz-paper-name').textContent = paper.name;
     const start = paper.sections[0];
     if (start && !start.loadError) {
-      const restartBtn = block.querySelector('.quiz-restart-btn');
+      const resetBtn = block.querySelector('.quiz-reset-btn');
       const continueBtn = block.querySelector('.quiz-continue-btn');
-      if (restartBtn && continueBtn) {
-        restartBtn.addEventListener('click', () => restartPaper(paper));
+      if (resetBtn && continueBtn) {
+        resetBtn.addEventListener('click', () => resetPaper(paper));
         continueBtn.addEventListener('click', () => continuePaper(paper));
       } else {
         block.querySelector('.quiz-paper-head').addEventListener('click', () => startPaper(paper));
@@ -1178,7 +1235,7 @@ function renderHomePage() {
         ? (sec.loadError || 'Could not load')
         : `${sec.questionCount} question${sec.questionCount === 1 ? '' : 's'}`;
       const mLabel = sec.totalMarks == null ? '' : ` · ${sec.totalMarks} mark${sec.totalMarks === 1 ? '' : 's'}`;
-      row.querySelector('.quiz-section-stats').textContent = qLabel + mLabel;
+      row.querySelector('.quiz-section-stats').textContent = qLabel + mLabel + (sec.sourceLinked ? ' · Official paper companion' : '');
     });
   });
 }
@@ -1251,7 +1308,7 @@ function filterHomeNav(query) {
   });
 }
 
-function updateQuizBreadcrumb(entry) {
+function updateQuizBreadcrumb(entry, questionLabel) {
   const el = document.getElementById('hdrBreadcrumb');
   if (!el) return;
   el.innerHTML = '';
@@ -1290,7 +1347,7 @@ function updateQuizBreadcrumb(entry) {
   const quizName = entry.name || entry.subject || 'Quiz';
   const sectionName = entry.section || '';
 
-  if (!sectionName) {
+  if (!sectionName && !questionLabel) {
     const current = document.createElement('span');
     current.className = 'bc-current';
     current.textContent = quizName;
@@ -1306,7 +1363,7 @@ function updateQuizBreadcrumb(entry) {
 
   const current = document.createElement('span');
   current.className = 'bc-current';
-  current.textContent = sectionName;
+  current.textContent = questionLabel || sectionName;
   el.appendChild(current);
 }
 
@@ -1328,18 +1385,53 @@ async function loadQuizByFile(file, name, opts = {}) {
 
     let index = 0;
     let atSummary = false;
+    let reviewIndices = null;
+    let flaggedQuestionIds = [];
+    let needsRemark = false;
     let perQuestion = new Array(quizData.questions.length).fill(null);
     if (opts.resume && entry) {
       const prog = getPaperProgress(entry);
       if (prog) {
-        const restored = cloneSavedAnswers(prog.perQuestionByFile && prog.perQuestionByFile[file], quizData.questions.length);
-        if (restored) perQuestion = restored;
+        const savedFlags = prog.flaggedQuestionIdsByFile?.[file];
+        if (Array.isArray(savedFlags)) flaggedQuestionIds = [...new Set(savedFlags.map(String))].filter(id => quizData.questions.some((q,i) => String(q.id ?? i) === id));
+        const reviewIds = prog.reviewQuestionIdsByFile?.[file];
+        if (Array.isArray(reviewIds)) {
+          const indices = [...new Set(reviewIds.map(id => quizData.questions.findIndex((q,i) => String(q.id ?? i) === String(id))).filter(i => i >= 0))];
+          if (indices.length) reviewIndices = indices;
+        }
+        let saved = prog.perQuestionByFile && prog.perQuestionByFile[file];
+        const legacy = quizData.legacyQuestionIds;
+        const migrate = Array.isArray(saved) && Array.isArray(legacy) && saved.length === legacy.length && saved.length !== quizData.questions.length;
+        if (migrate) saved = quizData.questions.map(q => {
+          const answer = saved[legacy.indexOf(q.id)];
+          return answer && answer.total === marksForQuestion(q) && !answer.selfAssessed ? answer : null;
+        });
+        const restored = cloneSavedAnswers(saved, quizData.questions.length);
+        if (restored) {
+          needsRemark = restored.some(answer => answer?.selfAssessed);
+          perQuestion = restored.map(answer => answer?.selfAssessed ? null : answer);
+        }
         if (prog.file === file) {
           index = Math.min(Math.max(0, prog.index || 0), quizData.questions.length - 1);
           atSummary = !!prog.atSummary;
+          if (migrate) {
+            index = Math.max(0, quizData.questions.findIndex(q => q.id === legacy[prog.index || 0]));
+            atSummary = !!prog.atSummary && perQuestion.every(Boolean);
+            if (prog.atSummary && !atSummary) index = perQuestion.findIndex(p => !p);
+          }
         }
       }
     }
+
+    if (needsRemark && atSummary) {
+      atSummary = false;
+      index = perQuestion.findIndex(answer => !answer);
+    }
+    if (opts.questionId != null) {
+      const target = quizData.questions.findIndex((q,i) => String(q.id ?? i) === String(opts.questionId));
+      if (target >= 0) { index = target; atSummary = false; if(reviewIndices && !reviewIndices.includes(target)) reviewIndices = null; }
+    }
+    if (reviewIndices && !atSummary && !reviewIndices.includes(index)) index = reviewIndices[0];
 
     quizState = {
       questions: quizData.questions,
@@ -1347,6 +1439,8 @@ async function loadQuizByFile(file, name, opts = {}) {
       quizName: name || file,
       index,
       atSummary,
+      reviewIndices,
+      flaggedQuestionIds,
       // One slot per question: null until answered, then { earned, total, selected | values }
       // — used both for scoring (no more running accumulator to double-count) and to redraw
       // a question exactly as the student left it when they jump back to it via the sidebar.
@@ -1392,6 +1486,8 @@ function renderQuestion() {
 
   const q = questions[index];
   const prior = quizState.perQuestion[index]; // null if not yet answered
+  setQuizHash(quizState.filename, q.id ?? index);
+  updateQuizBreadcrumb(quizManifest.find(entry => entry.file === quizState.filename) || {name:quizState.quizName}, q.name || `Question ${index+1}`);
 
   if (q.math) {
     renderMathQuestion(q, index, questions.length, prior);
@@ -1424,28 +1520,37 @@ function renderSidebar() {
   const sidebar = document.getElementById('quizSidebar');
   if (!sidebar || !quizState) return;
 
+  const previousList = sidebar.querySelector('#quizNavList');
+  const keepPosition = previousList && sidebar.dataset.quizFile === quizState.filename;
+  const scrollTop = keepPosition ? previousList.scrollTop : 0;
+  const search = keepPosition ? sidebar.querySelector('#quizSearchInput').value : '';
+
   const entry = quizManifest.find(m => m.file === quizState.filename);
   const playingName = entry
     ? (entry.section ? `${entry.name} · ${entry.section}` : entry.name)
     : quizState.quizName;
 
-  const rows = quizState.questions.map((q, i) => {
+  const indices = questionIndices();
+  const rows = indices.map(i => {
+    const q = quizState.questions[i];
     const prior = quizState.perQuestion[i];
     const marks = marksForQuestion(q);
     const activeClass = i === quizState.index ? ' active' : '';
 
     let badge = '';
     if (prior) {
-      if (prior.earned === prior.total) badge = `<span class="quiz-nav-delta up">▲${prior.total}</span>`;
-      else if (prior.earned === 0) badge = `<span class="quiz-nav-delta down">▼${prior.total}</span>`;
-      else badge = `<span class="quiz-nav-delta partial">${prior.earned}/${prior.total}</span>`;
+      const missed = prior.total - prior.earned;
+      const delta = prior.earned - missed;
+      const tone = delta > 0 ? 'up' : delta < 0 ? 'down' : 'neutral';
+      const label = delta > 0 ? `+${delta}` : delta < 0 ? `−${Math.abs(delta)}` : '0';
+      badge = `<span class="quiz-nav-delta ${tone}" title="${prior.earned} earned − ${missed} missed = ${label}">${label}</span>`;
     }
 
     return `
       <div class="topic-item-wrap" data-idx="${i}">
         <div class="topic-item${activeClass}">
           <div class="ti-top">
-            <div class="ti-name"><span class="ti-name-text"></span></div>
+            <div class="ti-name"><span class="ti-name-text"></span>${quizState.flaggedQuestionIds?.includes(String(q.id ?? i)) ? '<span class="quiz-nav-flag" title="Flagged question" aria-label="Flagged question"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3h14l-3 5 3 5H7v8H5V3Z"/></svg></span>' : ''}</div>
             ${badge}
           </div>
           <div class="ti-unit">${marks} ${marks === 1 ? 'mark' : 'marks'}</div>
@@ -1464,10 +1569,10 @@ function renderSidebar() {
     </div>
     <div style="display:flex;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
       <div style="padding:4px 16px;border-right:1px solid var(--border);font-size:11px;color:var(--muted2)">
-        <strong style="color:var(--accent)">${quizState.questions.length}</strong> questions
+        <strong style="color:var(--accent)">${indices.length}</strong> ${quizState.reviewIndices ? 'review questions' : 'questions'}
       </div>
       <div style="padding:4px 16px;font-size:11px;color:var(--muted2)">
-        <strong style="color:var(--accent)">${quizState.totalMarks}</strong> marks
+        <strong style="color:var(--accent)">${indices.reduce((sum,i) => sum + marksForQuestion(quizState.questions[i]),0)}</strong> marks
       </div>
     </div>
     <div class="topic-list" id="quizNavList">${rows}</div>
@@ -1477,12 +1582,18 @@ function renderSidebar() {
   sidebar.querySelector('.quiz-now-playing strong').textContent = playingName;
   if (entry) sidebar.querySelector('.quiz-now-sub').textContent = entry.subject;
 
-  sidebar.querySelectorAll('#quizNavList .topic-item-wrap').forEach((wrap, i) => {
+  sidebar.querySelectorAll('#quizNavList .topic-item-wrap').forEach(wrap => {
+    const i = Number(wrap.dataset.idx);
     wrap.querySelector('.ti-name-text').textContent = quizState.questions[i].name;
     wrap.addEventListener('click', () => jumpToQuestion(i));
   });
 
-  sidebar.querySelector('#quizSearchInput').addEventListener('input', (e) => filterQuestionNav(e.target.value));
+  const searchInput = sidebar.querySelector('#quizSearchInput');
+  searchInput.value = search;
+  searchInput.addEventListener('input', (e) => filterQuestionNav(e.target.value));
+  filterQuestionNav(search);
+  sidebar.querySelector('#quizNavList').scrollTop = scrollTop;
+  sidebar.dataset.quizFile = quizState.filename;
 }
 
 // Live-filters the question nav list by number, heading, or question text.
@@ -1497,6 +1608,7 @@ function filterQuestionNav(query) {
 }
 
 function jumpToQuestion(i) {
+  if (quizState.reviewIndices && !quizState.reviewIndices.includes(i)) quizState.reviewIndices = null;
   quizState.index = i;
   quizState.atSummary = false;
   persistCurrentQuiz();
@@ -1519,7 +1631,6 @@ function renderChoiceQuestion(q, index, total, prior) {
 
   paintQuiz(`
     <div class="quiz-wrap">
-      <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
       <div class="quiz-heading">
         <span class="quiz-heading-name"></span>
         <span class="quiz-heading-marks">(1 mark)</span>
@@ -1541,8 +1652,11 @@ function renderChoiceQuestion(q, index, total, prior) {
   // files without a `question` field fall back to showing `name` as the stem, no heading.
   renderHeadingAndStem(canvas, q);
   renderQuestionImage(q, canvas);
+  if (q.answerTable && q.answerTable.rows?.length === q.answers.length) {
+    canvas.querySelector('.quiz-answers').replaceChildren(StudyQuizContent.renderTable(q.answerTable,{answers:q.answers,checkbox:q.isCheckbox,onSelect:selectAnswer}));
+  }
   canvas.querySelectorAll('.quiz-answer').forEach((label, i) => {
-    label.querySelector('.quiz-answer-text').textContent = q.answers[i].text;
+    const text = label.querySelector('.quiz-answer-text'); if(text) text.textContent = q.answers[i].text;
   });
 
   // Already answered on a previous visit (jumped back here via the sidebar) — redraw the
@@ -1634,7 +1748,6 @@ function renderDictionaryNumberQuestion(q, index, total, prior) {
   const canvas = document.getElementById('quizCanvas');
   paintQuiz(`
     <div class="quiz-wrap">
-      <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
       <div class="quiz-heading">
         <span class="quiz-heading-name"></span>
         <span class="quiz-heading-marks">(1 mark)</span>
@@ -1779,7 +1892,6 @@ function renderMathQuestion(q, index, total, prior) {
 
   paintQuiz(`
     <div class="quiz-wrap">
-      <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
       <div class="quiz-heading">
         <span class="quiz-heading-name"></span>
         <span class="quiz-heading-marks">(${q.answers.length} ${markWord})</span>
@@ -1815,13 +1927,80 @@ function renderHeadingAndStem(container, q) {
   const headingEl = container.querySelector('.quiz-heading');
   const nameEl = container.querySelector('.quiz-heading-name');
   const stemEl = container.querySelector('.quiz-stem');
+  const submit = container.querySelector('#quizSubmitBtn');
+  if (submit) {
+    const skip = document.createElement('button'); skip.type = 'button'; skip.className = 'quiz-btn'; skip.id = 'quizSkipBtn'; skip.textContent = 'Skip';
+    skip.addEventListener('click', () => {
+      if (submit.disabled || quizState.perQuestion[quizState.index]) return;
+      nextQuestion();
+    });
+    submit.before(skip);
+  }
+  if (headingEl && q.sourcePaper) {
+    const links = document.createElement('div');
+    links.className = 'quiz-source-links';
+    links.id = 'quizSourceInfo'; links.hidden = true;
+    links.setAttribute('role', 'region'); links.setAttribute('aria-label', 'Official exam resources');
+    for (const [label, href] of [['Official exam paper', q.sourcePaper], ['Official marking guidelines', q.sourceMarking], ['NESA exam pack', q.sourcePack]]) {
+      try {
+        const url = new URL(href);
+        if (url.protocol !== 'https:' || url.hostname !== 'www.nsw.gov.au') continue;
+        const a = document.createElement('a');
+        a.href = url.href; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = label;
+        links.append(a);
+      } catch { /* Ignore malformed source links. */ }
+    }
+    if (links.childNodes.length) {
+      const info = document.createElement('button'); info.type = 'button'; info.className = 'quiz-btn quiz-source-info'; info.textContent = 'ⓘ';
+      info.title = 'Exam information'; info.setAttribute('aria-label', 'Exam information'); info.setAttribute('aria-controls', links.id); info.setAttribute('aria-expanded', 'false');
+      info.addEventListener('click', () => { links.hidden = !links.hidden; info.setAttribute('aria-expanded', String(!links.hidden)); });
+      links.addEventListener('keydown', event => { if (event.key === 'Escape') { links.hidden = true; info.setAttribute('aria-expanded', 'false'); info.focus(); } });
+      headingEl.append(info); headingEl.after(links);
+    }
+  }
+
+  if (headingEl) {
+    const flag = document.createElement('button'); flag.type = 'button'; flag.className = 'quiz-btn quiz-source-info quiz-flag-btn';
+    flag.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 21V3h14l-3 5 3 5H5"/></svg>';
+    const state = quizState, index = state.index, id = String(q.id ?? index);
+    function updateFlag() {
+      const flagged = state.flaggedQuestionIds?.includes(id) || false;
+      flag.setAttribute('aria-pressed', String(flagged)); flag.setAttribute('aria-label', flagged ? 'Unflag question' : 'Flag question'); flag.title = flagged ? 'Unflag question' : 'Flag question';
+      flag.querySelector('svg').setAttribute('fill', flagged ? 'currentColor' : 'none');
+    }
+    flag.addEventListener('click', () => {
+      if (quizState !== state || state.index !== index) return;
+      const ids = new Set(state.flaggedQuestionIds || []);
+      if (ids.has(id)) ids.delete(id); else ids.add(id);
+      state.flaggedQuestionIds = [...ids]; persistCurrentQuiz(); updateFlag(); renderSidebar();
+    });
+    updateFlag(); headingEl.append(flag);
+  }
 
   if (q.question) {
     if (nameEl) nameEl.textContent = q.name;
-    if (stemEl) stemEl.textContent = q.question;
+    if (stemEl) {
+      if (Array.isArray(q.questionContent) && q.questionContent.length) {
+        stemEl.replaceChildren();
+        for (const [blockIndex,block] of q.questionContent.entries()) {
+          if (block.type === 'text') {
+            const text = document.createElement('div'); text.className = 'quiz-question-text'; text.textContent = block.text; stemEl.append(text);
+          } else if (block.type === 'table') {
+            stemEl.append(StudyQuizContent.renderTable(block,{key:String(blockIndex)}));
+          } else if (block.type === 'image' && /^[a-z][a-z0-9-]*\/\d{4}\/[a-zA-Z0-9-]+\.png$/.test(block.path || '')) {
+            const figure = document.createElement('figure'); figure.className = 'quiz-diagram';
+            const img = document.createElement('img'); img.className = 'quiz-image'; img.src = `${STORAGE_FOLDER}/${block.path}`;
+            img.alt = block.alt || `${q.name} diagram`; img.onclick = () => img.classList.toggle('no-invert');
+            img.onerror = () => { const error = document.createElement('p'); error.textContent = 'Diagram unavailable. Use the exam resources in the information button.'; img.replaceWith(error); };
+            figure.append(img); stemEl.append(figure);
+          }
+        }
+      } else stemEl.textContent = q.question;
+      if (q.imageUnavailable) { const note = document.createElement('p'); note.className = 'quiz-type-hint'; note.textContent = q.imageUnavailable; stemEl.append(note); }
+    }
   } else {
-    if (headingEl) headingEl.style.display = 'none';
-    if (stemEl) stemEl.textContent = q.name;
+    if (nameEl) nameEl.textContent = q.name;
+    if (stemEl) stemEl.textContent = '';
   }
 }
 
@@ -1955,8 +2134,10 @@ function submitMathAnswer() {
 function setAICheckBusy(canvas, busy) {
   const btn = canvas.querySelector('#quizSubmitBtn');
   const textarea = canvas.querySelector('#quizAIAnswerInput');
-  if (btn) { btn.disabled = busy; btn.textContent = busy ? 'Marking with AI…' : 'Submit'; }
+  if (btn) { btn.disabled = busy; btn.textContent = busy ? 'Marking with Jev…' : 'Submit'; }
   if (textarea) textarea.disabled = busy;
+  const skip = canvas.querySelector('#quizSkipBtn'); if (skip) skip.disabled = busy;
+  canvas.querySelectorAll('[data-table-cell]').forEach(input => { input.disabled = busy; });
 }
 
 function renderAICheckQuestion(q, index, total, prior) {
@@ -1965,15 +2146,14 @@ function renderAICheckQuestion(q, index, total, prior) {
 
   paintQuiz(`
     <div class="quiz-wrap">
-      <div class="quiz-progress">Question ${index + 1} of ${total} of "${escapeHtml(quizState.quizName || '')}"</div>
       <div class="quiz-heading">
         <span class="quiz-heading-name"></span>
         <span class="quiz-heading-marks">(${q.marks} ${markWord})</span>
       </div>
       <div class="quiz-stem"></div>
       <div class="quiz-image-wrap" id="quizImageWrap"></div>
-      <div class="quiz-type-hint">✎ Written response — automatic marking</div>
-      <textarea class="quiz-ai-answer" id="quizAIAnswerInput" placeholder="Type your answer…" rows="6"></textarea>
+      <div class="quiz-type-hint">${q.showWrittenAnswer === false ? 'Complete the answer fields — marked by Jev' : '✎ Written response — marked by Jev'}</div>
+      ${q.showWrittenAnswer === false ? '' : '<textarea class="quiz-ai-answer" id="quizAIAnswerInput" placeholder="Type your answer…" rows="6"></textarea>'}
       <div class="quiz-feedback" id="quizFeedback"></div>
       <div class="quiz-actions">
         <button class="quiz-btn quiz-btn-primary" id="quizSubmitBtn" onclick="submitAICheck()">Submit</button>
@@ -1984,11 +2164,15 @@ function renderAICheckQuestion(q, index, total, prior) {
 
   renderHeadingAndStem(canvas, q);
   renderQuestionImage(q, canvas);
+  if (q.responseFormat === 'drawing-description') {
+    canvas.querySelector('.quiz-type-hint').textContent = 'Describe your drawing, labels, dimensions and working in text. Jev can assess only the submitted text; image marking is not available.';
+  }
 
   if (prior) {
     const textarea = canvas.querySelector('#quizAIAnswerInput');
-    textarea.value = prior.studentAnswer;
-    textarea.disabled = true;
+    if (textarea) textarea.value = prior.studentAnswer || '';
+    StudyQuizContent.restoreResponses(canvas, prior.tableResponses, true);
+    if (textarea) textarea.disabled = true;
     showFeedback(canvas, prior.earned, q.marks);
     document.getElementById('quizSubmitBtn').style.display = 'none';
     revealAdvanceButton();
@@ -2002,30 +2186,33 @@ async function submitAICheck() {
   const q = state.questions[index];
   const canvas = document.getElementById('quizCanvas');
   const textarea = canvas.querySelector('#quizAIAnswerInput');
-  if (textarea.disabled) return;
-  const studentAnswer = (textarea.value || '').trim();
-  if (!studentAnswer) return;
+  if (textarea?.disabled || canvas.querySelector('#quizSubmitBtn')?.disabled) return;
+  const studentAnswer = (textarea?.value || '').trim();
+  const tableResponses = StudyQuizContent.collectResponses(canvas);
+  const tableAnswer = [...canvas.querySelectorAll('[data-table-cell]')].map(input => `${input.getAttribute('aria-label')}: ${input.value.trim()}`).join('\n');
+  const submittedAnswer = [studentAnswer, tableAnswer].filter(Boolean).join('\n\n');
+  if (!studentAnswer && !Object.values(tableResponses).some(value => value.trim())) return;
 
   const feedbackEl = canvas.querySelector('#quizFeedback');
 
   // Only approved signed-in accounts can use the backend marking key.
   const currentUser = window.__sbAuth && window.__sbAuth.currentUser;
-  if (!currentUser || window.isGuest) {
-    feedbackEl.textContent = 'Sign in with an approved account to use AI marking.';
+  if (!window.SBQoL?.getJevApiKey() && (!currentUser || window.isGuest)) {
+    feedbackEl.textContent = 'Add your Jev API key in Settings to mark without a backend, or sign in with an approved account to use site marking.';
     feedbackEl.className = 'quiz-feedback quiz-incorrect';
     return;
   }
 
   setAICheckBusy(canvas, true);
-  feedbackEl.textContent = 'Marking with AI…';
+  feedbackEl.textContent = 'Marking with Jev…';
   feedbackEl.className = 'quiz-feedback';
 
   try {
-    const result = await StudyQuizMarking.mark(q, studentAnswer);
+    const result = await StudyQuizMarking.mark(q, submittedAnswer);
     if (quizState !== state || state.index !== index) return;
     const { earned } = result;
 
-    state.perQuestion[index] = { ...result, studentAnswer };
+    state.perQuestion[index] = { ...result, studentAnswer, tableResponses };
     persistCurrentQuiz();
 
     // Reset the submit button's busy label directly rather than via
@@ -2034,7 +2221,8 @@ async function submitAICheck() {
     // graded answer.
     const submitBtn = canvas.querySelector('#quizSubmitBtn');
     if (submitBtn) submitBtn.textContent = 'Submit';
-    textarea.disabled = true;
+    if (textarea) textarea.disabled = true;
+    StudyQuizContent.restoreResponses(canvas, tableResponses, true);
     showFeedback(canvas, earned, q.marks);
     document.getElementById('quizSubmitBtn').style.display = 'none';
     revealAdvanceButton();
@@ -2042,27 +2230,43 @@ async function submitAICheck() {
   } catch (err) {
     if (quizState !== state || state.index !== index) return;
     setAICheckBusy(canvas, false);
-    feedbackEl.textContent = `AI marking failed: ${err.message}`;
+    feedbackEl.textContent = `Jev marking failed: ${err.message}`;
     feedbackEl.className = 'quiz-feedback quiz-incorrect';
   }
 }
 
 /* ── Shared ── */
 
+function redoQuiz(failedOnly = false) {
+  if (!quizState) return;
+  const indices = quizState.questions.map((q,i) => i).filter(i => !failedOnly || !quizState.perQuestion[i] || quizState.perQuestion[i].earned < quizState.perQuestion[i].total);
+  if (!indices.length) return;
+  const answers = failedOnly ? quizState.perQuestion.slice() : new Array(quizState.questions.length).fill(null);
+  for (const i of indices) answers[i] = null;
+  // A fresh state also makes any outstanding marking response stale.
+  quizState = {...quizState,perQuestion:answers,index:indices[0],atSummary:false,reviewIndices:failedOnly ? indices : null};
+  persistCurrentQuiz();
+  renderQuestion();
+}
+
 function revealAdvanceButton() {
+  const skip = document.getElementById('quizSkipBtn'); if (skip) skip.hidden = true;
   const btn = document.getElementById('quizNextBtn');
   if (!btn) return;
-  const last = quizState.index + 1 >= quizState.questions.length;
+  const indices = questionIndices();
+  const last = indices.indexOf(quizState.index) + 1 >= indices.length;
   btn.textContent = last ? 'Submit' : 'Next →';
   btn.style.display = 'inline-block';
 }
 
 function nextQuestion() {
-  if (quizState.index + 1 >= quizState.questions.length) {
+  const indices = questionIndices();
+  const position = indices.indexOf(quizState.index);
+  if (position + 1 >= indices.length) {
     renderSummary();
     return;
   }
-  quizState.index++;
+  quizState.index = indices[position + 1];
   persistCurrentQuiz();
   renderQuestion();
 }
@@ -2099,7 +2303,10 @@ async function continueToNextSection() {
 
 function renderSummary() {
   quizState.atSummary = true;
+  setQuizHash(quizState.filename);
   persistCurrentQuiz();
+  renderSidebar();
+  updateQuizBreadcrumb(quizManifest.find(entry => entry.file === quizState.filename) || {name:quizState.quizName}, 'Results');
   const canvas = document.getElementById('quizCanvas');
   const earnedMarks = getEarnedMarks();
   const { totalMarks, quizName } = quizState;
@@ -2119,13 +2326,18 @@ function renderSummary() {
       <div class="quiz-score">${earnedMarks} / ${totalMarks} marks</div>
       <p class="quiz-ratio">Correct to incorrect <strong>${correct} : ${incorrect}</strong></p>
       ${extra ? `<p class="quiz-summary-sub">${escapeHtml(extra)}</p>` : '<div class="quiz-summary-sub"></div>'}
+      ${quizState.reviewIndices ? '<p class="quiz-summary-sub">Score includes previously correct answers.</p>' : ''}
       <div class="quiz-home-actions">
+        <button type="button" class="quiz-btn" id="quizRedo">Redo quiz</button>
+        <button type="button" class="quiz-btn" id="quizRedoFailed" ${incorrect + partial + unanswered === 0 ? 'disabled' : ''}>Redo failed questions</button>
         <button type="button" class="quiz-btn" id="quizSummaryHome">All quizzes</button>
         <button type="button" class="quiz-btn quiz-btn-primary" id="quizSummaryNext">${escapeHtml(nextLabel)}</button>
       </div>
     </div>
   `;
   canvas.querySelector('#quizSummaryHome').addEventListener('click', showQuizHome);
+  canvas.querySelector('#quizRedo').addEventListener('click', () => redoQuiz());
+  canvas.querySelector('#quizRedoFailed').addEventListener('click', () => redoQuiz(true));
   canvas.querySelector('#quizSummaryNext').addEventListener('click', continueToNextSection);
 }
 
@@ -2142,7 +2354,10 @@ window.addEventListener('hashchange', () => {
   }
   const entry = quizManifest.find(m => m.file === hashFile);
   if (entry && (!quizState || quizState.filename !== hashFile)) {
-    loadQuizByFile(entry.file, entry.name, { resume: true });
+    loadQuizByFile(entry.file, entry.name, { resume: true, questionId:quizHashQuestion() });
+  } else if (entry && quizState) {
+    const target = quizState.questions.findIndex((q,i) => String(q.id ?? i) === quizHashQuestion());
+    if (target >= 0) jumpToQuestion(target);
   }
 });
 </script>

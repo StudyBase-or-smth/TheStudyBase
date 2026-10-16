@@ -18,3 +18,17 @@ Set BASECOMPUTER_SYNC_URL to the backend's full HTTPS /sync URL and PROGRAM_SYNC
 Pages and assets are served directly from this folder; there is no dist directory or copying build. Push source changes and redeploy to update the hosted website. For local edits, run the config generator once, serve this folder with a static web server, and refresh the page.
 
 Security update: deploy this website with the matching backend update. Lobby joins use the authenticated /api/joinLobby endpoint. Media uses five-minute read-only tickets from /api/mediaTicket instead of Firebase login tokens in URLs. No additional Coolify environment variables are needed. Refresh the page after restarting or redeploying the backend.
+
+
+## Standalone quiz marking
+
+Install Node.js 20 or later, then run `npm run local` from this folder (no dependency
+installation needed). Open `http://127.0.0.1:8888/quiz-tool/quiz-tool.html`, enter your
+Jev key in Settings and keep the launcher running. No StudyBase backend or sign-in
+is required. Your browser saves the key for this origin; a key entered in a file
+URL or another port must be entered again. Internet access to Jev is required.
+
+The launcher binds only to 127.0.0.1. It serves this site's public files and forwards
+same-origin marking requests only to TypeSafe's fixed API endpoint. It does not
+store or log keys. Jev rejects local-file and localhost browser CORS requests, so
+opening the HTML file directly cannot provide standalone marking by itself.
