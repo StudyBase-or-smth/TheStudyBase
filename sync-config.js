@@ -484,14 +484,15 @@ function newNoteId(){
   return 'n_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
-const TOPIC_LAYOUTS = ['basic','overview','math','text','pdf','table'];
+const TOPIC_LAYOUTS = ['basic','overview','math','text','pdf','table','draw'];
 const LAYOUT_CONTENT_KEYS = {
   basic:    ['definition','keyPoints','formula','materials','process','safety','examTip'],
   overview: ['bodyText','keyPoints'],
   text:     ['bodyText','keyPoints'],
   math:     ['formula','desmosState'],
   pdf:      ['pdfData','pdfName'],
-  table:    ['tableData']
+  table:    ['tableData'],
+  draw:     ['drawData']
 };
 
 function emptyTableData(){ return { columns: [], rows: [] }; }
@@ -566,7 +567,8 @@ function normalizeTopic(raw){
     pdfData: '',
     pdfName: '',
     tableData: emptyTableData(),
-    desmosState: null
+    desmosState: null,
+    drawData: null
   };
   Object.assign(t, topicContentFromRaw(src, layout));
   if(t.desmosState && typeof StudyGraph !== 'undefined') t.desmosState = StudyGraph.migrate(t.desmosState);

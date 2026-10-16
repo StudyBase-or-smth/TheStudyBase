@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../mainstyle.css?v=editbtns2">
 <link rel="stylesheet" href="flashcards-editor.css">
 <link rel="stylesheet" href="knowledge-graph.css">
+<link rel="stylesheet" href="drawing.css">
 <script src="../flashcards-core.js"></script>
 <script src="../sync-config.generated.js"></script>
 <script src="../sync-config.js"></script>
@@ -284,6 +285,7 @@
       <input type="file" id="fPdfFile" accept="application/pdf,image/*" style="display:none" onchange="onPdfFileSelected(this)">
       <div id="pdfPreviewArea"></div>
     </div>
+    <div class="form-g" data-layout-group="draw"><label class="form-l">Drawing</label><div id="drawingEditor"></div></div>
     <div class="form-g" data-layout-group="table">
       <label class="form-l">Table <span>— add/remove columns and rows, click a cell to edit</span></label>
       <div class="table-editor-wrap">
@@ -346,7 +348,7 @@
       <div class="subtopic-editor-list" id="subtopicEditorList"></div>
       <button class="btn-add-kp" onclick="addSubtopicRow()">+ Add subtopic</button>
     </div>
-    <div class="form-g" data-layout-group="basic overview math text pdf table">
+    <div class="form-g" data-layout-group="basic overview math text pdf table draw">
       <label class="form-l">Flashcard Questions <span>— custom Q&amp;A for this topic's cards</span></label>
       <div class="fqa-list" id="fqaList"></div>
       <button class="btn-add-kp" onclick="addFqaRow()">+ Add question</button>
@@ -434,6 +436,10 @@
 <script>window.TOPIC_APP_MODE = 'subject';</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.11.1/distrib/jsxgraph.css">
 <script src="graph-editor.js?v=linked-values3"></script>
+<script src="../vendor/perfect-freehand/perfect-freehand.js"></script>
+<script src="../drawing-core.js"></script>
+<script src="drawing-import.js"></script>
+<script src="drawing.js"></script>
 <script src="../knowledge-graph-core.js"></script>
 <script src="knowledge-graph.js"></script>
 <script src="topicapp.js?v=qol1"></script>

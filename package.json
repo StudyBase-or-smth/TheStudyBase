@@ -4,6 +4,7 @@
   "scripts": {
     "local": "node scripts/serve-local.cjs",
     "vendor:fsrs": "node scripts/vendor-fsrs.cjs",
+    "vendor:drawing": "node scripts/vendor-drawing.cjs",
     "build": "node scripts/build-config.js",
     "test": "node --test tests"
   },

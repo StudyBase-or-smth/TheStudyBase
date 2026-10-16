@@ -364,6 +364,35 @@ async function mountGraphView(t){
 }
 function destroyGraphView(){graphViewMount++;if(graphViewCalc){graphViewCalc.destroy();graphViewCalc=null;}}
 
+let drawEditor=null,drawView=null,pendingDrawData=null;
+function readDrawState(){return drawEditor?drawEditor.getState():pendingDrawData;}
+function destroyDrawEditor(){if(drawEditor){pendingDrawData=drawEditor.getState();drawEditor.destroy();drawEditor=null;}}
+function mountDrawEditor(){
+  const container=document.getElementById('drawingEditor');if(currentLayout!=='draw'||!container||drawEditor?.container===container)return;
+  if(drawEditor)destroyDrawEditor();
+  const origin=editOrigin,topicId=editId,sourceId=origin?.id||SUBJECT.id,existing=(origin?topicsForOrigin(origin):getTopics()).find(t=>t.id===topicId),owner=window.__sbAuth?.currentUser?.uid||window.currentUid||'guest';
+  try{
+    drawEditor=StudyDrawing.create(container,{data:pendingDrawData||StudyDrawingCore.empty(),name:document.getElementById('fName')?.value||'drawing',updatedAt:existing?.updatedAt,
+      draftKey:'sbdraw:'+owner+':'+sourceId+':'+(topicId||'new'),
+      onChange(data){pendingDrawData=data;if(editSurface==='inline')updateEditBatchButtons();},
+      async onAutosave(data){
+        if(!topicId)return {synced:false};
+        if(window.isGuest||window.__sbAuth?.currentUser?.uid!==owner||(origin?window.userRole!=='dev':IS_CLASS_PAGE&&!canEditClassTopics()))return {synced:false};
+        const topics=origin?topicsForOrigin(origin):getTopics(),topic=topics.find(t=>t.id===topicId);
+        if(!topic||topic.layout!=='draw')return {synced:false};
+        const next=topics.map(t=>t.id===topicId?{...t,drawData:data,updatedAt:new Date().toISOString()}:t);
+        await saveTopicsForOrigin(origin,next);const bucket=origin?(origin.storageKey||origin.id+'_topics'):ST;
+        refreshUnsyncedUI();return {synced:!isTopicUnsynced(bucket,topicId)};
+      }
+    });drawEditor.container=container;
+  }catch(error){container.textContent=error.message;container.classList.add('drawing-error');}
+}
+function mountDrawView(topic){
+  if(drawView){drawView.destroy();drawView=null;}const container=document.getElementById('drawingView');if(!container)return;
+  try{drawView=StudyDrawing.create(container,{data:topic.drawData||StudyDrawingCore.empty(),readOnly:true,name:topic.name});}catch(error){container.textContent=error.message;}
+}
+function destroyDrawView(){if(drawView){drawView.destroy();drawView=null;}}
+
 // ── Storage helpers ──
 const getTopics  = () => normalizeTopicList(sbMemGet(ST, []));
 const getUnits   = () => {
@@ -396,7 +425,7 @@ function unitsForOrigin(origin){
 // doDelete). Devs get full access everywhere; everyone else stays read-only
 // here and edits a class's content from that class's own page instead.
 function saveTopicsForOrigin(origin, topics){
-  if(!origin){ saveTopics(topics); return; }
+  if(!origin) return saveTopics(topics);
   const key = origin.storageKey || (origin.id + '_topics');
   const next = normalizeTopicList(topics);
   const changed = changedTopicIds(topicsForOrigin(origin), next);
@@ -433,8 +462,8 @@ const savePinned = p => {
 };
 
 // ── Layouts ──
-const LAYOUTS = ['basic','overview','math','text','pdf','table'];
-const LAYOUT_LABELS = { basic:'Basic', overview:'Overview', math:'Math', text:'Text', pdf:'PDF/Image', table:'Table' };
+const LAYOUTS = ['basic','overview','math','text','pdf','table','draw'];
+const LAYOUT_LABELS = { basic:'Basic', overview:'Overview', math:'Math', text:'Text', pdf:'PDF/Image', table:'Table', draw:'Draw' };
 function subjectDefaultLayout(){
   // Class entries look up their linked subject for default layout; subject
   // entries use SUBJECT.default directly.
@@ -690,6 +719,8 @@ function applyLayoutUI(){
     const anyVisible = [...kids].some(el => el.style.display !== 'none');
     panel.style.display = anyVisible ? '' : 'none';
   });
+  if(currentLayout === 'draw' && editSurface) mountDrawEditor();
+  const fillButton=document.getElementById('btnAiFillModal');if(fillButton)fillButton.style.display=currentLayout==='draw'?'none':'';
   const menu = document.getElementById('layoutMenu');
   if(menu && menu.classList.contains('open')) menu.innerHTML = layoutMenuHtml();
   const kpLabel = document.getElementById('kpFieldLabel');
@@ -852,18 +883,19 @@ function buildInlineEditHtml(){
       <p class="graph-unavailable" id="graphEditorUnavailable" style="display:none">Graph libraries could not load. Check your connection.</p>
     </div>`)}
     ${inlineEditSection('pdf', 'pdfDoc', '📄', 'PDF / Image Document', `<input type="file" id="fPdfFile" accept="application/pdf,image/*" style="display:none" onchange="onPdfFileSelected(this)"><div id="pdfPreviewArea"></div>`)}
+    ${inlineEditSection('draw', 'drawData', '', 'Drawing', '<div id="drawingEditor"></div>')}
     ${inlineEditSection('table', 'tableData', '▦', 'Table', `<div class="table-editor-wrap"><table class="table-editor" id="tableEditorGrid"><thead><tr id="tableEditorHeadRow"></tr></thead><tbody id="tableEditorBody"></tbody></table></div>
       <div class="table-editor-actions"><button type="button" class="btn-small" onclick="addTableColumn()">+ Add column</button><button type="button" class="btn-small" onclick="addTableRow()">+ Add row</button></div>`)}
     ${inlineEditSection('basic', 'materials', '📋', 'Extra Notes', inlineRichField('fMaterials', 'Any additional notes…', 52))}
     ${inlineEditSection('basic', 'process', '⚙', 'Process / Method', inlineRichField('fProcess', 'How does it work? Step-by-step if applicable…', 66))}
     ${inlineEditSection('basic', 'safety', '⚠', 'Safety / Warnings', inlineRichField('fSafety', 'Hazards, warnings, failure modes…', 52))}
     ${inlineEditSection('basic', 'examTip', '⚡', 'Exam Tip', inlineRichField('fExamTip', 'Common mistakes, how to pick up marks…', 52))}
-    ${inlineEditSection('basic overview text math pdf table', 'subtopics', '🧩', 'Subtopics', `<div class="subtopic-editor-list" id="subtopicEditorList"></div><button type="button" class="btn-add-kp" onclick="addSubtopicRow()">+ Add subtopic</button>`)}
+    ${inlineEditSection('basic overview text math pdf table draw', 'subtopics', '🧩', 'Subtopics', `<div class="subtopic-editor-list" id="subtopicEditorList"></div><button type="button" class="btn-add-kp" onclick="addSubtopicRow()">+ Add subtopic</button>`)}
     <details class="edit-more-panel">
       <summary class="edit-more-summary">More</summary>
       <div class="edit-more-body">
-        ${inlineEditSection('basic overview math text pdf table', 'flashcardQA', '🎴', 'Flashcard Questions', `<div class="fqa-list" id="fqaList"></div><button type="button" class="btn-add-kp" onclick="addFqaRow()">+ Add question</button>`)}
-        ${inlineEditSection('basic overview text math pdf table', 'relatedTerms', '🔗', 'Related Terms', `<p class="knowledge-related-hint">Prerequisite topics from the knowledge graph. Use the Knowledge graph button to change connections.</p><div id="knowledgeEditorPrerequisites" class="knowledge-prerequisites"></div><div class="tags-wrap" id="tagsWrap" hidden><input type="text" class="tags-i" id="tagsInput" autocomplete="off"></div>`)}
+        ${inlineEditSection('basic overview math text pdf table draw', 'flashcardQA', '🎴', 'Flashcard Questions', `<div class="fqa-list" id="fqaList"></div><button type="button" class="btn-add-kp" onclick="addFqaRow()">+ Add question</button>`)}
+        ${inlineEditSection('basic overview text math pdf table draw', 'relatedTerms', '🔗', 'Related Terms', `<p class="knowledge-related-hint">Prerequisite topics from the knowledge graph. Use the Knowledge graph button to change connections.</p><div id="knowledgeEditorPrerequisites" class="knowledge-prerequisites"></div><div class="tags-wrap" id="tagsWrap" hidden><input type="text" class="tags-i" id="tagsInput" autocomplete="off"></div>`)}
       </div>
     </details>
     </div>
@@ -1674,6 +1706,8 @@ function viewTopic(id, originId){
       bodyHtml += sec('pdfDoc', 'PDF / Image Document', '📄', pdfHtml,
         expandBtnsHtml('pdfViewerFrame', {fullscreen:true}));
     }
+  } else if(layout === 'draw'){
+    bodyHtml += sec('drawData','Drawing','', '<div id="drawingView" class="drawing-readonly"></div>');
   } else if(layout === 'table'){
     const tableHtml = tableViewHtml(t);
     if(tableHtml) bodyHtml += sec('tableData', 'Table', '▦', tableHtml);
@@ -1697,7 +1731,7 @@ function viewTopic(id, originId){
     ? `<span class="dh-unit" style="background:${origin.colour}22;color:${origin.colour};border-color:${origin.colour}55">${esc(origin.emoji||'🏫')} From ${esc(origin.name)}${origin.class?' · '+esc(origin.class):''}</span>`
     : '';
 
-  destroyGraphView(); // the old container (if any) is about to be replaced below
+  destroyGraphView();destroyDrawView(); // The old view container is about to be replaced.
   closeEnlarge(); // any enlarged content belongs to the topic being replaced
   el.innerHTML = `
       <div class="dh">
@@ -1727,6 +1761,7 @@ function viewTopic(id, originId){
   if(typeof StudyKnowledgeGraph !== 'undefined') StudyKnowledgeGraph.mountPrerequisites(document.getElementById('topicPrerequisites'),t.id,origin?.id);
   buildTeacherPanel(t.id, visibleBlocks);
   mountGraphView(t);
+  mountDrawView(t);
   wireRichImages(el);
 
   // Breadcrumb: Index / Subject / [parent…] / Topic
@@ -1800,6 +1835,7 @@ function captureEditDraft(){
       const ds = readGraphState();
       return ds !== null ? ds : (ex.desmosState || null);
     })(),
+    drawData: readDrawState() || ex.drawData || null,
     layout: currentLayout,
     relatedTerms: (() => {
       const terms = [...tempTags];
@@ -1863,6 +1899,7 @@ function draftIsDirty(draft){
   const exTable = ex.tableData || { columns: [], rows: [] };
   if(draftStableJson(draftTable) !== draftStableJson(exTable)) return true;
   if(draftStableJson(draft.desmosState || null) !== draftStableJson(ex.desmosState || null)) return true;
+  if(draftStableJson(draft.drawData || null) !== draftStableJson(ex.drawData || null)) return true;
   const origSubs = topics.filter(c => c.parentId == draft.id).map(c => ({ id: String(c.id), name: c.name }));
   const draftSubs = (draft.subtopicRows || []).map(r => ({ id: r.id == null || r.id === '' ? null : String(r.id), name: r.name }));
   if(draftStableJson(draftSubs) !== draftStableJson(origSubs)) return true;
@@ -1922,6 +1959,7 @@ function wireEditDirtyTracking(){
 }
 
 function populateTopicForm(id, draft){
+  destroyDrawEditor();pendingDrawData=null;
   const topicsSrc = () => editOrigin ? topicsForOrigin(editOrigin) : getTopics();
   tempTags = [];
   document.getElementById('kpList').innerHTML = '';
@@ -1954,6 +1992,7 @@ function populateTopicForm(id, draft){
     (t.flashcardQA||[]).forEach(qa => addFqaRow(qa.q, qa.a, qa));
     buildTableEditor(t.tableData);
     desmosState = t.desmosState || null;
+    pendingDrawData = t.drawData || null;
     currentLayout = LAYOUTS.includes(t.layout) ? t.layout : subjectDefaultLayout();
     if(draft && 'pendingPdfData' in draft){
       pendingPdfData = draft.pendingPdfData;
@@ -2006,6 +2045,7 @@ function restoreModalFormIds(){
 }
 
 function finishEditSession(){
+  destroyDrawEditor();pendingDrawData=null;
   closeLayoutMenu();
   destroyGraphEditor();
   if(editSurface === 'inline'){
@@ -2069,6 +2109,7 @@ function wireStickyEditHeader(){
 }
 
 function afterEditFormMounted(desmosState){
+  mountDrawEditor();
   mountGraphEditor(desmosState);
   document.querySelectorAll('.rich-editor-wrap').forEach(attachRichDnD);
   wireRichImages(document.getElementById('detailContent'));
@@ -2103,6 +2144,7 @@ function startInlineEdit(id, opts){
   if(!editBatchDrafts) editBatchDrafts = {};
   closeEnlarge();
   destroyGraphView();
+  destroyDrawView();
   beginEditSession(id);
   const el = document.getElementById('detailContent');
   el.innerHTML = buildInlineEditHtml();
@@ -2429,6 +2471,7 @@ function applyDraftToTopicList(topics, draft){
     pdfName: draft.pdfName || '',
     tableData: draft.tableData || { columns: [], rows: [] },
     desmosState: draft.desmosState || null,
+    drawData: draft.drawData || null,
     layout: draft.layout || subjectDefaultLayout(),
     relatedTerms: draft.relatedTerms || [],
     knowledgeGraphIncluded: draft.knowledgeGraphIncluded === true,
@@ -2524,7 +2567,7 @@ function saveTopic(){
       saveTopicsForOrigin(origin, topics);
       list.forEach(d=>{if(d.knowledgeGraphDraft) StudyKnowledgeGraph.saveDraft(d.knowledgeGraphDraft,d.originId).catch(()=>showToast('Could not save graph connections','error'));});
     });
-    finishEditSession();
+    drawEditor?.clearRecovery();finishEditSession();
     renderList();
     viewTopic(viewId, viewOriginId);
     return;
@@ -2566,6 +2609,7 @@ function saveTopic(){
     pdfName:   pendingPdfData !== null ? pendingPdfName : (ex.pdfName || ''),
     tableData: readTableData(),
     desmosState: newDesmosState !== null ? newDesmosState : (ex.desmosState || null),
+    drawData: readDrawState() || ex.drawData || null,
     layout:    currentLayout,
     relatedTerms,
     knowledgeGraphIncluded: document.getElementById('fKnowledgeGraph')?.dataset.included === 'true',
@@ -2611,7 +2655,7 @@ function saveTopic(){
   saveTopicsForOrigin(savedOrigin, topics);
   const graphDraft=document.getElementById('fKnowledgeGraph')?.knowledgeGraphDraft;
   if(graphDraft) StudyKnowledgeGraph.saveDraft(graphDraft,savedOrigin?.id).catch(()=>showToast('Could not save graph connections','error'));
-  finishEditSession(); renderList();
+  drawEditor?.clearRecovery();finishEditSession(); renderList();
   viewTopic(topic.id, savedOrigin ? savedOrigin.id : null);
 }
 
