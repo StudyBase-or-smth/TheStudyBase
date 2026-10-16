@@ -1,0 +1,407 @@
+{
+  "studyMode": "exam-questions",
+  "source": {
+    "publisher": "NSW Education Standards Authority",
+    "year": 2024,
+    "origin": "Supplied exam-pack paper and matching NESA marking guidelines",
+    "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+    "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+    "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+    "sourceYear": 2024
+  },
+  "description": "2024 HSC Mathematics Standard 1, Section 1. Question wording and diagrams are taken from the supplied NESA exam-pack PDFs.",
+  "questions": [
+    {
+      "id": "math2024-s1-q1",
+      "name": "Question 1",
+      "question": "Mark buys one raffle ticket in a raffle with 1000 tickets. Which of the following best describes the probability that Mark wins?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "Certain",
+          "correct": false
+        },
+        {
+          "text": "Even chance",
+          "correct": false
+        },
+        {
+          "text": "Unlikely",
+          "correct": true
+        },
+        {
+          "text": "Impossible",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "math2024-s1-q2",
+      "name": "Question 2",
+      "question": "Four people completed the same fitness activity. The graph shows the heart rate for each person before and after completing the activity. Which person had the LEAST difference in heart rate?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "Jo",
+          "correct": false
+        },
+        {
+          "text": "Kim",
+          "correct": true
+        },
+        {
+          "text": "Lee",
+          "correct": false
+        },
+        {
+          "text": "Mal",
+          "correct": false
+        }
+      ],
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Four people completed the same fitness activity. The graph shows the heart rate for each person before and after completing the activity."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q2-1.png",
+          "page": 2,
+          "alt": "Question 2 exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "Which person had the LEAST difference in heart rate?"
+        }
+      ]
+    },
+    {
+      "id": "math2024-s1-q3",
+      "name": "Question 3",
+      "question": "The travel graph shows the distance of a runner from a town. Between what times was the runner travelling at their greatest speed?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "10 am and 11 am",
+          "correct": true
+        },
+        {
+          "text": "11 am and 11:30 am",
+          "correct": false
+        },
+        {
+          "text": "11:30 am and 1 pm",
+          "correct": false
+        },
+        {
+          "text": "1 pm and 2:30 pm",
+          "correct": false
+        }
+      ],
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The travel graph shows the distance of a runner from a town."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q3-1.png",
+          "page": 3,
+          "alt": "Question 3 exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "Between what times was the runner travelling at their greatest speed?"
+        }
+      ]
+    },
+    {
+      "id": "math2024-s1-q4",
+      "name": "Question 4",
+      "question": "The cost of a plumbing job is $500 plus 10% GST. What is the total cost of the job, including GST?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "$45",
+          "correct": false
+        },
+        {
+          "text": "$50",
+          "correct": false
+        },
+        {
+          "text": "$545",
+          "correct": false
+        },
+        {
+          "text": "$550",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "math2024-s1-q5",
+      "name": "Question 5",
+      "question": "A car is valued at $25 000 when new. Its value depreciates by 25% per annum. Which of the following best describes the change in value of the car after one year?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "Decrease of $1000",
+          "correct": false
+        },
+        {
+          "text": "Increase of $1000",
+          "correct": false
+        },
+        {
+          "text": "Decrease of $6250",
+          "correct": true
+        },
+        {
+          "text": "Increase of $6250",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "math2024-s1-q6",
+      "name": "Question 6",
+      "question": "The map shows regions within a country. A network diagram is to be drawn to represent this map. Vertices will be used to indicate each region and edges will be used to represent a border shared between two regions. How many edges will there be in the network diagram?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "8",
+          "correct": false
+        },
+        {
+          "text": "7",
+          "correct": true
+        },
+        {
+          "text": "6",
+          "correct": false
+        },
+        {
+          "text": "5",
+          "correct": false
+        }
+      ],
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The map shows regions within a country."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q6-1.png",
+          "page": 4,
+          "alt": "Question 6 exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "A network diagram is to be drawn to represent this map. Vertices will be used to indicate each region and edges will be used to represent a border shared between two regions. How many edges will there be in the network diagram?"
+        }
+      ]
+    },
+    {
+      "id": "math2024-s1-q7",
+      "name": "Question 7",
+      "question": "Consider the diagram shown. Which of the following is the correct expression for the length of x ?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "20 cos 40°",
+          "correct": true
+        },
+        {
+          "text": "20 sin 40°",
+          "correct": false
+        },
+        {
+          "text": "20 / cos 40°",
+          "correct": false
+        },
+        {
+          "text": "20 / sin 40°",
+          "correct": false
+        }
+      ],
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Consider the diagram shown."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q7-1.png",
+          "page": 5,
+          "alt": "Question 7 exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "Which of the following is the correct expression for the length of x ?"
+        }
+      ]
+    },
+    {
+      "id": "math2024-s1-q8",
+      "name": "Question 8",
+      "question": "Three years ago, the price of a uniform was $180. Due to inflation, the price increased annually by 2.5%. What is the price of this uniform now?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "$180.14",
+          "correct": false
+        },
+        {
+          "text": "$181.35",
+          "correct": false
+        },
+        {
+          "text": "$193.50",
+          "correct": false
+        },
+        {
+          "text": "$193.84",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "math2024-s1-q9",
+      "name": "Question 9",
+      "question": "An equilateral triangle and an isosceles triangle are shown. The triangles have the same perimeter. What is the value of x ?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "8",
+          "correct": false
+        },
+        {
+          "text": "9",
+          "correct": false
+        },
+        {
+          "text": "11",
+          "correct": false
+        },
+        {
+          "text": "12",
+          "correct": true
+        }
+      ],
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "An equilateral triangle and an isosceles triangle are shown."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q9-1.png",
+          "page": 6,
+          "alt": "Equilateral and isosceles triangles for Question 9"
+        },
+        {
+          "type": "text",
+          "text": "The triangles have the same perimeter. What is the value of x ?"
+        }
+      ]
+    },
+    {
+      "id": "math2024-s1-q10",
+      "name": "Question 10",
+      "question": "A cyclist rides a bicycle at a constant speed around a circular track. Which of the graphs best illustrates the distance of the cyclist from the centre of the track as time varies?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A",
+          "correct": true
+        },
+        {
+          "text": "B",
+          "correct": false
+        },
+        {
+          "text": "C",
+          "correct": false
+        },
+        {
+          "text": "D",
+          "correct": false
+        }
+      ],
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A cyclist rides a bicycle at a constant speed around a circular track."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q10-1.png",
+          "page": 6,
+          "alt": "Cyclist travelling around a circular track"
+        },
+        {
+          "type": "text",
+          "text": "Which of the graphs best illustrates the distance of the cyclist from the centre of the track as time varies?"
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q10-2.png",
+          "page": 6,
+          "alt": "Distance–time graph choices A–D"
+        }
+      ]
+    }
+  ]
+}

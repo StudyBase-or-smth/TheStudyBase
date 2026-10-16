@@ -1,0 +1,2297 @@
+{
+  "studyMode": "exam-questions",
+  "source": {
+    "publisher": "NSW Education Standards Authority",
+    "year": 2024,
+    "origin": "Supplied exam-pack paper and matching NESA marking guidelines",
+    "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+    "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+    "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+    "sourceYear": 2024
+  },
+  "description": "2024 HSC Mathematics Standard 2, Section 2. Question wording and diagrams are taken from the supplied NESA exam-pack PDFs.",
+  "questions": [
+    {
+      "id": "math2024-s2-q16a",
+      "name": "Question 16 (a)",
+      "question": "A network of towns and the distances between them in kilometres is shown. G What is the shortest path from T to H ?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A network of towns and the distances between them in kilometres is shown."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q16a-1.png",
+          "page": 10,
+          "alt": "Question 16a exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "G What is the shortest path from T to H ?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides the correct path 2\n• Provides a continuous path from T to H 1\nSample answer:\nTYWH",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Provides a continuous path from T to H.",
+        "2": "Meets the full-mark criteria: Provides the correct path."
+      }
+    },
+    {
+      "id": "math2024-s2-q16b",
+      "name": "Question 16 (b)",
+      "question": "A network of towns and the distances between them in kilometres is shown. G A truck driver needs to travel from Y to G but knows that the road from C to G is closed. What is the length of the shortest path the truck driver can take from Y to G after the road closure?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A network of towns and the distances between them in kilometres is shown."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q16b-1.png",
+          "page": 10,
+          "alt": "Question 16b exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "G A truck driver needs to travel from Y to G but knows that the road from C to G is closed. What is the length of the shortest path the truck driver can take from Y to G after the road closure?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Provides a continuous path from Y to G, without C to G 1\nSample answer:\nYWHMG is 89 km",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Provides a continuous path from Y to G, without C to G.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s2-q17",
+      "name": "Question 17",
+      "question": "The cost of electricity is 30.13 cents per kWh. Calculate the cost of using a 650 W air conditioner for 6 hours.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The cost of electricity is 30.13 cents per kWh. Calculate the cost of using a 650 W air conditioner for 6 hours."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 2\n• Performs an appropriate conversion, or equivalent merit 1\nSample answer:\n650\n# 6 # $0.3013 1000\n= $1.18",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Performs an appropriate conversion, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s2-q18a",
+      "name": "Question 18 (a)",
+      "question": "The diagram shows a network with weighted edges. Draw a minimum spanning tree for this network and determine its weight.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The diagram shows a network with weighted edges."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q18a-1.png",
+          "page": 12,
+          "alt": "Question 18a exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "Draw a minimum spanning tree for this network and determine its weight."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Draws a spanning tree, or equivalent merit 1\nSample answer:\n2\n4\n2\n1\n1\n3\n4\n4\n3\nA\nB C\nE\nF\nG\nH\nI\nJ\nD\nWeight = 24",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Draws a spanning tree, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      },
+      "responseFormat": "drawing-description"
+    },
+    {
+      "id": "math2024-s2-q18b",
+      "name": "Question 18 (b)",
+      "question": "The diagram shows a network with weighted edges. Is it possible to find another spanning tree with the same weight? Give a reason for your answer.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The diagram shows a network with weighted edges."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q18b-1.png",
+          "page": 12,
+          "alt": "Question 18b exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "Is it possible to find another spanning tree with the same weight? Give a reason for your answer."
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides a correct reason for why it is possible to find another spanning\ntree with the same weight 1\nSample answer:\nYes, use BC instead of FC as the weight of BC is the same as the weight of FC.",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Complete correct response meeting the NESA criteria."
+      }
+    },
+    {
+      "id": "math2024-s2-q19a",
+      "name": "Question 19 (a)",
+      "question": "A teacher was exploring the relationship between students’ marks for an assignment and their marks for a test. The data for five different students are shown on the graph. The least-squares regression line is also shown. Assignment mark What is the equation of the least-squares regression line for this dataset?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A teacher was exploring the relationship between students’ marks for an assignment and their marks for a test. The data for five different students are shown on the graph."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q19a-1.png",
+          "page": 13,
+          "alt": "Question 19a exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "The least-squares regression line is also shown. Assignment mark What is the equation of the least-squares regression line for this dataset?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Finds the y-intercept or gradient, or equivalent merit 1\nSample answer:\n14\nm = 10\n= 1.4\ny = 1.4x + 6",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Finds the y-intercept or gradient, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s2-q19b",
+      "name": "Question 19 (b)",
+      "question": "A teacher was exploring the relationship between students’ marks for an assignment and their marks for a test. The data for five different students are shown on the graph. The least-squares regression line is also shown. Assignment mark Another student, whose marks are not on the graph, scored 5 for the assignment and 12 on the test. Did this student do better or worse on the test than the regression line predicts? Provide a reason for your answer.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A teacher was exploring the relationship between students’ marks for an assignment and their marks for a test. The data for five different students are shown on the graph."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q19b-1.png",
+          "page": 13,
+          "alt": "Question 19b exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "The least-squares regression line is also shown. Assignment mark Another student, whose marks are not on the graph, scored 5 for the assignment and 12 on the test. Did this student do better or worse on the test than the regression line predicts? Provide a reason for your answer."
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct reason 1\nSample answer:\nWorse as the predicted test mark was 13 instead of 12.",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Meets the full-mark criteria: Provides correct reason."
+      }
+    },
+    {
+      "id": "math2024-s2-q20a",
+      "name": "Question 20 (a)",
+      "question": "The table shows the future value for an annuity of $1 for varying interest rates and time periods. Ken invests $200 at the start of each year for eight years, at an interest rate of 5% per annum. Calculate the future value of Ken’s investment.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The table shows the future value for an annuity of $1 for varying interest rates and time periods."
+        },
+        {
+          "type": "table",
+          "caption": "Question 20a table",
+          "columns": [
+            "Rate\nPeriod",
+            "1%",
+            "2%",
+            "3%",
+            "4%",
+            "5%"
+          ],
+          "rows": [
+            [
+              {
+                "text": "1",
+                "header": true
+              },
+              {
+                "text": "1.0100",
+                "header": false
+              },
+              {
+                "text": "1.0200",
+                "header": false
+              },
+              {
+                "text": "1.0300",
+                "header": false
+              },
+              {
+                "text": "1.0400",
+                "header": false
+              },
+              {
+                "text": "1.0500",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "2",
+                "header": true
+              },
+              {
+                "text": "2.0301",
+                "header": false
+              },
+              {
+                "text": "2.0604",
+                "header": false
+              },
+              {
+                "text": "2.0909",
+                "header": false
+              },
+              {
+                "text": "2.1216",
+                "header": false
+              },
+              {
+                "text": "2.1525",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "3",
+                "header": true
+              },
+              {
+                "text": "3.0604",
+                "header": false
+              },
+              {
+                "text": "3.1216",
+                "header": false
+              },
+              {
+                "text": "3.1836",
+                "header": false
+              },
+              {
+                "text": "3.2465",
+                "header": false
+              },
+              {
+                "text": "3.3101",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "4",
+                "header": true
+              },
+              {
+                "text": "4.1010",
+                "header": false
+              },
+              {
+                "text": "4.2040",
+                "header": false
+              },
+              {
+                "text": "4.3091",
+                "header": false
+              },
+              {
+                "text": "4.4163",
+                "header": false
+              },
+              {
+                "text": "4.5256",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "5",
+                "header": true
+              },
+              {
+                "text": "5.1520",
+                "header": false
+              },
+              {
+                "text": "5.3081",
+                "header": false
+              },
+              {
+                "text": "5.4684",
+                "header": false
+              },
+              {
+                "text": "5.6330",
+                "header": false
+              },
+              {
+                "text": "5.8019",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "6",
+                "header": true
+              },
+              {
+                "text": "6.2135",
+                "header": false
+              },
+              {
+                "text": "6.4343",
+                "header": false
+              },
+              {
+                "text": "6.6625",
+                "header": false
+              },
+              {
+                "text": "6.8983",
+                "header": false
+              },
+              {
+                "text": "7.1420",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "7",
+                "header": true
+              },
+              {
+                "text": "7.2857",
+                "header": false
+              },
+              {
+                "text": "7.5830",
+                "header": false
+              },
+              {
+                "text": "7.8923",
+                "header": false
+              },
+              {
+                "text": "8.2142",
+                "header": false
+              },
+              {
+                "text": "8.5491",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "8",
+                "header": true
+              },
+              {
+                "text": "8.3685",
+                "header": false
+              },
+              {
+                "text": "8.7546",
+                "header": false
+              },
+              {
+                "text": "9.1591",
+                "header": false
+              },
+              {
+                "text": "9.5828",
+                "header": false
+              },
+              {
+                "text": "10.0266",
+                "header": false
+              }
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "Ken invests $200 at the start of each year for eight years, at an interest rate of 5% per annum. Calculate the future value of Ken’s investment."
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 1\nSample answer:\n$200 # 10.0266\n= $2005.32\n\nQuestion table context: Question 20a table: columns Rate\nPeriod, 1%, 2%, 3%, 4%, 5%; 1 | 1.0100 | 1.0200 | 1.0300 | 1.0400 | 1.0500; 2 | 2.0301 | 2.0604 | 2.0909 | 2.1216 | 2.1525; 3 | 3.0604 | 3.1216 | 3.1836 | 3.2465 | 3.3101; 4 | 4.1010 | 4.2040 | 4.3091 | 4.4163 | 4.5256; 5 | 5.1520 | 5.3081 | 5.4684 | 5.6330 | 5.8019; 6 | 6.2135 | 6.4343 | 6.6625 | 6.8983 | 7.1420; 7 | 7.2857 | 7.5830 | 7.8923 | 8.2142 | 8.5491; 8 | 8.3685 | 8.7546 | 9.1591 | 9.5828 | 10.0266",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s2-q20b",
+      "name": "Question 20 (b)",
+      "question": "The table shows the future value for an annuity of $1 for varying interest rates and time periods. Shay is planning to take a holiday in three years. She needs $4500 for this holiday and will make regular six-monthly payments into an account that earns interest at the rate of 4% per annum, compounded 6 monthly. What is the minimum amount Shay needs to pay into this account every 6 months? Give your answer to the nearest $10. Support your answer with calculations.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The table shows the future value for an annuity of $1 for varying interest rates and time periods."
+        },
+        {
+          "type": "table",
+          "caption": "Question 20b table",
+          "columns": [
+            "Rate\nPeriod",
+            "1%",
+            "2%",
+            "3%",
+            "4%",
+            "5%"
+          ],
+          "rows": [
+            [
+              {
+                "text": "1",
+                "header": true
+              },
+              {
+                "text": "1.0100",
+                "header": false
+              },
+              {
+                "text": "1.0200",
+                "header": false
+              },
+              {
+                "text": "1.0300",
+                "header": false
+              },
+              {
+                "text": "1.0400",
+                "header": false
+              },
+              {
+                "text": "1.0500",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "2",
+                "header": true
+              },
+              {
+                "text": "2.0301",
+                "header": false
+              },
+              {
+                "text": "2.0604",
+                "header": false
+              },
+              {
+                "text": "2.0909",
+                "header": false
+              },
+              {
+                "text": "2.1216",
+                "header": false
+              },
+              {
+                "text": "2.1525",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "3",
+                "header": true
+              },
+              {
+                "text": "3.0604",
+                "header": false
+              },
+              {
+                "text": "3.1216",
+                "header": false
+              },
+              {
+                "text": "3.1836",
+                "header": false
+              },
+              {
+                "text": "3.2465",
+                "header": false
+              },
+              {
+                "text": "3.3101",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "4",
+                "header": true
+              },
+              {
+                "text": "4.1010",
+                "header": false
+              },
+              {
+                "text": "4.2040",
+                "header": false
+              },
+              {
+                "text": "4.3091",
+                "header": false
+              },
+              {
+                "text": "4.4163",
+                "header": false
+              },
+              {
+                "text": "4.5256",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "5",
+                "header": true
+              },
+              {
+                "text": "5.1520",
+                "header": false
+              },
+              {
+                "text": "5.3081",
+                "header": false
+              },
+              {
+                "text": "5.4684",
+                "header": false
+              },
+              {
+                "text": "5.6330",
+                "header": false
+              },
+              {
+                "text": "5.8019",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "6",
+                "header": true
+              },
+              {
+                "text": "6.2135",
+                "header": false
+              },
+              {
+                "text": "6.4343",
+                "header": false
+              },
+              {
+                "text": "6.6625",
+                "header": false
+              },
+              {
+                "text": "6.8983",
+                "header": false
+              },
+              {
+                "text": "7.1420",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "7",
+                "header": true
+              },
+              {
+                "text": "7.2857",
+                "header": false
+              },
+              {
+                "text": "7.5830",
+                "header": false
+              },
+              {
+                "text": "7.8923",
+                "header": false
+              },
+              {
+                "text": "8.2142",
+                "header": false
+              },
+              {
+                "text": "8.5491",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "8",
+                "header": true
+              },
+              {
+                "text": "8.3685",
+                "header": false
+              },
+              {
+                "text": "8.7546",
+                "header": false
+              },
+              {
+                "text": "9.1591",
+                "header": false
+              },
+              {
+                "text": "9.5828",
+                "header": false
+              },
+              {
+                "text": "10.0266",
+                "header": false
+              }
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "Shay is planning to take a holiday in three years. She needs $4500 for this holiday and will make regular six-monthly payments into an account that earns interest at the rate of 4% per annum, compounded 6 monthly. What is the minimum amount Shay needs to pay into this account every 6 months? Give your answer to the nearest $10. Support your answer with calculations."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Finds the correct rate, or equivalent merit 1\nSample answer:\n4\nr = %\n2\n= 2%\nn = 3 # 2\n= 6\n4500 Investment per 6 months = 6.4343\n= 699.37...\n= $700 rounded to nearest $10\n\nQuestion table context: Question 20b table: columns Rate\nPeriod, 1%, 2%, 3%, 4%, 5%; 1 | 1.0100 | 1.0200 | 1.0300 | 1.0400 | 1.0500; 2 | 2.0301 | 2.0604 | 2.0909 | 2.1216 | 2.1525; 3 | 3.0604 | 3.1216 | 3.1836 | 3.2465 | 3.3101; 4 | 4.1010 | 4.2040 | 4.3091 | 4.4163 | 4.5256; 5 | 5.1520 | 5.3081 | 5.4684 | 5.6330 | 5.8019; 6 | 6.2135 | 6.4343 | 6.6625 | 6.8983 | 7.1420; 7 | 7.2857 | 7.5830 | 7.8923 | 8.2142 | 8.5491; 8 | 8.3685 | 8.7546 | 9.1591 | 9.5828 | 10.0266",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Finds the correct rate, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s2-q21a",
+      "name": "Question 21 (a)",
+      "question": "William has a reducing balance loan on which he owes $5590. He makes monthly repayments of $110. The loan company charges interest at 24% per annum, compounded monthly. The spreadsheet shows some of the information for the next two months of the loan. Complete the entries in the spreadsheet to show the balance owing on the loan at the end of two months.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "William has a reducing balance loan on which he owes $5590. He makes monthly repayments of $110. The loan company charges interest at 24% per annum, compounded monthly. The spreadsheet shows some of the information for the next two months of the loan. Complete the entries in the spreadsheet to show the balance owing on the loan at the end of two months."
+        },
+        {
+          "type": "table",
+          "caption": "Question 21a table",
+          "columns": [],
+          "rows": [
+            [
+              {
+                "text": "",
+                "header": true
+              },
+              {
+                "text": "A",
+                "header": false
+              },
+              {
+                "text": "B",
+                "header": false
+              },
+              {
+                "text": "C",
+                "header": false
+              },
+              {
+                "text": "D",
+                "header": false
+              },
+              {
+                "text": "E",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "1",
+                "header": true
+              },
+              {
+                "text": "Month",
+                "header": false
+              },
+              {
+                "text": "Principal",
+                "header": false
+              },
+              {
+                "text": "Interest\ncharged",
+                "header": false
+              },
+              {
+                "text": "Amount\nrepaid",
+                "header": false
+              },
+              {
+                "text": "Balance\nowing",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "2",
+                "header": true
+              },
+              {
+                "text": "1",
+                "header": false
+              },
+              {
+                "text": "$5590.00",
+                "header": false
+              },
+              {
+                "text": "$111.80",
+                "header": false
+              },
+              {
+                "text": "$110.00",
+                "header": false
+              },
+              {
+                "text": "",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "3",
+                "header": true
+              },
+              {
+                "text": "2",
+                "header": false
+              },
+              {
+                "text": "",
+                "header": false
+              },
+              {
+                "text": "",
+                "header": false
+              },
+              {
+                "text": "$110.00",
+                "header": false
+              },
+              {
+                "text": "",
+                "header": false
+              }
+            ]
+          ]
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Provides one correct entry in the table 1\nSample answer:\nA B C D E\n1 Month Principal\nInterest\ncharged\nAmount\nrepaid\nBalance\nowing\n2 1 $5590.00 $111.80 $110.00 $5591.80\n3 2 $5591.80 $111.84 $110.00 $5593.64\n` Balance owing = $5593.64\n\nQuestion table context: Question 21a table: columns ;  | A | B | C | D | E; 1 | Month | Principal | Interest\ncharged | Amount\nrepaid | Balance\nowing; 2 | 1 | $5590.00 | $111.80 | $110.00 | ; 3 | 2 |  |  | $110.00 | ",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Provides one correct entry in the table.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s2-q21b",
+      "name": "Question 21 (b)",
+      "question": "William has a reducing balance loan on which he owes $5590. He makes monthly repayments of $110. The loan company charges interest at 24% per annum, compounded monthly. The spreadsheet shows some of the information for the next two months of the loan. Explain why the loan will never be repaid if William continues to make repayments of $110 per month.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "William has a reducing balance loan on which he owes $5590. He makes monthly repayments of $110. The loan company charges interest at 24% per annum, compounded monthly. The spreadsheet shows some of the information for the next two months of the loan. Explain why the loan will never be repaid if William continues to make repayments of $110 per month."
+        },
+        {
+          "type": "table",
+          "caption": "Question 21b table",
+          "columns": [],
+          "rows": [
+            [
+              {
+                "text": "",
+                "header": true
+              },
+              {
+                "text": "A",
+                "header": false
+              },
+              {
+                "text": "B",
+                "header": false
+              },
+              {
+                "text": "C",
+                "header": false
+              },
+              {
+                "text": "D",
+                "header": false
+              },
+              {
+                "text": "E",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "1",
+                "header": true
+              },
+              {
+                "text": "Month",
+                "header": false
+              },
+              {
+                "text": "Principal",
+                "header": false
+              },
+              {
+                "text": "Interest\ncharged",
+                "header": false
+              },
+              {
+                "text": "Amount\nrepaid",
+                "header": false
+              },
+              {
+                "text": "Balance\nowing",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "2",
+                "header": true
+              },
+              {
+                "text": "1",
+                "header": false
+              },
+              {
+                "text": "$5590.00",
+                "header": false
+              },
+              {
+                "text": "$111.80",
+                "header": false
+              },
+              {
+                "text": "$110.00",
+                "header": false
+              },
+              {
+                "text": "",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "3",
+                "header": true
+              },
+              {
+                "text": "2",
+                "header": false
+              },
+              {
+                "text": "",
+                "header": false
+              },
+              {
+                "text": "",
+                "header": false
+              },
+              {
+                "text": "$110.00",
+                "header": false
+              },
+              {
+                "text": "",
+                "header": false
+              }
+            ]
+          ]
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides a correct reason 1\nSample answer:\nLoan will never be repaid as the interest charged per month is more than the monthly\nrepayment of $110.\nAnswers could include:\nThe balance owing on the loan is increasing.\n\nQuestion table context: Question 21b table: columns ;  | A | B | C | D | E; 1 | Month | Principal | Interest\ncharged | Amount\nrepaid | Balance\nowing; 2 | 1 | $5590.00 | $111.80 | $110.00 | ; 3 | 2 |  |  | $110.00 | ",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Meets the full-mark criteria: Provides a correct reason."
+      }
+    },
+    {
+      "id": "math2024-s2-q22",
+      "name": "Question 22",
+      "question": "The graph shows the populations of two different animals, W and K, in a conservation park over time. The y-axis is the size of the population and the x-axis is the number of years since 1985. Population W is modelled by the equation y = A × 1.055^x. Population K is modelled by the equation y = B × 0.97^x. Complete the table using the information provided.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The graph shows the populations of two different animals, W and K, in a conservation park over time."
+        },
+        {
+          "type": "table",
+          "caption": "Question 22 table",
+          "columns": [],
+          "rows": [
+            [
+              {
+                "text": "",
+                "header": true,
+                "input": true,
+                "label": "Question 22 table response"
+              },
+              {
+                "text": "Population W",
+                "header": false
+              },
+              {
+                "text": "Population K",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "Population in 1985",
+                "header": true
+              },
+              {
+                "text": "A = 34",
+                "header": false
+              },
+              {
+                "text": "B =",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "Percentage yearly change in the population",
+                "header": true
+              },
+              {
+                "text": "",
+                "header": false,
+                "input": true,
+                "label": "Question 22 table response"
+              },
+              {
+                "text": "",
+                "header": false,
+                "input": true,
+                "label": "Question 22 table response"
+              }
+            ],
+            [
+              {
+                "text": "Predicted population when x = 50",
+                "header": true
+              },
+              {
+                "text": "",
+                "header": false,
+                "input": true,
+                "label": "Question 22 table response"
+              },
+              {
+                "text": "61",
+                "header": false
+              }
+            ]
+          ]
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q22-1.png",
+          "page": 16,
+          "alt": "Question 22 exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "The y-axis is the size of the population and the x-axis is the number of years since 1985. Population W is modelled by the equation y = A × 1.055^x. Population K is modelled by the equation y = B × 0.97^x. Complete the table using the information provided."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Completes the table correctly 3\n• Provides two correct entries 2\n• Provides one correct entry 1\nSample answer:\nPopulation W Population K\nPopulation in 1985 A = 34 B = 280\nPercentage yearly change in the population 5.5% -3%\nPopulation when x = 50 494 61\n34 ^1.055h\n50\n= 494.426...\n= 494\n\nQuestion table context: Question 22 table: columns ;  | Population W | Population K; Population in 1985 | A = 34 | B =; Percentage yearly change in the population |  | ; Predicted population when x = 50 |  | 61",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Provides one correct entry.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Provides two correct entries; Provides one correct entry.",
+        "3": "Meets the full-mark criteria: Completes the table correctly."
+      },
+      "showWrittenAnswer": false
+    },
+    {
+      "id": "math2024-s2-q23",
+      "name": "Question 23",
+      "question": "Zazu works a 38-hour week and is paid at an hourly rate of $45. Any overtime hours worked are paid at time-and-a-half. In a particular week, Zazu worked the regular 38 hours and some overtime hours. In that week Zazu earned $2790. How many hours of overtime did Zazu work in that week?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Zazu works a 38-hour week and is paid at an hourly rate of $45. Any overtime hours worked are paid at time-and-a-half. In a particular week, Zazu worked the regular 38 hours and some overtime hours. In that week Zazu earned $2790. How many hours of overtime did Zazu work in that week?"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 3\n• Finds Zazu’s normal time earnings and overtime hourly rate,\nor equivalent merit 2\n• Finds Zazu’s normal time earnings, or equivalent merit 1\nSample answer:\nNormal time earnings = 38 # 45\n= 1710\nOvertime paid = 2790 - 1710\n= 1080\n$1080 Overtime hours = ^45 # 1.5h\n= 16 hours",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Finds Zazu’s normal time earnings, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Finds Zazu’s normal time earnings, or equivalent merit.",
+        "3": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s2-q24a",
+      "name": "Question 24 (a)",
+      "question": "Sarah, a 60 kg female, consumes 3 glasses of wine at a family dinner over 2.5 hours. Note: there are 1.2 standard drinks in one glass of wine. The blood alcohol content (BAC) for females can be estimated by BAC_female = (10N − 7.5H) / (5.5M), where N = number of standard drinks H = number of hours drinking M = mass in kilograms. Calculate Sarah’s BAC at the end of the dinner, correct to 3 decimal places.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Sarah, a 60 kg female, consumes 3 glasses of wine at a family dinner over 2.5 hours. Note: there are 1.2 standard drinks in one glass of wine. The blood alcohol content (BAC) for females can be estimated by BAC_female = (10N − 7.5H) / (5.5M), where N = number of standard drinks H = number of hours drinking M = mass in kilograms. Calculate Sarah’s BAC at the end of the dinner, correct to 3 decimal places."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 2\n• Attempts to use the BAC formula 1\nSample answer:\n10^1.2 # 3h -7.5 # 2.5 BAC = 5.5 # 60\n= 0.0522...\n= 0.052 (to 3 decimal places)",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Attempts to use the BAC formula.",
+        "2": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s2-q24b",
+      "name": "Question 24 (b)",
+      "question": "Sarah, a 60 kg female, consumes 3 glasses of wine at a family dinner over 2.5 hours. Note: there are 1.2 standard drinks in one glass of wine. The blood alcohol content (BAC) for females can be estimated by where N = number of standard drinks H = number of hours drinking M = mass in kilograms. The time it takes a person’s BAC to reach zero is given by BAC Time = . 0.015 Calculate the time it takes for Sarah’s BAC to return to zero, assuming she stopped drinking after 2.5 hours. Give your answer to the nearest minute.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Sarah, a 60 kg female, consumes 3 glasses of wine at a family dinner over 2.5 hours. Note: there are 1.2 standard drinks in one glass of wine. The blood alcohol content (BAC) for females can be estimated by where N = number of standard drinks H = number of hours drinking M = mass in kilograms. The time it takes a person’s BAC to reach zero is given by BAC Time = . 0.015 Calculate the time it takes for Sarah’s BAC to return to zero, assuming she stopped drinking after 2.5 hours. Give your answer to the nearest minute."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer in hours and minutes 2\n• Correct substitution of previous answer, or equivalent merit 1\nSample answer:\n0.052 Time = 0.015\n= 3 hours 28 minutes",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Correct substitution of previous answer, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct answer in hours and minutes."
+      }
+    },
+    {
+      "id": "math2024-s2-q25",
+      "name": "Question 25",
+      "question": "Alex and Jun each invest $1800 for 5 years. • Alex’s investment earns simple interest at a rate of 7.5% per annum. • Jun’s investment earns interest at a rate of 6.0% per annum, compounding quarterly. By calculating the interest earned over the 5 years, determine who will have the greater amount.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Alex and Jun each invest $1800 for 5 years. • Alex’s investment earns simple interest at a rate of 7.5% per annum. • Jun’s investment earns interest at a rate of 6.0% per annum, compounding quarterly. By calculating the interest earned over the 5 years, determine who will have the greater amount."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 3\n• Calculates Jun’s interest, or equivalent merit 2\n• Calculates Alex’s interest, or equivalent merit 1\nSample answer:\nAlex’s interest after 5 years = 1800 # 7.5% # 5\n= $675\n4 × 5 6 Jun’s investment at 5 years = 1800 # d1 + %n 4\n= 2424.339...\nInterest = 2424.34 - 1800\n= $624.34\n` Alex earns more interest.",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Calculates Alex’s interest, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Calculates Jun’s interest, or equivalent merit; Calculates Alex’s interest, or equivalent merit.",
+        "3": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s2-q26",
+      "name": "Question 26",
+      "question": "A sheet of metal is folded to make a gutter, as shown. The cross-section of the gutter is a rectangle of width w cm and height h cm. w The area, A cm2, of the cross-section can be modelled by the quadratic formula A = -0.5w2 + 20w. A graph of this model is shown. Find the width and height of the rectangle which will give the greatest possible area of the cross-section.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A sheet of metal is folded to make a gutter, as shown."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q26-1.png",
+          "page": 20,
+          "alt": "Question 26 exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "The cross-section of the gutter is a rectangle of width w cm and height h cm. w The area, A cm2, of the cross-section can be modelled by the quadratic formula A = -0.5w2 + 20w. A graph of this model is shown. Find the width and height of the rectangle which will give the greatest possible area of the cross-section."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 3\n• Finds correct maximum area, or equivalent merit 2\n• Finds the width corresponding to maximum area, or equivalent merit 1\nSample answer:\nA = -0.5w2 + 20w\nMaximum area when width = 20\nA = -0.5^20h\n2 + 20^20h\n= 200 cm2\nA = h # w\n200 = h # 20\nh = 10\n` width = 20 cm, height = 10 cm",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Finds the width corresponding to maximum area, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Finds correct maximum area, or equivalent merit; Finds the width corresponding to maximum area, or equivalent merit.",
+        "3": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s2-q27",
+      "name": "Question 27",
+      "question": "A couple borrows $30 000 to be repaid in equal monthly repayments of $280 over 10 years. After following this repayment plan for 5 years, they decide to decrease their monthly repayment to $250. As a result, it will take them an additional two years to pay off their loan. How much more will they repay in total by making this change?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A couple borrows $30 000 to be repaid in equal monthly repayments of $280 over 10 years. After following this repayment plan for 5 years, they decide to decrease their monthly repayment to $250. As a result, it will take them an additional two years to pay off their loan. How much more will they repay in total by making this change?"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 3\n• Finds two of the repayments required, or equivalent merit 2\n• Finds a relevant repayment amount, or equivalent merit 1\nSample answer:\nRepayments for 5 years at 280 = 280 # 12 # 5\n= 16 800\nRepayments for 7 years at 250 = 21 000\nTotal repayment = 16 800 + 21 000\n= 37 800\nRepayment for 10 years at 280 = 33 600\n` Difference = $37 800 - $33 600\n= $4200",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Finds a relevant repayment amount, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Finds two of the repayments required, or equivalent merit; Finds a relevant repayment amount, or equivalent merit.",
+        "3": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s2-q28",
+      "name": "Question 28",
+      "question": "Flowers were planted in two gardens (Garden A and Garden B). On a particular day, 25 flowers were randomly selected from each garden and their heights measured in millimetres. The data are represented in parallel box-plots. Compare the two datasets by examining the skewness of the distributions, and the measures of central tendency and spread.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Flowers were planted in two gardens (Garden A and Garden B). On a particular day, 25 flowers were randomly selected from each garden and their heights measured in millimetres. The data are represented in parallel box-plots. Compare the two datasets by examining the skewness of the distributions, and the measures of central tendency and spread."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q28-1.png",
+          "page": 22,
+          "alt": "Question 28 exam diagram"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Compares the two datasets on skewness, central tendency and spread 3\n• Compares two of the measures of centre and spread and skewness for\nthe two gardens, or equivalent merit 2\n• Compares skewness, measures of centre or spread for the two gardens,\nor equivalent merit 1\nSample answer:\nThe dataset for Garden A is negatively skewed while the dataset for Garden B is positively\nskewed.\nThe median for Garden A is higher than the median for Garden B.\nThe IQR of Garden A is larger than the IQR of Garden B.\nAnswers could include:\nThe range of Garden A is larger than the range of Garden B.",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) only for relevant working that demonstrates progress toward the NESA criteria.",
+        "2": "Award 2 mark(s) only for relevant working that demonstrates progress toward the NESA criteria.",
+        "3": "Meets the full-mark criteria: Compares the two datasets on skewness, central tendency and spread."
+      }
+    },
+    {
+      "id": "math2024-s2-q29",
+      "name": "Question 29",
+      "question": "The graph shows the decreasing value of an asset. For the first 4 years, the value of the asset depreciated by $1500 per year, using a straight-line method of depreciation. After the end of the 4th year, the method of depreciation changed to the declining-balance method at the rate of 35% per annum. What is the total depreciation at the end of 10 years?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The graph shows the decreasing value of an asset."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q29-1.png",
+          "page": 23,
+          "alt": "Question 29 exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "For the first 4 years, the value of the asset depreciated by $1500 per year, using a straight-line method of depreciation. After the end of the 4th year, the method of depreciation changed to the declining-balance method at the rate of 35% per annum. What is the total depreciation at the end of 10 years?"
+        }
+      ],
+      "marks": 4,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 4\n• Uses the declining-balance method with correct values for r, n and V0,\nor equivalent merit 3\n• Attempts to use the declining-balance method with an initial value from\nthe straight-line method, or equivalent merit 2\n• Attempts to use straight-line method, or equivalent merit 1\nSample answer:\nValue after 4 years:\nUsing straight-line method = 50 000 -1500 # 4\n= 44 000\nValue after the next 6 years:\nUsing declining-balance method = 44 000^1- 35%h\n6\n= 3318.43...\nTotal depreciation = 50 000 - 3318.43\n= $46 681.57",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Attempts to use straight-line method, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Attempts to use straight-line method, or equivalent merit.",
+        "3": "Award 3 mark(s) for demonstrated progress, including: Attempts to use straight-line method, or equivalent merit.",
+        "4": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s2-q30",
+      "name": "Question 30",
+      "question": "A researcher is studying anacondas (a type of snake). A dataset recording the age (in years) and length (in cm) of female and male anacondas is displayed on the graph. Anacondas reach maturity at about 4 years of age. Age (years) Write THREE observations about anacondas that may be made from the scatterplot. (Note: No calculations are required.)",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A researcher is studying anacondas (a type of snake). A dataset recording the age (in years) and length (in cm) of female and male anacondas is displayed on the graph."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q30-1.png",
+          "page": 24,
+          "alt": "Question 30 exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "Anacondas reach maturity at about 4 years of age. Age (years) Write THREE observations about anacondas that may be made from the scatterplot. (Note: No calculations are required.)"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides three correct observations 3\n• Provides two correct observations 2\n• Provides one correct observation 1\nSample answer:\n• Female anacondas grow at a faster rate than males.\n• Both females and males continue to grow after 4 years.\n• Females are longer than males.",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Provides one correct observation.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Provides two correct observations; Provides one correct observation.",
+        "3": "Meets the full-mark criteria: Provides three correct observations."
+      }
+    },
+    {
+      "id": "math2024-s2-q31a",
+      "name": "Question 31 (a)",
+      "question": "A coin is biased so that it is twice as likely to show a head than a tail. What is the probability of obtaining a head with one throw of this coin?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A coin is biased so that it is twice as likely to show a head than a tail. What is the probability of obtaining a head with one throw of this coin?"
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 1\nSample answer:\n2\n3",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s2-q31b",
+      "name": "Question 31 (b)",
+      "question": "A coin is biased so that it is twice as likely to show a head than a tail. In two throws of this coin, what is the probability of obtaining at least one head?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A coin is biased so that it is twice as likely to show a head than a tail. In two throws of this coin, what is the probability of obtaining at least one head?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Finds probability of no heads, or equivalent merit 1\nSample answer:\n1 1 P(no heads) = #\n3 3\n1 = 9\n1\n` P(at least 1 head) = 1 - 9\n8 = 9",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Finds probability of no heads, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s2-q32",
+      "name": "Question 32",
+      "question": "A regular pentagon ABCDE is drawn inside a circle with a radius of 30 cm. O is the centre of the circle. What is the area of the shaded region of the circle? Answer correct to 2 significant figures.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A regular pentagon ABCDE is drawn inside a circle with a radius of 30 cm. O is the centre of the circle. What is the area of the shaded region of the circle? Answer correct to 2 significant figures."
+        }
+      ],
+      "marks": 4,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution to 2 significant figures 4\n• Finds the shaded area, or equivalent merit 3\n• Finds the area of both the circle and a triangle, or equivalent merit 2\n• Finds the area of the circle or a triangle, or equivalent merit 1\nSample answer:\nA = pr2\ncircle\n= p # 302\n= 2827.433...\n1 A3 = ab sin C\n2\n1 = # 30 # 30 sin 72°\n2\n= 427.975...\nA = 5 # 427.975... pentagon\n= 2139.877...\nShaded area = 2827.433 - 2139.877\n= 687.5...\n= 690 cm2\n(2 significant figures)",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Finds the area of the circle or a triangle, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Finds the area of both the circle and a triangle, or equivalent merit; Finds the area of the circle or a triangle, or equivalent merit.",
+        "3": "Award 3 mark(s) for demonstrated progress, including: Finds the shaded area, or equivalent merit; Finds the area of both the circle and a triangle, or equivalent merit; Finds the area of the circle or a triangle, or equivalent merit.",
+        "4": "Meets the full-mark criteria: Provides correct solution to 2 significant figures."
+      }
+    },
+    {
+      "id": "math2024-s2-q33",
+      "name": "Question 33",
+      "question": "Wombats can run at a speed of 40 km/h over short distances. At this speed, how many seconds would it take a wombat to run 150 metres?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Wombats can run at a speed of 40 km/h over short distances. At this speed, how many seconds would it take a wombat to run 150 metres?"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 3\n• Provides correct calculations in hours, or equivalent merit 2\n• Provides correct distance conversion, or equivalent merit 1\nSample answer:\nDistance Speed = Time\n0.15 km 40 km/h = T\n0.15 T = 40\nT = 0.00375 hours\nT = 0.00375 # 3600 seconds\n= 13.5 seconds",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Provides correct distance conversion, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Provides correct calculations in hours, or equivalent merit; Provides correct distance conversion, or equivalent merit.",
+        "3": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s2-q34",
+      "name": "Question 34",
+      "question": "A container for soccer balls is made using two half spheres joined to each end of a cylindrical body. Three soccer balls fit exactly inside the container. Each ball has a diameter of 23 cm. The hemispherical ends of the container just touch the surface of the soccer balls. What is the total surface area of the container? Give your answer in square metres correct to 1 decimal place.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A container for soccer balls is made using two half spheres joined to each end of a cylindrical body. Three soccer balls fit exactly inside the container. Each ball has a diameter of 23 cm. The hemispherical ends of the container just touch the surface of the soccer balls. What is the total surface area of the container? Give your answer in square metres correct to 1 decimal place."
+        }
+      ],
+      "marks": 4,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution in square metres 4\n• Finds the total surface area, or equivalent merit 3\n• Finds the surface area of the cylinder or sphere 2\n• Attempts to find surface area of sphere, or equivalent merit 1\nSample answer:\n2 23 Surface area of sphere = 4 # p # d n 2\n23 Surface area curved cylindrical body = 2 # p # # ^23 # 2h 2\n2 23 23\n` Total surface area = f4 # p # d n p + d 2 # p # # 46n 2 2\n= 4985.707...\n= 4985.7 cm2\n= 0.5 m2  (correct to 1 decimal place)",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Attempts to find surface area of sphere, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Finds the surface area of the cylinder or sphere; Attempts to find surface area of sphere, or equivalent merit.",
+        "3": "Award 3 mark(s) for demonstrated progress, including: Finds the total surface area, or equivalent merit; Finds the surface area of the cylinder or sphere; Attempts to find surface area of sphere, or equivalent merit.",
+        "4": "Meets the full-mark criteria: Provides correct solution in square metres."
+      }
+    },
+    {
+      "id": "math2024-s2-q35a",
+      "name": "Question 35 (a)",
+      "question": "A random variable is normally distributed with mean 0 and standard deviation 1. The table gives the probability that this random variable is less than z. The probability values given in the table for different values of z are represented by the shaded area in the following diagram. The scores in a university examination with a large number of candidates are normally distributed with mean 58 and standard deviation 15. By calculating a z-score, find the percentage of scores that are between 58 and 70.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A random variable is normally distributed with mean 0 and standard deviation 1. The table gives the probability that this random variable is less than z."
+        },
+        {
+          "type": "table",
+          "caption": "Question 35a table",
+          "columns": [
+            "z",
+            "0.6",
+            "0.7",
+            "0.8",
+            "0.9",
+            "1.0",
+            "1.1",
+            "1.2",
+            "1.3",
+            "1.4"
+          ],
+          "rows": [
+            [
+              {
+                "text": "Probability",
+                "header": true
+              },
+              {
+                "text": "0.7257",
+                "header": false
+              },
+              {
+                "text": "0.7580",
+                "header": false
+              },
+              {
+                "text": "0.7881",
+                "header": false
+              },
+              {
+                "text": "0.8159",
+                "header": false
+              },
+              {
+                "text": "0.8413",
+                "header": false
+              },
+              {
+                "text": "0.8643",
+                "header": false
+              },
+              {
+                "text": "0.8849",
+                "header": false
+              },
+              {
+                "text": "0.9032",
+                "header": false
+              },
+              {
+                "text": "0.9192",
+                "header": false
+              }
+            ]
+          ]
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q35a-1.png",
+          "page": 29,
+          "alt": "Question 35a exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "The probability values given in the table for different values of z are represented by the shaded area in the following diagram. The scores in a university examination with a large number of candidates are normally distributed with mean 58 and standard deviation 15. By calculating a z-score, find the percentage of scores that are between 58 and 70."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution, including a correct z-score 2\n• Finds z-score corresponding to 70, or equivalent merit 1\nSample answer:\n70 - 58\nz = 15\n= 0.8\nP from table = 0.7881\nP required = 0.7881 - 0.5 = 0.2881\n` 28.81%\n\nQuestion table context: Question 35a table: columns z, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4; Probability | 0.7257 | 0.7580 | 0.7881 | 0.8159 | 0.8413 | 0.8643 | 0.8849 | 0.9032 | 0.9192",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Finds z-score corresponding to 70, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution, including a correct z-score."
+      }
+    },
+    {
+      "id": "math2024-s2-q35b",
+      "name": "Question 35 (b)",
+      "question": "A random variable is normally distributed with mean 0 and standard deviation 1. The table gives the probability that this random variable is less than z. The probability values given in the table for different values of z are represented by the shaded area in the following diagram. The scores in a university examination with a large number of candidates are normally distributed with mean 58 and standard deviation 15. Explain why the percentage of scores between 46 and 70 is twice your answer to part (a).",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A random variable is normally distributed with mean 0 and standard deviation 1. The table gives the probability that this random variable is less than z."
+        },
+        {
+          "type": "table",
+          "caption": "Question 35b table",
+          "columns": [
+            "z",
+            "0.6",
+            "0.7",
+            "0.8",
+            "0.9",
+            "1.0",
+            "1.1",
+            "1.2",
+            "1.3",
+            "1.4"
+          ],
+          "rows": [
+            [
+              {
+                "text": "Probability",
+                "header": true
+              },
+              {
+                "text": "0.7257",
+                "header": false
+              },
+              {
+                "text": "0.7580",
+                "header": false
+              },
+              {
+                "text": "0.7881",
+                "header": false
+              },
+              {
+                "text": "0.8159",
+                "header": false
+              },
+              {
+                "text": "0.8413",
+                "header": false
+              },
+              {
+                "text": "0.8643",
+                "header": false
+              },
+              {
+                "text": "0.8849",
+                "header": false
+              },
+              {
+                "text": "0.9032",
+                "header": false
+              },
+              {
+                "text": "0.9192",
+                "header": false
+              }
+            ]
+          ]
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q35b-1.png",
+          "page": 29,
+          "alt": "Question 35b exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "The probability values given in the table for different values of z are represented by the shaded area in the following diagram. The scores in a university examination with a large number of candidates are normally distributed with mean 58 and standard deviation 15. Explain why the percentage of scores between 46 and 70 is twice your answer to part (a)."
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 1\nSample answer:\nThe z-score for 46 is -0.8 .\nBy symmetry the area between 46 and 58 is equal to the area between 58 and 70.\nSo, the percentage of scores between 46 and 70 is twice 28.81%.\n\nQuestion table context: Question 35b table: columns z, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4; Probability | 0.7257 | 0.7580 | 0.7881 | 0.8159 | 0.8413 | 0.8643 | 0.8849 | 0.9032 | 0.9192",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s2-q35c",
+      "name": "Question 35 (c)",
+      "question": "A random variable is normally distributed with mean 0 and standard deviation 1. The table gives the probability that this random variable is less than z. The probability values given in the table for different values of z are represented by the shaded area in the following diagram. The scores in a university examination with a large number of candidates are normally distributed with mean 58 and standard deviation 15. By using the values in the table above, find an approximate minimum score that a candidate would need to be placed in the top 10% of the candidates.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A random variable is normally distributed with mean 0 and standard deviation 1. The table gives the probability that this random variable is less than z."
+        },
+        {
+          "type": "table",
+          "caption": "Question 35c table",
+          "columns": [
+            "z",
+            "0.6",
+            "0.7",
+            "0.8",
+            "0.9",
+            "1.0",
+            "1.1",
+            "1.2",
+            "1.3",
+            "1.4"
+          ],
+          "rows": [
+            [
+              {
+                "text": "Probability",
+                "header": true
+              },
+              {
+                "text": "0.7257",
+                "header": false
+              },
+              {
+                "text": "0.7580",
+                "header": false
+              },
+              {
+                "text": "0.7881",
+                "header": false
+              },
+              {
+                "text": "0.8159",
+                "header": false
+              },
+              {
+                "text": "0.8413",
+                "header": false
+              },
+              {
+                "text": "0.8643",
+                "header": false
+              },
+              {
+                "text": "0.8849",
+                "header": false
+              },
+              {
+                "text": "0.9032",
+                "header": false
+              },
+              {
+                "text": "0.9192",
+                "header": false
+              }
+            ]
+          ]
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q35c-1.png",
+          "page": 29,
+          "alt": "Question 35c exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "The probability values given in the table for different values of z are represented by the shaded area in the following diagram. The scores in a university examination with a large number of candidates are normally distributed with mean 58 and standard deviation 15. By using the values in the table above, find an approximate minimum score that a candidate would need to be placed in the top 10% of the candidates."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution, with evidence of using the table 2\n• Finds the z-score corresponding to 90th percentile, or equivalent merit 1\nSample answer:\nx - 58 1.3 = 15\nx = 77.5\n` Approximate minimum score = 77\nAnswers could include:\n78\n\nQuestion table context: Question 35c table: columns z, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4; Probability | 0.7257 | 0.7580 | 0.7881 | 0.8159 | 0.8413 | 0.8643 | 0.8849 | 0.9032 | 0.9192",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Finds the z-score corresponding to 90th percentile, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution, with evidence of using the table."
+      }
+    },
+    {
+      "id": "math2024-s2-q36a",
+      "name": "Question 36 (a)",
+      "question": "The diagram shows two vertical flagpoles, BE and CD, set on sloping ground. What is the height of the flagpole BE, correct to 1 decimal place?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The diagram shows two vertical flagpoles, BE and CD, set on sloping ground."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q36a-1.png",
+          "page": 30,
+          "alt": "Question 36a exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "What is the height of the flagpole BE, correct to 1 decimal place?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 2\n• Attempts to use sine rule, or equivalent merit 1\nSample answer:\nBE 53.8 = sin 27° sin 106°\n53.8 BE = # sin 27°\nsin 106°\n= 25.408...\n= 25.4 m",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Attempts to use sine rule, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s2-q36b",
+      "name": "Question 36 (b)",
+      "question": "The diagram shows two vertical flagpoles, BE and CD, set on sloping ground. What is the height of the flagpole CD, correct to 1 decimal place?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The diagram shows two vertical flagpoles, BE and CD, set on sloping ground."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q36b-1.png",
+          "page": 30,
+          "alt": "Question 36b exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "What is the height of the flagpole CD, correct to 1 decimal place?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Finds the length of BX, or equivalent merit 1\nSample answer:\nEEBC = 180° -106°\n= 74°\n20 tan 74° = BX\n20 BX = tan 74°\n= 5.73...\n` CD = 25.4 - 5.73\n=19.7 m (1 decimal place)",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Finds the length of BX, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s2-q37",
+      "name": "Question 37",
+      "question": "Sakura will travel from Sydney (UTC +10) to Rio de Janeiro (UTC -3). The flight from Sydney to Rio de Janeiro will take 20 hours. The flight will arrive in Rio de Janeiro at 3 pm on Wednesday 20 July. On what day and at what time will Sakura leave Sydney?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Sakura will travel from Sydney (UTC +10) to Rio de Janeiro (UTC -3). The flight from Sydney to Rio de Janeiro will take 20 hours. The flight will arrive in Rio de Janeiro at 3 pm on Wednesday 20 July. On what day and at what time will Sakura leave Sydney?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Provides 7 pm Tuesday or 4 am Thursday, or equivalent merit 1\nSample answer:\nRio - flight time\n= 3 pm - 20 hours\n= 7 pm Tuesday 19th July\n+ time difference 13 hours\n= 8 am Wednesday 20th July\nAlternative:\nRio + time difference\n= 3 pm + 13 hours\n= 4 am Thursday 21st July\n- flight time\n= 8 am Wednesday 20th July",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Provides 7 pm Tuesday or 4 am Thursday, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s2-q38",
+      "name": "Question 38",
+      "question": "A cake is constructed using a cylinder and a cone-shaped top. The cylinder has diameter 30 cm and height 6 cm. The ratio of the volume of the cylinder to the volume of the cone-shaped top is 5 : 1. The cake is to be cut into equal slices with volume 212 cm3. How many equal slices can be cut from the cake?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A cake is constructed using a cylinder and a cone-shaped top. The cylinder has diameter 30 cm and height 6 cm. The ratio of the volume of the cylinder to the volume of the cone-shaped top is 5 : 1. The cake is to be cut into equal slices with volume 212 cm3. How many equal slices can be cut from the cake?"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 3\n• Calculates the volume of the cake, or equivalent merit 2\n• Calculates the volume of the cylinder, or equivalent merit 1\nSample answer:\nVolume of cylinder : volume of top = 5 : 1\nVolume of cylinder = p # 152 # 6\n= 4241.150. ..\n= 5 parts\nVolume of cake = 6 parts\n6 = # 4241.150\n5\n= 5089.38. ..\nVolume of each slice is 212 cm3\n\n5089.38\n` Number of slices = 212\n= 24.0065...\n= 24 slices (to the nearest whole slice)",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Calculates the volume of the cylinder, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Calculates the volume of the cake, or equivalent merit; Calculates the volume of the cylinder, or equivalent merit.",
+        "3": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s2-q39a",
+      "name": "Question 39 (a)",
+      "question": "A project involving nine activities is shown in the network diagram. The duration of each activity is not yet known. The following table gives the earliest start time (EST) and latest start time (LST) for three of the activities. All times are in hours. What is the critical path?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A project involving nine activities is shown in the network diagram."
+        },
+        {
+          "type": "table",
+          "caption": "Question 39a table",
+          "columns": [
+            "Activity",
+            "EST",
+            "LST"
+          ],
+          "rows": [
+            [
+              {
+                "text": "A",
+                "header": true
+              },
+              {
+                "text": "02",
+                "header": false
+              },
+              {
+                "text": "",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "C",
+                "header": true
+              },
+              {
+                "text": "01",
+                "header": false
+              },
+              {
+                "text": "",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "I",
+                "header": true
+              },
+              {
+                "text": "12",
+                "header": false
+              },
+              {
+                "text": "12",
+                "header": false
+              }
+            ]
+          ]
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q39a-1.png",
+          "page": 33,
+          "alt": "Question 39a exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "The duration of each activity is not yet known. The following table gives the earliest start time (EST) and latest start time (LST) for three of the activities. All times are in hours. What is the critical path?"
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 1\nSample answer:\nAs there are float-times for A and C, the critical path is BEGI.\n\nQuestion table context: Question 39a table: columns Activity, EST, LST; A | 02 | ; C | 01 | ; I | 12 | 12",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s2-q39b",
+      "name": "Question 39 (b)",
+      "question": "A project involving nine activities is shown in the network diagram. The duration of each activity is not yet known. The following table gives the earliest start time (EST) and latest start time (LST) for three of the activities. All times are in hours. The minimum time required for this project to be completed is 19 hours. What is the duration of activity I ?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A project involving nine activities is shown in the network diagram."
+        },
+        {
+          "type": "table",
+          "caption": "Question 39b table",
+          "columns": [
+            "Activity",
+            "EST",
+            "LST"
+          ],
+          "rows": [
+            [
+              {
+                "text": "A",
+                "header": true
+              },
+              {
+                "text": "02",
+                "header": false
+              },
+              {
+                "text": "",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "C",
+                "header": true
+              },
+              {
+                "text": "01",
+                "header": false
+              },
+              {
+                "text": "",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "I",
+                "header": true
+              },
+              {
+                "text": "12",
+                "header": false
+              },
+              {
+                "text": "12",
+                "header": false
+              }
+            ]
+          ]
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q39b-1.png",
+          "page": 33,
+          "alt": "Question 39b exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "The duration of each activity is not yet known. The following table gives the earliest start time (EST) and latest start time (LST) for three of the activities. All times are in hours. The minimum time required for this project to be completed is 19 hours. What is the duration of activity I ?"
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 1\nSample answer:\n19 -12 = 7 hours\n\nQuestion table context: Question 39b table: columns Activity, EST, LST; A | 02 | ; C | 01 | ; I | 12 | 12",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s2-q39c",
+      "name": "Question 39 (c)",
+      "question": "A project involving nine activities is shown in the network diagram. The duration of each activity is not yet known. The following table gives the earliest start time (EST) and latest start time (LST) for three of the activities. All times are in hours. The duration of activity C is 3 hours. What is the maximum amount of time that could occur between the start of activity F and the end of activity H ?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A project involving nine activities is shown in the network diagram."
+        },
+        {
+          "type": "table",
+          "caption": "Question 39c table",
+          "columns": [
+            "Activity",
+            "EST",
+            "LST"
+          ],
+          "rows": [
+            [
+              {
+                "text": "A",
+                "header": true
+              },
+              {
+                "text": "02",
+                "header": false
+              },
+              {
+                "text": "",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "C",
+                "header": true
+              },
+              {
+                "text": "01",
+                "header": false
+              },
+              {
+                "text": "",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "I",
+                "header": true
+              },
+              {
+                "text": "12",
+                "header": false
+              },
+              {
+                "text": "12",
+                "header": false
+              }
+            ]
+          ]
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s2-q39c-1.png",
+          "page": 33,
+          "alt": "Question 39c exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "The duration of each activity is not yet known. The following table gives the earliest start time (EST) and latest start time (LST) for three of the activities. All times are in hours. The duration of activity C is 3 hours. What is the maximum amount of time that could occur between the start of activity F and the end of activity H ?"
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 1\nSample answer:\n12 - 3 = 9 hours\n9 - 1 = 8 hours\n\nQuestion table context: Question 39c table: columns Activity, EST, LST; A | 02 | ; C | 01 | ; I | 12 | 12",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s2-q40",
+      "name": "Question 40",
+      "question": "A compass radial survey is shown. Given that AC is a straight line, find the bearing of C from O, correct to the nearest degree.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A compass radial survey is shown. Given that AC is a straight line, find the bearing of C from O, correct to the nearest degree."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 3\n• Attempts to find bearing of C from O, or equivalent merit 2\n• Uses cosine rule in UODA to find an angle, or equivalent merit 1\nSample answer:\nIn UODA:\n382 + 422 - 67.52\ncos EAOD = 2 # 38 # 42\n= -0.42238...\nEAOD = 114.985...\n. 115°\nBearing of D from O is 285°\n` EDON = 75°\nEAOD = EDON + EAON\nie 115° = 75° + EAON\n` EAON = 40°\nBearing of C from O = 40° + 180° (as AC is a straight line)\n= 220° (nearest degree)",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Uses cosine rule in UODA to find an angle, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Attempts to find bearing of C from O, or equivalent merit; Uses cosine rule in UODA to find an angle, or equivalent merit.",
+        "3": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s2-q41",
+      "name": "Question 41",
+      "question": "Twenty-five years ago, Phoenix deposited a single sum of money into a new bank account, earning 2.4% interest per annum compounding monthly. Present value interest factors for an annuity of $1 for various interest rates (r) and numbers of periods (n) are given in the table. Phoenix made the following withdrawals from this account. • $2000 at the end of each month for the first 15 years, starting at the end of the first month. • $1200 at the end of each month for the next 10 years, starting at the end of the 181st month after the account was opened. Calculate the minimum sum that Phoenix could have deposited in order to make these withdrawals.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Twenty-five years ago, Phoenix deposited a single sum of money into a new bank account, earning 2.4% interest per annum compounding monthly. Present value interest factors for an annuity of $1 for various interest rates (r) and numbers of periods (n) are given in the table."
+        },
+        {
+          "type": "table",
+          "caption": "Question 41 table",
+          "columns": [
+            "Rate\n(r)\nPeriod\n(n)",
+            "0.001",
+            "0.002",
+            "0.003",
+            "0.004"
+          ],
+          "rows": [
+            [
+              {
+                "text": "60",
+                "header": true
+              },
+              {
+                "text": "58.207",
+                "header": false
+              },
+              {
+                "text": "56.487",
+                "header": false
+              },
+              {
+                "text": "54.835",
+                "header": false
+              },
+              {
+                "text": "53.249",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "120",
+                "header": true
+              },
+              {
+                "text": "113.026",
+                "header": false
+              },
+              {
+                "text": "106.592",
+                "header": false
+              },
+              {
+                "text": "100.649",
+                "header": false
+              },
+              {
+                "text": "95.156",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "180",
+                "header": true
+              },
+              {
+                "text": "164.655",
+                "header": false
+              },
+              {
+                "text": "151.036",
+                "header": false
+              },
+              {
+                "text": "138.927",
+                "header": false
+              },
+              {
+                "text": "128.137",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "240",
+                "header": true
+              },
+              {
+                "text": "213.278",
+                "header": false
+              },
+              {
+                "text": "190.460",
+                "header": false
+              },
+              {
+                "text": "170.908",
+                "header": false
+              },
+              {
+                "text": "154.093",
+                "header": false
+              }
+            ],
+            [
+              {
+                "text": "300",
+                "header": true
+              },
+              {
+                "text": "259.071",
+                "header": false
+              },
+              {
+                "text": "225.430",
+                "header": false
+              },
+              {
+                "text": "197.627",
+                "header": false
+              },
+              {
+                "text": "174.521",
+                "header": false
+              }
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "Phoenix made the following withdrawals from this account. • $2000 at the end of each month for the first 15 years, starting at the end of the first month. • $1200 at the end of each month for the next 10 years, starting at the end of the 181st month after the account was opened. Calculate the minimum sum that Phoenix could have deposited in order to make these withdrawals."
+        }
+      ],
+      "marks": 4,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 4\n• Makes substantial progress towards a solution 3\n• Demonstrates in calculations understanding of importance of 15 years\nand 25 years 2\n• Identifies the required interest rate, or equivalent merit 1\nSample answer:\n2.4%\nr = = 0.002\n12\n0 15 25\nFor 25 years need 1200 # 225.430 = 270 516\nFor 15 years need extra 800 # 151.036 = 120 828.80\nTotal = $391 344.80\n2024 HSC Mathematics Standard 2\nMapping Grid\nSection I\nQuestion Marks Content Syllabus outcomes\n1 1 MS-M1 Application of Measurement MS11-3\n2 1 MS-A2 Linear Relationships MS11-9\n3 1 MS-S1 Data Analysis MS11-10\n4 1 MS-N2 Network Concepts MS2-12-8\n5 1 MS-S5 The Normal Distribution MS2-12-7\n6 1 MS-M6 Non-right-angled Trigonometry MS2-12-3\n7 1 MS-F1 Money Matters MS11-6\n8 1 MS-F1 Money Matters MS11-5\n9 1 MS-A4 Types of Relationships MS2-12-6\n10 1 MS-A1 Formulae and Equations MS11-10\n11 1 MS-M7 Rates and Ratios MS2-12-3\n12 1 MS-S2 Relative Frequency and Probability MS11-10\n13 1 MS-F1 Money Matters MS11-6\n14 1 MS-A4 Types of Relationships MS2-12-6\n15 1 MS-S1 Data Analysis MS11–10\nSection II\nQuestion Marks Content Syllabus outcomes\n16 (a) 2 MS-N2 Network Concepts MS2-12-8\n16 (b) 2 MS-N2 Network Concepts MS2-12-8\n17 2 MS-M7 Rates and Ratios MS2-12-3\n18 (a) 2 MS-N2 Network Concepts MS2-12-8\n18 (b) 1 MS-N2 Network Concepts MS2-12-10\n19 (a) 2 MS-S4 Bivariate Data Analysis MS2-12-7\n19 (b) 1 MS-S4 Bivariate Data Analysis MS2-12-2\n20 (a) 1 MS-F5 Annuities MS2-12-5\n20 (b) 2 MS-F5 Annuities MS2-12-5\n21 (a) 2 MS-F4 Investments and Loans MS2-12-5\n21 (b) 1 MS-F4 Investments and Loans MS2-12-10\n22 3 MS-A4 Types of Relationships MS2-12-6\n23 3 MS-F1 Money Matters MS11-6\n24 (a) 2 MS-A1 Formulae and Equations MS11-6\n24 (b) 2 MS-A1 Formulae and Equations MS11-10\n25 3 MS-F4 Investments and Loans MS2-12-10\n26 3 MS-A4 Types of Relationships MS2-12-6\n27 3 MS-F4 Investments and Loans MS2-12-10\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nQuestion Marks Content Syllabus outcomes\n28 3 MS-S1 Data Analysis MS11-10\n29 4\nMS-F1\nMS-F4\nMoney Matters\nInvestments and Loans MS11-10, MS2-12-10\n30 3 MS-S4 Bivariate Data Analysis MS2-12-10\n31 (a) 1 MS-S2 Relative Frequency and Probability MS11–10\n31 (b) 2 MS-S2 Relative Frequency and Probability MS11–10\n32 4 MS-M6 Non-right-angled Trigonometry MS2-12-9\n33 3 MS-M7 Rates and Ratios MS2-12-3\n\nQuestion table context: Question 41 table: columns Rate\n(r)\nPeriod\n(n), 0.001, 0.002, 0.003, 0.004; 60 | 58.207 | 56.487 | 54.835 | 53.249; 120 | 113.026 | 106.592 | 100.649 | 95.156; 180 | 164.655 | 151.036 | 138.927 | 128.137; 240 | 213.278 | 190.460 | 170.908 | 154.093; 300 | 259.071 | 225.430 | 197.627 | 174.521",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Identifies the required interest rate, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Identifies the required interest rate, or equivalent merit.",
+        "3": "Award 3 mark(s) for demonstrated progress, including: Makes substantial progress towards a solution; Identifies the required interest rate, or equivalent merit.",
+        "4": "Meets the full-mark criteria: Provides correct solution."
+      }
+    }
+  ]
+}

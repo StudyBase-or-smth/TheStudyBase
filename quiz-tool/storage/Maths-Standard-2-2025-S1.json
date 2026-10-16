@@ -1,0 +1,516 @@
+{
+  "studyMode": "exam-questions",
+  "source": {
+    "publisher": "NSW Education Standards Authority",
+    "year": 2025,
+    "origin": "Supplied exam-pack paper and matching NESA marking guidelines",
+    "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+    "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+    "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+    "sourceYear": 2025
+  },
+  "description": "2025 HSC Mathematics Standard 2, Section 1. Question wording and diagrams are taken from the supplied NESA exam-pack PDFs.",
+  "questions": [
+    {
+      "id": "math2025-s2-q1",
+      "name": "Question 1",
+      "question": "Consider the network diagram. Which vertex has degree 4?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+      "sourceYear": 2025,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A",
+          "correct": false
+        },
+        {
+          "text": "B",
+          "correct": true
+        },
+        {
+          "text": "C",
+          "correct": false
+        },
+        {
+          "text": "D",
+          "correct": false
+        }
+      ],
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Consider the network diagram."
+        },
+        {
+          "type": "image",
+          "path": "maths/2025/diagram-s2-q1-1.png",
+          "page": 2,
+          "alt": "Question 1 exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "Which vertex has degree 4?"
+        }
+      ]
+    },
+    {
+      "id": "math2025-s2-q2",
+      "name": "Question 2",
+      "question": "Which graph could represent y = 4x ?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+      "sourceYear": 2025,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A",
+          "correct": true
+        },
+        {
+          "text": "B",
+          "correct": false
+        },
+        {
+          "text": "C",
+          "correct": false
+        },
+        {
+          "text": "D",
+          "correct": false
+        }
+      ],
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Which graph could represent y = 4x ?"
+        },
+        {
+          "type": "image",
+          "path": "maths/2025/diagram-s2-q2-1.png",
+          "page": 2,
+          "alt": "Graphs A–D for Question 2"
+        }
+      ]
+    },
+    {
+      "id": "math2025-s2-q3",
+      "name": "Question 3",
+      "question": "The network shows the distances, in kilometres, along a series of roads that connect towns. What is the value of the largest weighted edge included in the minimum spanning tree for this network?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+      "sourceYear": 2025,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "7",
+          "correct": false
+        },
+        {
+          "text": "8",
+          "correct": false
+        },
+        {
+          "text": "9",
+          "correct": true
+        },
+        {
+          "text": "10",
+          "correct": false
+        }
+      ],
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The network shows the distances, in kilometres, along a series of roads that connect towns."
+        },
+        {
+          "type": "image",
+          "path": "maths/2025/diagram-s2-q3-1.png",
+          "page": 3,
+          "alt": "Question 3 exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "What is the value of the largest weighted edge included in the minimum spanning tree for this network?"
+        }
+      ]
+    },
+    {
+      "id": "math2025-s2-q4",
+      "name": "Question 4",
+      "question": "Frankie takes four weeks of annual leave. His weekly pay is $350 and his annual leave loading is 17½% of four weeks’ pay. What is Frankie’s total pay for this period of annual leave?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+      "sourceYear": 2025,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "$245.00",
+          "correct": false
+        },
+        {
+          "text": "$411.25",
+          "correct": false
+        },
+        {
+          "text": "$1461.25",
+          "correct": false
+        },
+        {
+          "text": "$1645.00",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "math2025-s2-q5",
+      "name": "Question 5",
+      "question": "Which of the following is arranged from largest to smallest?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+      "sourceYear": 2025,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "6.2 × 10−3, 4.5 × 10−4, 3.2 × 10−1",
+          "correct": false
+        },
+        {
+          "text": "4.5 × 10−4, 6.2 × 10−3, 3.2 × 10−1",
+          "correct": false
+        },
+        {
+          "text": "3.2 × 10−1, 4.5 × 10−4, 6.2 × 10−3",
+          "correct": false
+        },
+        {
+          "text": "3.2 × 10−1, 6.2 × 10−3, 4.5 × 10−4 m − p",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "math2025-s2-q6",
+      "name": "Question 6",
+      "question": "Consider the formula n = (m − p) / q Which of the following correctly shows p as the subject of the formula?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+      "sourceYear": 2025,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "p = nq − m",
+          "correct": false
+        },
+        {
+          "text": "p = m − nq",
+          "correct": true
+        },
+        {
+          "text": "p = n + q − m",
+          "correct": false
+        },
+        {
+          "text": "p = m − n − q",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "math2025-s2-q7",
+      "name": "Question 7",
+      "question": "There are 960 students at a high school. Using stratified sampling, 240 students from the whole school are to be chosen for a survey. If there are 200 students in Year 12, how many Year 12 students should be chosen?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+      "sourceYear": 2025,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "4",
+          "correct": false
+        },
+        {
+          "text": "5",
+          "correct": false
+        },
+        {
+          "text": "50",
+          "correct": true
+        },
+        {
+          "text": "60",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "math2025-s2-q8",
+      "name": "Question 8",
+      "question": "A spinner made up of 4 colours is spun 100 times. The frequency histogram shows the results. Which of these spinners is most likely to give the results shown?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+      "sourceYear": 2025,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "A",
+          "correct": true
+        },
+        {
+          "text": "B",
+          "correct": false
+        },
+        {
+          "text": "C",
+          "correct": false
+        },
+        {
+          "text": "D",
+          "correct": false
+        }
+      ],
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A spinner made up of 4 colours is spun 100 times. The frequency histogram shows the results."
+        },
+        {
+          "type": "image",
+          "path": "maths/2025/diagram-s2-q8-1.png",
+          "page": 5,
+          "alt": "Frequency histogram for the spinner results"
+        },
+        {
+          "type": "text",
+          "text": "Which of these spinners is most likely to give the results shown?"
+        },
+        {
+          "type": "image",
+          "path": "maths/2025/diagram-s2-q8-2.png",
+          "page": 5,
+          "alt": "Spinner choices A–D"
+        }
+      ]
+    },
+    {
+      "id": "math2025-s2-q9",
+      "name": "Question 9",
+      "question": "The ratio of the dimensions of a model car to the dimensions of an actual car is 1:64. The actual car has a length of 4.9 m. What is the length of the model car in cm, correct to 1 decimal place?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+      "sourceYear": 2025,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "3.1",
+          "correct": false
+        },
+        {
+          "text": "7.7",
+          "correct": true
+        },
+        {
+          "text": "13.1",
+          "correct": false
+        },
+        {
+          "text": "59.1",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "math2025-s2-q10",
+      "name": "Question 10",
+      "question": "An electricity company charges customers 37 cents per kWh for electricity used, U, and pays customers 5 cents per kWh for electricity produced, P. The electricity company also charges customers a fee of 71 cents per day. Which formula should be used to calculate a customer’s daily cost of electricity, in cents?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+      "sourceYear": 2025,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "C = 71 + 37U − 5P",
+          "correct": true
+        },
+        {
+          "text": "C = 71 + 37U + 5P",
+          "correct": false
+        },
+        {
+          "text": "C = 71 − 37U − 5P",
+          "correct": false
+        },
+        {
+          "text": "C = 71 − 37U + 5P",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "math2025-s2-q11",
+      "name": "Question 11",
+      "question": "The thickness of the skin of a spherical balloon varies inversely with the surface area of the balloon. What would be the effect on the thickness of the skin if the radius of the balloon doubled?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+      "sourceYear": 2025,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "Divided by 2",
+          "correct": false
+        },
+        {
+          "text": "Multiplied by 2",
+          "correct": false
+        },
+        {
+          "text": "Divided by 4",
+          "correct": true
+        },
+        {
+          "text": "Multiplied by 4",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "math2025-s2-q12",
+      "name": "Question 12",
+      "question": "A football game is being played in Quito (UTC −5) starting at 3:40 pm on Tuesday. What is the time in Sydney (UTC +10) when the game starts in Quito?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+      "sourceYear": 2025,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "10:40 am Tuesday",
+          "correct": false
+        },
+        {
+          "text": "8:40 pm Tuesday",
+          "correct": false
+        },
+        {
+          "text": "12:40 am Wednesday",
+          "correct": false
+        },
+        {
+          "text": "6:40 am Wednesday",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "math2025-s2-q13",
+      "name": "Question 13",
+      "question": "A ten-sided die has faces numbered 1 to 10. The die is constructed so that the probability of obtaining the number 1 is greater than the probability of obtaining any of the other numbers. The numbers 2 to 10 are equally likely to occur. When the die is rolled 153 times, a 1 is obtained 72 times. By using the relative frequency of rolling a 1, which of the following is the best estimate for the probability of rolling a 10?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+      "sourceYear": 2025,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "1/17",
+          "correct": true
+        },
+        {
+          "text": "1/11",
+          "correct": false
+        },
+        {
+          "text": "1/10",
+          "correct": false
+        },
+        {
+          "text": "1/9",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "math2025-s2-q14",
+      "name": "Question 14",
+      "question": "Points M and P are the same distance from a third point R. The bearing of M from R is 017° and the bearing of P from R is 107°. Which of the following best describes the bearing of P from M ?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+      "sourceYear": 2025,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "Between 000° and 090°",
+          "correct": false
+        },
+        {
+          "text": "Exactly 090°",
+          "correct": false
+        },
+        {
+          "text": "Between 090° and 180°",
+          "correct": true
+        },
+        {
+          "text": "Exactly 180°",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "math2025-s2-q15",
+      "name": "Question 15",
+      "question": "The minimum daily temperature, in degrees, of a town each year follows a normal distribution with its mean equal to its standard deviation. The minimum daily temperature was recorded over one year. What percentage of the recorded minimum daily temperatures was above zero degrees?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-10/2025-hsc-maths-standard-2.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-11/2025-hsc-maths-standard-2-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2025",
+      "sourceYear": 2025,
+      "isMultipleChoice": true,
+      "isCheckbox": false,
+      "answers": [
+        {
+          "text": "16%",
+          "correct": false
+        },
+        {
+          "text": "50%",
+          "correct": false
+        },
+        {
+          "text": "68%",
+          "correct": false
+        },
+        {
+          "text": "84%",
+          "correct": true
+        }
+      ]
+    }
+  ]
+}

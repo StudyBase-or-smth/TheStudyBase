@@ -70,5 +70,41 @@
     "name": "Electrotechnology Practice",
     "subject": "Electrotechnology",
     "section": "Practice"
+  },
+  {
+    "file": "Maths-Standard-1-2024-S1.json",
+    "name": "2024 HSC Mathematics Standard 1",
+    "subject": "Maths",
+    "section": "Section I"
+  },
+  {
+    "file": "Maths-Standard-1-2024-S2.json",
+    "name": "2024 HSC Mathematics Standard 1",
+    "subject": "Maths",
+    "section": "Section II"
+  },
+  {
+    "file": "Maths-Standard-2-2024-S1.json",
+    "name": "2024 HSC Mathematics Standard 2",
+    "subject": "Maths",
+    "section": "Section I"
+  },
+  {
+    "file": "Maths-Standard-2-2024-S2.json",
+    "name": "2024 HSC Mathematics Standard 2",
+    "subject": "Maths",
+    "section": "Section II"
+  },
+  {
+    "file": "Maths-Standard-2-2025-S1.json",
+    "name": "2025 HSC Mathematics Standard 2",
+    "subject": "Maths",
+    "section": "Section I"
+  },
+  {
+    "file": "Maths-Standard-2-2025-S2.json",
+    "name": "2025 HSC Mathematics Standard 2",
+    "subject": "Maths",
+    "section": "Section II"
   }
 ]

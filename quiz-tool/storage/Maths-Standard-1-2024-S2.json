@@ -1,0 +1,1113 @@
+{
+  "studyMode": "exam-questions",
+  "source": {
+    "publisher": "NSW Education Standards Authority",
+    "year": 2024,
+    "origin": "Supplied exam-pack paper and matching NESA marking guidelines",
+    "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+    "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+    "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+    "sourceYear": 2024
+  },
+  "description": "2024 HSC Mathematics Standard 1, Section 2. Question wording and diagrams are taken from the supplied NESA exam-pack PDFs.",
+  "questions": [
+    {
+      "id": "math2024-s1-q11",
+      "name": "Question 11",
+      "question": "A scale drawing of a tree is shown. The scale is 1 : 50. What is the actual height of the tree, in metres?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A scale drawing of a tree is shown. The scale is 1 : 50. What is the actual height of the tree, in metres?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer with correct units 2\n• Makes appropriate use of scale, or equivalent merit 1\nSample answer:\nScale 1 : 50\n8 cm & 8 # 50 cm\n= 400 cm\nHeight in metres\n= 400 ' 100\n= 4 m",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Makes appropriate use of scale, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct answer with correct units."
+      }
+    },
+    {
+      "id": "math2024-s1-q12",
+      "name": "Question 12",
+      "question": "The scatterplot shows a bivariate dataset. Describe the bivariate dataset in terms of strength and direction.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The scatterplot shows a bivariate dataset. Describe the bivariate dataset in terms of strength and direction."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q12-1.png",
+          "page": 11,
+          "alt": "Question 12 exam diagram"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 2\n• Provides correct strength or direction, or equivalent merit 1\nSample answer:\nStrong and negative",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Provides correct strength or direction, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s1-q13a",
+      "name": "Question 13 (a)",
+      "question": "Consider the following dataset. 1, 1, 2, 3, 5, 7, 15 What is the interquartile range?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Consider the following dataset. 1, 1, 2, 3, 5, 7, 15 What is the interquartile range?"
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 1\nSample answer:\nLower quartile = 1\nUpper quartile = 7\nIQR = 7 -1\n= 6",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s1-q13b",
+      "name": "Question 13 (b)",
+      "question": "Consider the following dataset. 1, 1, 2, 3, 5, 7, 15 By using the outlier formula, determine whether 15 is an outlier.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Consider the following dataset. 1, 1, 2, 3, 5, 7, 15 By using the outlier formula, determine whether 15 is an outlier."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Makes appropriate use of IQR, or equivalent merit 1\nSample answer:\nQ + 1.5 # IQR 3\n= 7 + 1.5 # 6\n= 16\n16 >15, so 15 is not an outlier.",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Makes appropriate use of IQR, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q14a",
+      "name": "Question 14 (a)",
+      "question": "A hotel is located 186 m north and 50 m west of a train station. What is the straight line distance from the hotel to the train station? Round your answer to the nearest metre.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A hotel is located 186 m north and 50 m west of a train station. What is the straight line distance from the hotel to the train station? Round your answer to the nearest metre."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Attempts to use Pythagoras’ theorem, or equivalent merit 1\nSample answer:\n50\nx 186\nx2 = 1862 + 502\nx = 1862 + 502\nx =192.603...\n= 193 m",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Attempts to use Pythagoras’ theorem, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q14b",
+      "name": "Question 14 (b)",
+      "question": "A hotel is located 186 m north and 50 m west of a train station. What is the bearing of the hotel from the train station? Round your answer to the nearest degree.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A hotel is located 186 m north and 50 m west of a train station. What is the bearing of the hotel from the train station? Round your answer to the nearest degree."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer (either true or compass bearing) 2\n• Attempts to use a trigonometric ratio to find an angle, or equivalent merit 1\n\nSample answer:\n50\nx 186\nq\n50\ntan q = 186\nq = 15°3'\n` Bearing = 360° -15°3'\n= 344°57'\n= 345°",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Attempts to use a trigonometric ratio to find an angle, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct answer (either true or compass bearing)."
+      }
+    },
+    {
+      "id": "math2024-s1-q15a",
+      "name": "Question 15 (a)",
+      "question": "A network of towns and the distances between them in kilometres is shown. G What is the shortest path from T to H ?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A network of towns and the distances between them in kilometres is shown."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q15a-1.png",
+          "page": 14,
+          "alt": "Question 15a exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "G What is the shortest path from T to H ?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides the correct path 2\n• Provides a continuous path from T to H 1\nSample answer:\nTYWH",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Provides a continuous path from T to H.",
+        "2": "Meets the full-mark criteria: Provides the correct path."
+      }
+    },
+    {
+      "id": "math2024-s1-q15b",
+      "name": "Question 15 (b)",
+      "question": "A network of towns and the distances between them in kilometres is shown. G A truck driver needs to travel from Y to G but knows that the road from C to G is closed. What is the length of the shortest path the truck driver can take from Y to G after the road closure?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A network of towns and the distances between them in kilometres is shown."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q15b-1.png",
+          "page": 14,
+          "alt": "Question 15b exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "G A truck driver needs to travel from Y to G but knows that the road from C to G is closed. What is the length of the shortest path the truck driver can take from Y to G after the road closure?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Provides a continuous path from Y to G, without C to G 1\nSample answer:\nYWHMG is 89 km",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Provides a continuous path from Y to G, without C to G.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q16",
+      "name": "Question 16",
+      "question": "The cost of electricity is 30.13 cents per kWh. Calculate the cost of using a 650 W air conditioner for 6 hours.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The cost of electricity is 30.13 cents per kWh. Calculate the cost of using a 650 W air conditioner for 6 hours."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 2\n• Performs an appropriate conversion, or equivalent merit 1\nSample answer:\n650\n# 6 # $0.3013 1000\n= $1.18",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Performs an appropriate conversion, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s1-q17a",
+      "name": "Question 17 (a)",
+      "question": "A wheel is shown with the numbers 0 to 19 marked. A game is played where the wheel is spun until it stops. When the wheel stops, a pointer points to the winning number. Each number is equally likely to win. List all the even numbers on the wheel that are greater than 7.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A wheel is shown with the numbers 0 to 19 marked."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q17a-1.png",
+          "page": 16,
+          "alt": "Question 17a exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "A game is played where the wheel is spun until it stops. When the wheel stops, a pointer points to the winning number. Each number is equally likely to win. List all the even numbers on the wheel that are greater than 7."
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 1\nSample answer:\n8, 10, 12, 14, 16, 18",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s1-q17b",
+      "name": "Question 17 (b)",
+      "question": "A wheel is shown with the numbers 0 to 19 marked. A game is played where the wheel is spun until it stops. When the wheel stops, a pointer points to the winning number. Each number is equally likely to win. What is the probability that the winning number is NOT an even number greater than 7?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A wheel is shown with the numbers 0 to 19 marked."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q17b-1.png",
+          "page": 16,
+          "alt": "Question 17b exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "A game is played where the wheel is spun until it stops. When the wheel stops, a pointer points to the winning number. Each number is equally likely to win. What is the probability that the winning number is NOT an even number greater than 7?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Provides correct sample space, or equivalent merit 1\nSample answer:\n14 P(not even and > 7) = 20\n7 =\n10\nAlternative:\n6 P (even and > 7) =\n20\n3 =\n10\n3 P(NOT) = 1 -\n10\n7\n=\n10",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Provides correct sample space, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q18",
+      "name": "Question 18",
+      "question": "A garden is made up of a right-angled triangle and a semicircle as shown. What is the area of the garden, correct to the nearest square metre?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A garden is made up of a right-angled triangle and a semicircle as shown."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q18-1.png",
+          "page": 17,
+          "alt": "Question 18 exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "What is the area of the garden, correct to the nearest square metre?"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 3\n• Calculates area of semicircle or triangle, or equivalent merit 2\n• Finds base of triangle, or equivalent merit 1\nSample answer:\n1 A = # 7 # 6 (triangle) 2\n= 21\n1 A = # p # 32\n(half circle) 2\n= 14.137...\nA = 35.137... (total)\n= 35 m2",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Finds base of triangle, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Calculates area of semicircle or triangle, or equivalent merit; Finds base of triangle, or equivalent merit.",
+        "3": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q19",
+      "name": "Question 19",
+      "question": "The length ( L ) of a shark, in centimetres, can be modelled by the formula L = 7.3a + 38, where a is the age of the shark, in years. At what age should the shark reach a length of 156 cm, correct to the nearest year?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The length ( L ) of a shark, in centimetres, can be modelled by the formula L = 7.3a + 38, where a is the age of the shark, in years. At what age should the shark reach a length of 156 cm, correct to the nearest year?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Correct substitution, or equivalent merit 1\nSample answer:\nL = 7.3a + 38\n156 = 7.3a + 38\n156 - 38 = 7.3a\n118\na = 7.3\n=16.164...",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Correct substitution, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q20a",
+      "name": "Question 20 (a)",
+      "question": "The diagram shows a network with weighted edges. Draw a minimum spanning tree for this network and determine its weight.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The diagram shows a network with weighted edges."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q20a-1.png",
+          "page": 19,
+          "alt": "Question 20a exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "Draw a minimum spanning tree for this network and determine its weight."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Draws a spanning tree, or equivalent merit 1\nSample answer:\n2\n4\n2\n1\n1\n3\n4\n4\n3\nA\nB C\nE\nF\nG\nH\nI\nJ\nD\nWeight = 24",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Draws a spanning tree, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      },
+      "responseFormat": "drawing-description"
+    },
+    {
+      "id": "math2024-s1-q20b",
+      "name": "Question 20 (b)",
+      "question": "The diagram shows a network with weighted edges. Is it possible to find another spanning tree with the same weight? Give a reason for your answer.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The diagram shows a network with weighted edges."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q20b-1.png",
+          "page": 19,
+          "alt": "Question 20b exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "Is it possible to find another spanning tree with the same weight? Give a reason for your answer."
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides a correct reason for why it is possible to find another spanning\ntree with the same weight 1\nSample answer:\nYes, use BC instead of FC as the weight of BC is the same as the weight of FC.",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Complete correct response meeting the NESA criteria."
+      }
+    },
+    {
+      "id": "math2024-s1-q21",
+      "name": "Question 21",
+      "question": "Jan borrowed $1500 at 6% per annum. Calculate the simple interest for the first three months.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Jan borrowed $1500 at 6% per annum. Calculate the simple interest for the first three months."
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Uses the simple interest formula with 1 correct substitution, or equivalent\nmerit 1\nSample answer:\nI = PRN\n6 3 = 1500 # #\n100 12\n= $22.50",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) only for relevant working that demonstrates progress toward the NESA criteria.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q22",
+      "name": "Question 22",
+      "question": "The timetable shows an airline schedule in 24-hour time for a flight from Town A to Town B. When it is 10 am in Town A, the time in Town B is 9 am on the same day. How long does the flight take to travel from Town A to Town B ?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The timetable shows an airline schedule in 24-hour time for a flight from Town A to Town B. When it is 10 am in Town A, the time in Town B is 9 am on the same day. How long does the flight take to travel from Town A to Town B ?"
+        },
+        {
+          "type": "table",
+          "caption": "Question 22 table",
+          "columns": [
+            "Flight",
+            "Departure\n(local time Town A)",
+            "Arrival\n(local time Town B)"
+          ],
+          "rows": [
+            [
+              {
+                "text": "Town A to Town B",
+                "header": true
+              },
+              {
+                "text": "1159",
+                "header": false
+              },
+              {
+                "text": "1336",
+                "header": false
+              }
+            ]
+          ]
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Calculates time difference from table, or equivalent merit 1\nSample answer:\nTime difference from timetable = 1 hour 37 minutes\nTown B is 1 hour behind Town A.\n1 hour 37 minutes + 1 hour = 2 hours 37 minutes\n\nQuestion table context: Question 22 table: columns Flight, Departure\n(local time Town A), Arrival\n(local time Town B); Town A to Town B | 1159 | 1336",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Calculates time difference from table, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q23a",
+      "name": "Question 23 (a)",
+      "question": "Carrie is organising a fundraiser. The cost of hiring the venue and the band is $2500. The cost of providing meals is $50er person. Complete the table of values to show the total cost of the fundraiser.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Carrie is organising a fundraiser. The cost of hiring the venue and the band is $2500. The cost of providing meals is $50er person. Complete the table of values to show the total cost of the fundraiser."
+        },
+        {
+          "type": "table",
+          "caption": "Question 23a table",
+          "columns": [
+            "Number of\npeople",
+            "0",
+            "25",
+            "50",
+            "75",
+            "100",
+            "125",
+            "150"
+          ],
+          "rows": [
+            [
+              {
+                "text": "Cost",
+                "header": true
+              },
+              {
+                "text": "",
+                "header": false,
+                "input": true,
+                "label": "Question 23a table response"
+              },
+              {
+                "text": "3750",
+                "header": false
+              },
+              {
+                "text": "5000",
+                "header": false
+              },
+              {
+                "text": "6250",
+                "header": false
+              },
+              {
+                "text": "7500",
+                "header": false
+              },
+              {
+                "text": "8750",
+                "header": false
+              },
+              {
+                "text": "10 000",
+                "header": false
+              }
+            ]
+          ]
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 1\nSample answer:\nNumber of\npeople 0 25 50 75 100 125 150\nCost 2500 3750 5000 6250 7500 8750 10 000\n\nQuestion table context: Question 23a table: columns Number of\npeople, 0, 25, 50, 75, 100, 125, 150; Cost |  | 3750 | 5000 | 6250 | 7500 | 8750 | 10 000",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Meets the full-mark criteria: Provides correct answer."
+      },
+      "showWrittenAnswer": false
+    },
+    {
+      "id": "math2024-s1-q23b",
+      "name": "Question 23 (b)",
+      "question": "Carrie is organising a fundraiser. The cost of hiring the venue and the band is $2500. The cost of providing meals is $50er person. Carrie decides that tickets should be sold at $70 per person. The graph shows the expected revenue at this ticket price. Using the information in part (a), plot the line that shows the cost of the fundraiser. Number of people",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Carrie is organising a fundraiser. The cost of hiring the venue and the band is $2500. The cost of providing meals is $50er person. Carrie decides that tickets should be sold at $70 per person. The graph shows the expected revenue at this ticket price."
+        },
+        {
+          "type": "table",
+          "caption": "Question 23b table",
+          "columns": [
+            "Number of\npeople",
+            "0",
+            "25",
+            "50",
+            "75",
+            "100",
+            "125",
+            "150"
+          ],
+          "rows": [
+            [
+              {
+                "text": "Cost",
+                "header": true
+              },
+              {
+                "text": "",
+                "header": false
+              },
+              {
+                "text": "3750",
+                "header": false
+              },
+              {
+                "text": "5000",
+                "header": false
+              },
+              {
+                "text": "6250",
+                "header": false
+              },
+              {
+                "text": "7500",
+                "header": false
+              },
+              {
+                "text": "8750",
+                "header": false
+              },
+              {
+                "text": "10 000",
+                "header": false
+              }
+            ]
+          ]
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q23b-1.png",
+          "page": 22,
+          "alt": "Question 23b exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "Using the information in part (a), plot the line that shows the cost of the fundraiser. Number of people"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Plots one point from the table, or equivalent merit 1\nSample answer:\n0 25 50 75 100 125\nFundraiser revenue and cost\n150\n0\n2000\n4000\n6000\n8000\n10 000\n1000\n3000\n5000\n7000\n9000\n11 000\nRevenue/Cost ($)\nNumber of people\n\nQuestion table context: Question 23b table: columns Number of\npeople, 0, 25, 50, 75, 100, 125, 150; Cost |  | 3750 | 5000 | 6250 | 7500 | 8750 | 10 000",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Plots one point from the table, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      },
+      "responseFormat": "drawing-description"
+    },
+    {
+      "id": "math2024-s1-q23c",
+      "name": "Question 23 (c)",
+      "question": "Carrie is organising a fundraiser. The cost of hiring the venue and the band is $2500. The cost of providing meals is $50er person. How many tickets need to be sold for the fundraiser to break even?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Carrie is organising a fundraiser. The cost of hiring the venue and the band is $2500. The cost of providing meals is $50er person. How many tickets need to be sold for the fundraiser to break even?"
+        },
+        {
+          "type": "table",
+          "caption": "Question 23c table",
+          "columns": [
+            "Number of\npeople",
+            "0",
+            "25",
+            "50",
+            "75",
+            "100",
+            "125",
+            "150"
+          ],
+          "rows": [
+            [
+              {
+                "text": "Cost",
+                "header": true
+              },
+              {
+                "text": "",
+                "header": false
+              },
+              {
+                "text": "3750",
+                "header": false
+              },
+              {
+                "text": "5000",
+                "header": false
+              },
+              {
+                "text": "6250",
+                "header": false
+              },
+              {
+                "text": "7500",
+                "header": false
+              },
+              {
+                "text": "8750",
+                "header": false
+              },
+              {
+                "text": "10 000",
+                "header": false
+              }
+            ]
+          ]
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 1\nSample answer:\n125 tickets\n\nQuestion table context: Question 23c table: columns Number of\npeople, 0, 25, 50, 75, 100, 125, 150; Cost |  | 3750 | 5000 | 6250 | 7500 | 8750 | 10 000",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s1-q23d",
+      "name": "Question 23 (d)",
+      "question": "Carrie is organising a fundraiser. The cost of hiring the venue and the band is $2500. The cost of providing meals is $50er person. Carrie sold 300 tickets. How much profit did the fundraiser make? End of Question 23",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Carrie is organising a fundraiser. The cost of hiring the venue and the band is $2500. The cost of providing meals is $50er person. Carrie sold 300 tickets. How much profit did the fundraiser make? End of Question 23"
+        },
+        {
+          "type": "table",
+          "caption": "Question 23d table",
+          "columns": [
+            "Number of\npeople",
+            "0",
+            "25",
+            "50",
+            "75",
+            "100",
+            "125",
+            "150"
+          ],
+          "rows": [
+            [
+              {
+                "text": "Cost",
+                "header": true
+              },
+              {
+                "text": "",
+                "header": false
+              },
+              {
+                "text": "3750",
+                "header": false
+              },
+              {
+                "text": "5000",
+                "header": false
+              },
+              {
+                "text": "6250",
+                "header": false
+              },
+              {
+                "text": "7500",
+                "header": false
+              },
+              {
+                "text": "8750",
+                "header": false
+              },
+              {
+                "text": "10 000",
+                "header": false
+              }
+            ]
+          ]
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 3\n• Calculates correct cost and revenue, or equivalent merit 2\n• Calculates correct revenue, or equivalent merit 1\nSample answer:\nRevenue = 300 tickets # $70 = $21 000\nCost = 2500 + 300 # $50 = $17 500\nProfit = 21 000 - 17 500\n= $3500\n\nQuestion table context: Question 23d table: columns Number of\npeople, 0, 25, 50, 75, 100, 125, 150; Cost |  | 3750 | 5000 | 6250 | 7500 | 8750 | 10 000",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Calculates correct revenue, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Calculates correct cost and revenue, or equivalent merit; Calculates correct revenue, or equivalent merit.",
+        "3": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q24",
+      "name": "Question 24",
+      "question": "Students in two classes, Class A and Class B, recorded the number of text messages they sent in a day. Each class has 18 students. The results are shown in the dot plots. Class A Class B Number of text messages Number of text messages Compare the two datasets by examining the skewness, median and spread of the distributions.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Students in two classes, Class A and Class B, recorded the number of text messages they sent in a day. Each class has 18 students. The results are shown in the dot plots."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q24-1.png",
+          "page": 24,
+          "alt": "Question 24 exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "Class A Class B Number of text messages Number of text messages Compare the two datasets by examining the skewness, median and spread of the distributions."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Compares skewness, median and spread correctly 3\n• Compares spread and medians of two graphs, or equivalent merit 2\n• Compares spread of two graphs, or equivalent merit 1\nSample answer:\n• Class A negatively skewed, Class B positively skewed.\n• IQR for A and B is equal.\n• Class A median is 4, Class B median is 3.\nAnswer could include:\n• Range for A and B is equal.",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Compares spread of two graphs, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Compares spread and medians of two graphs, or equivalent merit; Compares spread of two graphs, or equivalent merit.",
+        "3": "Meets the full-mark criteria: Compares skewness, median and spread correctly."
+      }
+    },
+    {
+      "id": "math2024-s1-q25",
+      "name": "Question 25",
+      "question": "In a national park, a straight path connects a lookout to a car park. The lookout is 35 m higher than the car park. The path is inclined at an angle of elevation of 4°, as shown. park What is the length of the path, correct to the nearest metre?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "In a national park, a straight path connects a lookout to a car park. The lookout is 35 m higher than the car park. The path is inclined at an angle of elevation of 4°, as shown. park What is the length of the path, correct to the nearest metre?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 2\n• Attempts to use trigonometry with an angle of 4°, or equivalent merit 1\nSample answer:\n35 sin 4° = path\n35 Path = sin 4°\n= 501.74...\n= 502 m",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Attempts to use trigonometry with an angle of 4°, or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q26",
+      "name": "Question 26",
+      "question": "Bobby has a credit card that has no interest-free period. Interest is charged at 0.07% per day, compounding daily, on the outstanding balance. How much interest is Bobby charged on an outstanding balance of $600 for 30 days?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Bobby has a credit card that has no interest-free period. Interest is charged at 0.07% per day, compounding daily, on the outstanding balance. How much interest is Bobby charged on an outstanding balance of $600 for 30 days?"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 3\n• Uses the compound interest formula correctly, or equivalent merit 2\n• Attempts to use the compound interest formula, or equivalent merit 1\nSample answer:\nA = P^1 + rh\nn\n= 600^1 + 0.07%h\n30\n= 612.728...\nA = $612.73\nInterest = $612.73 - $600\n= $12.73",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Attempts to use the compound interest formula, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Uses the compound interest formula correctly, or equivalent merit; Attempts to use the compound interest formula, or equivalent merit.",
+        "3": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q27",
+      "name": "Question 27",
+      "question": "Zazu works a 38-hour week and is paid at an hourly rate of $45. Any overtime hours worked are paid at time-and-a-half. In a particular week, Zazu worked the regular 38 hours and some overtime hours. In that week Zazu earned $2790. How many hours of overtime did Zazu work in that week?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Zazu works a 38-hour week and is paid at an hourly rate of $45. Any overtime hours worked are paid at time-and-a-half. In a particular week, Zazu worked the regular 38 hours and some overtime hours. In that week Zazu earned $2790. How many hours of overtime did Zazu work in that week?"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 3\n• Finds Zazu’s normal time earnings and overtime hourly rate,\nor equivalent merit 2\n• Finds Zazu’s normal time earnings, or equivalent merit 1\nSample answer:\nNormal time earnings = 38 # 45\n= 1710\nOvertime paid = 2790 - 1710\n= 1080\n$1080 Overtime hours = ^45 # 1.5h\n= 16 hours\nTherefore 16 hours overtime.",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Finds Zazu’s normal time earnings, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Finds Zazu’s normal time earnings, or equivalent merit.",
+        "3": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q28",
+      "name": "Question 28",
+      "question": "Alex and Jun each invest $1800 for 5 years. • Alex’s investment earns simple interest at a rate of 7.5% per annum. • Jun’s investment earns interest at a rate of 6.0% per annum, compounding quarterly. By calculating the interest earned over the 5 years, determine who will have the greater amount.",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Alex and Jun each invest $1800 for 5 years. • Alex’s investment earns simple interest at a rate of 7.5% per annum. • Jun’s investment earns interest at a rate of 6.0% per annum, compounding quarterly. By calculating the interest earned over the 5 years, determine who will have the greater amount."
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 3\n• Calculates Jun’s interest, or equivalent merit 2\n• Calculates Alex’s interest, or equivalent merit 1\nSample answer:\nAlex’s interest after 5 years = 1800 # 7.5% # 5\n= $675\n4 × 5\nJun’s investment at 5 years = 1800 # d1 +\n4\n6\n%n\n= 2424.339...\nInterest = 2424.34 - 1800\n= $624.34\n` Alex earns more interest.",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Calculates Alex’s interest, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Calculates Jun’s interest, or equivalent merit; Calculates Alex’s interest, or equivalent merit.",
+        "3": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q29a",
+      "name": "Question 29 (a)",
+      "question": "A floor plan for a living area is shown. All measurements are in millimetres. TO What is the length and width of the cupboard, in metres?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A floor plan for a living area is shown. All measurements are in millimetres. TO What is the length and width of the cupboard, in metres?"
+        }
+      ],
+      "marks": 1,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 1\nSample answer:\n4000 mm # 500 mm\n= 4 m # 0.5 m",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Meets the full-mark criteria: Provides correct answer."
+      }
+    },
+    {
+      "id": "math2024-s1-q29b",
+      "name": "Question 29 (b)",
+      "question": "A floor plan for a living area is shown. All measurements are in millimetres. TO The floor of the living area is to be tiled. Tiles will NOT be placed under the cupboard. Each tile is 0.2 m × 0.5 m. The tiles are supplied in boxes of 15 at a cost of $100 per box. Only full boxes can be purchased. What is the cost of the tiles for the living area?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A floor plan for a living area is shown. All measurements are in millimetres. TO The floor of the living area is to be tiled. Tiles will NOT be placed under the cupboard. Each tile is 0.2 m × 0.5 m. The tiles are supplied in boxes of 15 at a cost of $100 per box. Only full boxes can be purchased. What is the cost of the tiles for the living area?"
+        }
+      ],
+      "marks": 4,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 4\n• Calculates required number of tiles, or equivalent merit 3\n• Provides total floor area to be covered, or equivalent merit 2\n• Provides 1 correct area, or equivalent merit 1\nSample answer:\n6 m\n➀ 2.5 m 3 m\n4 m\n➁ 0.5 m\n2 m\nSection ➀\n30 across\n5 down = 150 tiles\nSection ➁\n10 across\n1 down = 10 tiles\nTotal = 160 tiles needed\n160 ' 15 = 10.67 boxes\n= brounded to 11 boxes nearest full boxl\nCost = 11 # 100\n= $1100\nAlternative:\nA = 6 # 2.5 m 1\n= 15 m2\nA = 2 # 0.5 m 2\n= 1 m2\nA = 16 m2\ntotal\nA = 0.2 # 0.5 tile\n= 0.1 m2\nTotal tiles needed = 16 m2 ' 0.1 m2\n= 160 tiles\n160 ' 15 = 10.67 boxes\nrounded to = 11 boxes b\nnearest full boxl\nCost = 11 # 100\n= $1100",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Provides 1 correct area, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Provides total floor area to be covered, or equivalent merit; Provides 1 correct area, or equivalent merit.",
+        "3": "Award 3 mark(s) for demonstrated progress, including: Calculates required number of tiles, or equivalent merit; Provides total floor area to be covered, or equivalent merit; Provides 1 correct area, or equivalent merit.",
+        "4": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q30",
+      "name": "Question 30",
+      "question": "The graph shows the decreasing value of an asset. For the first 4 years, the value of the asset depreciated by $1500 per year, using a straight-line method of depreciation. After the end of the 4th year, the method of depreciation changed to the declining-balance method at the rate of 35% per annum. What is the total depreciation at the end of 10 years?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "The graph shows the decreasing value of an asset."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q30-1.png",
+          "page": 30,
+          "alt": "Question 30 exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "For the first 4 years, the value of the asset depreciated by $1500 per year, using a straight-line method of depreciation. After the end of the 4th year, the method of depreciation changed to the declining-balance method at the rate of 35% per annum. What is the total depreciation at the end of 10 years?"
+        }
+      ],
+      "marks": 4,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 4\n• Uses the declining-balance method with correct values for r, n and V0,\nor equivalent merit 3\n• Attempts to use the declining-balance method with an initial value from\nthe straight-line method, or equivalent merit 2\n• Attempts to use straight-line method, or equivalent merit 1\nSample answer:\nValue after 4 years:\nUsing straight-line method = 50 000 -1500 # 4\n= 44 000\nValue after the next 6 years:\nUsing declining-balance method = 44 000^1- 35%h\n6\n= 3318.43...\nTotal depreciation = 50 000 - 3318.43\n= $46 681.57",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Attempts to use straight-line method, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Attempts to use straight-line method, or equivalent merit.",
+        "3": "Award 3 mark(s) for demonstrated progress, including: Attempts to use straight-line method, or equivalent merit.",
+        "4": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q31",
+      "name": "Question 31",
+      "question": "Wombats can run at a speed of 40 km/h over short distances. At this speed, how many seconds would it take a wombat to run 150 metres?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "Wombats can run at a speed of 40 km/h over short distances. At this speed, how many seconds would it take a wombat to run 150 metres?"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 3\n• Provides correct calculations in hours, or equivalent merit 2\n• Provides correct distance conversion, or equivalent merit 1\nSample answer:\nDistance Speed = Time\n0.15 km 40 km/h = T\n0.15 T = 40\nT = 0.00375 hours\nT = 0.00375 # 3600 seconds\n= 13.5 seconds",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Provides correct distance conversion, or equivalent merit.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Provides correct calculations in hours, or equivalent merit; Provides correct distance conversion, or equivalent merit.",
+        "3": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q32a",
+      "name": "Question 32 (a)",
+      "question": "A scale diagram is shown with locations A, B and C marked. Jo takes 24 minutes to walk from A to B (in a straight line) when walking at 3 km per hour. What is the scale used in the diagram?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A scale diagram is shown with locations A, B and C marked."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q32a-1.png",
+          "page": 32,
+          "alt": "Question 32a exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "Jo takes 24 minutes to walk from A to B (in a straight line) when walking at 3 km per hour. What is the scale used in the diagram?"
+        }
+      ],
+      "marks": 3,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct solution 3\n• Finds distance travelled, or equivalent merit 2\nD • Attempts to use S = , or equivalent merit T\n1\nSample answer:\nD S = T\nD 3 = 24 ' 60\n24 D = 3 #\n60\n= 1.2 km\n6 cm : 1.2 km\n1 cm : 0.2 km\n0.2 km = 200 m = 20 000 cm\n1 : 20 000",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) only for relevant working that demonstrates progress toward the NESA criteria.",
+        "2": "Award 2 mark(s) for demonstrated progress, including: Finds distance travelled, or equivalent merit.",
+        "3": "Meets the full-mark criteria: Provides correct solution."
+      }
+    },
+    {
+      "id": "math2024-s1-q32b",
+      "name": "Question 32 (b)",
+      "question": "A scale diagram is shown with locations A, B and C marked. Jo takes 24 minutes to walk from A to B (in a straight line) when walking at 3 km per hour. What is the distance from B to C, in kilometres?",
+      "sourcePaper": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1.pdf",
+      "sourceMarking": "https://www.nsw.gov.au/sites/default/files/noindex/2025-05/2024-hsc-maths-std-1-mg.pdf",
+      "sourcePack": "https://www.nsw.gov.au/education-and-training/nesa/curriculum/hsc-exam-papers/mathematics-standard/2024",
+      "sourceYear": 2024,
+      "questionContent": [
+        {
+          "type": "text",
+          "text": "A scale diagram is shown with locations A, B and C marked."
+        },
+        {
+          "type": "image",
+          "path": "maths/2024/diagram-s1-q32b-1.png",
+          "page": 32,
+          "alt": "Question 32b exam diagram"
+        },
+        {
+          "type": "text",
+          "text": "Jo takes 24 minutes to walk from A to B (in a straight line) when walking at 3 km per hour. What is the distance from B to C, in kilometres?"
+        }
+      ],
+      "marks": 2,
+      "isAICheck": true,
+      "answer": "Use the NESA marking criteria and sample answer below. Accept equivalent correct reasoning and working, valid follow-through and appropriate rounding. Only credit evidence present in the response.\nCriteria Marks\n• Provides correct answer 2\n• Attempts to use scale from part (a), or equivalent merit 1\nSample answer:\n1 : 20 000\n7 cm : 7 # 20 000\n=140 000 cm\n= 1400 m\n= 1.4 km\n2024 HSC Mathematics Standard 1\nMapping Grid\nSection I\nQuestion Marks Content Syllabus outcomes\n1 1 MS-S2 Relative Frequency and Probability MS11-8\n2 1 MS-M4 Rates MS1-12-3\n3 1 MS-M4 Rates MS1-12-10\n4 1 MS-F1 Money Matters MS11-5\n5 1 MS-F1 Money Matters MS11-5\n6 1 MS-N1 Networks and Paths MS1-12-8\n7 1 MS-M3 Right-angled Triangles MS1-12-4\n8 1 MS-F2 Investment MS1-12-5\n9 1 MS-M1 Applications of Measurement MS11-4\n10 1 MS-A3 Types of Relationships MS1-12-6\nSection II\nQuestion Marks Content Syllabus outcomes\n11 2 MS-M5 Scale Drawings MS1-12-4\n12 2 MS-S3 Further Statistical Analysis MS1-12-2\n13 (a) 1 MS-S1 Data Analysis MS11-7\n13 (b) 2 MS-S1 Data Analysis MS11-10\n14 (a) 2 MS-M3 Right-angled Triangles MS1-12-4\n14 (b) 2 MS-M3 Right-angled Triangles MS1-12-4\n15 (a) 2 MS-N1 Networks and Paths MS1-12-8\n15 (b) 2 MS-N1 Networks and Paths MS1-12-10\n16 2\nMS-M1\nMS-M4\nApplications of Measurement\nRates MS1-12-3\n17 (a) 1 MS-S2 Relative Frequency and Probability MS11-7\n17 (b) 2 MS-S2 Relative Frequency and Probability MS11-10\n18 3 MS-M1 Applications of Measurement MS11-4\n19 2 MS-A1 Formulae and Equations MS11-10\n20 (a) 2 MS-N1 Networks and Paths MS1-12-8\n20 (b) 1 MS-N1 Networks and Paths MS1-12-10\n21 2 MS-F1 Money Matters MS11-6\n22 2 MS-M2 Working with Time MS11-10\n23 (a) 1 MS-A3 Types of Relationships MS1-12-9\n23 (b) 2 MS-A3 Types of Relationships MS1-12-6\n23 (c) 1 MS-A3 Types of Relationships MS1-12-10\n23 (d) 3 MS-A3 Types of Relationships MS1-12-1\n24 3 MS-S1 Data Analysis MS11-10\n25 2 MS-M3 Right-angled Triangles MS1-12-4\n\n\n\nQuestion Marks Content Syllabus outcomes\n26 3 MS-F3 Depreciation and Loans MS1-12-5\n27 3 MS-F1 Money Matters MS11-6\n28 3 MS-F2 Investment MS1-12-10\n29 (a) 1 MS-M5 Scale Drawings MS1-12-3\n29 (b) 4 MS-M5 Scale Drawings MS1-12-10\n30 4\nMS-F1\nMS-F3\nMoney Matters\nDepreciation and Loans MS1-12-10\n31 3 MS-M4 Rates MS1-12-3\n32 (a) 3 MS-M5 Scale Drawings MS1-12-3\n32 (b) 2 MS-M5 Scale Drawings MS1-12-4",
+      "markingLevels": {
+        "0": "No relevant correct response or working.",
+        "1": "Award 1 mark(s) for demonstrated progress, including: Attempts to use scale from part (a), or equivalent merit.",
+        "2": "Meets the full-mark criteria: Provides correct answer."
+      }
+    }
+  ]
+}
