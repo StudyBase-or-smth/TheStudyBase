@@ -32,10 +32,15 @@ function readResult(data, request) {
 }
 async function gradeQuiz(body, secrets, fetchImpl = fetch) {
   const request = buildRequest(body, secrets.TYPESAFE_MODEL || DEFAULT_MODEL);
-  if (!secrets.TYPESAFE_API_KEY) throw Object.assign(new Error('Quiz marking is not configured. Set TYPESAFE_API_KEY on the backend.'), { statusCode: 503 });
+  let apiKey = secrets.TYPESAFE_API_KEY;
+  if (body?.apiKey != null && body.apiKey !== '') {
+    if (typeof body.apiKey !== 'string' || !body.apiKey.trim() || body.apiKey.length > 2048 || /[\s\x00-\x1f\x7f]/.test(body.apiKey.trim())) invalid('Invalid Jev API key');
+    apiKey = body.apiKey.trim();
+  }
+  if (!apiKey) throw Object.assign(new Error('Quiz marking is not configured. Add a Jev API key in Settings or set TYPESAFE_API_KEY on the backend.'), { statusCode: 503 });
   let response;
   try {
-    response = await fetchImpl(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + secrets.TYPESAFE_API_KEY }, body: JSON.stringify(request), signal: AbortSignal.timeout(30000) });
+    response = await fetchImpl(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey }, body: JSON.stringify(request), signal: AbortSignal.timeout(30000) });
   } catch (error) {
     throw Object.assign(new Error(error.name === 'TimeoutError' || error.name === 'AbortError' ? 'Jev marking timed out. Please try again.' : 'Could not reach Jev. Please try again.'), { statusCode: 502 });
   }

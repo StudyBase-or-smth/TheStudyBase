@@ -6,7 +6,25 @@ function clock(now,zone){
   return {day:parts.year+'-'+parts.month+'-'+parts.day,time:parts.hour+':'+parts.minute};
 }
 function validateStudyState(value){
-  if(!value||value.v!==1||['cards','sessions','goals','days'].some(k=>!value[k]||typeof value[k]!=='object'||Array.isArray(value[k]))||JSON.stringify(value).length>2000000)throw {statusCode:400,message:'Invalid flashcard study data'};
+  if(!value||value.v!==1||['cards','sessions','goals','days'].some(k=>!value[k]||typeof value[k]!=='object'||Array.isArray(value[k]))||JSON.stringify(value).length>16000000)throw {statusCode:400,message:'Invalid flashcard study data'};
+  const invalid=()=>{throw {statusCode:400,message:'Invalid FSRS flashcard data'};};
+  for(const kind of ['cards','sessions','goals','days','imports'])if(value[kind]&&Object.keys(value[kind]).some(key=>['__proto__','prototype','constructor'].includes(key)))invalid();
+  if(value.settings){const s=value.settings;if(!Number.isFinite(s.desiredRetention)||s.desiredRetention<.8||s.desiredRetention>.97||!Number.isInteger(s.newCardsPerDay)||s.newCardsPerDay<0||s.newCardsPerDay>1000)invalid();}
+  function cardState(c){
+    if(!c||!Number.isFinite(Date.parse(c.due))||!Number.isInteger(c.state)||c.state<0||c.state>3)invalid();
+    for(const key of ['stability','difficulty','elapsed_days','scheduled_days','reps','lapses'])if(!Number.isFinite(c[key])||c[key]<0)invalid();
+    if(c.last_review!=null&&!Number.isFinite(Date.parse(c.last_review)))invalid();
+  }
+  for(const c of Object.values(value.cards))if(c?.fsrsVersion===1){
+    cardState(c);cardState(c.fsrsBaseline);
+    if(!c.reviewLog||typeof c.reviewLog!=='object'||Array.isArray(c.reviewLog))invalid();
+    for(const [id,event] of Object.entries(c.reviewLog)){
+      if(!event||event.id!==id||id.length>150||!['again','hard','good','easy'].includes(event.rating)||!Number.isFinite(Date.parse(event.timestamp))||!Number.isFinite(event.retention)||event.retention<.8||event.retention>.97||!/^\d{4}-\d{2}-\d{2}$/.test(event.day))invalid();
+      cardState(event.previousState);cardState(event.result);
+    }
+  }
+  if(value.imports&&(typeof value.imports!=='object'||Array.isArray(value.imports)))invalid();
+  for(const [id,c] of Object.entries(value.imports||{}))if(!c||c.id!==id||typeof c.subjectId!=='string'||typeof c.front!=='string'||!c.front.trim()||c.front.length>5000||typeof c.back!=='string'||!c.back.trim()||c.back.length>20000||!Array.isArray(c.tags)||c.tags.some(tag=>typeof tag!=='string'||tag.length>200))invalid();
   if(Object.keys(value.goals).length>50)throw {statusCode:400,message:'Too many study goals'};
   for(const list of Object.values(value.days))if(!Array.isArray(list)||list.some(id=>typeof id!=='string'||id.length>500))throw {statusCode:400,message:'Invalid study history'};
   for(const kind of ['cards','sessions'])for(const record of Object.values(value[kind]))if(!record||typeof record!=='object'||Array.isArray(record))throw {statusCode:400,message:'Invalid study record'};

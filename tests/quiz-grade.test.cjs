@@ -31,3 +31,21 @@ test('provider errors and malformed decisions never silently award zero marks or
     await assert.rejects(gradeQuiz(input, secrets, async () => ({ok:true,json:async()=>({answers:{mark}})})), error => error.statusCode === 502);
   }
 });
+
+test('optional personal Jev keys override the site key without entering model state or results', async () => {
+  for (const secrets of [{TYPESAFE_API_KEY:'site-key'},{}]) {
+    const result=await gradeQuiz({...input,apiKey:'personal-key'},secrets,async(url,options)=>{
+      assert.equal(options.headers.Authorization,'Bearer personal-key');
+      assert.ok(!options.body.includes('personal-key'));
+      return {ok:true,json:async()=>({answers:{mark:{type:'choice',choice:'marks_1',confidence:0.8}}})};
+    });
+    assert.ok(!JSON.stringify(result).includes('personal-key'));
+  }
+  for (const apiKey of [42,'bad\nkey','bad key','x'.repeat(2049)]) {
+    await assert.rejects(gradeQuiz({...input,apiKey},{TYPESAFE_API_KEY:'site-key'},()=>{throw Error('Must not fetch');}),error=>error.statusCode===400);
+  }
+  await gradeQuiz({...input,apiKey:''},{TYPESAFE_API_KEY:'site-key'},async(url,options)=>{
+    assert.equal(options.headers.Authorization,'Bearer site-key');
+    return {ok:true,json:async()=>({answers:{mark:{type:'choice',choice:'marks_2',confidence:1}}})};
+  });
+});
