@@ -65,6 +65,8 @@ function writable(key, value, previous, user, readKey) {
     if (!Array.isArray(value)) throw { statusCode: 400, message: 'Topics must be an array' };
     const ids = new Set();
     for (const topic of value) {
+      const drawing=topic?.content?.drawData??topic?.drawData;
+      if(drawing!=null)require('./drawing-data').validateDrawing(drawing);
       if(topic && topic.knowledgeGraphIncluded !== undefined && typeof topic.knowledgeGraphIncluded !== 'boolean')
         throw {statusCode:400,message:'Invalid knowledge graph topic inclusion'};
       const id = topic && String(topic.id ?? '');

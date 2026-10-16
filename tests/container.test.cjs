@@ -258,6 +258,15 @@ test('topic collisions and reserved metadata IDs are rejected without altering n
   for (const id of ['topic!', '_meta', 'topic_', 'TOPIC_']) assert.equal((await post([original, { id }])).status, 400);
   assert.deepEqual((await (await c.request('/sync?key=eng_topics')).json()).data, [original]);
 });
+
+test('drawing JSON round-trips through topic sync and malformed updates cannot replace it',async t=>{
+  const c=await start(t),key='2026-engineering_topics',topic={id:'sketch',name:'Bridge sketch',layout:'draw',content:{drawData:{v:1,width:800,height:600,strokes:[{points:[[10,20,.5],[70,80,.8]],colour:'#204080',size:5,tool:'pen',simulatePressure:false}]}}};
+  topic.content.drawData.background={name:'Worksheet · 1',width:800,height:600,src:'data:image/png;base64,aGVsbG8='};topic.content.drawData.pages=[{width:600,height:800,background:{...topic.content.drawData.background,name:'Worksheet · 2'},strokes:[]}];
+  const post=(value,token='teacher')=>c.request('/sync',{method:'POST',body:new URLSearchParams({key,data:JSON.stringify(value)})},token);
+  assert.equal((await post([topic])).status,200);assert.deepEqual((await (await c.request('/sync?key='+key)).json()).data,[topic]);assert.equal((await post([topic],'student')).status,403);
+  const bad=structuredClone(topic);bad.content.drawData.strokes[0].points[0][2]=3;assert.equal((await post([bad])).status,400);assert.deepEqual((await (await c.request('/sync?key='+key)).json()).data,[topic]);
+  assert.equal((await post([])).status,200);assert.deepEqual((await (await c.request('/sync?key='+key)).json()).data,[]);
+});
 test('protected lobbies hide contents and require a server-verified password', async t => {
   const c = await start(t);
   const key = '_kc_lobby_ABCDEF';
