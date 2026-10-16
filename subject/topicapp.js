@@ -841,6 +841,7 @@ function buildInlineEditHtml(){
         </div>
       </div>
     </div>
+    <div class="knowledge-editor"><button type="button" class="qol-button" id="fKnowledgeGraph">Knowledge graph <span class="kg-beta">Beta</span></button><button type="button" class="qol-button danger" id="fKnowledgeGraphRemove">Remove</button><p id="knowledgeEditorHint"></p></div>
     ${inlineEditSection('basic', 'definition', '📝', 'Definition', `<textarea class="form-ta" id="fDefinition" rows="3" placeholder="A clear, concise definition…"></textarea>`)}
     ${inlineEditSection('overview text', 'bodyText', '📄', '<span id="bodyTextLabel">Overview</span>', inlineRichField('fBodyText', 'Write the overview or main text here…', 160))}
     ${inlineEditSection('basic overview text', 'keyPoints', '✦', '<span id="kpFieldLabel">Key Points</span>', `<div class="kp-list" id="kpList"></div><button type="button" class="btn-add-kp" onclick="addKpRow()">+ Add key point</button>`)}
@@ -862,7 +863,7 @@ function buildInlineEditHtml(){
       <summary class="edit-more-summary">More</summary>
       <div class="edit-more-body">
         ${inlineEditSection('basic overview math text pdf table', 'flashcardQA', '🎴', 'Flashcard Questions', `<div class="fqa-list" id="fqaList"></div><button type="button" class="btn-add-kp" onclick="addFqaRow()">+ Add question</button>`)}
-        ${inlineEditSection('basic overview text math pdf table', 'relatedTerms', '🔗', 'Related Terms', `<div class="tags-wrap" id="tagsWrap" onclick="document.getElementById('tagsInput').focus()"><input type="text" class="tags-i" id="tagsInput" placeholder="Type a topic… Tab to autofill" autocomplete="off"></div>`)}
+        ${inlineEditSection('basic overview text math pdf table', 'relatedTerms', '🔗', 'Related Terms', `<p class="knowledge-related-hint">Prerequisite topics from the knowledge graph. Use the Knowledge graph button to change connections.</p><div id="knowledgeEditorPrerequisites" class="knowledge-prerequisites"></div><div class="tags-wrap" id="tagsWrap" hidden><input type="text" class="tags-i" id="tagsInput" autocomplete="off"></div>`)}
       </div>
     </details>
     </div>
@@ -1620,12 +1621,7 @@ function viewTopic(id, originId){
     ? `<ul class="key-points">${t.keyPoints.map(k=>`<li class="kp-item"><div class="kp-dot"></div><span>${esc(k)}</span></li>`).join('')}</ul>`
     : '';
 
-  const relHtml = (t.relatedTerms||[]).length
-    ? `<div class="related-tags">${t.relatedTerms.map(r => {
-        const m = allTopics.find(x => x.name.toLowerCase()===r.toLowerCase());
-        return `<span class="rtag"${m?` onclick="viewTopic(${jsArg(m.id)}, ${oid})"`:''}>${esc(r)}</span>`;
-      }).join('')}</div>`
-    : '';
+  const relHtml = '<div id="topicPrerequisites" class="knowledge-prerequisites"></div>';
 
   const subtopicsHtml = children.length
     ? `<div class="related-tags">${children.map(c => `<span class="rtag" onclick="viewTopic(${jsArg(c.id)}, ${oid})">${esc(c.name)}</span>`).join('')}</div>`
@@ -1714,6 +1710,7 @@ function viewTopic(id, originId){
           </div>
         </div>
         <div class="dh-actions">
+          ${(t.knowledgeGraphIncluded || (typeof StudyKnowledgeGraph !== 'undefined' && StudyKnowledgeGraph.included(t.id,origin?.id))) && (typeof StudyKnowledgeGraph === 'undefined' || StudyKnowledgeGraph.enabled(origin?.id)) ? `<button type="button" class="btn-act knowledge-topic-link" data-knowledge-origin="${esc(origin?.id||'')}" onclick="StudyKnowledgeGraph.open(${jsArg(t.id)}, ${oid})">View connections</button>` : ''}
           ${!canEditTopic(t.id) ? '' : `<button class="btn-act danger" onclick="confirmDeleteTopic(${jsArg(t.id)})">Delete</button>
           <button class="btn-act" onclick="startInlineEdit(${jsArg(t.id)})">Edit</button>`}
         </div>
@@ -1727,6 +1724,7 @@ function viewTopic(id, originId){
     el.classList.add('on');
   }
   _lastRenderedTopicKey = renderKey;
+  if(typeof StudyKnowledgeGraph !== 'undefined') StudyKnowledgeGraph.mountPrerequisites(document.getElementById('topicPrerequisites'),t.id,origin?.id);
   buildTeacherPanel(t.id, visibleBlocks);
   mountGraphView(t);
   wireRichImages(el);
@@ -1809,6 +1807,8 @@ function captureEditDraft(){
       if(ti) terms.push(ti);
       return terms;
     })(),
+    knowledgeGraphIncluded: document.getElementById('fKnowledgeGraph')?.dataset.included === 'true',
+    knowledgeGraphDraft: document.getElementById('fKnowledgeGraph')?.knowledgeGraphDraft || null,
     flashcardEnabled: document.getElementById('fFlashcardBase')?.checked !== false,
     flashcardQA: readFlashcardRows(),
     subtopicRows: Array.from(document.getElementById('subtopicEditorList')?.children || []).map(row => {
@@ -1855,6 +1855,8 @@ function draftIsDirty(draft){
   const exLayout = LAYOUTS.includes(ex.layout) ? ex.layout : subjectDefaultLayout();
   if(draftLayout !== exLayout) return true;
   if(draftStableJson(draft.relatedTerms || []) !== draftStableJson(ex.relatedTerms || [])) return true;
+  if((draft.knowledgeGraphIncluded === true) !== (ex.knowledgeGraphIncluded === true)) return true;
+  if(draft.knowledgeGraphDraft) return true;
   if((draft.flashcardEnabled !== false) !== (ex.flashcardEnabled !== false)) return true;
   if(draftStableJson(draft.flashcardQA || []) !== draftStableJson(ex.flashcardQA || [])) return true;
   const draftTable = draft.tableData || { columns: [], rows: [] };
@@ -1971,6 +1973,7 @@ function populateTopicForm(id, draft){
     currentLayout = subjectDefaultLayout();
     pendingPdfData = null; pendingPdfName = null; pendingPdfUploading = false;
   }
+  if(typeof StudyKnowledgeGraph !== 'undefined') StudyKnowledgeGraph.setupEditor(draft || topicsSrc().find(t => t.id === id) || {}, editOrigin?.id);
   renderPdfPreview();
   applyLayoutUI();
   return desmosState;
@@ -2428,6 +2431,7 @@ function applyDraftToTopicList(topics, draft){
     desmosState: draft.desmosState || null,
     layout: draft.layout || subjectDefaultLayout(),
     relatedTerms: draft.relatedTerms || [],
+    knowledgeGraphIncluded: draft.knowledgeGraphIncluded === true,
     flashcardEnabled: draft.flashcardEnabled !== false,
     flashcardQA: draft.flashcardQA || [],
     notes: draft.notes || existing.notes || {},
@@ -2518,6 +2522,7 @@ function saveTopic(){
       let topics = origin ? topicsForOrigin(origin) : getTopics();
       list.forEach(d => { topics = applyDraftToTopicList(topics, d); });
       saveTopicsForOrigin(origin, topics);
+      list.forEach(d=>{if(d.knowledgeGraphDraft) StudyKnowledgeGraph.saveDraft(d.knowledgeGraphDraft,d.originId).catch(()=>showToast('Could not save graph connections','error'));});
     });
     finishEditSession();
     renderList();
@@ -2546,7 +2551,7 @@ function saveTopic(){
     if(parent) unit = parent.unit || '';
   }
   const topic = {
-    id: editId || newTopicId(),
+    id: editId || document.getElementById('fKnowledgeGraph')?.dataset.topicId || newTopicId(),
     name,
     unit,
     definition: document.getElementById('fDefinition').value.trim(),
@@ -2563,6 +2568,7 @@ function saveTopic(){
     desmosState: newDesmosState !== null ? newDesmosState : (ex.desmosState || null),
     layout:    currentLayout,
     relatedTerms,
+    knowledgeGraphIncluded: document.getElementById('fKnowledgeGraph')?.dataset.included === 'true',
     flashcardEnabled: document.getElementById('fFlashcardBase')?.checked !== false,
     flashcardQA,
     parentId: ex.parentId || null,
@@ -2603,6 +2609,8 @@ function saveTopic(){
 
   const savedOrigin = editOrigin;
   saveTopicsForOrigin(savedOrigin, topics);
+  const graphDraft=document.getElementById('fKnowledgeGraph')?.knowledgeGraphDraft;
+  if(graphDraft) StudyKnowledgeGraph.saveDraft(graphDraft,savedOrigin?.id).catch(()=>showToast('Could not save graph connections','error'));
   finishEditSession(); renderList();
   viewTopic(topic.id, savedOrigin ? savedOrigin.id : null);
 }
@@ -3057,6 +3065,21 @@ function applyTopicLinkFromUrl(){
 
 // ── Boot ──
 if(resolveSubject()){
+  if(typeof StudyKnowledgeGraph !== 'undefined') StudyKnowledgeGraph.init({
+    newId:()=>newTopicId(),
+    isEditing:()=>!!editSurface,
+    editorTopic:button=>({id:editId||button.dataset.topicId,name:document.getElementById('fName')?.value||'',unit:document.getElementById('fUnit')?.value||''}),
+    context(originId){
+    const origin=originId?LINKED_CLASSES.find(c=>c.id===originId):null;
+    const source=origin||SUBJECT,kind=origin||IS_CLASS_PAGE?'class':'subject';
+    return {key:'knowledge_'+kind+'_'+source.id,name:source.name,kind,
+      topics:()=>topicsForOrigin(origin),
+      canEdit:()=>!window.isGuest && !!window.__sbAuth?.currentUser && !!window.userRole && (origin?window.userRole==='dev':IS_CLASS_PAGE?canEditClassTopics():true),
+      unitName:value=>unitLabel(value,origin?unitsForOrigin(origin):getUnits()),
+      topicURL(id){const url=new URL(kind==='class'?'class.html':'subject.html',location.href);url.hash=source.id;url.searchParams.set('topic',id);return url.href;},
+      openTopic:id=>viewTopic(id,origin?.id||null)
+    };
+  }});
   applySubjectTheme();
   initSidebarTabs();
   setupRichDnD();

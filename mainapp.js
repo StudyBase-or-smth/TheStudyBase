@@ -128,10 +128,15 @@ function refreshHubLists(){
 
 window.onHubAuthReady = function (uid) {
   window.currentUid = uid;
+  if (typeof applyProfileCache === 'function') applyProfileCache(uid);
+  // Show verified classes with this account's cached preferences first.
+  renderClasses();
   window.SBSubjectCards.load(subjectsData.subjects,classesData.subjects);
   window.SBQoL?.refreshContinue();
-  if (typeof applyProfileCache === 'function') applyProfileCache(uid);
-  refreshHubLists();
+  renderSubjects();
+  renderStats();
+  renderSidebar();
+  updateHdrProfile();
   if (typeof pullProfile === 'function') {
     pullProfile(uid).then(() => refreshHubLists());
   }
@@ -202,20 +207,40 @@ function renderClasses() {
   const el = document.getElementById('classesGrid');
   if (!el) return;
   if (!window.isTeacher) {
-    if (section) section.style.display = 'none';
+    if (section) { section._classesReveal?.forEach(animation => animation.cancel()); section.style.display = 'none'; }
     return;
   }
-  if (section) section.style.display = '';
+  const reveal = section && section.style.display === 'none';
   if (typeof classesData === 'undefined' || !classesData.subjects || !classesData.subjects.length) {
     el.innerHTML = '<p class="empty-note" style="grid-column:1/-1;padding:8px 0">No classes defined yet.</p>';
-    return;
+  } else {
+    const classes = hubClasses();
+    if (!classes.length) el.innerHTML = '<p class="empty-note" style="grid-column:1/-1;padding:8px 0">No classes enabled — turn them on in Profile.</p>';
+    else window.SBSubjectCards.render(el,classes,true,getTopics,getUnits);
   }
-  const classes = hubClasses();
-  if (!classes.length) {
-    el.innerHTML = '<p class="empty-note" style="grid-column:1/-1;padding:8px 0">No classes enabled — turn them on in Profile.</p>';
-    return;
+  if (section) {
+    section.style.display = '';
+    const motion = window.SBQoL?.motionEnabled() ?? !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const drawer = document.getElementById('classesReveal');
+    if (reveal && motion && drawer?.animate && el.animate) {
+      const height = drawer.getBoundingClientRect().height;
+      const overflow = drawer.style.overflow;
+      drawer.style.overflow = 'hidden';
+      const timing = {duration:180,easing:'cubic-bezier(.2,.7,.3,1)'};
+      const expand = drawer.animate([{height:'0px'},{height:height+'px'}],timing);
+      const slide = el.animate([{transform:'translateY(-100%)'},{transform:'translateY(0)'}],timing);
+      const animations = [expand,slide];
+      const title = section.querySelector('.sec-title-classes');
+      if (title?.animate) animations.push(title.animate([{opacity:0},{opacity:1}],{duration:160,easing:'ease-out'}));
+      section._classesReveal = animations;
+      const finish = () => {
+        if (section._classesReveal !== animations) return;
+        drawer.style.overflow = overflow;
+        section._classesReveal = null;
+      };
+      Promise.all(animations.map(animation => animation.finished)).then(finish,finish);
+    }
   }
-  window.SBSubjectCards.render(el,classes,true,getTopics,getUnits);
 }
 
 

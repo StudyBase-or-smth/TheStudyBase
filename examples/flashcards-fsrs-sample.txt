@@ -1,0 +1,5 @@
+# StudyBase sample: front, back, optional tags (tab-separated).
+What is the SI unit of force?	Newton (N)	physics units
+What is Newton's second law?	F = ma	physics mechanics
+What is the SI unit of energy?	Joule (J)	physics units
+What is the capital of Australia?	Canberra	geography

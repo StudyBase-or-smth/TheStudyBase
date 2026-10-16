@@ -542,6 +542,7 @@ function normalizeTopic(raw){
     layout,
     unit: raw.unit != null && raw.unit !== '' ? String(raw.unit) : '',
     parentId,
+    knowledgeGraphIncluded: raw.knowledgeGraphIncluded === true,
     order: typeof raw.order === 'number' && Number.isFinite(raw.order) ? raw.order : null,
     relatedTerms: Array.isArray(raw.relatedTerms) ? raw.relatedTerms.slice() : [],
     flashcardEnabled: raw.flashcardEnabled !== false,
@@ -591,6 +592,7 @@ function serializeTopic(t){
   const out = { v: 1, id: n.id, name: n.name, layout };
   if(n.unit) out.unit = n.unit;
   if(n.parentId) out.parentId = n.parentId;
+  if(n.knowledgeGraphIncluded) out.knowledgeGraphIncluded = true;
   if(n.order != null) out.order = n.order;
   if(n.relatedTerms.length) out.relatedTerms = n.relatedTerms;
   if(n.flashcardQA.length) out.flashcardQA = n.flashcardQA;

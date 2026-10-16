@@ -168,6 +168,16 @@ body.subject-page .subtopic-sidebar-item .ssi-label{flex:1;min-width:0}
 body.dark .calendar-deadline.overdue{color:#ff9a91}
 /* Short visual feedback; no animated layout or sticky positioning. */
 @keyframes qol-soft-appear{from{opacity:.65}to{opacity:1}}
+#classesSection{display:flow-root}
+#classesSection .sec-title-classes{margin-bottom:0}
+.classes-reveal{display:flow-root}
+.classes-reveal>.classes-grid{padding-top:14px}
+.subj-card-settings{transition:opacity 250ms ease-out,background-color 120ms ease-out,border-color 120ms ease-out,color 120ms ease-out}
+.subj-card-settings .settings-icon{opacity:.55}
+@media(hover:hover) and (pointer:fine){
+  .image-subj-card .subj-card-settings{opacity:0;pointer-events:none}
+  .image-subj-card:hover .subj-card-settings,.image-subj-card:focus-within .subj-card-settings{opacity:1;pointer-events:auto}
+}
 .main-grid:has(> #hubSidebar),#statsRow{animation:qol-soft-appear 180ms ease-out both}
 .qol-dialog[open],.qol-notice{animation:qol-soft-appear 140ms ease-out}
 .hdr-profile-tip,.qol-settings-menu{transform:translateY(3px);transition:opacity 140ms ease-out,transform 140ms ease-out}

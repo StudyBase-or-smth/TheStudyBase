@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../fonts.css">
 <link rel="stylesheet" href="../mainstyle.css?v=editbtns2">
 <link rel="stylesheet" href="flashcards-editor.css">
+<link rel="stylesheet" href="knowledge-graph.css">
 <script src="../flashcards-core.js"></script>
 <script src="../sync-config.generated.js"></script>
 <script src="../sync-config.js"></script>
@@ -122,6 +123,7 @@
         <button class="hdr-ghost hdr-sync" onclick="syncPull()" data-tip="Sync now" aria-label="Sync now">⟳<span id="syncCountdown"></span></button>
         <button class="hdr-ghost" onclick="openSuggestions()" data-tip="Suggestions" aria-label="Suggestions">📝</button>
         <button class="hdr-ghost" id="btnFlashcards" onclick="window.location.href='flashcards.html#'" data-tip="Flashcards" aria-label="Flashcards">🃏</button>
+        <button type="button" class="hdr-ghost" id="btnKnowledgeGraph" aria-label="Knowledge graph · Beta"><img src="../icons/knowledge-graph.svg" alt=""><span class="kg-header-label">Knowledge graph</span><span class="kg-beta">Beta</span></button>
         <button class="hdr-action" id="btnNewTopic" onclick="openModal()">+ New topic</button>
         <div class="hdr-notify-wrap" id="hdrNotifyWrap">
           <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications">
@@ -197,6 +199,7 @@
       <div class="form-g" style="flex:2">
         <label class="form-l">Term / Concept <span>*</span></label>
         <input type="text" class="form-i" id="fName" placeholder="e.g. Concept name…">
+        <div class="knowledge-editor"><button type="button" class="qol-button" id="fKnowledgeGraph">Knowledge graph <span class="kg-beta">Beta</span></button><button type="button" class="qol-button danger" id="fKnowledgeGraphRemove">Remove</button><p id="knowledgeEditorHint"></p></div>
       </div>
       <div class="form-g" style="flex:1">
         <label class="form-l">Unit</label>
@@ -338,8 +341,8 @@
       <button class="btn-add-kp" onclick="addFqaRow()">+ Add question</button>
     </div>
     <div class="form-g">
-      <label class="form-l">Related Terms <span>— press Enter or comma</span></label>
-      <div class="tags-wrap" id="tagsWrap" onclick="document.getElementById('tagsInput').focus()">
+      <label class="form-l">Related Terms <span>— prerequisite connections from the knowledge graph</span></label><div id="knowledgeEditorPrerequisites" class="knowledge-prerequisites"></div>
+      <div class="tags-wrap" id="tagsWrap" hidden>
         <input type="text" class="tags-i" id="tagsInput" placeholder="Add related term…">
       </div>
     </div>
@@ -420,6 +423,8 @@
 <script>window.TOPIC_APP_MODE = 'class';</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.11.1/distrib/jsxgraph.css">
 <script src="graph-editor.js?v=linked-values3"></script>
+<script src="../knowledge-graph-core.js"></script>
+<script src="knowledge-graph.js"></script>
 <script src="topicapp.js?v=qol1"></script>
 <script src="flashcards-editor.js"></script>
 <script src="../qol.js"></script>

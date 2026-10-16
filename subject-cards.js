@@ -16,7 +16,8 @@
       const link=node('a','subj-card-link');link.href='subject/'+(isClass?'class.html':'subject.html')+'#'+encodeURIComponent(subject.id);
       const info=node('div','subj-card-info'),name=node('div','subj-name',subject.name),meta=node('div','subj-meta',topics.length?`${topics.length} topic${topics.length!==1?'s':''} · ${units.length} unit${units.length!==1?'s':''}`:'No topics yet');
       info.append(name,meta);
-      if(isClass&&(subject.teacher||subject.class))info.append(node('div','subj-class-meta',[subject.teacher,subject.class?'Class '+subject.class:''].filter(Boolean).join(' · ')));
+      if(isClass&&(subject.teacher||subject.class))meta.append(node('span','subj-class-meta',' · '+[subject.teacher,subject.class?'Class '+subject.class:''].filter(Boolean).join(' · ')));
+      name.title=subject.name;meta.title=meta.textContent;
       link.append(cover(savedImage(subject,isClass),subject.colour),info);card.append(link);
       const actions=node('div','subj-card-actions');
       if(canEdit()) { const settings=node('button','subj-card-settings'),icon=node('img','settings-icon');icon.src='icons/settings.svg';icon.alt='';icon.width=18;icon.height=18;settings.append(icon);settings.type='button';settings.setAttribute('aria-label','Settings for '+subject.name);settings.title='Card settings';settings.onclick=()=>settingsDialog(subject,isClass);actions.append(settings); }
