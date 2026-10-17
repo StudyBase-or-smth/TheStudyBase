@@ -186,6 +186,7 @@ let profileCtx = null;
 let editDraft = null;
 let photoUploading = false;
 let photoEditToken = 0;
+let profileContentLoad = null;
 
 function bootProfile(displayName, email, uid, isGuest, role, status){
   const keepEditing = profileCtx && profileCtx.editing && profileCtx.uid === uid;
@@ -195,9 +196,16 @@ function bootProfile(displayName, email, uid, isGuest, role, status){
     profile: (typeof readCachedProfile === 'function') ? readCachedProfile(uid) : { photoUrl:'', enabledSubjects: [], enabledClasses: [] }
   };
   if(!keepEditing) editDraft = null;
-  const finish = () => buildProfile();
-  if(typeof sbLoadAllContentKeys === 'function') sbLoadAllContentKeys().then(finish).catch(finish);
-  else finish();
+  // Authentication and fresh claims have already been checked by the caller.
+  // Show cached information now; statistics must not hold up the whole page.
+  if(!keepEditing) buildProfile();
+  if(typeof sbLoadAllContentKeys === 'function' && profileContentLoad?.uid !== uid){
+    const load = {uid}; profileContentLoad = load;
+    load.promise = Promise.resolve().then(() => sbLoadAllContentKeys()).then(() => {
+      // Ignore an old account's completion and leave an open editor untouched.
+      if(profileContentLoad === load && profileCtx?.uid === uid && !profileCtx.editing) buildProfile();
+    }).catch(() => { /* Cached profile remains available when content is offline. */ });
+  }
 }
 
 function formatDate(iso){
