@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="ui-icons.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Graphing tool — StudyBase</title>
@@ -48,13 +49,13 @@
           </div>
         </details>
         <div class="hdr-notify-wrap" id="hdrNotifyWrap" hidden>
-          <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications"><span aria-hidden="true">🔔</span><span class="hdr-notify-badge" id="hdrNotifyBadge" hidden></span></button>
+          <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications"><span aria-hidden="true"><span data-sb-icon=bell></span></span><span class="hdr-notify-badge" id="hdrNotifyBadge" hidden></span></button>
           <div class="hdr-notify-tip" id="hdrNotifyTip"></div>
         </div>
         <div class="hdr-profile-wrap">
           <button class="hdr-ghost hdr-profile" id="hdrProfileBtn" type="button" aria-label="Profile and notifications" aria-controls="hdrProfileTip" aria-expanded="false"><span class="hdr-profile-face">👤</span></button>
           <div class="hdr-profile-tip" id="hdrProfileTip">
-            <div class="pt-top"><span class="pt-name">Account</span><div class="pt-actions"><button type="button" class="pt-dark" onclick="toggleDark()" aria-label="Toggle dark mode">🌙</button></div></div>
+            <div class="pt-top"><span class="pt-name">Account</span><div class="pt-actions"><button type="button" class="pt-dark" onclick="toggleDark()" aria-label="Toggle dark mode"><span data-sb-icon=moon></span></button></div></div>
             <p class="qol-muted" id="graphingAccountStatus">Loading account…</p>
           </div>
         </div>

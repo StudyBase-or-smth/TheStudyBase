@@ -21,15 +21,15 @@
   }
   function renderSidebar(container) {
     if(!container) return;
-    const tools = list(), rows = document.createElement('div'); rows.className = 'tools-list';
-    for(const tool of tools.filter(tool => expanded || !tool.hidden)) {
+    const tools = list(), showAll = !!container.closest('.home-tools-primary'), rows = document.createElement('div'); rows.className = 'tools-list';
+    for(const tool of tools.filter(tool => showAll || expanded || !tool.hidden)) {
       const row = document.createElement(tool.disabled ? 'span' : 'a'); row.className = 'tool-btn' + (tool.disabled ? ' is-disabled' : '');
       if(tool.disabled) row.setAttribute('aria-disabled','true'); else row.href = url(tool.href).href;
       row.append(image(tool),document.createTextNode(tool.name));
       if(tool.disabled) { const label = document.createElement('span'); label.className = 'tool-disabled-label'; label.textContent = 'Disabled'; row.append(label); }
       rows.append(row);
     }
-    if(tools.some(tool => tool.hidden)) {
+    if(!showAll && tools.some(tool => tool.hidden)) {
       const more = document.createElement('button'); more.id = 'toolsShowMore'; more.type = 'button'; more.className = 'tools-show-more'; more.textContent = expanded ? 'Show less' : 'Show more'; more.setAttribute('aria-expanded',String(expanded));
       more.onclick = () => { expanded = !expanded; renderSidebar(container); container.querySelector('#toolsShowMore')?.focus(); }; rows.append(more);
     }

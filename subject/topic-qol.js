@@ -20,17 +20,38 @@
     decorateList();
   }
   function queueDrafts() { clearTimeout(timer); timer = setTimeout(persistDrafts,350); }
+  function restoreSavedDrafts(saved, targetId, targetOrigin = saved.originId) {
+    const valid = saved.drafts.filter(d => (!d.originId || originFor(d.originId)) && allowed(originFor(d.originId)) && topicsForDraft(d).some(t => t.id == d.id));
+    if(!valid.length) { ui.notify('These drafts cannot be opened with your current permissions.'); return; }
+    editBatchDrafts = Object.fromEntries(valid.map(d => [editDraftKey(d.id,originFor(d.originId)),d]));
+    const target = valid.find(d => d.id == (targetId ?? saved.active) && (d.originId || null) === (targetOrigin || null)) || valid[0];
+    activeOrigin = originFor(target.originId); activeId = target.id; startInlineEdit(target.id,{fromSwitch:true});
+    document.getElementById('qol-recovery')?.remove();
+  }
+  function openSavedDrafts() {
+    if(editSurface === 'inline') persistDrafts();
+    const saved = ui.read(draftKey,null);
+    ui.dialog('Saved drafts',(content,close) => {
+      content.append(ui.node('p','qol-muted','Unsaved topic edits kept on this device. Open a draft to continue editing, then save the topic to publish your changes.'));
+      if(!saved?.drafts?.length) { content.append(ui.node('p','','No saved drafts.')); return; }
+      for(const draft of saved.drafts) {
+        const row = ui.node('div','qol-trash-row');
+        const label = ui.node('div','qol-draft-label');
+        label.append(ui.node('strong','',draft.name || 'Untitled topic'),ui.node('span','qol-muted',originLabel(originFor(draft.originId))));
+        const open = ui.button('Open',() => { close(); restoreSavedDrafts(saved,draft.id,draft.originId); });
+        open.disabled = !!(draft.originId && !originFor(draft.originId)) || !allowed(originFor(draft.originId)) || !topicsForDraft(draft).some(t => t.id == draft.id);
+        if(open.disabled) open.title = 'This topic is unavailable or you no longer have permission to edit it.';
+        row.append(label,open); content.append(row);
+      }
+    });
+  }
   function recovery() {
     if(editSurface === 'inline' || document.getElementById('qol-recovery')) return;
     const saved = ui.read(draftKey,null); if(!saved?.drafts?.length) return;
     const bar = ui.node('div','qol-recovery'); bar.id = 'qol-recovery';
     bar.append(ui.node('span','',`You have ${saved.drafts.length} recoverable topic draft${saved.drafts.length === 1 ? '' : 's'}.`));
     bar.append(ui.button('Restore drafts',() => {
-      const valid = saved.drafts.filter(d => (!d.originId || originFor(d.originId)) && allowed(originFor(d.originId)) && topicsForDraft(d).some(t => t.id == d.id));
-      if(!valid.length) { ui.notify('These drafts cannot be opened with your current permissions.'); return; }
-      editBatchDrafts = Object.fromEntries(valid.map(d => [editDraftKey(d.id,originFor(d.originId)),d]));
-      const target = valid.find(d => d.id == saved.active && d.originId === saved.originId) || valid[0];
-      activeOrigin = originFor(target.originId); activeId = target.id; startInlineEdit(target.id,{fromSwitch:true}); bar.remove();
+      restoreSavedDrafts(saved);
     }));
     bar.append(ui.button('Discard',() => ui.dialog('Discard recovered drafts?', (content,close) => {
       content.append(ui.node('p','','These unsaved edits will be removed from this device. Saved topics will be kept.'));
@@ -81,10 +102,11 @@
       copy.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><span class="qol-sr-only">Duplicate</span>';
       header.querySelector('.dh-actions-btns')?.prepend(copy);
     }
-    if(editSurface !== 'inline') actions.append(ui.button('Revise',revise));
+    if(editSurface !== 'inline' && ui.read('preferences',{}).showRevise === true) actions.append(ui.button('Revise',revise));
     details.append(actions);
     saveState();
   }
+  window.addEventListener('studybase-preferences-changed',decorateHeader);
   function saveState() {
     const el = document.getElementById('qol-save-state'); if(!el) return;
     if(editSurface === 'inline' && editBatchDirtyCount()) { el.textContent = 'Unsaved changes'; return; }
@@ -125,6 +147,7 @@
     decorateHeader(); decorateList(); persistNavigation();
   };
   function decorateList() {
+    updateSidebarBar();
     const drafts = collectDirtyEditDrafts();
     document.querySelectorAll('#topicList [data-topic-id]').forEach(item => {
       const id = decodeURIComponent(item.dataset.topicId);
@@ -217,6 +240,36 @@
     });
   }
   function updateSelection() { const el = document.getElementById('qol-selection-count'); if(el) el.textContent = selecting ? `${selected.size} selected` : ''; const bulk = document.getElementById('qol-bulk-actions'); if(bulk) bulk.hidden = !selecting; decorateList(); }
+  function updateSidebarBar() {
+    const button = document.getElementById('qol-select-button'); if(!button) return;
+    const canSelect = allowed(null) && (typeof sidebarTab === 'undefined' || sidebarTab !== 'classes');
+    button.disabled = !canSelect;
+    if(!canSelect) { selecting = false; selected.clear(); }
+    button.setAttribute('aria-pressed',String(selecting));
+    button.querySelector('span').textContent = selecting ? 'Done' : 'Select';
+    document.getElementById('qol-bulk-actions').hidden = !selecting;
+    document.getElementById('qol-selection-count').textContent = `${selected.size} selected`;
+    document.querySelectorAll('#qol-bulk-actions button').forEach(el => { el.disabled = !selected.size; });
+  }
+  function mountSidebarBar() {
+    const sidebar = document.querySelector('.sidebar');
+    if(!sidebar || document.getElementById('qol-sidebar-footer')) return;
+    const footer = ui.node('div','qol-sidebar-footer'); footer.id = 'qol-sidebar-footer';
+    const actions = ui.node('div','qol-sidebar-footer-actions'); actions.setAttribute('role','group'); actions.setAttribute('aria-label','Topic management');
+    for(const [id,label,icon,run] of [
+      ['qol-select-button','Select','check',() => { selecting = !selecting; selected.clear(); updateSelection(); }],
+      ['qol-saves-button','Saves','folder',openSavedDrafts],
+      ['qol-deleted-button','Recently deleted','trash',openTrash]
+    ]) {
+      const button = ui.button('',run); button.id = id; button.innerHTML = SBIcons.html(icon); button.append(ui.node('span','',label));
+      if(id === 'qol-saves-button') { button.title = 'Saved drafts'; button.setAttribute('aria-label','Saved drafts'); }
+      actions.append(button);
+    }
+    const bulk = ui.node('div','qol-bulk-actions'); bulk.id = 'qol-bulk-actions'; bulk.hidden = true;
+    const count = ui.node('span','qol-muted'); count.id = 'qol-selection-count'; count.setAttribute('aria-live','polite');
+    bulk.append(count,ui.button('Move',() => moveDialog([...selected],null)),ui.button('Delete',deleteSelection,'qol-button danger'));
+    footer.append(actions,bulk); sidebar.append(footer); updateSidebarBar();
+  }
   function revise() {
     if(!activeId) return;
     const origin = activeOrigin || SUBJECT; const topic = topicsForOrigin(activeOrigin).find(t => t.id == activeId);
@@ -230,6 +283,7 @@
     });
   }
   function boot() {
+    mountSidebarBar();
     const panel = document.querySelector('.detail-panel'); let navigationTimer;
     panel.addEventListener('scroll',() => { clearTimeout(navigationTimer); navigationTimer = setTimeout(persistNavigation,150); },{passive:true});
     document.querySelector('.sidebar').addEventListener('click',() => setTimeout(persistNavigation,0));

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="ui-icons.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>StudyBase • Marker</title>
@@ -568,7 +569,7 @@
       </div>
       <div class="hdr-notify-wrap" id="hdrNotifyWrap">
         <button type="button" class="hdr-btn hdr-notify" id="hdrNotifyBtn" aria-label="Notifications">
-          <span class="hdr-notify-bell" aria-hidden="true">🔔</span>
+          <span class="hdr-notify-bell" aria-hidden="true"><span data-sb-icon=bell></span></span>
           <span class="hdr-notify-badge" id="hdrNotifyBadge" hidden></span>
         </button>
         <div class="hdr-notify-tip" id="hdrNotifyTip"></div>
@@ -683,7 +684,7 @@ loadBranchVersion();
       <div class="analyze-row">
         <select class="task-select" id="taskSelect" aria-label="Task"></select>
         <button class="analyze-btn" id="analyzeBtn" type="button">
-          <i class="star">✦</i> Analyze
+          <i class="star"><span data-sb-icon=sparkle></span></i> Analyze
         </button>
       </div>
       <button class="cancel-btn" id="cancelBtn" type="button" hidden>Cancel</button>
@@ -1180,7 +1181,7 @@ loadBranchVersion();
     if(!el) return;
     if(!html){ el.innerHTML=''; return; }
     const kind=previewKindFromId(id);
-    el.innerHTML=`<span class="file-preview-text">${html}</span><button type="button" class="file-remove" data-kind="${kind}" title="Remove file" aria-label="Remove file">✕</button>`;
+    el.innerHTML=`<span class="file-preview-text">${html}</span><button type="button" class="file-remove" data-kind="${kind}" title="Remove file" aria-label="Remove file"><span data-sb-icon=close></span></button>`;
   }
 
   function clearUploadedFile(kind){

@@ -453,7 +453,9 @@ function trackTopicPush(bucket, changedIds, pushPromise){
   return Promise.resolve(pushPromise).then(() => {
     if(_sbPushVersions[bucket] === version) clearUnsyncedTopics(bucket);
   }).catch(err => {
-    if(changedIds && changedIds.length) markTopicsUnsynced(bucket, changedIds);
+    // A delayed failure must not put an already acknowledged newer save back
+    // into the pending list.
+    if(_sbPushVersions[bucket] === version && changedIds && changedIds.length) markTopicsUnsynced(bucket, changedIds);
     throw err;
   });
 }

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="ui-icons.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Profile — StudyBase</title>
@@ -107,12 +108,12 @@
       <div class="hdr-right">
         <div class="hdr-notify-wrap" id="hdrNotifyWrap">
           <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications">
-            <span class="hdr-notify-bell" aria-hidden="true">🔔</span>
+            <span class="hdr-notify-bell" aria-hidden="true"><span data-sb-icon=bell></span></span>
             <span class="hdr-notify-badge" id="hdrNotifyBadge" hidden></span>
           </button>
           <div class="hdr-notify-tip" id="hdrNotifyTip"></div>
         </div>
-        <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()">🌙</button>
+        <button class="hdr-ghost" id="darkToggle" onclick="toggleDark()"><span data-sb-icon=moon></span></button>
       </div>
     </div>
   </div>
@@ -425,6 +426,11 @@ function buildProfile() {
   }${editing ? '' : '<button type="button" class="profile-signout" onclick="openSignOutPopup()">Sign out</button>'}</div>`;
 
   const editPanel = editing ? `
+    <div class="profile-card profile-settings" style="margin-bottom:20px">
+      <div class="profile-card-title">Settings</div>
+      <p class="qol-muted">These settings save immediately in this browser, separately from your profile edits.</p>
+      <div id="profileSettings"></div>
+    </div>
     <div class="profile-card" style="margin-bottom:20px">
       <div class="profile-card-title">Available subjects</div>
       ${subjectChecksHtml(editDraft.enabledSubjects)}
@@ -508,6 +514,8 @@ function buildProfile() {
       <div class="profile-card-title">Subjects</div>
       <div class="subj-links">${subjLinksHtml}</div>
     </div>`}`;
+  const settings = document.getElementById('profileSettings');
+  if(settings) window.SBQoL?.renderProfileSettings(settings);
 }
 
 document.getElementById('profilePhotoInput').addEventListener('change', function(){

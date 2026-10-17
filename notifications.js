@@ -253,7 +253,9 @@ function sbNotifyRenderList(items, emptyText, me){
     const answered = n.kind === 'ask' && !!(me && n.answers && n.answers[me.uid]);
     const options = sbNotifyRenderOptions(n, me, answered);
     const base = window.SBQoL?.root || new URL(location.pathname.includes('/subject/')||location.pathname.includes('/quiz-tool/')||location.pathname.includes('/KnowledgeCompetition/')?'../':'./',location.href);
-    const resume = n.href ? '<a class="qol-view-profile" href="'+sbNotifyEsc(new URL(n.href,base).href)+'">Study now →</a>' : '';
+    const studyURL = n.href ? new URL(n.href,base) : null;
+    if(studyURL) studyURL.searchParams.set('notification','1');
+    const resume = studyURL ? '<a class="qol-view-profile" href="'+sbNotifyEsc(studyURL.href)+'">Study now →</a>' : '';
     const body = '<div class="hdr-notify-item-text">' + sbNotifyEsc(n.text) + '</div>' + resume +
       options +
       (meta ? '<div class="hdr-notify-item-meta">' + sbNotifyEsc(meta) + '</div>' : '');

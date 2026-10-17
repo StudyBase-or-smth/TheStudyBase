@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="ui-icons.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StudyBase — Dev Panel</title>
@@ -143,12 +144,12 @@ body.dark .console-log .c-warn{color:#fbbf24}
       <div class="bar-right">
         <div class="hdr-notify-wrap" id="hdrNotifyWrap">
           <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications">
-            <span class="hdr-notify-bell" aria-hidden="true">🔔</span>
+            <span class="hdr-notify-bell" aria-hidden="true"><span data-sb-icon=bell></span></span>
             <span class="hdr-notify-badge" id="hdrNotifyBadge" hidden></span>
           </button>
           <div class="hdr-notify-tip" id="hdrNotifyTip"></div>
         </div>
-        <button class="icon-btn" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+        <button class="icon-btn" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode"><span data-sb-icon=moon></span></button>
         <a href="index.html">← Hub</a>
       </div>
     </header>
@@ -549,7 +550,7 @@ body.dark .console-log .c-warn{color:#fbbf24}
                 <td>
                   <div class="ur-name" id="urname_${u.uid}">
                     <span class="ur-name-text">${esc(u.displayName || '(no name)')}</span>
-                    <button class="name-edit-btn" title="Rename" aria-label="Rename" onclick="startRename('${u.uid}', 'u')">✏️</button>
+                    <button class="name-edit-btn" title="Rename" aria-label="Rename" onclick="startRename('${u.uid}', 'u')"><span data-sb-icon=edit></span></button>
                   </div>
                   <div class="ur-email">${esc(u.email)}</div>
                 </td>
@@ -630,8 +631,8 @@ body.dark .console-log .c-warn{color:#fbbf24}
     const current = wrap.querySelector('.ur-name-text')?.textContent || '';
     wrap.innerHTML = `
       <input type="text" id="urename_${uid}" value="${esc(current)}" maxlength="100">
-      <button class="name-edit-btn" title="Save" aria-label="Save" onclick="saveRename('${uid}','${scope}')">✅</button>
-      <button class="name-edit-btn" title="Cancel" aria-label="Cancel" onclick="cancelRename('${uid}','${scope}')">✖️</button>
+      <button class="name-edit-btn" title="Save" aria-label="Save" onclick="saveRename('${uid}','${scope}')"><span data-sb-icon=check></span></button>
+      <button class="name-edit-btn" title="Cancel" aria-label="Cancel" onclick="cancelRename('${uid}','${scope}')"><span data-sb-icon=close></span></button>
     `;
     const input = document.getElementById('urename_' + uid);
     input.focus();

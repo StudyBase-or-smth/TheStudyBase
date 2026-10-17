@@ -97,7 +97,7 @@ function applySubjectTheme(){
   const on = localStorage.getItem('studybase_dark') === '1';
   if(on) document.body.classList.add('dark');
   const btn = document.getElementById('darkToggle');
-  if(btn) btn.textContent = on ? '☀️' : '🌙';
+  if(btn) btn.innerHTML = SBIcons.html(on ? 'sun' : 'moon');
 })();
 window.onDarkModeChange = function(){
   if(typeof graphEditorCalc !== 'undefined' && graphEditorCalc) graphEditorCalc.updateSettings();
@@ -187,7 +187,7 @@ function newTableCellId(){ return 'tc_' + Date.now() + '_' + Math.floor(Math.ran
 function tableCellHtml(html){
   const id = newTableCellId();
   return `<td><div class="rich-editor-wrap table-cell-editor">
-      <div class="rich-toolbar mini"><button type="button" class="rich-btn" onclick="richAddImage('${id}')" title="Insert image">🖼</button></div>
+      <div class="rich-toolbar mini"><button type="button" class="rich-btn" onclick="richAddImage('${id}')" title="Insert image"><span data-sb-icon=image></span></button></div>
       <div class="rich-content" id="${id}" contenteditable="true" data-placeholder="…">${sanitizeRich(html||'')}</div>
       <input type="file" id="img_${id}" accept="image/*" style="display:none">
     </div></td>`;
@@ -201,11 +201,11 @@ function buildTableEditor(data){
   if(!headRow || !body) return;
   headRow.innerHTML = cols.map(h =>
     `<th><input type="text" class="table-col-input" placeholder="Column…" value="${esc(h)}">
-      <button type="button" class="btn-th-del" title="Remove column" onclick="removeTableColumn(this)">✕</button></th>`
+      <button type="button" class="btn-th-del" title="Remove column" onclick="removeTableColumn(this)"><span data-sb-icon=close></span></button></th>`
   ).join('') + '<th class="table-head-spacer"></th>';
   body.innerHTML = rows.map(r =>
     '<tr>' + cols.map((c,i) => tableCellHtml(r[i]||'')).join('') +
-    '<td class="table-row-del-cell"><button type="button" class="btn-kp-del" title="Remove row" onclick="removeTableRow(this)">✕</button></td></tr>'
+    '<td class="table-row-del-cell"><button type="button" class="btn-kp-del" title="Remove row" onclick="removeTableRow(this)"><span data-sb-icon=close></span></button></td></tr>'
   ).join('');
   document.querySelectorAll('#tableEditorBody .table-cell-editor').forEach(attachRichDnD);
 }
@@ -216,7 +216,7 @@ function addTableColumn(){
   const spacer = headRow.querySelector('.table-head-spacer');
   const th = document.createElement('th');
   th.innerHTML = `<input type="text" class="table-col-input" placeholder="Column…" value="">
-    <button type="button" class="btn-th-del" title="Remove column" onclick="removeTableColumn(this)">✕</button>`;
+    <button type="button" class="btn-th-del" title="Remove column" onclick="removeTableColumn(this)"><span data-sb-icon=close></span></button>`;
   headRow.insertBefore(th, spacer);
   document.querySelectorAll('#tableEditorBody tr').forEach(tr => {
     const delCell = tr.querySelector('.table-row-del-cell');
@@ -248,7 +248,7 @@ function addTableRow(){
   const numCols = headRow.querySelectorAll('.table-col-input').length;
   const tr = document.createElement('tr');
   tr.innerHTML = Array.from({length:numCols}).map(()=>tableCellHtml('')).join('') +
-    '<td class="table-row-del-cell"><button type="button" class="btn-kp-del" title="Remove row" onclick="removeTableRow(this)">✕</button></td>';
+    '<td class="table-row-del-cell"><button type="button" class="btn-kp-del" title="Remove row" onclick="removeTableRow(this)"><span data-sb-icon=close></span></button></td>';
   body.appendChild(tr);
   tr.querySelectorAll('.table-cell-editor').forEach(attachRichDnD);
 }
@@ -837,7 +837,7 @@ function inlineRichField(id, placeholder, minH, opts){
     toolbar += `<div class="symbol-picker-wrap"><button type="button" class="rich-btn" onmousedown="event.preventDefault()" onclick="toggleSymbolPicker(this)">Ω</button>
       <div class="symbol-picker-panel" id="symPicker_fFormula" data-target="fFormula"></div></div>`;
   }
-  toolbar += `<button type="button" class="rich-btn" onclick="richAddImage('${id}')">🖼</button>
+  toolbar += `<button type="button" class="rich-btn" onclick="richAddImage('${id}')"><span data-sb-icon=image></span></button>
     <input type="file" id="img_${id}" accept="image/*" style="display:none"></div>`;
   return `<div class="rich-editor-wrap">${toolbar}
     <div class="rich-content${monoCls}" id="${id}" contenteditable="true" data-placeholder="${esc(placeholder)}" style="min-height:${minH}px"></div>
@@ -864,7 +864,7 @@ function buildInlineEditHtml(){
             <input type="text" class="form-i" id="newUnitInput" placeholder="Unit name…"
               onkeydown="if(event.key==='Enter')confirmAddUnit();if(event.key==='Escape')hideUnitInput()">
             <button type="button" class="btn-save" onclick="confirmAddUnit()">Add</button>
-            <button type="button" class="btn-cancel" onclick="hideUnitInput()">✕</button>
+            <button type="button" class="btn-cancel" onclick="hideUnitInput()"><span data-sb-icon=close></span></button>
           </div>
         </div>
         <div class="dh-edit-side dh-edit-side-layout">
@@ -918,7 +918,7 @@ function expandBtnsHtml(targetId, opts){
       ? `, ${jsArg(opts.topicId)}, '${opts.enlargeField}'` : '';
     html += `<button type="button" class="sh-expand-btn" onclick="expandEnlarge('${targetId}'${extra})" title="Pop out">⤢</button>`;
   }
-  if(opts.fullscreen) html += `<button type="button" class="sh-expand-btn" onclick="expandFullscreen('${targetId}')" title="Fullscreen">⛶</button>`;
+  if(opts.fullscreen) html += `<button type="button" class="sh-expand-btn" onclick="expandFullscreen('${targetId}')" title="Fullscreen"><span data-sb-icon=expand></span></button>`;
   html += '</span>';
   return html;
 }
@@ -1081,7 +1081,7 @@ function blockCommentHtml(topicId, block, label, icon){
       <div class="blk-note-meta">
         <span class="blk-note-author">🎓 ${esc(n.author)}</span>
         <span class="blk-note-date">${n.date}</span>
-        ${window.isTeacher ? `<button class="blk-note-del" onclick="deleteBlockNote(${jsArg(topicId)},'${block}','${n.id}')" title="Delete">✕</button>` : ''}
+        ${window.isTeacher ? `<button class="blk-note-del" onclick="deleteBlockNote(${jsArg(topicId)},'${block}','${n.id}')" title="Delete"><span data-sb-icon=close></span></button>` : ''}
       </div>
       <p class="blk-note-text">${esc(n.text)}</p>
     </div>`).join('');
@@ -1261,7 +1261,7 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 
 function topicTitleHtml(name, id, bucket){
   if(typeof isTopicUnsynced === 'function' && isTopicUnsynced(bucket || ST, id)){
-    return `<span class="unsynced-title" title="unable to connect to servers">${esc(name)}</span>`;
+    return `<span class="unsynced-title" title="Changes saved on this device; waiting to sync.">${esc(name)}</span>`;
   }
   return esc(name);
 }
@@ -1274,10 +1274,13 @@ function refreshUnsyncedUI(){
   const unsynced = !!(t && typeof isTopicUnsynced === 'function' && isTopicUnsynced(bucket, t.id));
   const dh = document.querySelector('#detailContent .dh-name');
   const bc = document.getElementById('hdrTopicName');
+  // The heading initially contains a nested status span from topicTitleHtml.
+  // Replace it too, otherwise its colour and tooltip survive a successful sync.
+  if(dh && t) dh.textContent = t.name;
   [dh, bc].forEach(el => {
     if(!el) return;
     el.classList.toggle('unsynced-title', unsynced);
-    if(unsynced) el.title = 'unable to connect to servers';
+    if(unsynced) el.title = 'Changes saved on this device; waiting to sync.';
     else el.removeAttribute('title');
   });
 }
@@ -1390,7 +1393,7 @@ function renderList(){
                 ${hasSubs ? `<button class="ti-expand-btn" onclick="event.stopPropagation();toggleTopicExpand(${jsArg(t.id)})" title="${isExpanded?'Collapse':'Expand'}">${isExpanded?'▾':'▸'}</button>` : ''}
                 ${isPinned?'<span class="ti-pin-icon"></span>':''}${topicTitleHtml(t.name, t.id, ST)}
               </div>
-              <button class="ti-pin-btn" onclick="event.stopPropagation();togglePinTopic(${jsArg(t.id)})" title="${isPinned?'Unpin':'Pin'}">${isPinned?'★':'☆'}</button>
+              <button class="ti-pin-btn" onclick="event.stopPropagation();togglePinTopic(${jsArg(t.id)})" title="${isPinned?'Unpin':'Pin'}"><span data-sb-icon=star></span></button>
             </div>
             ${t.unit ? `<div class="ti-unit">${esc(unitLabel(t.unit, getUnits()))}</div>` : ''}
             ${t.definition ? `<div class="ti-prev">${esc(t.definition.substring(0,55))}…</div>` : ''}
@@ -1488,7 +1491,7 @@ function renderPills(){
           <input type="checkbox" ${activeUnits.has(u.id)?'checked':''} onclick="event.stopPropagation();toggleUnit(this.closest('[data-unit]').dataset.unit)">
           <span>${esc(u.name)}</span>
           <span class="units-count">${unitTopicCount(topics, u)}</span>
-          <button type="button" class="units-del" title="Remove this unit" onclick="event.stopPropagation();confirmDeleteUnit(this.closest('[data-unit]').dataset.unit)">🗑</button>
+          <button type="button" class="units-del" title="Remove this unit" onclick="event.stopPropagation();confirmDeleteUnit(this.closest('[data-unit]').dataset.unit)"><span data-sb-icon=trash></span></button>
         </label>`).join('');
   }
 
@@ -2239,7 +2242,7 @@ function addKpRow(val){
   const uid = 'kpr_' + Date.now() + '_' + Math.floor(Math.random()*9999);
   const row = document.createElement('div'); row.className = 'kp-row'; row.id = uid;
   const inp = document.createElement('input'); inp.type='text'; inp.placeholder='Key point…'; inp.value=val;
-  const btn = document.createElement('button'); btn.className='btn-kp-del'; btn.textContent='✕';
+  const btn = document.createElement('button'); btn.className='btn-kp-del'; btn.innerHTML=SBIcons.html('close'); btn.setAttribute('aria-label',btn.title || 'Remove');
   btn.onclick = () => document.getElementById(uid).remove();
   row.appendChild(inp); row.appendChild(btn);
   document.getElementById('kpList').appendChild(row);
@@ -2254,7 +2257,7 @@ function addSubtopicRow(s){
   row.dataset.childId = s.id || '';
   const inp = document.createElement('input'); inp.type='text'; inp.placeholder='Subtopic name — e.g. Density'; inp.value = s.name || '';
   inp.className = 'subtopic-name-i';
-  const btn = document.createElement('button'); btn.className='btn-kp-del'; btn.title='Remove subtopic'; btn.textContent='✕';
+  const btn = document.createElement('button'); btn.className='btn-kp-del'; btn.title='Remove subtopic'; btn.innerHTML=SBIcons.html('close'); btn.setAttribute('aria-label',btn.title || 'Remove');
   btn.onclick = () => document.getElementById(uid).remove();
   row.appendChild(inp); row.appendChild(btn);
   document.getElementById('subtopicEditorList').appendChild(row);
@@ -2268,7 +2271,7 @@ function addTag(text){
   const wrap = document.getElementById('tagsWrap');
   const chip = document.createElement('span'); chip.className = 'tag-chip';
   const label = document.createTextNode(text+' ');
-  const btn = document.createElement('button'); btn.textContent='✕';
+  const btn = document.createElement('button'); btn.innerHTML=SBIcons.html('close'); btn.setAttribute('aria-label',btn.title || 'Remove');
   const captured = text;
   btn.onclick = () => removeTag(btn, captured);
   chip.appendChild(label); chip.appendChild(btn);
@@ -3172,7 +3175,7 @@ if(resolveSubject()){
     bar.id = 'mobBar';
     bar.className = 'mob-bar';
     bar.innerHTML =
-      '<button class="mob-toggle" id="mobToggleBtn" onclick="window._mobToggle()">☰ Topics</button>' +
+      '<button class="mob-toggle" id="mobToggleBtn" onclick="window._mobToggle()"> <span data-sb-icon=menu></span> Topics</button>' +
       '<span class="mob-bar-title" id="mobBarTitle">Select a topic</span>';
 
     var appBody = document.querySelector('.app-body');
@@ -3185,7 +3188,7 @@ if(resolveSubject()){
     var btn = document.getElementById('mobToggleBtn');
     if (s)  s.classList.add('mob-open');
     if (sc) sc.classList.add('mob-open');
-    if (btn) btn.textContent = '✕ Close';
+    if (btn) btn.innerHTML = SBIcons.html('close')+' Close';
   }
 
   function closeSidebar() {
@@ -3194,7 +3197,7 @@ if(resolveSubject()){
     var btn = document.getElementById('mobToggleBtn');
     if (s)  s.classList.remove('mob-open');
     if (sc) sc.classList.remove('mob-open');
-    if (btn) btn.textContent = '☰ Topics';
+    if (btn) btn.innerHTML = SBIcons.html('menu')+' Topics';
   }
 
   window._mobToggle = function () {
@@ -3371,6 +3374,6 @@ Return ONLY valid JSON, no markdown, no explanation.`;
     console.error(e);
     showToast(e.message==='RATE_LIMIT' ? 'Rate limit hit — wait a moment and try again' : 'AI fill failed — try again', 'error');
   } finally {
-    if(btn){ btn.disabled=false; btn.textContent='✨ Fill gaps'; }
+    if(btn){ btn.disabled=false; btn.innerHTML=SBIcons.html('sparkle')+' Fill gaps'; }
   }
 }

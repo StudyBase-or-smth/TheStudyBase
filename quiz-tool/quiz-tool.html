@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="../ui-icons.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="quiz-marking.js"></script>
@@ -407,7 +408,9 @@
   }
   .quiz-reset-btn { color: var(--muted, #666); }
   .quiz-reset-btn:hover { color: var(--text, #1a1a1a); }
-  .quiz-continue-btn { color: var(--accent, #4f46e5); }
+  .quiz-continue-btn { color: #422006; background: #fbbf24; border: 1px solid #f59e0b; border-radius: 6px; padding: 6px 12px; }
+  .quiz-continue-btn:hover { background: #f59e0b; }
+  .quiz-continue-btn:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
   .quiz-paper-meta { display: none; }
   .quiz-section-row {
     display: flex;
@@ -431,8 +434,13 @@
   .quiz-section-go {
     font-size: 12px;
     font-weight: 600;
-    color: var(--accent, #4f46e5);
+    color: #fff;
+    background: #0f4c81;
+    border: 1px solid #0f4c81;
+    border-radius: 6px;
+    padding: 6px 12px;
   }
+  .quiz-paper-head:hover .quiz-section-go { background: #123f66; border-color: #123f66; }
   .quiz-home-empty { font-size: 14px; color: var(--muted, #666); padding: 12px 0; }
   .home-nav-subject .unit-label {
     padding: 12px 12px 4px;
@@ -645,7 +653,7 @@
       <div class="hdr-right-row">
         <div class="hdr-notify-wrap" id="hdrNotifyWrap">
           <button type="button" class="hdr-ghost hdr-notify" id="hdrNotifyBtn" aria-label="Notifications">
-            <span class="hdr-notify-bell" aria-hidden="true">🔔</span>
+            <span class="hdr-notify-bell" aria-hidden="true"><span data-sb-icon=bell></span></span>
             <span class="hdr-notify-badge" id="hdrNotifyBadge" hidden></span>
           </button>
           <div class="hdr-notify-tip" id="hdrNotifyTip"></div>

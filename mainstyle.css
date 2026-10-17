@@ -258,6 +258,15 @@ body.dark .sug-toggle-btn{background:var(--card2)!important;border-color:var(--b
 .sug-tag-btn.active.bug{background:#fecaca;border-color:#fca5a5;color:#7f1d1d}
 .sug-tag-btn.active.request{background:#bfdbfe;border-color:#93c5fd;color:#1e3a5f}
 .sug-tag-btn.active.idea{background:#d9f99d;border-color:#a3e635;color:#14532d}
+.sug-modal .sug-filter:first-child .sb-ui-icon{color:#16a34a;fill:#4ade80}
+.sug-modal .sug-filter:nth-child(2) .sb-ui-icon{color:#9333ea;fill:#c084fc}
+.sug-modal .sug-tag-btn.bug .sb-ui-icon{color:#dc2626}
+.sug-modal .sug-tag-btn.bug .sb-ui-icon rect{fill:#fca5a5}
+.sug-modal .sug-tag-btn.request .sb-ui-icon{color:#2563eb;fill:#93c5fd}
+.sug-modal .sug-tag-btn.idea .sb-ui-icon{color:#b7791f;fill:#fcd34d}
+body.dark .sug-modal .sug-tag-btn.bug .sb-ui-icon{color:#f87171}
+body.dark .sug-modal .sug-tag-btn.request .sb-ui-icon{color:#60a5fa}
+body.dark .sug-modal .sug-tag-btn.idea .sb-ui-icon{color:#fbbf24}
 .sug-footer{padding:14px 24px;border-top:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:8px}
 .sug-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;resize:none;transition:border-color .15s;min-height:60px}
 .sug-input:focus{border-color:var(--text)}

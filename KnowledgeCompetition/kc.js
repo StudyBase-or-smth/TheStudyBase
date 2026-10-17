@@ -23,10 +23,10 @@
   let answerBusy = false;
 
   const NAV = [
-    { id: 'join', hash: '#join', icon: '🔑', label: 'Join lobby' },
-    { id: 'create-lobby', hash: '#create-lobby', icon: '📡', label: 'Create lobby' },
-    { id: 'games', hash: '#games', icon: '✎', label: 'Create game' },
-    { id: 'settings', hash: '#settings', icon: '⚙', label: 'Settings' }
+    { id: 'join', hash: '#join', icon: 'key', label: 'Join lobby' },
+    { id: 'create-lobby', hash: '#create-lobby', icon: 'broadcast', label: 'Create lobby' },
+    { id: 'games', hash: '#games', icon: 'edit', label: 'Create game' },
+    { id: 'settings', hash: '#settings', icon: 'settings', label: 'Settings' }
   ];
 
   window.kcOnAuth = function () { authReady = true; applyKcSkin(); route(); };
@@ -480,7 +480,7 @@
     const sidebar = document.getElementById('kcSidebar');
     const nav = NAV.map(n =>
       `<div class="kc-nav-item${n.id === active ? ' active' : ''}" data-hash="${n.hash}">
-         <span>${n.icon}</span><span>${escapeHtml(n.label)}</span>
+         <span>${SBIcons.html(n.icon)}</span><span>${escapeHtml(n.label)}</span>
        </div>`
     ).join('');
     sidebar.innerHTML =

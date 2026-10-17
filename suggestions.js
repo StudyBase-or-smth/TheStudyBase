@@ -100,8 +100,8 @@ function renderSugList(){
   const openCount = _sugCache.filter(s => s.status !== 'closed').length;
   const closedCount = _sugCache.filter(s => s.status === 'closed').length;
   const btns = document.querySelectorAll('.sug-filter');
-  if(btns[0]) btns[0].textContent = '🟢 Open (' + openCount + ')';
-  if(btns[1]) btns[1].textContent = '🟣 Closed (' + closedCount + ')';
+  if(btns[0]) btns[0].innerHTML = SBIcons.html('circle') + ' Open (' + openCount + ')';
+  if(btns[1]) btns[1].innerHTML = SBIcons.html('circle') + ' Closed (' + closedCount + ')';
   if(btns[2]) btns[2].textContent = 'All (' + _sugCache.length + ')';
   if(!filtered.length){
     list.innerHTML = '<div class="sug-empty">' + (_sugCache.length ? 'No ' + _sugFilter + ' suggestions.' : 'No suggestions yet — be the first!') + '</div>';

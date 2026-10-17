@@ -20,7 +20,7 @@
       name.title=subject.name;meta.title=meta.textContent;
       link.append(cover(savedImage(subject,isClass),subject.colour),info);card.append(link);
       const actions=node('div','subj-card-actions');
-      if(canEdit()) { const settings=node('button','subj-card-settings'),icon=node('img','settings-icon');icon.src='icons/settings.svg';icon.alt='';icon.width=18;icon.height=18;settings.append(icon);settings.type='button';settings.setAttribute('aria-label','Settings for '+subject.name);settings.title='Card settings';settings.onclick=()=>settingsDialog(subject,isClass);actions.append(settings); }
+      if(canEdit()) { const settings=node('button','subj-card-settings'),icon=node('img','settings-icon');icon.src='icons/card-settings.svg';icon.alt='';icon.width=18;icon.height=18;settings.append(icon);settings.type='button';settings.setAttribute('aria-label','Settings for '+subject.name);settings.title='Card settings';settings.onclick=()=>settingsDialog(subject,isClass);actions.append(settings); }
       const count=node('span','subj-count',String(topics.length));count.setAttribute('aria-label',topics.length+' topics');actions.append(count);card.append(actions);return card;
     });container.replaceChildren(...cards);
   }

@@ -34,7 +34,7 @@ test('analyser deep links restore a named task and rename/delete maintain recent
   w.localStorage.setItem('studybase_analyser_draft',JSON.stringify({currentTaskId:'_scratch',byTask:{[task]:{taskName:'Essay',assignmentMode:'text',studentText:'Saved assignment',criteriaMode:'text',criteriaText:'Saved criteria'}}}));
   const scripts=[...w.document.querySelectorAll('script:not([src])')];
   const main=scripts.find(s=>s.textContent.includes("let activeTaskId='_scratch'"));w.eval(main.textContent.replaceAll('import(', 'window.testImport('));
-  w.eval(read('qol.js'));await settle();await settle();
+  w.eval(read('ui-icons.js'));w.eval(read('qol.js'));await settle();await settle();
   w.resumeRequestedTask();w.recordAnalyserTask();
   assert.equal(w.document.getElementById('taskSelect').value,task);assert.equal(w.document.getElementById('studentText').value,'Saved assignment');
   let recent=JSON.parse(w.localStorage.getItem('sbq:student1:recent'));assert.equal(recent[0].name,'Essay');assert.equal(new URL(recent[0].href).searchParams.get('task'),task);

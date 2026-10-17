@@ -4,7 +4,7 @@
   const subject=[...(typeof subjectsData!=='undefined'?subjectsData.subjects:[]),...(typeof classesData!=='undefined'?classesData.subjects:[])].find(s=>s.id===subjectId);
   const wrap=document.getElementById('fcWrap');if(!subject){wrap.textContent='Choose a subject or class to study.';return;}
   const topicsKey=subject.storageKey||subject.id+'_topics',unitsKey=subject.unitsKey||subject.id+'_units';
-  let account='guest',data=core.merge(),all=[],issues=[],session,config={mode:'due',limit:0,unit:params.get('unit')||'all'},saveTimer,retryTimer,scope='',undoHidden=[],generation=0,syncing=false,revision=0,previewTime=0,ratingPreview,blocked=false;
+  let account='guest',data=core.merge(),all=[],issues=[],session,config={mode:params.get('notification')==='1'?'due':'all',limit:0,unit:params.get('unit')||'all'},saveTimer,retryTimer,scope='',undoHidden=[],generation=0,syncing=false,revision=0,previewTime=0,ratingPreview,blocked=false;
   const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const topics=()=>normalizeTopicList(sbMemGet(topicsKey,[])),units=()=>normalizeUnits(sbMemGet(unitsKey,[]));
   const localKey=()=> 'studybase_flashcards_'+account;
@@ -60,6 +60,7 @@
       session={ratings:{},startedAt:Date.now(),...old,order,index:0,revealed:!!(same&&old.revealed),typed:same?old.typed||'':'',updatedAt:Date.now()};
     } else if(!reset&&saved?.order?.length){session={...saved,order:saved.order.filter(id=>valid.has(id))};session.index=saved.order.slice(0,saved.index||0).filter(id=>valid.has(id)).length;}
     else{
+      if(config.mode==='all')for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
       session={order:pool.slice(0,config.limit||undefined).map(c=>c.id),index:0,revealed:false,typed:'',ratings:{},startedAt:Date.now(),updatedAt:Date.now()};
     }
     render();
@@ -171,12 +172,12 @@
   }
   function restoreSettings(){
     const saved=data.sessions['settings_'+subject.id];
-    config={...config,...saved,...(saved?.controlsVersion===3?{}:{mode:'due',limit:0})};delete config.updatedAt;delete config.controlsVersion;delete config.legacyControls;if(params.has('unit'))config.unit=params.get('unit');
+    config={...config,...saved,...(saved?.controlsVersion===3?{}:{limit:0}),mode:params.get('notification')==='1'?'due':'all'};delete config.updatedAt;delete config.controlsVersion;delete config.legacyControls;if(params.has('unit'))config.unit=params.get('unit');
   }
   async function boot(){
     const token=++generation,next=root.isGuest?'guest':root.__sbAuth?.currentUser?.uid||'guest';
     clearTimeout(saveTimer);clearTimeout(retryTimer);account=next;blocked=false;session=null;scope='';undoHidden=[];
-    config={mode:'due',limit:0,unit:params.get('unit')||'all'};
+    config={mode:params.get('notification')==='1'?'due':'all',limit:0,unit:params.get('unit')||'all'};
     try{
       const raw=localStorage.getItem(localKey()),old=JSON.parse(raw||'null');
       if(old&&!old.schedulingVersion&&!localStorage.getItem(localKey()+'_pre_fsrs')){

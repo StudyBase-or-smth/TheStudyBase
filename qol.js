@@ -165,6 +165,8 @@
       const key = control.dataset.qolPreference;
       if(key === 'animations') control.checked = motionEnabled();
       else if(key === 'matchDarkImages') control.checked = p.matchDarkImages !== false;
+      else if(key === 'showRevise') control.checked = p.showRevise === true;
+      else if(key === 'homeStyle') control.checked = control.value === (p.homeStyle === 'tools' ? 'tools' : 'subjects');
       else control.value = p[key] || control.options[0].value;
     });
     document.body.classList.toggle('qol-original-images', p.matchDarkImages === false);
@@ -173,6 +175,7 @@
     document.body.classList.toggle('qol-allow-animation',p.animations === true);
     document.body.classList.toggle('qol-no-animation',!motionEnabled());
     if(!motionEnabled()) document.getAnimations?.().forEach(animation => animation.cancel());
+    window.dispatchEvent(new Event('studybase-preferences-changed'));
   }
   function renderPreferences(content) {
       for(const [key,label,options] of [['width','Content width',[['standard','Comfortable'],['wide','Wide — tables and diagrams']]],['density','Spacing',[['comfortable','Comfortable'],['compact','Compact']]]]) {
@@ -188,6 +191,10 @@
       const imageToggle = node('input'); imageToggle.type = 'checkbox'; imageToggle.dataset.qolPreference = 'matchDarkImages'; imageToggle.checked = read('preferences',{}).matchDarkImages !== false;
       imageToggle.addEventListener('change',() => { write('preferences',{...read('preferences',{}),matchDarkImages:imageToggle.checked}); applyPreferences(); });
       images.append(imageToggle); content.append(images);
+      const reviseRow = node('label','qol-setting'); reviseRow.append(node('span','','Show Revise button'));
+      const reviseToggle = node('input'); reviseToggle.type = 'checkbox'; reviseToggle.dataset.qolPreference = 'showRevise'; reviseToggle.checked = read('preferences',{}).showRevise === true;
+      reviseToggle.addEventListener('change',() => { write('preferences',{...read('preferences',{}),showRevise:reviseToggle.checked}); applyPreferences(); });
+      reviseRow.append(reviseToggle); content.append(reviseRow);
       const keyRow = node('label','qol-setting qol-api-key'); keyRow.append(node('span','','Jev API key (optional)'));
       const keyInput = node('input'); keyInput.type = 'password'; keyInput.autocomplete = 'off'; keyInput.spellcheck = false; keyInput.maxLength = 2048;
       keyInput.placeholder = 'Use site key'; keyInput.value = getJevApiKey(); keyRow.append(keyInput);
@@ -209,6 +216,40 @@
     const wrap = document.querySelector('.qol-settings-wrap');
     if(wrap) { wrap.classList.add('open'); wrap.querySelector('button').setAttribute('aria-expanded','true'); wrap.querySelector('select')?.focus(); }
     else dialog('Reading settings',renderPreferences);
+  }
+  function renderProfileSettings(container) {
+    container.replaceChildren();
+    renderPreferences(container);
+    const section = node('section','home-style-settings');
+    section.append(node('h3','','Home page style'));
+    const group = node('fieldset','home-style-segments');
+    group.append(node('legend','qol-sr-only','Home page style'));
+    for(const [value,label] of [['subjects','Subjects & classes'],['tools','Tools']]) {
+      const option = node('label','home-style-option');
+      const radio = node('input'); radio.type = 'radio'; radio.name = 'homeStyle'; radio.value = value; radio.dataset.qolPreference = 'homeStyle';
+      radio.checked = (read('preferences',{}).homeStyle === 'tools' ? 'tools' : 'subjects') === value;
+      radio.onchange = () => { if(radio.checked) { write('preferences',{...read('preferences',{}),homeStyle:value}); applyPreferences(); } };
+      option.append(radio,node('span','',label)); group.append(option);
+    }
+    section.append(group);
+    const preview = node('div','home-style-preview'); preview.setAttribute('aria-label','Home page layout preview');
+    function updatePreview() {
+      const tools = read('preferences',{}).homeStyle === 'tools';
+      preview.classList.toggle('preview-tools',tools);
+      preview.replaceChildren();
+      preview.append(node('div','preview-header','StudyBase'));
+      const main = node('div','preview-main'), aside = node('div','preview-sidebar');
+      main.append(node('strong','',tools?'Tools':'Subjects & classes'));
+      const cards = node('div','preview-cards');
+      for(const label of tools?['Graphing','Quiz','Analyser']:['Subject','Subject','Class']) cards.append(node('span','',label));
+      main.append(cards,node('div','preview-secondary',tools?'Subjects & classes · Calendar':'Calendar'));
+      aside.append(node('span','','Continue studying'),node('span','',tools?'Recently added':'Tools'),node('span','','Units overview'));
+      preview.append(main,aside);
+    }
+    // The section is rebuilt with profile editing; no persistent window listener.
+    group.addEventListener('change',updatePreview); updatePreview();
+    section.append(preview,node('p','qol-muted','A rough layout preview. Your available tools, subjects and classes stay the same.'));
+    container.append(section);
   }
   function recordActivity(name, subject, tool, href) {
     const url = new URL(href,root); if(url.origin !== location.origin) return;
@@ -276,13 +317,13 @@
       document.addEventListener('click',e => { if(!settingsWrap.contains(e.target)) { settingsWrap.classList.remove('open'); settings.setAttribute('aria-expanded','false'); } });
       settingsWrap.addEventListener('keydown',e => { if(e.key === 'Escape') { settingsWrap.classList.remove('open'); settings.setAttribute('aria-expanded','false'); settings.focus(); } });
       settings.setAttribute('aria-label','Settings');
-      const settingsIcon = node('img','settings-icon',''); settingsIcon.src = new URL('icons/settings.svg',root).href; settingsIcon.alt = ''; settingsIcon.width = 16; settingsIcon.height = 16; settings.append(settingsIcon);
+      const settingsIcon = node('span','settings-icon',''); settingsIcon.innerHTML = SBIcons.html('settings'); settings.append(settingsIcon);
       const wrap = profileButton?.closest('.hdr-profile-wrap'); if(wrap) wrap.after(settingsWrap); else header.append(settingsWrap);
     }
     document.querySelectorAll('button').forEach(el => { if(!el.getAttribute('aria-label') && !el.textContent.trim()) el.setAttribute('aria-label',el.title || el.dataset.tip || 'Action'); });
     continueCard();
   }
-  window.SBQoL = { read, write, getJevApiKey, node, button, dialog, notify, linkFor, root, record, recordActivity, removeActivity, refreshContinue:continueCard, search, preferences, catalogs, motionEnabled, applyPreferences };
+  window.SBQoL = { read, write, getJevApiKey, node, button, dialog, notify, linkFor, root, record, recordActivity, removeActivity, refreshContinue:continueCard, search, preferences, renderProfileSettings, catalogs, motionEnabled, applyPreferences };
   window.openHubStat = function(kind){
     const subjects = typeof hubSubjects === 'function' ? hubSubjects() : catalogs().filter(s => !s.isClass);
     dialog({topics:'Topics',units:'Units',subjects:'Subjects'}[kind] || 'Overview',content => {

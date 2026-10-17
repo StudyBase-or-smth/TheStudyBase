@@ -395,16 +395,15 @@ function applyStoredTheme(){
 }
 
 function currentDarkIcon(){
-  if(typeof window.getHdrDarkIcon === 'function') return window.getHdrDarkIcon();
-  return document.body.classList.contains('dark') ? '☀️' : '🌙';
+  return SBIcons.html(document.body.classList.contains('dark') ? 'sun' : 'moon');
 }
 
 function syncDarkButtons(){
   if(!document.body) return;
   const icon = currentDarkIcon();
-  document.querySelectorAll('.pt-dark').forEach(b => { b.textContent = icon; });
+  document.querySelectorAll('.pt-dark').forEach(b => { b.innerHTML = icon; });
   const legacy = document.getElementById('darkToggle');
-  if(legacy) legacy.textContent = icon;
+  if(legacy) { legacy.innerHTML = icon; legacy.setAttribute('aria-label','Toggle dark mode'); }
 }
 
 function toggleDark(){

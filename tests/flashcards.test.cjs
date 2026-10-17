@@ -17,8 +17,9 @@ test('FSRS scheduling and personal sync merge preserve independent progress',()=
  const merged=core.merge({cards:{a:{hidden:true,updatedAt:3}},days:{today:['a']}},{cards:{a:{hidden:false,updatedAt:2},b:{updatedAt:4}},days:{today:['a','b']}});
  assert.equal(merged.cards.a.hidden,true);assert.deepEqual(merged.days.today,['a','b']);assert.ok(merged.cards.b);
 });
-function fixture({storage,account='guest',isClass=false,topics=[topic],url,load,push,offline=false}={}){
+function fixture({storage,account='guest',isClass=false,topics=[topic],url,load,push,offline=false,random=()=>.999}={}){
  const dom=new JSDOM('<a id="accentBar"></a><a id="hdrSubjectLink"></a><div id="hdrEmoji"></div><main id="fcWrap"></main>',{url:url||'https://studybase.example/subject/flashcards.html#phy',runScripts:'outside-only'}),w=dom.window;
+ w.Math.random=random;
  const subject={id:'phy',name:'Physics',...(isClass?{subjectId:'p'}:{})};w.subjectsData={subjects:isClass?[]:[subject]};w.classesData={subjects:isClass?[subject]:[]};w.isGuest=account==='guest';w.__sbAuth={currentUser:account==='guest'?null:{uid:account}};w.userRole='student';
  w.normalizeTopicList=x=>x;w.normalizeUnits=x=>x;w.sbMemGet=(key)=>key.endsWith('_topics')?topics:[];w.sbLoadKey=load||async function(){return null;};w.sbPushToSync=push||async function(){};
  Object.defineProperty(w.navigator,'onLine',{get:()=>!offline});
@@ -31,7 +32,7 @@ function fixture({storage,account='guest',isClass=false,topics=[topic],url,load,
 }
 
 test('scheduling settings persist per user and TSV file import creates safe new cards with tags',async()=>{
- const {dom,w,id,state}=fixture({account:'reader',topics:[]});await settle();
+ const {dom,w,id,state}=fixture({account:'reader',topics:[],url:'https://studybase.example/subject/flashcards.html?notification=1#phy'});await settle();
  id('fsrsSettings').click();id('fsrsRetention').value='0.95';id('fsrsNewLimit').value='1';id('fsrsSettingsForm').dispatchEvent(new w.Event('submit',{cancelable:true}));
  assert.equal(state().settings.desiredRetention,.95);assert.equal(state().settings.newCardsPerDay,1);
  id('importStudy').click();
@@ -59,7 +60,7 @@ test('offline reviews survive reopening and an acknowledgement lost after upload
  app.dom.window.close();
 });
 test('study reveals, rates, advances to summary, resumes and counts distinct daily cards',async()=>{
- const {dom,w,id,state}=fixture();await settle();assert.match(id('fcWrap').textContent,/Forces/);
+ const {dom,w,id,state}=fixture({url:'https://studybase.example/subject/flashcards.html?notification=1#phy'});await settle();assert.match(id('fcWrap').textContent,/Forces/);
  assert.equal(id('studyMode').value,'due');assert.equal(id('studyLimit').value,'0');
  assert.ok(id('studyMode').closest('#studyMore'));assert.ok(id('hideStudyCard').closest('#studyMore'));assert.equal(id('studyMore').open,false);
  id('studyMore').querySelector('summary').dispatchEvent(new w.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));assert.equal(w.document.querySelector('.study-answer'),null);
@@ -69,7 +70,7 @@ test('study reveals, rates, advances to summary, resumes and counts distinct dai
  assert.match(id('fcWrap').textContent,/Unit of force/);assert.equal(id('studyAnswer').closest('details').open,false);id('studyAnswer').closest('details').querySelector('summary').click();id('studyAnswer').click();assert.equal(w.document.querySelector('.study-answer'),null);id('studyAnswer').value='N';id('studyPrimary').click();assert.match(id('fcWrap').textContent,/Matches an accepted/);
  id('selfCorrect').click();assert.match(id('fcWrap').textContent,/Self-assessed as correct/);w.document.querySelector('[data-rating=good]').click();id('studyPrimary').click();w.document.querySelector('[data-rating=good]').click();
  assert.match(id('fcWrap').textContent,/No cards due now/);assert.equal(Object.values(state().days)[0].length,3);assert.equal(state().cards['phy:t1:base'].lastRating,'good');
- const copy=state();dom.window.close();const next=fixture({storage:copy});await settle();assert.match(next.id('fcWrap').textContent,/No cards due now/);next.dom.window.close();
+ const copy=state();dom.window.close();const next=fixture({storage:copy,url:'https://studybase.example/subject/flashcards.html?notification=1#phy'});await settle();assert.match(next.id('fcWrap').textContent,/No cards due now/);next.dom.window.close();
 });
 test('hiding is personal, undo works, and last hidden card can be restored from management',async()=>{
  const {dom,w,id,state}=fixture({topics:[{...topic,flashcardEnabled:false,flashcardQA:[topic.flashcardQA[0]]}]});await settle();id('hideStudyCard').click();assert.equal(state().cards['phy:t1:qa:a'].hidden,true);assert.equal(topic.flashcardQA.length,2);
@@ -86,6 +87,17 @@ test('resuming after authored card removal keeps the correct next card',async()=
  storage.sessions.settings_phy={mode:'all',unit:'all',limit:0,controlsVersion:3};
  const {dom,id}=fixture({storage});await settle();assert.match(id('fcWrap').querySelector('h2').textContent,/Unit of force/);dom.window.close();
 });
+test('normal visits default to shuffled all cards and notifications default to due plus new',async t=>{
+ const storage=core.merge();storage.sessions.settings_phy={mode:'due',unit:'all',limit:0,controlsVersion:3};
+ const practice=fixture({storage,random:()=>0});t.after(()=>practice.dom.window.close());await settle();
+ assert.equal(practice.id('studyMode').value,'all');
+ assert.match(practice.id('fcWrap').querySelector('h2').textContent,/Unit of force/);
+ assert.deepEqual(practice.state().sessions['phy|all||all|0'].order,['phy:t1:qa:a','phy:t1:qa:b','phy:t1:base']);
+ storage.sessions.settings_phy.mode='all';
+ const reminder=fixture({storage,url:'https://studybase.example/subject/flashcards.html?notification=1#phy'});t.after(()=>reminder.dom.window.close());await settle();
+ assert.equal(reminder.id('studyMode').value,'due');assert.match(reminder.id('fcWrap').querySelector('h2').textContent,/Forces/);
+});
+
 test('topic editor preserves IDs, aliases and inclusion through delete/undo and serialization',()=>{
  const dom=new JSDOM('<input id="fName" value="Forces"><textarea id="fDefinition">A push</textarea><div id="fqaList"></div>',{url:'https://studybase.example/subject/subject.html#phy',runScripts:'outside-only'}),w=dom.window;
  w.eval(read('flashcards-core.js'));w.eval(read('sync-config.generated.js')+'\n'+read('sync-config.js'));w.eval(read('subject/flashcards-editor.js'));w.initFlashcardEditor(topic);w.addFqaRow('Unit?','Newton',{id:'stable',enabled:false,acceptedAnswers:['N']});

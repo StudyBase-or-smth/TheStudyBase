@@ -23,6 +23,7 @@ function fixture(url='https://studybase.example/graphing.html',storage,mobile=fa
   w.TextEncoder=TextEncoder;w.TextDecoder=TextDecoder;w.confirm=()=>true;
   w.matchMedia=()=>({matches:mobile,addEventListener(){}});
   w.isGuest=true;
+  w.eval(fs.readFileSync(require.resolve('../ui-icons.js'),'utf8'));
   w.eval(fs.readFileSync(require.resolve('../profile-store.js'),'utf8'));
   w.eval(fs.readFileSync(require.resolve('../profile-tooltip.js'),'utf8'));
   if(storage)w.localStorage.setItem('studybase_graphing_projects_v1',storage);
